@@ -8,7 +8,7 @@ namespace KRG::Animation::Graph
     class Tools_ControlParameterNode final : public Tools_GraphNode
     {
         KRG_REGISTER_TYPE( Tools_ControlParameterNode );
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
 
     public:
 
@@ -36,7 +36,7 @@ namespace KRG::Animation::Graph
     class Tools_ControlParameterReferenceNode final : public Tools_GraphNode
     {
         KRG_REGISTER_TYPE( Tools_ControlParameterReferenceNode );
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
 
     public:
 
@@ -67,7 +67,7 @@ namespace KRG::Animation::Graph
     class Tools_VirtualParameterNode final : public Tools_GraphNode
     {
         KRG_REGISTER_TYPE( Tools_VirtualParameterNode );
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
 
     public:
 
@@ -94,7 +94,7 @@ namespace KRG::Animation::Graph
     class Tools_VirtualParameterReferenceNode final : public Tools_GraphNode
     {
         KRG_REGISTER_TYPE( Tools_VirtualParameterReferenceNode );
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
 
     public:
 

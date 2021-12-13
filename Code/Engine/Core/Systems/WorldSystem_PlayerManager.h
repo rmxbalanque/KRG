@@ -55,7 +55,7 @@ namespace KRG
     public:
 
         KRG_REGISTER_TYPE( PlayerManager );
-        KRG_ENTITY_WORLD_SYSTEM( PlayerManager, RequiresUpdate( UpdateStage::FrameStart, UpdatePriority::Highest ) );
+        KRG_ENTITY_WORLD_SYSTEM( PlayerManager, RequiresUpdate( UpdateStage::FrameStart, UpdatePriority::Highest ), RequiresUpdate( UpdateStage::Paused ) );
 
         // Camera
         //-------------------------------------------------------------------------

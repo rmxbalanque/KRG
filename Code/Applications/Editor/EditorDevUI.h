@@ -6,6 +6,9 @@
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
+
+#include "Tools/Core/Resource/ResourceFilePicker.h"
+
 //-------------------------------------------------------------------------
 
 namespace KRG
@@ -27,8 +30,8 @@ namespace KRG
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
-        virtual void FrameStartUpdate( UpdateContext const& context ) override final;
-        virtual void FrameEndUpdate( UpdateContext const& context ) override final;
+        virtual void StartFrame( UpdateContext const& context ) override final;
+        virtual void EndFrame( UpdateContext const& context ) override final;
 
     private:
 
@@ -46,8 +49,8 @@ namespace KRG
         ImGuiWindowClass                    m_editorWindowClass;
         TVector<ModalPopupMessage>          m_modalPopups;
 
-        Resource::ResourceDatabase          m_db;
         ResourceBrowser*                    m_pResourceBrowser = nullptr;
+        EventBindingID                      m_resourceDatabaseUpdateEventBindingID;
         float                               m_dataBrowserViewWidth = 150;
 
         SystemLogView                       m_systemLogView;

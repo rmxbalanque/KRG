@@ -5,6 +5,7 @@
 #include "Tools/Core/ThirdParty/KRG_RapidJson.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Types/IntegralTypes.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -40,6 +41,15 @@ namespace KRG::GraphEditor
         // Called just before we destroy a node
         virtual void Shutdown();
 
+        // Undo / Redo
+        //-------------------------------------------------------------------------
+
+        // Called whenever an operation starts that will modify the graph state - allowing clients to serialize the before state
+        void BeginModification();
+
+        // Called whenever an operation ends that has modified the graph state - allowing clients to serialize the after state
+        void EndModification();
+
         // Node Info
         //-------------------------------------------------------------------------
 
@@ -67,7 +77,7 @@ namespace KRG::GraphEditor
         KRG_FORCE_INLINE Float2 const& GetCanvasPosition() const { return m_canvasPosition; }
         KRG_FORCE_INLINE ImVec2 const& GetSize() const { return m_size; }
 
-        inline void SetCanvasPosition( ImVec2 const& newPosition ) { m_canvasPosition = newPosition; }
+        void SetCanvasPosition( ImVec2 const& newPosition );
 
         // Get node highlight color
         virtual ImColor GetNodeColor() const { return VisualSettings::s_genericNodeTitleColor; }
@@ -149,6 +159,14 @@ namespace KRG::GraphEditor
 
         static BaseGraph* CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseNode* pParentNode  );
 
+        static inline TMultiUserEvent<BaseGraph*> OnBeginModification() { return s_onBeginModification; }
+        static inline TMultiUserEvent<BaseGraph*> OnEndModification() { return s_onEndModification; }
+
+    private:
+
+        static TMultiUserEventInternal<BaseGraph*>                 s_onBeginModification;
+        static TMultiUserEventInternal<BaseGraph*>                 s_onEndModification;
+
     public:
 
         BaseGraph() = default;
@@ -166,8 +184,19 @@ namespace KRG::GraphEditor
         // Called whenever we change the view to this graph
         virtual void OnShowGraph() {}
 
+        // Undo/Redo
+        //-------------------------------------------------------------------------
+
+        // Called whenever an operation starts that will modify the graph state - allowing clients to serialize the before state
+        void BeginModification();
+
+        // Called whenever an operation ends that has modified the graph state - allowing clients to serialize the after state
+        void EndModification();
+
         // Graph
         //-------------------------------------------------------------------------
+
+        inline UUID const& GetID() const { return m_ID; }
 
         // Get the display title for this graph
         virtual char const* GetTitle() const { return HasParentNode() ? m_pParentNode->GetDisplayName() : "Root Graph"; }
@@ -176,9 +205,12 @@ namespace KRG::GraphEditor
         void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue );
         void Serialize( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const;
 
+        // Root Graph
+        inline bool IsRootGraph() const { return !HasParentNode(); }
+        BaseGraph* GetRootGraph();
+
         // Parent Node
         inline bool HasParentNode() const { return m_pParentNode != nullptr; }
-        inline bool IsRootGraph() const { return !HasParentNode(); }
         inline BaseNode* GetParentNode() { return m_pParentNode; }
         inline BaseNode const* GetParentNode() const { return m_pParentNode; }
 
@@ -196,6 +228,43 @@ namespace KRG::GraphEditor
 
         // Helpers
         //-------------------------------------------------------------------------
+
+        // Find a specific node in the graph
+        inline BaseNode* FindNode( UUID const& nodeID ) const
+        {
+            for ( auto pNode : m_nodes )
+            {
+                if ( pNode->GetID() == nodeID )
+                {
+                    return pNode;
+                }
+            }
+
+            return nullptr;
+        }
+
+        // Find a specific primary graph
+        BaseGraph* FindPrimaryGraph( UUID const& graphID )
+        {
+            if ( m_ID == graphID )
+            {
+                return this;
+            }
+
+            for ( auto pNode : m_nodes )
+            {
+                if ( pNode->HasChildGraph() )
+                {
+                    auto pFoundGraph = pNode->GetChildGraph()->FindPrimaryGraph( graphID );
+                    if ( pFoundGraph != nullptr )
+                    {
+                        return pFoundGraph;
+                    }
+                }
+            }
+
+            return nullptr;
+        }
 
         // Find all nodes of a specific type in this graph. Note: doesnt clear the results array so ensure you feed in an empty array
         void FindAllNodesOfType( TypeSystem::TypeID typeID, TInlineVector<BaseNode*, 20>& results, SearchMode mode = SearchMode::Localized, SearchTypeMatch typeMatch = SearchTypeMatch::Exact ) const;
@@ -241,21 +310,9 @@ namespace KRG::GraphEditor
             KRG_ASSERT( pNode != nullptr && pNode->m_ID.IsValid() );
             KRG_ASSERT( FindNode( pNode->m_ID ) == nullptr );
             KRG_ASSERT( pNode->m_pParentGraph == this );
+            BeginModification();
             m_nodes.emplace_back( pNode );
-        }
-
-        // Find a specific node in the graph
-        inline BaseNode* FindNode( UUID const& nodeID ) const
-        {
-            for ( auto pNode : m_nodes )
-            {
-                if ( pNode->GetID() == nodeID )
-                {
-                    return pNode;
-                }
-            }
-
-            return nullptr;
+            EndModification();
         }
 
         // Called just before we destroy a node, allows derived graphs to handle the event
@@ -279,5 +336,50 @@ namespace KRG::GraphEditor
     private:
 
         BaseNode*                               m_pParentNode = nullptr; // Private so that we can enforce usage
+        int32                                   m_beginModificationCallCount = 0;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class [[nodiscard]] ScopedNodeModification
+    {
+    public:
+
+        ScopedNodeModification( BaseNode* pNode )
+            : m_pNode( pNode )
+        {
+            KRG_ASSERT( pNode != nullptr );
+            m_pNode->BeginModification();
+        }
+
+        ~ScopedNodeModification()
+        {
+            m_pNode->EndModification();
+        }
+
+    private:
+
+        BaseNode*  m_pNode = nullptr;
+    };
+
+    class [[nodiscard]] ScopedGraphModification
+    {
+    public:
+
+        ScopedGraphModification( BaseGraph* pGraph )
+            : m_pGraph( pGraph )
+        {
+            KRG_ASSERT( pGraph != nullptr );
+            m_pGraph->BeginModification();
+        }
+
+        ~ScopedGraphModification()
+        {
+            m_pGraph->EndModification();
+        }
+
+    private:
+
+        BaseGraph*  m_pGraph = nullptr;
     };
 }

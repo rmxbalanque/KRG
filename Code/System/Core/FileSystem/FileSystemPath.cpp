@@ -212,7 +212,7 @@ namespace KRG::FileSystem
         // If we found a parent, create the substring for it
         if ( lastDelimiterIdx != String::npos )
         {
-            parentPath = Path( m_fullpath.substr( 0, lastDelimiterIdx + 1 ) );;
+            parentPath = Path( m_fullpath.substr( 0, lastDelimiterIdx + 1 ) );
         }
 
         return parentPath;

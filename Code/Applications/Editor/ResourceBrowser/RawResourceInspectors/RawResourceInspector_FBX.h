@@ -44,7 +44,7 @@ namespace KRG::Resource
 
     public:
 
-        ResourceInspectorFBX( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& filePath );
+        ResourceInspectorFBX( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, FileSystem::Path const& filePath );
 
     private:
 

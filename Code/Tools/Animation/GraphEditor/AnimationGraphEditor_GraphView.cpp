@@ -1,4 +1,5 @@
 #include "AnimationGraphEditor_GraphView.h"
+#include "ToolsGraph/AnimationToolsGraph_Definition.h"
 #include "Tools/Animation/GraphEditor/ToolsGraph/Nodes/AnimationToolsNode_State.h"
 #include "Tools/Animation/GraphEditor/ToolsGraph/Nodes/AnimationToolsNode_Transitions.h"
 
@@ -9,21 +10,23 @@ namespace KRG::Animation::Graph
     void GraphView::FlowGraphView::DrawContextMenuForGraph( ImVec2 const& mouseCanvasPos )
     {
         KRG_ASSERT( m_pGraph != nullptr );
-        auto pToolsGraph = static_cast<FlowGraph*>( m_pGraph );
+
+        auto pGraphDefinition = m_parentGraphView.GetGraphDefinition();
+        auto pToolsFlowGraph = static_cast<FlowGraph*>( m_pGraph );
 
         //-------------------------------------------------------------------------
 
         if ( ImGui::BeginMenu( "Control Parameters" ) )
         {
-            TVector<Tools_ControlParameterNode*> sortedControlParameters = m_graphModel.GetGraph()->GetControlParameters();
+            TVector<Tools_ControlParameterNode*> sortedControlParameters = pGraphDefinition->GetControlParameters();
             eastl::sort( sortedControlParameters.begin(), sortedControlParameters.end(), [] ( Tools_ControlParameterNode* const& pA, Tools_ControlParameterNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
 
-            TVector<Tools_VirtualParameterNode*> sortedVirtualParameters = m_graphModel.GetGraph()->GetVirtualParameters();
+            TVector<Tools_VirtualParameterNode*> sortedVirtualParameters = pGraphDefinition->GetVirtualParameters();
             eastl::sort( sortedVirtualParameters.begin(), sortedVirtualParameters.end(), [] ( Tools_VirtualParameterNode* const& pA, Tools_VirtualParameterNode* const& pB ) { return strcmp( pA->GetDisplayName(), pB->GetDisplayName() ) < 0; } );
 
             //-------------------------------------------------------------------------
 
-            if ( m_graphModel.GetGraph()->GetControlParameters().empty() && m_graphModel.GetGraph()->GetVirtualParameters().empty() )
+            if ( pGraphDefinition->GetControlParameters().empty() && pGraphDefinition->GetVirtualParameters().empty() )
             {
                 ImGui::Text( "No Parameters" );
             }
@@ -34,7 +37,8 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetNodeColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        auto pNode = pToolsGraph->CreateNode<Tools_ControlParameterReferenceNode>( pParameter );
+                        GraphEditor::ScopedGraphModification sgm( m_pGraph );
+                        auto pNode = pToolsFlowGraph->CreateNode<Tools_ControlParameterReferenceNode>( pParameter );
                         pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
@@ -50,7 +54,8 @@ namespace KRG::Animation::Graph
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pParameter->GetNodeColor() );
                     if ( ImGui::MenuItem( pParameter->GetDisplayName() ) )
                     {
-                        auto pNode = pToolsGraph->CreateNode<Tools_VirtualParameterReferenceNode>( pParameter );
+                        GraphEditor::ScopedGraphModification sgm( m_pGraph );
+                        auto pNode = pToolsFlowGraph->CreateNode<Tools_VirtualParameterReferenceNode>( pParameter );
                         pNode->SetCanvasPosition( mouseCanvasPos );
                     }
                     ImGui::PopStyleColor();
@@ -66,7 +71,7 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        DrawNodeTypeCategoryContextMenu( mouseCanvasPos, pToolsGraph, m_graphModel.GetNodeTypes() );
+        DrawNodeTypeCategoryContextMenu( mouseCanvasPos, pToolsFlowGraph, m_parentGraphView.GetNodeTypes() );
     }
 
     void GraphView::FlowGraphView::DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category )
@@ -91,6 +96,7 @@ namespace KRG::Animation::Graph
             {
                 if ( ImGui::MenuItem( item.m_name.c_str() ) )
                 {
+                    GraphEditor::ScopedGraphModification sgm( m_pGraph );
                     auto pToolsGraph = static_cast<FlowGraph*>( m_pGraph );
                     auto pNode = pToolsGraph->CreateNode( item.m_data );
                     pNode->SetCanvasPosition( mouseCanvasPos );
@@ -110,7 +116,7 @@ namespace KRG::Animation::Graph
         auto pParentNode = pGraph->GetParentNode();
         if ( pParentNode != nullptr )
         {
-            m_graphModel.NavigateTo( pParentNode->GetParentGraph() );
+            m_parentGraphView.NavigateTo( pParentNode->GetParentGraph() );
         }
     }
 
@@ -120,7 +126,7 @@ namespace KRG::Animation::Graph
 
         if ( pNode->HasChildGraph() )
         {
-            m_graphModel.NavigateTo( pNode->GetChildGraph() );
+            m_parentGraphView.NavigateTo( pNode->GetChildGraph() );
         }
     }
 
@@ -161,7 +167,7 @@ namespace KRG::Animation::Graph
         auto pParentNode = pGraph->GetParentNode();
         if ( pParentNode != nullptr )
         {
-            m_graphModel.NavigateTo( pParentNode->GetParentGraph() );
+            m_parentGraphView.NavigateTo( pParentNode->GetParentGraph() );
         }
     }
 
@@ -169,7 +175,7 @@ namespace KRG::Animation::Graph
     {
         if ( pNode->HasChildGraph() )
         {
-            m_graphModel.NavigateTo( pNode->GetChildGraph() );
+            m_parentGraphView.NavigateTo( pNode->GetChildGraph() );
         }
     }
 
@@ -202,41 +208,129 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    GraphView::GraphView( GraphEditorModel& graphModel )
-        : m_graphModel( graphModel )
-        , m_primaryFlowGraphView( graphModel )
-        , m_primaryStateMachineGraphView( graphModel )
-        , m_secondaryFlowGraphView( graphModel )
-    {}
-
-    void GraphView::UpdatePrimaryViewState()
+    GraphView::GraphView( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphToolsDefinition* pGraphDefinition )
+        : m_pGraphDefinition( pGraphDefinition )
+        , m_primaryFlowGraphView( *this )
+        , m_primaryStateMachineGraphView( *this )
+        , m_secondaryFlowGraphView( *this )
     {
-        if ( m_graphModel.GetGraph()->IsValid() )
+        KRG_ASSERT( pGraphDefinition != nullptr );
+
+        // Create DB of all node types
+        //-------------------------------------------------------------------------
+
+        m_registeredNodeTypes = typeRegistry.GetAllDerivedTypes( Tools_GraphNode::GetStaticTypeID(), false, false );
+
+        for ( auto pNodeType : m_registeredNodeTypes )
         {
-            auto pDesiredViewedGraph = m_graphModel.GetCurrentlyViewedGraph();
-            if ( auto pSM = TryCast<GraphEditor::StateMachineGraph>( pDesiredViewedGraph ) )
+            auto pDefaultNode = Cast<Tools_GraphNode const>( pNodeType->m_pTypeHelper->GetDefaultTypeInstancePtr() );
+            if ( pDefaultNode->IsUserCreatable() )
             {
-                if ( m_primaryStateMachineGraphView.GetViewedGraph() != pDesiredViewedGraph )
+                m_categorizedNodeTypes.AddItem( pDefaultNode->GetCategory(), pDefaultNode->GetTypeName(), pNodeType );
+            }
+        }
+
+        // Show Root Graph
+        //-------------------------------------------------------------------------
+
+        NavigateTo( pGraphDefinition->GetRootGraph() );
+    }
+
+    TVector<GraphEditor::BaseGraphView::SelectedNode> const& GraphView::GetSelectedNodes() const
+    {
+        static TVector<GraphEditor::BaseGraphView::SelectedNode> const emptySelection;
+
+        if ( m_pFocusedGraphView != nullptr )
+        {
+            return m_pFocusedGraphView->GetSelectedNodes();
+        }
+
+        return emptySelection;
+    }
+
+    void GraphView::OnUndoRedo()
+    {
+        auto pFoundGraph = m_pGraphDefinition->GetRootGraph()->FindPrimaryGraph( m_primaryViewGraphID );
+        if ( pFoundGraph != nullptr )
+        {
+            if ( auto pSM = TryCast<GraphEditor::StateMachineGraph>( pFoundGraph ) )
+            {
+                if ( m_primaryStateMachineGraphView.GetViewedGraph() != pFoundGraph )
                 {
                     m_primaryFlowGraphView.SetGraphToView( nullptr );
-                    m_primaryStateMachineGraphView.SetGraphToView( pSM );
+                    m_primaryStateMachineGraphView.SetGraphToView( pSM, true );
                     m_pPrimaryGraphView = &m_primaryStateMachineGraphView;
                 }
             }
-            else // Show the flow graph
+            // Show the flow graph
+            else if ( auto pFlowGraph = Cast<GraphEditor::FlowGraph>( pFoundGraph ) )
             {
-                auto pFlowGraph = Cast<GraphEditor::FlowGraph>( pDesiredViewedGraph );
-                if ( m_primaryFlowGraphView.GetViewedGraph() != pDesiredViewedGraph )
+                if ( m_primaryFlowGraphView.GetViewedGraph() != pFoundGraph )
                 {
                     m_primaryStateMachineGraphView.SetGraphToView( nullptr );
-                    m_primaryFlowGraphView.SetGraphToView( pFlowGraph );
+                    m_primaryFlowGraphView.SetGraphToView( pFlowGraph, true );
                     m_pPrimaryGraphView = &m_primaryFlowGraphView;
                 }
+            }
+            else
+            {
+                KRG_UNREACHABLE_CODE();
+            }
+
+            UpdateSecondaryViewState();
+        }
+        else
+        {
+            NavigateTo( m_pGraphDefinition->GetRootGraph() );
+            m_secondaryFlowGraphView.SetGraphToView( nullptr );
+        }
+    }
+
+    void GraphView::NavigateTo( GraphEditor::BaseNode* pNode )
+    {
+        KRG_ASSERT( pNode != nullptr );
+        auto pParentGraph = pNode->GetParentGraph();
+        KRG_ASSERT( pParentGraph != nullptr );
+        NavigateTo( pParentGraph );
+
+        // Select node
+        if ( m_pPrimaryGraphView->GetViewedGraph()->FindNode( pNode->GetID() ) )
+        {
+            m_pPrimaryGraphView->SelectNode( pNode );
+        }
+        else if ( m_secondaryFlowGraphView.GetViewedGraph() != nullptr && m_secondaryFlowGraphView.GetViewedGraph()->FindNode( pNode->GetID() ) )
+        {
+            m_secondaryFlowGraphView.SelectNode( pNode );
+        }
+    }
+
+    void GraphView::NavigateTo( GraphEditor::BaseGraph* pGraph )
+    {
+        // Show the state machine graph
+        if ( auto pSM = TryCast<GraphEditor::StateMachineGraph>( pGraph ) )
+        {
+            if ( m_primaryStateMachineGraphView.GetViewedGraph() != pGraph )
+            {
+                m_primaryFlowGraphView.SetGraphToView( nullptr );
+                m_primaryStateMachineGraphView.SetGraphToView( pSM );
+                m_pPrimaryGraphView = &m_primaryStateMachineGraphView;
+                m_primaryViewGraphID = pGraph->GetID();
+            }
+        }
+        // Show the flow graph
+        else if( auto pFlowGraph = Cast<GraphEditor::FlowGraph>( pGraph ) )
+        {
+            if ( m_primaryFlowGraphView.GetViewedGraph() != pGraph )
+            {
+                m_primaryStateMachineGraphView.SetGraphToView( nullptr );
+                m_primaryFlowGraphView.SetGraphToView( pFlowGraph );
+                m_pPrimaryGraphView = &m_primaryFlowGraphView;
+                m_primaryViewGraphID = pGraph->GetID();
             }
         }
         else
         {
-            m_pPrimaryGraphView = &m_primaryFlowGraphView;
+            KRG_UNREACHABLE_CODE();
         }
     }
 
@@ -244,8 +338,8 @@ namespace KRG::Animation::Graph
     {
         if ( m_pPrimaryGraphView->HasSelectedNodes() )
         {
-            auto const pLastSelectedNode = m_pPrimaryGraphView->GetSelectedNodes().back();
-            if ( auto pSecondaryGraph = TryCast<GraphEditor::FlowGraph>( pLastSelectedNode->GetSecondaryGraph() ) )
+            auto const& lastSelectedNode = m_pPrimaryGraphView->GetSelectedNodes().back();
+            if ( auto pSecondaryGraph = TryCast<GraphEditor::FlowGraph>( lastSelectedNode.m_pNode->GetSecondaryGraph() ) )
             {
                 m_secondaryFlowGraphView.SetGraphToView( pSecondaryGraph );
             }
@@ -260,18 +354,19 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void GraphView::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName )
+    void GraphView::UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
+        bool isGraphViewFocused = false;
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( pWindowName ) )
         {
+            isGraphViewFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows );
+
             ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
 
             // Primary View
             //-------------------------------------------------------------------------
-
-            UpdatePrimaryViewState();
 
             auto pPrimaryGraph = m_pPrimaryGraphView->GetViewedGraph();
             auto pParentNode = pPrimaryGraph->GetParentNode();
@@ -285,7 +380,7 @@ namespace KRG::Animation::Graph
                 ImGui::Text( "root" );
             }
 
-            m_pPrimaryGraphView->Draw( m_primaryGraphViewHeight, m_graphModel.GetDebugContext() );
+            m_pPrimaryGraphView->UpdateAndDraw( m_primaryGraphViewHeight, pDebugContext );
 
             // Splitter
             //-------------------------------------------------------------------------
@@ -313,7 +408,7 @@ namespace KRG::Animation::Graph
             //-------------------------------------------------------------------------
 
             UpdateSecondaryViewState();
-            m_secondaryFlowGraphView.Draw( 0.0f, m_graphModel.GetDebugContext() );
+            m_secondaryFlowGraphView.UpdateAndDraw( 0.0f, pDebugContext );
 
             //-------------------------------------------------------------------------
 
@@ -355,18 +450,12 @@ namespace KRG::Animation::Graph
         {
             m_pFocusedGraphView = pCurrentlyFocusedGraphView;
         }
+    }
 
-        // Update selection (if necessary)
-        //-------------------------------------------------------------------------
-
-        if ( pCurrentlyFocusedGraphView != nullptr )
-        {
-            m_graphModel.ClearSelection();
-
-            for ( auto pNode : pCurrentlyFocusedGraphView->GetSelectedNodes() )
-            {
-                m_graphModel.AddToSelection( pNode );
-            }
-        }
+    void GraphView::ClearSelection()
+    {
+        m_primaryFlowGraphView.ClearSelection();
+        m_primaryStateMachineGraphView.ClearSelection();
+        m_secondaryFlowGraphView.ClearSelection();
     }
 }

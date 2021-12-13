@@ -18,7 +18,7 @@ namespace KRG::Animation::Graph
     class ToolsGraphCompilationContext : public AnimationGraphDefinition
     {
         friend class AnimationGraphCompiler;
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
 
     public:
 

@@ -109,7 +109,6 @@ namespace KRG::Physics
     void PhysicsSystem::Shutdown()
     {
         KRG_ASSERT( m_pFoundation != nullptr && m_pPhysics != nullptr && m_pDispatcher != nullptr );
-        KRG_ASSERT( m_scenes.empty() );
 
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_pPVD->isConnected() )
@@ -151,6 +150,7 @@ namespace KRG::Physics
         sceneDesc.gravity = ToPx( Constants::s_gravity );
         sceneDesc.cpuDispatcher = m_pDispatcher;
         sceneDesc.filterShader = SimulationFilter::Shader;
+        sceneDesc.flags = PxSceneFlag::eENABLE_CCD | PxSceneFlag::eREQUIRE_RW_LOCK;
         auto pScene = m_pPhysics->createScene( sceneDesc );
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -160,22 +160,7 @@ namespace KRG::Physics
         pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
         #endif
 
-        m_scenes.emplace_back( pScene );
         return pScene;
-    }
-
-    void PhysicsSystem::DestroyScene( physx::PxScene*& pScene )
-    {
-        KRG_ASSERT( pScene != nullptr );
-
-        // Remove from scene list
-        auto foundIter = eastl::find( m_scenes.begin(), m_scenes.end(), pScene );
-        KRG_ASSERT( foundIter != m_scenes.end() );
-        m_scenes.erase( foundIter );
-
-        // Destroy scene
-        pScene->release();
-        pScene = nullptr;
     }
 
     //-------------------------------------------------------------------------
@@ -197,21 +182,6 @@ namespace KRG::Physics
 
     void PhysicsSystem::Update( UpdateContext& ctx )
     {
-        for ( auto pScene : m_scenes )
-        {
-            {
-                KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
-                pScene->simulate( ctx.GetDeltaTime() );
-            }
-
-            {
-                KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
-                pScene->fetchResults( true );
-            }
-        }
-
-        //-------------------------------------------------------------------------
-
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_recordingTimeLeft >= 0 )
         {

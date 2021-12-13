@@ -18,17 +18,13 @@ namespace KRG
 
     public:
 
-        static ResourceTypeID const Unknown;
-
-    public:
-
-        inline ResourceTypeID() : m_ID( Unknown ) {}
+        inline ResourceTypeID() : m_ID( 0 ) {}
         inline ResourceTypeID( uint32 ID ) : m_ID( ID ) { KRG_ASSERT( IsValidFourCC() ); }
         explicit ResourceTypeID( char const* pStr );
         inline explicit ResourceTypeID( String const& str ) : ResourceTypeID( str.c_str() ) {}
 
-        inline bool IsValid() const { return m_ID != 0 && m_ID != Unknown; }
-        void Clear() { m_ID = Unknown; }
+        inline bool IsValid() const { return m_ID != 0; }
+        void Clear() { m_ID = 0; }
 
         inline operator uint32() const { return m_ID; }
         inline operator uint32&() { return m_ID; }

@@ -48,16 +48,10 @@
     <ClCompile Include="GraphEditor\AnimationGraphEditor_GraphView.cpp">
       <Filter>GraphEditor</Filter>
     </ClCompile>
-    <ClCompile Include="GraphEditor\AnimationGraphEditor_Model.cpp">
-      <Filter>GraphEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\AnimationGraphEditor_PropertyGrid.cpp">
-      <Filter>GraphEditor</Filter>
-    </ClCompile>
     <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp">
       <Filter>GraphEditor</Filter>
     </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph.cpp">
+    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.cpp">
       <Filter>GraphEditor\ToolsGraph</Filter>
     </ClCompile>
     <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.cpp">
@@ -179,16 +173,10 @@
     <ClInclude Include="GraphEditor\AnimationGraphEditor_GraphView.h">
       <Filter>GraphEditor</Filter>
     </ClInclude>
-    <ClInclude Include="GraphEditor\AnimationGraphEditor_Model.h">
-      <Filter>GraphEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\AnimationGraphEditor_PropertyGrid.h">
-      <Filter>GraphEditor</Filter>
-    </ClInclude>
     <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h">
       <Filter>GraphEditor</Filter>
     </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph.h">
+    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.h">
       <Filter>GraphEditor\ToolsGraph</Filter>
     </ClInclude>
     <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.h">

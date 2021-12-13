@@ -23,28 +23,27 @@ namespace KRG
     {
         m_model.Initialize( context );
         m_pResourceBrowser = KRG::New<ResourceBrowser>( m_model );
-        m_db.Initialize( m_model.GetTypeRegistry(), m_model.GetSourceResourceDirectory() );
+
+        m_resourceDatabaseUpdateEventBindingID = m_model.GetResourceDatabase()->OnDatabaseUpdated().Bind( [this] () { m_pResourceBrowser->RebuildBrowserTree(); } );
     }
 
     void EditorDevUI::Shutdown( UpdateContext const& context )
     {
-        m_db.Shutdown();
+        if ( m_resourceDatabaseUpdateEventBindingID.IsValid() )
+        {
+            m_model.GetResourceDatabase()->OnDatabaseUpdated().Unbind( m_resourceDatabaseUpdateEventBindingID );
+        }
+
         KRG::Delete( m_pResourceBrowser );
         m_model.Shutdown( context );
     }
 
     //-------------------------------------------------------------------------
 
-    void EditorDevUI::FrameStartUpdate( UpdateContext const& context )
+    void EditorDevUI::StartFrame( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameStart );
-
-        // Update the resource database and potentially refresh the browser
-        if ( m_db.Update() )
-        {
-            m_pResourceBrowser->RebuildBrowserTree();
-        }
 
         // Update the model - this process all workspace lifetime requests
         m_model.Update( context );
@@ -81,6 +80,18 @@ namespace KRG
         ImGui::Begin( "EditorDockSpaceWindow", nullptr, windowFlags );
         ImGui::PopStyleVar( 3 );
         {
+            if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
+            {
+                ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_DockSpace );
+                ImGui::DockBuilderSetNodeSize( dockspaceID, ImGui::GetContentRegionAvail() );
+                ImGuiID leftDockID = 0, rightDockID = 0;
+                ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.25f, &leftDockID, &rightDockID );
+                ImGui::DockBuilderFinish( dockspaceID );
+
+                ImGui::DockBuilderDockWindow( m_pResourceBrowser->GetWindowName(), leftDockID );
+                ImGui::DockBuilderDockWindow( m_model.GetMapEditorWindowName(), rightDockID );
+            }
+
             // Create the actual dock space
             ImGui::PushStyleVar( ImGuiStyleVar_TabRounding, 0 );
             ImGui::DockSpace( dockspaceID, viewport->WorkSize, ImGuiDockNodeFlags_None, &m_editorWindowClass );
@@ -166,7 +177,7 @@ namespace KRG
         DrawPopups( context );
     }
 
-    void EditorDevUI::FrameEndUpdate( UpdateContext const& context )
+    void EditorDevUI::EndFrame( UpdateContext const& context )
     {
         // Game previewer needs to be drawn at the end of the frames since then all the game simulation data will be correct and all the debug tools will be accurate
         if ( m_model.IsGamePreviewRunning() )
@@ -382,7 +393,7 @@ namespace KRG
         }
 
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
-        ImGui::SetNextWindowSize( ImVec2( 640, 480 ), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2( 1024, 768 ), ImGuiCond_FirstUseEver );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         bool const shouldDrawWindowContents = ImGui::Begin( pWorkspace->GetWorkspaceWindowID(), pIsTabOpen, windowFlags );
         bool const isFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows | ImGuiFocusedFlags_DockHierarchy );
@@ -395,32 +406,6 @@ namespace KRG
         {
             if ( ImGui::BeginMenuBar() )
             {
-                if ( !m_model.IsGamePreviewWorkspace( pWorkspace ) )
-                {
-                    ImGui::BeginDisabled( !pWorkspace->IsDirty() );
-                    if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
-                    {
-                        pWorkspace->Save();
-                    }
-                    ImGui::EndDisabled();
-
-                    ImGui::BeginDisabled( !pWorkspace->CanUndo() );
-                    if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
-                    {
-                        pWorkspace->Undo();
-                    }
-                    ImGui::EndDisabled();
-
-                    ImGui::BeginDisabled( !pWorkspace->CanRedo() );
-                    if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
-                    {
-                        pWorkspace->Redo();
-                    }
-                    ImGui::EndDisabled();
-                }
-
-                //-------------------------------------------------------------------------
-
                 pWorkspace->DrawWorkspaceToolbar( context );
                 ImGui::EndMenuBar();
             }
@@ -437,6 +422,7 @@ namespace KRG
         if ( !ImGui::DockBuilderGetNode( dockspaceID ) )
         {
             ImGui::DockBuilderAddNode( dockspaceID, ImGuiDockNodeFlags_DockSpace | ImGuiDockNodeFlags_NoWindowMenuButton | ImGuiDockNodeFlags_NoCloseButton );
+            ImGui::DockBuilderSetNodeSize( dockspaceID, ImGui::GetContentRegionAvail() );
             pWorkspace->InitializeDockingLayout( dockspaceID );
             ImGui::DockBuilderFinish( dockspaceID );
         }

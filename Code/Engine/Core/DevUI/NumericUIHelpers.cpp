@@ -63,8 +63,8 @@ namespace KRG::ImGuiX
     bool InputFloat2( char const* pID, Float2& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - itemSpacing ) / 2;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+        float const inputWidth = Math::Floor( ( contentWidth - itemSpacing ) / 2 );
 
         //-------------------------------------------------------------------------
 
@@ -91,8 +91,8 @@ namespace KRG::ImGuiX
     bool InputFloat3( char const* pID, Float3& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - ( itemSpacing * 2 ) ) / 3;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+        float const inputWidth = Math::Floor( ( contentWidth - ( itemSpacing * 2 ) ) / 3 );
 
         //-------------------------------------------------------------------------
 
@@ -125,8 +125,8 @@ namespace KRG::ImGuiX
     bool InputFloat4( char const* pID, Float4& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
-        float const inputWidth = ( contentWidth - ( itemSpacing * 3 ) ) / 4;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+        float const inputWidth = Math::Floor( ( contentWidth - ( itemSpacing * 3 ) ) / 4 );
 
         //-------------------------------------------------------------------------
 
@@ -165,7 +165,7 @@ namespace KRG::ImGuiX
     bool InputFloat4( char const* pID, Vector& value, float width, bool isReadOnly )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const inputWidth = ( contentWidth - ( itemSpacing * 3 ) ) / 4;
 
         //-------------------------------------------------------------------------
@@ -223,7 +223,7 @@ namespace KRG::ImGuiX
     void DisplayVector2( Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = ( contentWidth - itemSpacing ) / 2;
 
         ImGui::PushID( &v );
@@ -255,7 +255,7 @@ namespace KRG::ImGuiX
     void DisplayVector3( Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = ( contentWidth - itemSpacing ) / 3;
 
         ImGui::PushID( &v );
@@ -298,7 +298,7 @@ namespace KRG::ImGuiX
     void DisplayVector4( Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x / 2;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = ( contentWidth - itemSpacing ) / 4;
 
         ImGui::PushID( &v );

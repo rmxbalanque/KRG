@@ -4,7 +4,7 @@
 #include "Engine/Physics/PhysicsQuery.h"
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Types/IDVector.h"
 #include "System/Core/Types/ScopedValue.h"
@@ -37,7 +37,7 @@ namespace KRG::Physics
     public:
 
         KRG_REGISTER_TYPE( PhysicsWorldSystem );
-        KRG_ENTITY_WORLD_SYSTEM( PhysicsWorldSystem, RequiresUpdate( UpdateStage::PostPhysics ) );
+        KRG_ENTITY_WORLD_SYSTEM( PhysicsWorldSystem, RequiresUpdate( UpdateStage::Physics ), RequiresUpdate( UpdateStage::PostPhysics ) );
 
     public:
 
@@ -388,6 +388,8 @@ namespace KRG::Physics
         inline bool IsDebugDrawingEnabled() const;
         inline float GetDebugDrawDistance() const { return m_debugDrawDistance; }
         inline void SetDebugDrawDistance( float drawDistance ) { m_debugDrawDistance = Math::Max( drawDistance, 0.0f ); }
+
+        void SetDebugCullingBox( AABB const& cullingBox );
         #endif
 
     private:

@@ -1,11 +1,18 @@
 #pragma once
-#include "AnimationGraphEditor_Model.h"
 #include "Tools/Core/GraphEditor/Flow/FlowGraphView.h"
 #include "Tools/Core/GraphEditor/StateMachine/StateMachineGraphView.h"
+#include "Tools/Core/Trees/CategoryTree.h"
 
 //-------------------------------------------------------------------------
 
 struct ImNodesEditorContext;
+namespace KRG { class UpdateContext; }
+namespace KRG::Animation::Graph
+{
+    class FlowGraph; 
+    class AnimationGraphToolsDefinition;
+    struct DebugContext;
+}
 
 //-------------------------------------------------------------------------
 
@@ -27,7 +34,7 @@ namespace KRG::Animation::Graph
         {
         public:
 
-            FlowGraphView( GraphEditorModel& graphModel ) : m_graphModel( graphModel )  {}
+            FlowGraphView( GraphView& parentGraphView ) : m_parentGraphView( parentGraphView ) {}
 
         protected:
 
@@ -40,7 +47,7 @@ namespace KRG::Animation::Graph
 
         public:
 
-            GraphEditorModel&       m_graphModel;
+            GraphView&              m_parentGraphView;
             bool                    m_selectionChanged = false;
             bool                    m_wasFocused = false;
         };
@@ -51,7 +58,7 @@ namespace KRG::Animation::Graph
         {
         public:
 
-            StateMachineGraphView( GraphEditorModel& graphModel ) : m_graphModel( graphModel ) {}
+            StateMachineGraphView( GraphView& parentGraphView ) : m_parentGraphView( parentGraphView ) {}
 
         protected:
 
@@ -64,33 +71,50 @@ namespace KRG::Animation::Graph
 
         public:
 
-            GraphEditorModel&       m_graphModel;
+            GraphView&              m_parentGraphView;
             bool                    m_selectionChanged = false;
             bool                    m_wasFocused = false;
         };
 
     public:
 
-        GraphView( GraphEditorModel& graphModel );
+        GraphView( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphToolsDefinition* pToolsGraph );
 
-        void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
+        // Graph information
+        AnimationGraphToolsDefinition* GetGraphDefinition() { return m_pGraphDefinition; }
+        AnimationGraphToolsDefinition const* GetGraphDefinition() const { return m_pGraphDefinition; }
+        inline Category<TypeSystem::TypeInfo const*> const& GetNodeTypes() const { return m_categorizedNodeTypes.GetRootCategory(); }
+
+        // Update
+        void UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName );
+        void OnUndoRedo();
+
+        // Navigation
+        void NavigateTo( GraphEditor::BaseNode* pNode );
+        void NavigateTo( GraphEditor::BaseGraph* pGraph );
+
+        // Selection
+        TVector<GraphEditor::BaseGraphView::SelectedNode> const& GetSelectedNodes() const;
+        void ClearSelection();
 
     private:
 
-        void UpdatePrimaryViewState();
         void UpdateSecondaryViewState();
         void HandleFocusAndSelectionChanges();
 
     private:
 
-        GraphEditorModel&               m_graphModel;
-        float                           m_primaryGraphViewHeight = 300;
+        AnimationGraphToolsDefinition*                  m_pGraphDefinition = nullptr;
+        TVector<TypeSystem::TypeInfo const*>            m_registeredNodeTypes;
+        CategoryTree<TypeSystem::TypeInfo const*>       m_categorizedNodeTypes;
+        float                                           m_primaryGraphViewHeight = 300;
 
-        FlowGraphView                   m_primaryFlowGraphView;
-        StateMachineGraphView           m_primaryStateMachineGraphView;
-        FlowGraphView                   m_secondaryFlowGraphView;
+        FlowGraphView                                   m_primaryFlowGraphView;
+        StateMachineGraphView                           m_primaryStateMachineGraphView;
+        FlowGraphView                                   m_secondaryFlowGraphView;
 
-        GraphEditor::BaseGraphView*     m_pPrimaryGraphView = &m_primaryFlowGraphView;
-        GraphEditor::BaseGraphView*     m_pFocusedGraphView = nullptr;
+        GraphEditor::BaseGraphView*                     m_pPrimaryGraphView = &m_primaryFlowGraphView;
+        GraphEditor::BaseGraphView*                     m_pFocusedGraphView = nullptr;
+        UUID                                            m_primaryViewGraphID;
     };
 }

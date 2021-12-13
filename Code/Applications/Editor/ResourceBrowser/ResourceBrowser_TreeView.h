@@ -4,7 +4,7 @@
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Resource/ResourcePath.h"
 #include "System/Resource/ResourceTypeID.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 

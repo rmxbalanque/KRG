@@ -10,7 +10,7 @@
 #include "System/Resource/ResourceSettings.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -28,24 +28,25 @@ namespace KRG
         
         auto pResourceSettings = pSettingsRegistry->GetSettings<Resource::Settings>();
         KRG_ASSERT( pResourceSettings != nullptr );
-        m_editorContext.m_sourceResourceDirectory = pResourceSettings->m_rawResourcePath;
-        m_editorContext.m_compiledResourceDirectory = pResourceSettings->m_compiledResourcePath;
 
         //-------------------------------------------------------------------------
 
         m_editorContext.m_pTypeRegistry = context.GetSystem<TypeSystem::TypeRegistry>();
         m_editorContext.m_pResourceSystem = context.GetSystem<Resource::ResourceSystem>();
-        m_worldManager = context.GetSystem<EntityWorldManager>();
+        m_pWorldManager = context.GetSystem<EntityWorldManager>();
         m_pRenderingSystem = context.GetSystem<Render::RenderingSystem>();
+
+        m_resourceDB.Initialize( m_editorContext.m_pTypeRegistry, pResourceSettings->m_rawResourcePath, pResourceSettings->m_compiledResourcePath );
+        m_editorContext.m_pResourceDatabase = &m_resourceDB;
 
         // Create map editor workspace
         //-------------------------------------------------------------------------
 
         // Destroy the default created game world
-        m_worldManager->DestroyWorld( m_worldManager->GetWorlds()[0] );
+        m_pWorldManager->DestroyWorld( m_pWorldManager->GetWorlds()[0] );
 
         // Create the map editor world
-        auto pMapEditorWorld = m_worldManager->CreateWorld( EntityWorldType::Editor );
+        auto pMapEditorWorld = m_pWorldManager->CreateWorld( EntityWorldType::Editor );
         m_pRenderingSystem->CreateCustomRenderTargetForViewport( pMapEditorWorld->GetViewport() );
         m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pMapEditorWorld );
         m_pMapEditor->Initialize( context );
@@ -78,15 +79,20 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_worldManager = nullptr;
+        m_pWorldManager = nullptr;
         m_pRenderingSystem = nullptr;
         m_editorContext.m_pResourceSystem = nullptr;
         m_editorContext.m_pTypeRegistry = nullptr;
-        m_editorContext.m_compiledResourceDirectory = m_editorContext.m_sourceResourceDirectory = FileSystem::Path();
+        m_editorContext.m_pResourceDatabase = nullptr;
+
+        m_resourceDB.Shutdown();
     }
 
     void EditorModel::Update( UpdateContext const& context )
     {
+        // Update the resource database
+        m_resourceDB.Update();
+
         // Destroy all required workspaces
         // We needed to defer this to the start of the update since we may have references resources that we might unload (i.e. textures)
         for ( auto pWorkspaceToDestroy : m_workspaceDestructionRequests )
@@ -126,7 +132,7 @@ namespace KRG
         if ( pExistingWorkspace == nullptr )
         {
             // Create preview world
-            auto pPreviewWorld = m_worldManager->CreateWorld( EntityWorldType::Editor );
+            auto pPreviewWorld = m_pWorldManager->CreateWorld( EntityWorldType::Editor );
             pPreviewWorld->LoadMap( ResourcePath( "data://Editor/EditorMap.map" ) );
             m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
 
@@ -195,7 +201,7 @@ namespace KRG
         }
 
         // Destroy preview world
-        m_worldManager->DestroyWorld( pPreviewWorld );
+        m_pWorldManager->DestroyWorld( pPreviewWorld );
     }
 
     bool EditorModel::HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const
@@ -211,6 +217,11 @@ namespace KRG
     bool EditorModel::IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const
     {
         return m_pMapEditor == pWorkspace;
+    }
+
+    char const* EditorModel::GetMapEditorWindowName() const
+    {
+        return m_pMapEditor->GetWorkspaceWindowID();
     }
 
     bool EditorModel::IsGamePreviewWorkspace( EditorWorkspace const* pWorkspace ) const
@@ -261,7 +272,7 @@ namespace KRG
     {
         KRG_ASSERT( !IsGamePreviewRunning() );
 
-        auto pPreviewWorld = m_worldManager->CreateWorld( EntityWorldType::Game );
+        auto pPreviewWorld = m_pWorldManager->CreateWorld( EntityWorldType::Game );
         m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
         m_pGamePreviewer = KRG::New<GamePreviewer>( m_editorContext, pPreviewWorld );
         m_pGamePreviewer->Initialize( context );

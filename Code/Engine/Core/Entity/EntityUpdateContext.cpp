@@ -8,9 +8,16 @@ namespace KRG
     EntityUpdateContext::EntityUpdateContext( UpdateContext const& context, EntityWorld* pWorld )
         : UpdateContext( context )
         , m_pWorld( pWorld )
+        , m_rawDeltaTime( m_deltaTime )
         , m_isGameWorld( pWorld->IsGameWorld() )
     {
         KRG_ASSERT( m_pWorld != nullptr );
+
+        // Apply world time scale
+        if ( !pWorld->IsPaused() )
+        {
+            m_deltaTime *= pWorld->GetTimeScale();
+        }
     }
 
     IWorldEntitySystem* EntityUpdateContext::GetWorldSystem( uint32 worldSystemID ) const

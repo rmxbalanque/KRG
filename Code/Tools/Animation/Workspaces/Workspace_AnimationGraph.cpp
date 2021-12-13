@@ -1,4 +1,12 @@
 #include "Workspace_AnimationGraph.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Definition.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Compilation.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
+#include "Engine/Animation/Systems/EntitySystem_Animation.h"
+#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
+#include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
 
@@ -8,21 +16,161 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
+    static InlineString<255> GenerateFilePathForVariation( FileSystem::Path const& graphPath, StringID variationID )
+    {
+        FileSystem::Path const parentDirectory = graphPath.GetParentDirectory();
+        String const filenameNoExtension = graphPath.GetFileNameWithoutExtension();
+
+        InlineString<255> variationPathStr;
+        variationPathStr.sprintf( "%s%s_%s.agv", parentDirectory.c_str(), filenameNoExtension.c_str(), variationID.c_str() );
+        return variationPathStr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    class GraphUndoableAction final : public IUndoableAction
+    {
+    public:
+
+        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphToolsDefinition* pToolsGraph )
+            : m_typeRegistry( typeRegistry )
+            , m_pGraphDefinition( pToolsGraph )
+        {
+            KRG_ASSERT( m_pGraphDefinition != nullptr );
+        }
+
+        virtual void Undo() override
+        {
+            JsonReader reader;
+            reader.ReadFromString( m_valueBefore.c_str() );
+            m_pGraphDefinition->LoadFromJson( m_typeRegistry, reader.GetDocument() );
+        }
+
+        virtual void Redo() override
+        {
+            JsonReader reader;
+            reader.ReadFromString( m_valueAfter.c_str() );
+            m_pGraphDefinition->LoadFromJson( m_typeRegistry, reader.GetDocument() );
+        }
+
+        void SerializeBeforeState()
+        {
+            JsonWriter writer;
+            m_pGraphDefinition->SaveToJson( m_typeRegistry, *writer.GetWriter() );
+            m_valueBefore.resize( writer.GetStringBuffer().GetSize() );
+            memcpy( m_valueBefore.data(), writer.GetStringBuffer().GetString(), writer.GetStringBuffer().GetSize() );
+        }
+
+        void SerializeAfterState()
+        {
+            JsonWriter writer;
+            m_pGraphDefinition->SaveToJson( m_typeRegistry, *writer.GetWriter() );
+            m_valueAfter.resize( writer.GetStringBuffer().GetSize() );
+            memcpy( m_valueAfter.data(), writer.GetStringBuffer().GetString(), writer.GetStringBuffer().GetSize() );
+        }
+
+    private:
+
+        TypeSystem::TypeRegistry const&     m_typeRegistry;
+        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        String                              m_valueBefore;
+        String                              m_valueAfter;
+    };
+
+    //-------------------------------------------------------------------------
+
     AnimationGraphWorkspace::AnimationGraphWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
         : TResourceWorkspace<AnimationGraphDefinition>( context, pWorld, resourceID, false )
-        , m_graphEditorModel( context, resourceID )
-        , m_controlParameterEditor( m_graphEditorModel )
-        , m_graphView( m_graphEditorModel )
-        , m_propertyGrid( m_graphEditorModel )
-        , m_variationEditor( m_graphEditorModel )
-    {}
+        , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
+    {
+        // Load graph from descriptor
+        //-------------------------------------------------------------------------
+
+        m_graphFilePath = m_editorContext.ToFileSystemPath( resourceID.GetResourcePath() );
+        if ( m_graphFilePath.IsValid() )
+        {
+            bool graphLoadFailed = false;
+
+            // Try read JSON data
+            JsonReader reader;
+            if ( !reader.ReadFromFile( m_graphFilePath ) )
+            {
+                graphLoadFailed = true;
+            }
+
+            // Try to load the graph from the file
+            m_pGraphDefinition = KRG::New<AnimationGraphToolsDefinition>();
+            graphLoadFailed = !m_pGraphDefinition->LoadFromJson( *m_editorContext.m_pTypeRegistry, reader.GetDocument() );
+
+            // Load failed, so clean up and create a new graph
+            if ( graphLoadFailed )
+            {
+                KRG_LOG_ERROR( "Animation", "Failed to load graph definition: %s", m_graphFilePath.c_str() );
+                KRG::Delete( m_pGraphDefinition );
+                m_pGraphDefinition = KRG::New<AnimationGraphToolsDefinition>();
+                m_pGraphDefinition->CreateNew();
+            }
+        }
+
+        KRG_ASSERT( m_pGraphDefinition != nullptr );
+
+        // Create editors
+        //-------------------------------------------------------------------------
+
+        m_pControlParameterEditor = KRG::New<GraphControlParameterEditor>( m_pGraphDefinition );
+        m_pVariationEditor = KRG::New<GraphVariationEditor>( m_editorContext, m_pGraphDefinition );
+        m_pGraphView = KRG::New<GraphView>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
+
+        // Bind events
+        //-------------------------------------------------------------------------
+
+        auto OnBeginGraphModification = [this] ( GraphEditor::BaseGraph* pRootGraph )
+        {
+            if ( pRootGraph == m_pGraphDefinition->GetRootGraph() )
+            {
+                m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
+                m_pActiveUndoableAction->SerializeBeforeState();
+            }
+        };
+
+        auto OnEndGraphModification = [this] ( GraphEditor::BaseGraph* pRootGraph )
+        {
+            if ( pRootGraph == m_pGraphDefinition->GetRootGraph() )
+            {
+                m_pActiveUndoableAction->SerializeAfterState();
+                m_undoStack.RegisterAction( m_pActiveUndoableAction );
+                m_pActiveUndoableAction = nullptr;
+                m_pGraphDefinition->MarkDirty();
+            }
+        };
+
+        m_rootGraphBeginModificationBindingID = GraphEditor::BaseGraph::OnBeginModification().Bind( OnBeginGraphModification );
+        m_rootGraphEndModificationBindingID = GraphEditor::BaseGraph::OnEndModification().Bind( OnEndGraphModification );
+
+        //-------------------------------------------------------------------------
+
+        m_preEditEventBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { m_pGraphDefinition->GetRootGraph()->BeginModification(); } );
+        m_postEditEventBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { m_pGraphDefinition->GetRootGraph()->EndModification(); } );
+    }
 
     AnimationGraphWorkspace::~AnimationGraphWorkspace()
     {
-        if ( m_graphEditorModel.IsPreviewing() )
+        if ( IsPreviewing() )
         {
-            m_graphEditorModel.StopPreview( m_pWorld );
+            StopPreview();
         }
+
+        KRG::Delete( m_pGraphDefinition );
+
+        KRG::Delete( m_pControlParameterEditor );
+        KRG::Delete( m_pVariationEditor );
+        KRG::Delete( m_pGraphView );
+
+        m_propertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
+        m_propertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
+
+        GraphEditor::BaseGraph::OnBeginModification().Unbind( m_rootGraphBeginModificationBindingID );
+        GraphEditor::BaseGraph::OnEndModification().Unbind( m_rootGraphEndModificationBindingID );
     }
 
     void AnimationGraphWorkspace::Initialize( UpdateContext const& context )
@@ -37,57 +185,221 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
-        //    ImGuiID topDockID = 0;
-        //    ImGuiID bottomLeftDockID = 0;
-        //    ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, nullptr, &topDockID );
-        //    ImGuiID bottomRightDockID = ImGui::DockBuilderSplitNode( bottomDockID, ImGuiDir_Right, 0.25f, nullptr, &bottomLeftDockID );
+        ImGuiID topLeftDockID = 0, bottomLeftDockID = 0, centerDockID = 0, rightDockID = 0;
 
-        //    // Dock viewport
-        //    ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
-        //    pTopNode.LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-        //    ImGui::DockBuilderDockWindow( GetViewportWindowName(), topDockID );
+        ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.2f, &topLeftDockID, &centerDockID );
+        ImGui::DockBuilderSplitNode( topLeftDockID, ImGuiDir_Down, 0.33f, &bottomLeftDockID, &topLeftDockID );
+        ImGui::DockBuilderSplitNode( centerDockID, ImGuiDir_Left, 0.66f, &centerDockID, &rightDockID );
 
-        //    // Dock windows
-        //    ImGui::DockBuilderDockWindow( s_timelineWindowName, bottomLeftDockID );
-        //    ImGui::DockBuilderDockWindow( s_trackDataWindowName, bottomRightDockID );
-        //    ImGui::DockBuilderDockWindow( s_detailsWindowName, bottomRightDockID );
+        // Dock windows
+        ImGui::DockBuilderDockWindow( GetViewportWindowID(), rightDockID );
+        ImGui::DockBuilderDockWindow( m_controlParametersWindowName.c_str(), topLeftDockID );
+        ImGui::DockBuilderDockWindow( m_propertyGridWindowName.c_str(), bottomLeftDockID );
+        ImGui::DockBuilderDockWindow( m_graphViewWindowName.c_str(), centerDockID );
+        ImGui::DockBuilderDockWindow( m_variationEditorWindowName.c_str(), centerDockID );
     }
 
     void AnimationGraphWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
-        m_controlParameterEditor.UpdateAndDraw( context, pWindowClass, m_controlParametersWindowName.c_str() );
-        m_graphView.UpdateAndDraw( context, pWindowClass, m_graphViewWindowName.c_str() );
-        m_propertyGrid.UpdateAndDraw( context, pWindowClass, m_propertyGridWindowName.c_str() );
-        m_variationEditor.UpdateAndDraw( context, pWindowClass, m_variationEditorWindowName.c_str() );
+        DebugContext* pDebugContext = nullptr;
+        if ( m_isPreviewing && m_pGraphComponent->IsInitialized() )
+        {
+            pDebugContext = &m_debugContext;
+        }
+
+        //-------------------------------------------------------------------------
+
+        m_pControlParameterEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_controlParametersWindowName.c_str() );
+        m_pGraphView->UpdateAndDraw( context, pDebugContext, pWindowClass, m_graphViewWindowName.c_str() );
+        m_pVariationEditor->UpdateAndDraw( context, pWindowClass, m_variationEditorWindowName.c_str() );
+
+        // Property Grid
+        //-------------------------------------------------------------------------
+
+        auto const& selection = m_pGraphView->GetSelectedNodes();
+        if ( selection.empty() )
+        {
+            m_propertyGrid.SetTypeToEdit( nullptr );
+        }
+        else
+        {
+            m_propertyGrid.SetTypeToEdit( selection.back().m_pNode );
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
+        {
+            m_propertyGrid.DrawGrid();
+        }
+        ImGui::End();
     }
 
     void AnimationGraphWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        if ( m_graphEditorModel.IsPreviewing() )
+        if ( IsPreviewing() )
         {
             if ( ImGui::Button( "Stop Preview" ) )
             {
-                m_graphEditorModel.StopPreview( m_pWorld );
+                StopPreview();
             }
         }
         else
         {
             if ( ImGui::Button( "Start Preview" ) )
             {
-                m_graphEditorModel.StartPreview( m_pWorld );
+                StartPreview();
             }
         }
     }
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphWorkspace::IsDirty() const
+    void AnimationGraphWorkspace::GenerateAnimGraphVariationDescriptors()
     {
-        return true;
+        KRG_ASSERT( m_graphFilePath.IsValid() && m_graphFilePath.MatchesExtension( "ag" ) );
+
+        auto const& variations = m_pGraphDefinition->GetVariationHierarchy();
+        for ( auto const& variation : variations.GetAllVariations() )
+        {
+            AnimationGraphVariationResourceDescriptor resourceDesc;
+            resourceDesc.m_graphPath = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), m_graphFilePath );
+            resourceDesc.m_variationID = variation.m_ID;
+
+            InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, variation.m_ID );
+            FileSystem::Path const variationPath( variationPathStr.c_str() );
+
+            WriteResourceDescriptorToFile( *m_editorContext.m_pTypeRegistry, variationPath, &resourceDesc );
+        }
     }
 
     bool AnimationGraphWorkspace::Save()
     {
-        return m_graphEditorModel.SaveGraph();
+        KRG_ASSERT( m_graphFilePath.IsValid() );
+        JsonWriter writer;
+        m_pGraphDefinition->SaveToJson( *m_editorContext.m_pTypeRegistry, *writer.GetWriter() );
+        if ( writer.WriteToFile( m_graphFilePath ) )
+        {
+            GenerateAnimGraphVariationDescriptors();
+            m_pGraphDefinition->ClearDirty();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool AnimationGraphWorkspace::IsDirty() const
+    {
+        return m_pGraphDefinition->IsDirty();
+    }
+
+    void AnimationGraphWorkspace::OnUndoRedo()
+    {
+        m_pGraphView->OnUndoRedo();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void AnimationGraphWorkspace::StartPreview()
+    {
+        KRG_ASSERT( m_pWorld != nullptr );
+
+        // Try to compile the graph
+        //-------------------------------------------------------------------------
+
+        ToolsGraphCompilationContext compilationContext;
+        if ( m_pGraphDefinition->Compile( compilationContext ) )
+        {
+            m_debugContext.m_nodeIDtoIndexMap = compilationContext.GetIDToIndexMap();
+        }
+        else // Compilation failed, stop preview attempt
+        {
+            for ( auto const& entry : compilationContext.GetLog() )
+            {
+                if ( entry.m_severity == Log::Severity::Warning )
+                {
+                    KRG_LOG_WARNING( "Anim", entry.m_message.c_str() );
+                }
+                else if ( entry.m_severity == Log::Severity::Error )
+                {
+                    KRG_LOG_ERROR( "Anim", entry.m_message.c_str() );
+                }
+            }
+
+            return;
+        }
+
+        // Save the graph changes
+        //-------------------------------------------------------------------------
+        // Ensure that we save the graph and re-generate the dataset on preview
+
+        Save();
+
+        //-------------------------------------------------------------------------
+
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+
+        // Graph Component
+        //-------------------------------------------------------------------------
+
+        InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, m_selectedVariationID );
+        ResourceID const graphVariationResourceID( ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), variationPathStr.c_str() ) );
+
+        m_pGraphComponent = KRG::New<AnimationGraphComponent>( StringID( "Animation Component" ) );
+        m_pGraphComponent->SetGraphVariation( graphVariationResourceID );
+        m_pPreviewEntity->AddComponent( m_pGraphComponent );
+
+        m_debugContext.m_pGraphComponent = m_pGraphComponent;
+
+        // Preview Mesh Component
+        //-------------------------------------------------------------------------
+
+        auto pVariation = m_pGraphDefinition->GetVariation( m_selectedVariationID );
+        KRG_ASSERT( pVariation != nullptr );
+        if ( pVariation->m_pSkeleton.IsValid() )
+        {
+            // Load resource descriptor for skeleton to get the preview mesh
+            FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( pVariation->m_pSkeleton.GetResourcePath() );
+            SkeletonResourceDescriptor resourceDesc;
+            if ( TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc ) )
+            {
+                // Create a preview mesh component
+                auto pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+                pMeshComponent->SetSkeleton( pVariation->m_pSkeleton.GetResourceID() );
+                pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+                m_pPreviewEntity->AddComponent( pMeshComponent );
+            }
+        }
+
+        // Systems
+        //-------------------------------------------------------------------------
+
+        m_pPreviewEntity->CreateSystem<AnimationSystem>();
+
+        // Add the entity
+        //-------------------------------------------------------------------------
+        // We dont own the entity as soon as we add it to the map
+
+        auto pPersistentMap = m_pWorld->GetPersistentMap();
+        pPersistentMap->AddEntity( m_pPreviewEntity );
+        m_isPreviewing = true;
+    }
+
+    void AnimationGraphWorkspace::StopPreview()
+    {
+        KRG_ASSERT( m_pWorld != nullptr );
+        KRG_ASSERT( m_pPreviewEntity != nullptr );
+
+        auto pPersistentMap = m_pWorld->GetPersistentMap();
+        pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+
+        m_pPreviewEntity = nullptr;
+        m_pGraphComponent = nullptr;
+
+        m_debugContext.m_pGraphComponent = nullptr;
+        m_debugContext.m_nodeIDtoIndexMap.clear();
+
+        m_isPreviewing = false;
     }
 }

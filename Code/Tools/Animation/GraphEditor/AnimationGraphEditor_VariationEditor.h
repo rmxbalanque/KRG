@@ -1,10 +1,20 @@
 #pragma once
-#include "AnimationGraphEditor_Model.h"
+#include "System/Core/Types/StringID.h"
+
+//-------------------------------------------------------------------------
+
+struct ImGuiWindowClass;
+namespace KRG { struct EditorContext; class UpdateContext; }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
+    class VariationHierarchy;
+    class AnimationGraphToolsDefinition;
+
+    //-------------------------------------------------------------------------
+
     class GraphVariationEditor final
     {
         enum class OperationType
@@ -17,9 +27,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphVariationEditor( GraphEditorModel& graphModel )
-            : m_graphModel( graphModel )
-        {}
+        GraphVariationEditor( EditorContext const& editorContext, AnimationGraphToolsDefinition* pGraphDefinition );
 
         void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
@@ -36,9 +44,10 @@ namespace KRG::Animation::Graph
 
     private:
 
-        GraphEditorModel&           m_graphModel;
-        StringID                    m_activeOperationVariationID;
-        char                        m_buffer[255];
-        OperationType               m_activeOperation;
+        EditorContext const&                m_editorContext;
+        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        StringID                            m_activeOperationVariationID;
+        char                                m_buffer[255];
+        OperationType                       m_activeOperation;
     };
 }

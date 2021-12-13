@@ -1,19 +1,16 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
+#include "ToolsGraph/AnimationToolsGraph_Definition.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    GraphControlParameterEditor::GraphControlParameterEditor( GraphEditorModel& graphModel )
-        : m_graphModel( graphModel )
+    GraphControlParameterEditor::GraphControlParameterEditor( AnimationGraphToolsDefinition* pGraphDefinition )
+        : m_pGraphDefinition( pGraphDefinition )
     {}
 
-    void GraphControlParameterEditor::UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName )
+    void GraphControlParameterEditor::UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
-        auto pGraph = m_graphModel.GetGraph();
-
-        //-------------------------------------------------------------------------
-
         int32 windowFlags = 0;
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
         ImGui::SetNextWindowClass( pWindowClass );
@@ -33,7 +30,7 @@ namespace KRG::Animation::Graph
                 ImGui::TableSetupColumn( "##Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 40 );
                 ImGui::TableSetupColumn( "##Controls", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 38 );
 
-                for ( auto pControlParameter : pGraph->GetControlParameters() )
+                for ( auto pControlParameter : m_pGraphDefinition->GetControlParameters() )
                 {
                     ImGui::PushID( pControlParameter );
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetNodeColor() );
@@ -41,12 +38,8 @@ namespace KRG::Animation::Graph
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
 
-                    bool const isParameterSelected = m_graphModel.IsSelected( pControlParameter );
                     ImGui::AlignTextToFramePadding();
-                    if ( ImGui::Selectable( pControlParameter->GetDisplayName(), isParameterSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
-                    {
-                        m_graphModel.SetSelection( pControlParameter );
-                    }
+                    ImGui::Text( pControlParameter->GetDisplayName() );
 
                     ImGui::TableNextColumn();
                     ImGui::Text( GetNameForValueType( pControlParameter->GetValueType() ) );
@@ -58,7 +51,7 @@ namespace KRG::Animation::Graph
                     {
                         StartRename( pControlParameter->GetID() );
                     }
-                    ImGui::SameLine(0, 0);
+                    ImGui::SameLine( 0, 0 );
                     if ( ImGui::Button( KRG_ICON_TRASH, ImVec2( 19, 0 ) ) )
                     {
                         StartDelete( pControlParameter->GetID() );
@@ -69,19 +62,14 @@ namespace KRG::Animation::Graph
 
                 //-------------------------------------------------------------------------
 
-                for ( auto pVirtualParameter : pGraph->GetVirtualParameters() )
+                for ( auto pVirtualParameter : m_pGraphDefinition->GetVirtualParameters() )
                 {
                     ImGui::PushID( pVirtualParameter );
                     ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pVirtualParameter->GetNodeColor() );
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                     
-                    bool const isParameterSelected = m_graphModel.IsSelected( pVirtualParameter );
-                    if ( ImGui::Selectable( pVirtualParameter->GetDisplayName(), isParameterSelected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, ImVec2( 0, 0 ) ) )
-                    {
-                        m_graphModel.SetSelection( pVirtualParameter );
-                    }
+                    ImGui::Text( pVirtualParameter->GetDisplayName() );
 
                     ImGui::TableNextColumn();
                     ImGui::Text( GetNameForValueType( pVirtualParameter->GetValueType() ) );
@@ -119,10 +107,6 @@ namespace KRG::Animation::Graph
 
     void GraphControlParameterEditor::DrawAddParameterUI()
     {
-        auto pGraph = m_graphModel.GetGraph();
-
-        //-------------------------------------------------------------------------
-
         if ( ImGui::Button( "Add New Parameter", ImVec2( -1, 0 ) ) )
         {
             ImGui::OpenPopup( "AddParameterPopup" );
@@ -134,69 +118,82 @@ namespace KRG::Animation::Graph
         {
             if ( ImGui::MenuItem( "Control Parameter - Bool" ) )
             {
-                pGraph->CreateControlParameter( ValueType::Bool );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - ID" ) )
             {
-                pGraph->CreateControlParameter( ValueType::ID );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Int" ) )
             {
-                pGraph->CreateControlParameter( ValueType::Int );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Float" ) )
             {
-                pGraph->CreateControlParameter( ValueType::Float );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Vector" ) )
             {
-                pGraph->CreateControlParameter( ValueType::Vector );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Target" ) )
             {
-                pGraph->CreateControlParameter( ValueType::Target );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateControlParameter( ValueType::Target );
             }
 
             ImGui::Separator();
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bool" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::Bool );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - ID" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::ID );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Int" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::Int );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Float" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::Float );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Vector" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::Vector );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Target" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::Target );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::Target );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bone Mask" ) )
             {
-                pGraph->CreateVirtualParameter( ValueType::BoneMask );
+                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+                m_pGraphDefinition->CreateVirtualParameter( ValueType::BoneMask );
             }
 
             ImGui::EndPopup();
@@ -205,17 +202,17 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void GraphControlParameterEditor::StartRename( UUID parameterID )
+    void GraphControlParameterEditor::StartRename( UUID const& parameterID )
     {
         KRG_ASSERT( parameterID.IsValid() );
         m_currentOperationParameterID = parameterID;
         m_activeOperation = OperationType::Rename;
 
-        if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( parameterID ) )
+        if ( auto pControlParameter = m_pGraphDefinition->FindControlParameter( parameterID ) )
         {
             strncpy_s( m_buffer, pControlParameter->GetDisplayName(), 255 );
         }
-        else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( parameterID ) )
+        else if ( auto pVirtualParameter = m_pGraphDefinition->FindVirtualParameter( parameterID ) )
         {
             strncpy_s( m_buffer, pVirtualParameter->GetDisplayName(), 255 );
         }
@@ -225,7 +222,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void GraphControlParameterEditor::StartDelete( UUID parameterID )
+    void GraphControlParameterEditor::StartDelete( UUID const& parameterID )
     {
         m_currentOperationParameterID = parameterID;
         m_activeOperation = OperationType::Delete;
@@ -253,13 +250,15 @@ namespace KRG::Animation::Graph
 
                 if ( ImGui::Button( "Ok", ImVec2( 50, 0 ) ) || nameChangeConfirmed )
                 {
-                    if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
+                    GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+
+                    if ( auto pControlParameter = m_pGraphDefinition->FindControlParameter( m_currentOperationParameterID ) )
                     {
-                        m_graphModel.GetGraph()->RenameControlParameter( m_currentOperationParameterID, m_buffer );
+                        m_pGraphDefinition->RenameControlParameter( m_currentOperationParameterID, m_buffer );
                     }
-                    else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
+                    else if ( auto pVirtualParameter = m_pGraphDefinition->FindVirtualParameter( m_currentOperationParameterID ) )
                     {
-                        m_graphModel.GetGraph()->RenameVirtualParameter( m_currentOperationParameterID, m_buffer );
+                        m_pGraphDefinition->RenameVirtualParameter( m_currentOperationParameterID, m_buffer );
                     }
                     else
                     {
@@ -297,13 +296,15 @@ namespace KRG::Animation::Graph
 
                 if ( ImGui::Button( "Yes", ImVec2( 30, 0 ) ) )
                 {
-                    if ( auto pControlParameter = m_graphModel.GetGraph()->FindControlParameter( m_currentOperationParameterID ) )
+                    GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
+
+                    if ( auto pControlParameter = m_pGraphDefinition->FindControlParameter( m_currentOperationParameterID ) )
                     {
-                        m_graphModel.GetGraph()->DestroyControlParameter( m_currentOperationParameterID );
+                        m_pGraphDefinition->DestroyControlParameter( m_currentOperationParameterID );
                     }
-                    else if ( auto pVirtualParameter = m_graphModel.GetGraph()->FindVirtualParameter( m_currentOperationParameterID ) )
+                    else if ( auto pVirtualParameter = m_pGraphDefinition->FindVirtualParameter( m_currentOperationParameterID ) )
                     {
-                        m_graphModel.GetGraph()->DestroyVirtualParameter( m_currentOperationParameterID );
+                        m_pGraphDefinition->DestroyVirtualParameter( m_currentOperationParameterID );
                     }
                     else
                     {

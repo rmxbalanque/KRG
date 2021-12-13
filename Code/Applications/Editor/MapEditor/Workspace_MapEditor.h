@@ -28,6 +28,8 @@ namespace KRG::EntityModel
         EntityMapEditor( EditorContext const& context, EntityWorld* pWorld );
         ~EntityMapEditor();
 
+        virtual void Initialize( UpdateContext const& context ) override;
+
         inline bool HasLoadedMap() const { return m_loadedMap.IsValid(); }
         inline ResourceID GetLoadedMap() const { return m_loadedMap; }
 
@@ -50,7 +52,8 @@ namespace KRG::EntityModel
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
-        virtual bool IsDirty() const override{ return true; } // TODO
+        virtual bool IsDirty() const override{ return false; } // TODO
+        virtual bool AlwaysAllowSaving() const override { return true; }
         virtual bool Save() override;
 
         void SelectEntity( Entity* pEntity );
@@ -68,6 +71,10 @@ namespace KRG::EntityModel
         void PostEdit( PropertyEditInfo const& eventInfo );
 
     private:
+
+        String                          m_outlinerWindowName;
+        String                          m_entityViewWindowName;
+        String                          m_propertyGridWindowName;
 
         PropertyGrid                    m_propertyGrid;
         ResourceID                      m_loadedMap;

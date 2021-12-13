@@ -40,11 +40,11 @@ namespace KRG::GraphEditor
 
         FlowGraphView() = default;
 
-        void SetGraphToView( FlowGraph* pGraph );
+        void SetGraphToView( FlowGraph* pGraph, bool tryMaintainSelection = false );
 
         virtual BaseGraph* GetViewedGraph() override final { return m_pGraph; }
         virtual DragMode GetDragMode() const final { return m_dragState.m_mode; }
-        virtual void Draw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) override final;
+        virtual void UpdateAndDraw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) override final;
 
     protected:
 
@@ -61,9 +61,8 @@ namespace KRG::GraphEditor
         // Events
         //-------------------------------------------------------------------------
 
-        void HandleClicks( DrawContext const& ctx );
+        void HandleInput( DrawContext const& ctx );
         void HandleContextMenu( DrawContext const& ctx );
-        void HandleDragging( DrawContext const& ctx );
 
         // Dragging
         //-------------------------------------------------------------------------

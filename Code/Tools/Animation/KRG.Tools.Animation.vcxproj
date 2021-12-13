@@ -13,15 +13,13 @@
   <ItemGroup>
     <ClInclude Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.h" />
     <ClInclude Include="GraphEditor\AnimationGraphEditor_GraphView.h" />
-    <ClInclude Include="GraphEditor\AnimationGraphEditor_Model.h" />
-    <ClInclude Include="GraphEditor\AnimationGraphEditor_PropertyGrid.h" />
     <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h" />
     <ClInclude Include="Events\AnimationEventEditor.h" />
     <ClInclude Include="Events\AnimationEventData.h" />
     <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationClip.h" />
     <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationGraph.h" />
     <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationSkeleton.h" />
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph.h" />
+    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.h" />
     <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.h" />
     <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Compilation.h" />
     <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowGraph.h" />
@@ -63,15 +61,13 @@
   <ItemGroup>
     <ClCompile Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.cpp" />
     <ClCompile Include="GraphEditor\AnimationGraphEditor_GraphView.cpp" />
-    <ClCompile Include="GraphEditor\AnimationGraphEditor_Model.cpp" />
-    <ClCompile Include="GraphEditor\AnimationGraphEditor_PropertyGrid.cpp" />
     <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
     <ClCompile Include="Events\AnimationEventData.cpp" />
     <ClCompile Include="Events\AnimationEventEditor.cpp" />
     <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationClip.cpp" />
     <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationGraph.cpp" />
     <ClCompile Include="ResourceCompilers\ResourceCompiler_AnimationSkeleton.cpp" />
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph.cpp" />
+    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.cpp" />
     <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.cpp" />
     <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Compilation.cpp" />
     <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowGraph.cpp" />

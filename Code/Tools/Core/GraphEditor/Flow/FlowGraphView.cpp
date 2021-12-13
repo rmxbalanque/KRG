@@ -11,18 +11,33 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
-    void FlowGraphView::SetGraphToView( FlowGraph* pGraph )
+    void FlowGraphView::SetGraphToView( FlowGraph* pGraph, bool tryMaintainSelection )
     {
         if ( m_pGraph == pGraph )
         {
             return;
         }
 
+        TVector<SelectedNode> oldSelection;
+        oldSelection.swap( m_selectedNodes );
+
         ResetInternalState();
         m_pGraph = pGraph;
         if ( m_pGraph != nullptr )
         {
             m_pGraph->OnShowGraph();
+        }
+
+        if ( tryMaintainSelection )
+        {
+            for ( auto const& oldSelectedNode : oldSelection )
+            {
+                auto pFoundNode = GetViewedGraph()->FindNode( oldSelectedNode.m_nodeID );
+                if ( pFoundNode != nullptr )
+                {
+                    AddToSelection( pFoundNode );
+                }
+            }
         }
     }
 
@@ -279,7 +294,7 @@ namespace KRG::GraphEditor
         return false;
     }
 
-    void FlowGraphView::Draw( float childHeightOverride, void* pUserContext )
+    void FlowGraphView::UpdateAndDraw( float childHeightOverride, void* pUserContext )
     {
         if( BeginDrawCanvas( childHeightOverride ) && m_pGraph != nullptr )
         {
@@ -365,76 +380,177 @@ namespace KRG::GraphEditor
             //-------------------------------------------------------------------------
 
             HandleContextMenu( drawingContext );
-            HandleDragging( drawingContext );
-            HandleClicks( drawingContext );
+            HandleInput( drawingContext );
         }
 
         EndDrawCanvas();
     }
 
-    void FlowGraphView::HandleClicks( DrawContext const& ctx )
+    void FlowGraphView::HandleInput( DrawContext const& ctx )
     {
-        if ( !ctx.IsMouseInViewWindow() )
-        {
-            return;
-        }
-
+        // Mouse
         //-------------------------------------------------------------------------
 
-        if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
+        if ( ctx.IsMouseInViewWindow() )
         {
-            if ( ImGui::GetIO().KeyCtrl )
+            if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
             {
-                if ( m_pHoveredNode != nullptr )
+                if ( ImGui::GetIO().KeyCtrl )
                 {
-                    if ( IsNodeSelected( m_pHoveredNode ) )
+                    if ( m_pHoveredNode != nullptr )
                     {
-                        RemoveFromSelection( m_pHoveredNode );
+                        if ( IsNodeSelected( m_pHoveredNode ) )
+                        {
+                            RemoveFromSelection( m_pHoveredNode );
+                        }
+                        else
+                        {
+                            AddToSelection( m_pHoveredNode );
+                        }
+                    }
+                }
+                else if ( ImGui::GetIO().KeyAlt )
+                {
+                    if ( m_hoveredConnectionID.IsValid() )
+                    {
+                        m_pGraph->BreakConnection( m_hoveredConnectionID );
+                    }
+                    else if ( m_pHoveredPin != nullptr )
+                    {
+                        m_pGraph->BreakAnyConnectionsForPin( m_pHoveredPin->m_ID );
+                    }
+                }
+                else // No modifier
+                {
+                    if ( m_pHoveredNode != nullptr )
+                    {
+                        if ( !IsNodeSelected( m_pHoveredNode ) )
+                        {
+                            UpdateSelection( m_pHoveredNode );
+                        }
                     }
                     else
                     {
-                        AddToSelection( m_pHoveredNode );
+                        ClearSelection();
                     }
                 }
             }
-            else if ( ImGui::GetIO().KeyAlt )
-            {
-                if ( m_hoveredConnectionID.IsValid() )
-                {
-                    m_pGraph->BreakConnection( m_hoveredConnectionID );
-                }
-                else if ( m_pHoveredPin != nullptr )
-                {
-                    m_pGraph->BreakAnyConnectionsForPin( m_pHoveredPin->m_ID );
-                }
-            }
-            else // No modifier
+
+            if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
             {
                 if ( m_pHoveredNode != nullptr )
                 {
-                    if ( !IsNodeSelected( m_pHoveredNode ) )
-                    {
-                        UpdateSelection( m_pHoveredNode );
-                    }
+                    OnNodeDoubleClick( m_pHoveredNode );
                 }
                 else
                 {
-                    ClearSelection();
+                    OnGraphDoubleClick( m_pGraph );
                 }
+
+            }
+
+            switch ( m_dragState.m_mode )
+            {
+                case DragMode::None:
+                {
+                    if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left, 3 ) )
+                    {
+                        if ( m_pHoveredNode != nullptr )
+                        {
+                            if ( m_pHoveredPin != nullptr )
+                            {
+                                StartDraggingConnection( ctx );
+                            }
+                            else
+                            {
+                                StartDraggingNode( ctx );
+                            }
+                        }
+                        else
+                        {
+                            StartDraggingSelection( ctx );
+                        }
+                    }
+                    else if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle, 3 ) )
+                    {
+                        StartDraggingView( ctx );
+                    }
+                }
+                break;
+
+                case DragMode::Node:
+                {
+                    OnDragNode( ctx );
+                }
+                break;
+
+                case DragMode::Connection:
+                {
+                    OnDragConnection( ctx );
+                }
+                break;
+
+                case DragMode::Selection:
+                {
+                    OnDragSelection( ctx );
+                }
+                break;
+
+                case DragMode::View:
+                {
+                    OnDragView( ctx );
+                }
+                break;
+            }
+        }
+        else // If we are dragging and we leave the window, stop the drag
+        {
+            switch ( m_dragState.m_mode )
+            {
+                case DragMode::Node:
+                {
+                    StopDraggingNode( ctx );
+                }
+                break;
+
+                case DragMode::Connection:
+                {
+                    StopDraggingConnection( ctx );
+                }
+                break;
+
+                case DragMode::Selection:
+                {
+                    StopDraggingSelection( ctx );
+                }
+                break;
+
+                case DragMode::View:
+                {
+                    StopDraggingView( ctx );
+                }
+                break;
             }
         }
 
-        if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
-        {
-            if ( m_pHoveredNode != nullptr )
-            {
-                OnNodeDoubleClick( m_pHoveredNode );
-            }
-            else
-            {
-                OnGraphDoubleClick( m_pGraph );
-            }
+        // Keyboard
+        //-------------------------------------------------------------------------
 
+        if ( m_hasFocus )
+        {
+            if ( !m_selectedNodes.empty() && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
+            {
+                ScopedGraphModification sgm( m_pGraph );
+                for ( auto const& selectedNode : m_selectedNodes )
+                {
+                    if ( selectedNode.m_pNode->IsDestroyable() )
+                    {
+                        m_pGraph->DestroyNode( selectedNode.m_nodeID );
+                    }
+                }
+
+                ClearSelection();
+            }
         }
     }
 
@@ -470,70 +586,6 @@ namespace KRG::GraphEditor
                 m_contextMenuState.Reset();
             }
             ImGui::PopStyleVar( 2 );
-        }
-    }
-
-    void FlowGraphView::HandleDragging( DrawContext const& ctx )
-    {
-        if ( !ctx.IsMouseInViewWindow() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        switch ( m_dragState.m_mode )
-        {
-            case DragMode::None:
-            {
-                if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left, 1 ) )
-                {
-                    if ( m_pHoveredNode != nullptr )
-                    {
-                        if ( m_pHoveredPin != nullptr )
-                        {
-                            StartDraggingConnection( ctx );
-                        }
-                        else
-                        {
-                            StartDraggingNode( ctx );
-                        }
-                    }
-                    else
-                    {
-                        StartDraggingSelection( ctx );
-                    }
-                }
-                else if ( ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
-                {
-                    StartDraggingView( ctx );
-                }
-            }
-            break;
-
-            case DragMode::Node:
-            {
-                OnDragNode( ctx );
-            }
-            break;
-
-            case DragMode::Connection:
-            {
-                OnDragConnection( ctx );
-            }
-            break;
-
-            case DragMode::Selection:
-            {
-                OnDragSelection( ctx );
-            }
-            break;
-
-            case DragMode::View:
-            {
-                OnDragView( ctx );
-            }
-            break;
         }
     }
 
@@ -640,6 +692,7 @@ namespace KRG::GraphEditor
         KRG_ASSERT( m_dragState.m_mode == DragMode::None );
         m_dragState.m_mode = DragMode::Selection;
         m_dragState.m_startValue = ImGui::GetMousePos();
+        m_pGraph->BeginModification();
     }
 
     void FlowGraphView::OnDragSelection( DrawContext const& ctx )
@@ -661,7 +714,7 @@ namespace KRG::GraphEditor
         ImVec2 const max( Math::Max( m_dragState.m_startValue.x, mousePos.x ), Math::Max( m_dragState.m_startValue.y, mousePos.y ) );
         ImRect const selectionWindowRect( min - ctx.m_windowRect.Min, max - ctx.m_windowRect.Min );
 
-        TVector<BaseNode*> newSelection;
+        TVector<SelectedNode> newSelection;
         for ( auto pNode : m_pGraph->m_nodes )
         {
             auto const nodeWindowRect = GetNodeWindowRect( pNode );
@@ -673,6 +726,7 @@ namespace KRG::GraphEditor
 
         UpdateSelection( eastl::move( newSelection ) );
         m_dragState.Reset();
+        m_pGraph->EndModification();
     }
 
     //-------------------------------------------------------------------------
@@ -683,6 +737,8 @@ namespace KRG::GraphEditor
         m_dragState.m_mode = DragMode::Node;
         m_dragState.m_pDraggedNode = m_pHoveredNode;
         m_dragState.m_startValue = m_pHoveredNode->m_canvasPosition;
+
+        m_pGraph->BeginModification();
     }
 
     void FlowGraphView::OnDragNode( DrawContext const& ctx )
@@ -701,9 +757,9 @@ namespace KRG::GraphEditor
         Float2 const frameDragDelta = mouseDragDelta - m_dragState.m_lastFrameDragDelta;
         m_dragState.m_lastFrameDragDelta = mouseDragDelta;
 
-        for ( auto pSelectedNode : m_selectedNodes )
+        for ( auto const& selectedNode : m_selectedNodes )
         {
-            auto pFlowNode = static_cast<Flow::Node*>( pSelectedNode );
+            auto pFlowNode = static_cast<Flow::Node*>( selectedNode.m_pNode );
             pFlowNode->m_canvasPosition = pFlowNode->m_canvasPosition + frameDragDelta;
         }
     }
@@ -711,6 +767,7 @@ namespace KRG::GraphEditor
     void FlowGraphView::StopDraggingNode( DrawContext const& ctx )
     {
         m_dragState.Reset();
+        m_pGraph->EndModification();
     }
 
     //-------------------------------------------------------------------------

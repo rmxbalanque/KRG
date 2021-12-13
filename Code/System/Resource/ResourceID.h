@@ -50,7 +50,7 @@ namespace KRG
         inline ResourcePath const& GetResourcePath() const { return m_path; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
 
-        void Clear() { m_path.Clear(); m_type.Clear(); }
+        inline void Clear() { m_path.Clear(); m_type.Clear(); }
 
         //-------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ namespace KRG
     private:
 
         ResourcePath            m_path;
-        ResourceTypeID          m_type = ResourceTypeID::Unknown;
+        ResourceTypeID          m_type;
     };
 }
 

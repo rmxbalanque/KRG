@@ -9,6 +9,7 @@ namespace KRG::Animation::Graph
 {
     void StateMachineGraph::Initialize( GraphEditor::BaseNode* pParentNode )
     {
+        GraphEditor::ScopedGraphModification sgm( this );
         GraphEditor::StateMachineGraph::Initialize( pParentNode );
 
         //-------------------------------------------------------------------------
@@ -30,6 +31,7 @@ namespace KRG::Animation::Graph
 
         m_entryStateID = pDefaultStateNode->GetID();
 
+
         //-------------------------------------------------------------------------
 
         UpdateDependentNodes();
@@ -38,6 +40,8 @@ namespace KRG::Animation::Graph
 
     void StateMachineGraph::CreateNewState( ImVec2 const& mouseCanvasPos )
     {
+        GraphEditor::ScopedGraphModification sgm( this );
+
         auto pStateNode = KRG::New<Tools_StateNode>();
         pStateNode->Initialize( this );
         pStateNode->SetCanvasPosition( mouseCanvasPos );
@@ -50,6 +54,8 @@ namespace KRG::Animation::Graph
 
     void StateMachineGraph::CreateNewOffState( ImVec2 const& mouseCanvasPos )
     {
+        GraphEditor::ScopedGraphModification sgm( this );
+
         auto pStateNode = KRG::New<Tools_OffStateNode>();
         pStateNode->Initialize( this );
         pStateNode->SetCanvasPosition( mouseCanvasPos );

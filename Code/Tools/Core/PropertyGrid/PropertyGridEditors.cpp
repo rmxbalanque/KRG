@@ -1,6 +1,8 @@
 ﻿#include "PropertyGridEditors.h"
 #include "Tools/Core/Resource/ResourceFilePicker.h"
+#include "Tools/Core/Resource/ResourceDatabase.h"
 #include "Tools/Core/Widgets/CurveEditor.h"
+#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/DevUI/NumericUIHelpers.h"
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/Render/Imgui/ImguiX.h"
@@ -10,8 +12,7 @@
 
 namespace KRG::TypeSystem
 {
-    constexpr static float const g_itemSpacing = 2.0f;
-    constexpr static float const g_iconButtonWidth = 21.0f;
+    constexpr static float const g_iconButtonWidth = 22;
 
     //-------------------------------------------------------------------------
 
@@ -52,7 +53,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            ImGui::SetNextItemWidth( -1 );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
             if ( ImGui::BeginCombo( "##enumCombo", m_pEnumInfo->GetConstantLabel( m_value_imgui ).c_str() ) )
             {
                 for ( auto const& enumValue : m_pEnumInfo->m_constants )
@@ -306,7 +307,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            ImGui::SetNextItemWidth( -1 );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
 
             switch ( m_coreType )
             {
@@ -511,7 +512,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            ImGui::SetNextItemWidth( -1 );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
             ImGui::ColorEdit4( "##ce", &m_value_imgui.x );
             return ImGui::IsItemDeactivatedAfterEdit();
         }
@@ -626,8 +627,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const textAreaWidth = cellContentWidth - ( g_iconButtonWidth * 2 ) - ( g_itemSpacing * 3 );
+            float const textAreaWidth = ImGui::GetContentRegionAvail().x - ( g_iconButtonWidth * 2 ) - ( ImGui::GetStyle().ItemSpacing.x * 2 );
 
             ImGui::SetNextItemWidth( textAreaWidth );
             ImGui::InputFloat( "##ae", &m_valueInDegrees_imgui );
@@ -635,16 +635,16 @@ namespace KRG::TypeSystem
 
             //-------------------------------------------------------------------------
 
-            ImGui::SameLine( 0, g_itemSpacing );
-            if ( ImGui::Button( KRG_ICON_ANGLE_DOWN "##ClampShortest" ) )
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+            if ( ImGui::Button( KRG_ICON_ANGLE_DOWN "##ClampShortest", ImVec2( g_iconButtonWidth, 0 ) ) )
             {
                 m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClamped180().ToFloat();
                 valueChanged = true;
             }
             ImGuiX::ItemTooltip( "Clamp to Shortest Rotation [-180 : 180]" );
 
-            ImGui::SameLine( 0, g_itemSpacing );
-            if ( ImGui::Button( KRG_ICON_ANGLE_DOUBLE_DOWN "##ClampFull" ) )
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+            if ( ImGui::Button( KRG_ICON_ANGLE_DOUBLE_DOWN "##ClampFull", ImVec2( g_iconButtonWidth, 0 ) ) )
             {
                 m_valueInDegrees_imgui = Degrees( m_valueInDegrees_imgui ).GetClamped360().ToFloat();
                 valueChanged = true;
@@ -718,16 +718,15 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const textAreaWidth = cellContentWidth - g_iconButtonWidth - ( g_itemSpacing * 2 );
+            float const textAreaWidth = ImGui::GetContentRegionAvail().x - g_iconButtonWidth - ImGui::GetStyle().ItemSpacing.x;
 
             bool valueChanged = false;
 
             ImGui::SetNextItemWidth( textAreaWidth );
             ImGui::InputText( "##ue", m_stringValue.data(), m_stringValue.length(), ImGuiInputTextFlags_ReadOnly );
 
-            ImGui::SameLine( 0, g_itemSpacing );
-            if ( ImGui::Button( KRG_ICON_REFRESH "##Generate" ) )
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+            if ( ImGui::Button( KRG_ICON_REFRESH "##Generate", ImVec2( g_iconButtonWidth, 0 ) ) )
             {
                 m_value_imgui = UUID::GenerateID();
                 m_stringValue = m_value_imgui.ToString();
@@ -781,7 +780,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            ImGui::SetNextItemWidth( -1 );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
             if ( m_coreType == CoreTypeID::Microseconds )
             {
                 ImGui::InputFloat( "##teus", &m_value_imgui, 0.0f, 0.0f, "%.2fus" );
@@ -875,8 +874,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const textAreaWidth = cellContentWidth - g_iconButtonWidth - ( g_itemSpacing * 2 );
+            float const textAreaWidth = ImGui::GetContentRegionAvail().x - g_iconButtonWidth - ImGui::GetStyle().ItemSpacing.x;
 
             ImGui::SetNextItemWidth( textAreaWidth );
             ImGui::InputFloat( "##pe", &m_value_imgui, 0, 0, "%.2f%%" );
@@ -884,8 +882,8 @@ namespace KRG::TypeSystem
 
             //-------------------------------------------------------------------------
 
-            ImGui::SameLine( 0, g_itemSpacing );
-            if ( ImGui::Button( KRG_ICON_ANGLE_DOWN "##ClampPercentage" ) )
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+            if ( ImGui::Button( KRG_ICON_ANGLE_DOWN "##ClampPercentage", ImVec2( g_iconButtonWidth, 0 ) ) )
             {
                 m_value_imgui = ( Percentage( m_value_imgui / 100 ).GetClamped( true ) ).ToFloat() * 100;
                 valueChanged = true;
@@ -1103,28 +1101,20 @@ namespace KRG::TypeSystem
     {
     public:
 
-        ResourcePathEditor( TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+        ResourcePathEditor( TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
             : PropertyEditor( typeRegistry, propertyInfo, m_pPropertyInstance )
-            , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
+            , m_resourceDB( resourceDatabase )
+            , m_resourceFilePicker( resourceDatabase )
         {
             ResourcePathEditor::ResetWorkingCopy();
             KRG_ASSERT( m_coreType == CoreTypeID::ResourcePath || m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr );
 
             //-------------------------------------------------------------------------
 
-            if ( m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr )
-            {
-                for ( auto const& registeredResourceType : m_typeRegistry.GetRegisteredResourceTypes() )
-                {
-                    m_allowedResourceTypeIDs.emplace_back( registeredResourceType.second.m_resourceTypeID );
-                }
-            }
-            else if ( m_coreType == CoreTypeID::TResourcePtr )
+            if ( m_coreType == CoreTypeID::TResourcePtr )
             {
                 ResourceTypeID const allowedResourceTypeID = m_typeRegistry.GetResourceInfoForType( propertyInfo.m_templateArgumentTypeID )->m_resourceTypeID;
-                allowedResourceTypeID.GetString( m_resourceTypeStr );
-
-                m_allowedResourceTypeIDs.emplace_back( allowedResourceTypeID );
+                m_resourceFilePicker.SetTypeFilter( allowedResourceTypeID );
             }
         }
 
@@ -1138,57 +1128,41 @@ namespace KRG::TypeSystem
 
             if ( m_coreType == CoreTypeID::ResourcePath )
             {
-                float const textAreaWidth = cellContentWidth - ( g_iconButtonWidth * 2 ) - ( g_itemSpacing * 2 );
+                float const textAreaWidth = cellContentWidth - ( g_iconButtonWidth * 2 ) - ( ImGui::GetStyle().ItemSpacing.x * 2 );
 
                 ImGui::SetNextItemWidth( textAreaWidth );
                 ImGui::InputText( "##pathstring", const_cast<char*>( m_value_imgui.GetString().data() ), m_value_imgui.GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
-                ImGui::SameLine( 0, g_itemSpacing );
-                if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( g_iconButtonWidth - 1, 0 ) ) )
+                ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+                if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( g_iconButtonWidth, 0 ) ) )
                 {
-                    if ( ResourceFilePicker::PickFile( m_rawResourceDirectoryPath, m_value_imgui ) )
+                    auto const selectedFiles = pfd::open_file( "Choose Data File", m_resourceDB.GetRawResourceDirectoryPath().c_str(), { "All Files", "*" }, pfd::opt::none ).result();
+                    if ( !selectedFiles.empty() )
                     {
-                        valueChanged = true;
+                        FileSystem::Path const selectedPath( selectedFiles[0].c_str() );
+
+                        if ( selectedPath.IsUnderDirectory( m_resourceDB.GetRawResourceDirectoryPath() ) )
+                        {
+                            m_value_imgui = ResourcePath::FromFileSystemPath( m_resourceDB.GetRawResourceDirectoryPath().c_str(), selectedPath );
+                            valueChanged = true;
+                        }
+                        else
+                        {
+                            pfd::message( "Error", "Selected file is not with the resource folder!", pfd::choice::ok, pfd::icon::error ).result();
+                        }
                     }
+                }
+
+                ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+                if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear", ImVec2( g_iconButtonWidth, 0 ) ) )
+                {
+                    m_value_imgui.Clear();
+                    valueChanged = true;
                 }
             }
             else if ( m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr )
             {
-                constexpr static float const childWindowWidth = 36;
-
-                ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
-                ImGui::BeginChild( "##resourceType", ImVec2( childWindowWidth, 18 ), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
-                {
-                    ImGui::AlignTextToFramePadding();
-                    ImGui::TextColored( Colors::LightPink.ToFloat4(), m_resourceTypeStr );
-                }
-                ImGui::EndChild();
-                ImGui::PopStyleVar( 2 );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::SameLine( 0, g_itemSpacing );
-                ImGui::SetNextItemWidth( cellContentWidth - ( g_itemSpacing * 4 ) - ( g_iconButtonWidth * 2 ) - childWindowWidth );
-                ImGui::InputText( "##resourcePath", const_cast<char*>( m_value_imgui.GetString().c_str() ), m_value_imgui.GetString().length(), ImGuiInputTextFlags_ReadOnly );
-
-                ImGui::SameLine( 0, g_itemSpacing );
-                if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick" ) )
-                {
-                    if ( ResourceFilePicker::PickResourceFile( m_rawResourceDirectoryPath, m_allowedResourceTypeIDs, m_value_imgui ) )
-                    {
-                        valueChanged = true;
-                    }
-                }
-            }
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SameLine( 0, g_itemSpacing );
-            if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear" ) )
-            {
-                m_value_imgui.Clear();
-                valueChanged = true;
+                valueChanged = m_resourceFilePicker.Draw();
             }
 
             //-------------------------------------------------------------------------
@@ -1212,8 +1186,6 @@ namespace KRG::TypeSystem
             {
                 *reinterpret_cast<Resource::ResourcePtr*>( m_pPropertyInstance ) = m_value_cached.IsValid() ? ResourceID( m_value_cached ) : ResourceID();
             }
-
-            UpdateResourceTypeIDString();
         }
 
         virtual void ResetWorkingCopy() override
@@ -1231,23 +1203,6 @@ namespace KRG::TypeSystem
             {
                 Resource::ResourcePtr* pResourcePtr = reinterpret_cast<Resource::ResourcePtr*>( m_pPropertyInstance );
                 m_value_cached = m_value_imgui = pResourcePtr->GetResourcePath();
-            }
-
-            UpdateResourceTypeIDString();
-        }
-
-        void UpdateResourceTypeIDString()
-        {
-            if ( m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr )
-            {
-                if ( m_value_cached.IsValid() )
-                {
-                    ResourceID( m_value_cached ).GetResourceTypeID().GetString( m_resourceTypeStr );
-                }
-                else
-                {
-                    m_resourceTypeStr[0] = 0;
-                }
             }
         }
 
@@ -1278,11 +1233,10 @@ namespace KRG::TypeSystem
 
     private:
 
-        FileSystem::Path const          m_rawResourceDirectoryPath;
-        TVector<ResourceTypeID>         m_allowedResourceTypeIDs;
-        char                            m_resourceTypeStr[5] = { 0 };
-        ResourcePath                    m_value_imgui;
-        ResourcePath                    m_value_cached;
+        Resource::ResourceDatabase const&       m_resourceDB;
+        Resource::ResourceFilePicker            m_resourceFilePicker;
+        ResourcePath                            m_value_imgui;
+        ResourcePath                            m_value_cached;
     };
 
     //-------------------------------------------------------------------------
@@ -1299,39 +1253,21 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const childWindowWidth = 36;
-            float const textAreaWidth = cellContentWidth - childWindowWidth - g_itemSpacing;
-
             bool valueChanged = false;
 
             //-------------------------------------------------------------------------
 
-            ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 0 ) );
-            ImGui::BeginChild( "IDLabel", ImVec2( childWindowWidth, 18 ), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
-            {
-                ImGui::AlignTextToFramePadding();
-                ImGui::TextColored( Colors::LightPink.ToFloat4(), m_resourceTypeStr );
-            }
-            ImGui::EndChild();
-            ImGui::PopStyleVar( 2 );
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SetNextItemWidth( textAreaWidth );
-            ImGui::SameLine( 0, g_itemSpacing );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
             if ( ImGui::BeginCombo( "##resTypeID", m_resourceTypeFriendlyName.c_str()) )
             {
                 auto AddComboItem = [this, &valueChanged] ( ResourceInfo const& resourceInfo )
                 {
                     bool const isSelected = ( m_value_imgui.m_ID == resourceInfo.m_resourceTypeID );
-                    if ( ImGui::Selectable( resourceInfo.m_friendlyName.c_str(), isSelected ) )
+                    if ( ImGui::Selectable( resourceInfo.m_friendlyName.empty() ? "None" :  resourceInfo.m_friendlyName.c_str(), isSelected) )
                     {
                         if ( resourceInfo.m_resourceTypeID != m_value_imgui )
                         {
                             m_value_imgui = resourceInfo.m_resourceTypeID;
-                            m_value_imgui.GetString( m_resourceTypeStr );
                             m_resourceTypeFriendlyName = resourceInfo.m_friendlyName;
                             valueChanged = true;
                         }
@@ -1373,7 +1309,6 @@ namespace KRG::TypeSystem
         virtual void ResetWorkingCopy() override
         {
             m_value_cached = m_value_imgui = *reinterpret_cast<ResourceTypeID*>( m_pPropertyInstance );
-            m_value_cached.GetString( m_resourceTypeStr );
 
             if ( m_value_cached.IsValid() )
             {
@@ -1398,7 +1333,6 @@ namespace KRG::TypeSystem
 
         ResourceTypeID              m_value_imgui;
         ResourceTypeID              m_value_cached;
-        char                        m_resourceTypeStr[5];
         String                      m_resourceTypeFriendlyName;
     };
 
@@ -1538,7 +1472,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            ImGui::SetNextItemWidth( -1 );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x );
             ImGui::InputText( "##stringEd", m_buffer_imgui, 256);
             return ImGui::IsItemDeactivatedAfterEdit();
         }
@@ -1590,7 +1524,7 @@ namespace KRG::TypeSystem
         {
             float const cellContentWidth = ImGui::GetContentRegionAvail().x;
             float const childWindowWidth = 80;
-            float const textAreaWidth = cellContentWidth - childWindowWidth - g_itemSpacing;
+            float const textAreaWidth = cellContentWidth - childWindowWidth - ImGui::GetStyle().ItemSpacing.x;
 
             //-------------------------------------------------------------------------
 
@@ -1602,7 +1536,7 @@ namespace KRG::TypeSystem
             //-------------------------------------------------------------------------
 
             ImGui::SetNextItemWidth( textAreaWidth );
-            ImGui::SameLine( 0, g_itemSpacing );
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
             ImGui::InputText( "##StringInput", m_buffer_imgui, s_bufferSize );
             return ImGui::IsItemDeactivatedAfterEdit();
         }
@@ -1684,7 +1618,7 @@ namespace KRG::TypeSystem
         {
             //float const cellContentWidth = ImGui::GetContentRegionAvail().x;
             //float const childWindowWidth = 80;
-            //float const textAreaWidth = cellContentWidth - childWindowWidth - g_itemSpacing;
+            //float const textAreaWidth = cellContentWidth - childWindowWidth - ImGui::GetStyle().ItemSpacing.x;
 
             ////-------------------------------------------------------------------------
 
@@ -1696,7 +1630,7 @@ namespace KRG::TypeSystem
             ////-------------------------------------------------------------------------
 
             //ImGui::SetNextItemWidth( textAreaWidth );
-            //ImGui::SameLine( 0, g_itemSpacing );
+            //ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
             //ImGui::InputText( "##StringInput", m_buffer_imgui, 256 );
             //return ImGui::IsItemDeactivatedAfterEdit();
 
@@ -1749,7 +1683,7 @@ namespace KRG::TypeSystem
         virtual bool InternalUpdateAndDraw() override
         {
             float const contentWidth = ImGui::GetContentRegionAvail().x;
-            float const inputWidth = ( contentWidth - ( g_itemSpacing * 1 ) ) / 2;
+            float const inputWidth = ( contentWidth - ( ImGui::GetStyle().ItemSpacing.x * 1 ) ) / 2;
 
             //-------------------------------------------------------------------------
 
@@ -1764,7 +1698,7 @@ namespace KRG::TypeSystem
 
             //-------------------------------------------------------------------------
 
-            ImGui::SameLine( 0, g_itemSpacing );
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
 
             ImGui::SetNextItemWidth( inputWidth );
             ImGui::InputScalar( "##max", ImGuiDataType_S32, &m_value_imgui.m_end, 0, 0 );
@@ -1819,7 +1753,7 @@ namespace KRG::TypeSystem
         virtual bool InternalUpdateAndDraw() override
         {
             float const contentWidth = ImGui::GetContentRegionAvail().x;
-            float const inputWidth = ( contentWidth - ( g_itemSpacing * 1 ) ) / 2;
+            float const inputWidth = ( contentWidth - ( ImGui::GetStyle().ItemSpacing.x * 1 ) ) / 2;
 
             //-------------------------------------------------------------------------
 
@@ -1834,7 +1768,7 @@ namespace KRG::TypeSystem
 
             //-------------------------------------------------------------------------
 
-            ImGui::SameLine( 0, g_itemSpacing );
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
 
             ImGui::SetNextItemWidth( inputWidth );
             ImGui::InputFloat( "##max", &m_value_imgui.m_end, 0, 0, "%.3f", 0 );
@@ -1889,8 +1823,7 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const previewWidth = cellContentWidth - g_iconButtonWidth - ( g_itemSpacing * 2 );
+            float const previewWidth = ImGui::GetContentRegionAvail().x - g_iconButtonWidth - ImGui::GetStyle().ItemSpacing.x;
 
             bool valueChanged = false;
 
@@ -1900,7 +1833,7 @@ namespace KRG::TypeSystem
             }
             ImGui::EndChild();
 
-            ImGui::SameLine( 0, g_itemSpacing );
+            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
             if ( ImGui::Button( KRG_ICON_PENCIL "##OpenCurveEditor" ) )
             {
                 ImGui::OpenPopup( "CurveEditor" );
@@ -1952,7 +1885,7 @@ namespace KRG::TypeSystem
     // Factory Method
     //-------------------------------------------------------------------------
 
-    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
     {
         if ( propertyInfo.IsEnumProperty() )
         {
@@ -2075,7 +2008,7 @@ namespace KRG::TypeSystem
                 case CoreTypeID::ResourcePtr:
                 case CoreTypeID::TResourcePtr:
                 {
-                    return KRG::New<ResourcePathEditor>( typeRegistry, rawResourceDirectoryPath, propertyInfo, m_pPropertyInstance );
+                    return KRG::New<ResourcePathEditor>( typeRegistry, resourceDatabase, propertyInfo, m_pPropertyInstance );
                 }
                 break;
 

@@ -14,7 +14,7 @@ namespace KRG
 {
     ResourceDescriptorCreator::ResourceDescriptorCreator( EditorModel* pModel, TypeSystem::TypeID const descriptorTypeID, FileSystem::Path const& startingDir )
         : m_pModel( pModel )
-        , m_propertyGrid( *pModel->GetTypeRegistry(), pModel->GetSourceResourceDirectory() )
+        , m_propertyGrid( *pModel->GetTypeRegistry(), *pModel->GetResourceDatabase() )
         , m_startingPath( startingDir )
     {
         KRG_ASSERT( m_pModel != nullptr );

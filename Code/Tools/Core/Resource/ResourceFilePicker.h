@@ -1,23 +1,60 @@
 #pragma once
 #include "Tools/Core/_Module/API.h"
 #include "System/Resource/ResourceID.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    struct KRG_TOOLS_CORE_API ResourceFilePicker
+    class ResourceDatabase;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_TOOLS_CORE_API ResourceFilePicker final
     {
-        // Draw an imgui picker control, returns true if the type was edited
-        static bool DrawPickerControl( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceTypeID, ResourceID* pResourceID );
+        struct PickerOption
+        {
+            PickerOption( ResourceID const& resourceID );
 
-        // Pick any file in the data folder
-        static bool PickFile( FileSystem::Path const& sourceDataPath, ResourcePath& outPath );
+            ResourceID                  m_resourceID;
+            String                      m_filename;
+            String                      m_parentFolder;
+        };
 
-        // Pick only resources of the specific type from the data folder
-        static bool PickResourceFile( FileSystem::Path const& sourceDataPath, ResourceTypeID allowedResourceType, ResourcePath& outPath );
+    public:
 
-        // Pick only registered resources from the data folder
-        static bool PickResourceFile( FileSystem::Path const& sourceDataPath, TVector<ResourceTypeID> const& allowedResourceTypes, ResourcePath& outPath );
+        ResourceFilePicker( ResourceDatabase const& database );
+        ~ResourceFilePicker();
+
+        void SetInitialResourceID( ResourceID const& initialID );
+
+        // Set file restrictions
+        void SetTypeFilter( ResourceTypeID allowedResourceType );
+        void ClearTypeFilter();
+
+        // Draws the resource field - returns true if the value is changed
+        bool Draw();
+
+        // Get the result of the file selection
+        ResourceID const& GetPickedResourceID() const { return m_resourceID; }
+
+    private:
+
+        void RefreshResourceList();
+
+        // Draw the selection dialog, returns true if the dialog is closed
+        bool DrawDialog();
+
+    private:
+
+        ResourceDatabase const&         m_database;
+        ResourceID                      m_resourceID;
+        ResourceTypeID                  m_allowedResourceTypeID;
+        char                            m_filterBuffer[256];
+        EventBindingID                  m_databaseUpdateEventBindingID;
+        TVector<PickerOption>           m_knownResourceIDs;
+        TVector<PickerOption>           m_filteredResourceIDs;
+        ResourceID                      m_selectedID;
     };
 }

@@ -80,7 +80,7 @@ namespace KRG::Animation::Graph
     public:
 
         bool AreSlotValuesValid() const;
-        virtual ResourceTypeID GetSlotResourceType() const { return ResourceTypeID::Unknown; }
+        virtual ResourceTypeID GetSlotResourceType() const { return ResourceTypeID(); }
 
         // This will return the final resolved resource value for this slot
         ResourceID GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const;

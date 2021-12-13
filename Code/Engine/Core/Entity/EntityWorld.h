@@ -39,6 +39,7 @@ namespace KRG
 
         inline EntityWorldID const& GetID() const { return m_worldID; }
         inline bool IsGameWorld() const { return m_worldType == EntityWorldType::Game; }
+        
 
         void Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos );
         void Shutdown();
@@ -47,7 +48,7 @@ namespace KRG
         // Updates
         //-------------------------------------------------------------------------
 
-        // Has the world updates been suspended?
+        // Have the world updates been suspended?
         inline bool IsSuspended() const { return m_isSuspended; }
 
         // Put this world to sleep, no entity/system updates will be run
@@ -62,6 +63,19 @@ namespace KRG
         // This function will handle all actual loading/unloading operations for the world/maps.
         // Any queued requests will be handled here as will any requests to the resource system.
         void UpdateLoading();
+
+        //-------------------------------------------------------------------------
+        // Time Management
+        //-------------------------------------------------------------------------
+
+        // Is the current world paused
+        inline bool IsPaused() const { return m_timeScale <= 0.0f; }
+
+        // Get the current time scale for this world
+        inline float GetTimeScale() const { return m_timeScale; }
+
+        // Get the current time scale for this world
+        inline void SetTimeScale( float newTimeScale ) { m_timeScale = newTimeScale; }
 
         //-------------------------------------------------------------------------
         // Systems
@@ -170,6 +184,7 @@ namespace KRG
         TVector<IWorldEntitySystem*>                                            m_worldSystems;
         EntityWorldType                                                         m_worldType = EntityWorldType::Game;
         Render::Viewport                                                        m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
+        float                                                                   m_timeScale = 1.0f; // <= 0 means that the world is paused
 
         // Maps
         TInlineVector<EntityModel::EntityMap, 3>                                m_maps;
@@ -182,7 +197,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         THashMap<TypeSystem::TypeID, TVector<EntityComponent const*>>           m_componentTypeLookup;
-        Drawing::DrawingSystem                                                    m_debugDrawingSystem;
+        Drawing::DrawingSystem                                                  m_debugDrawingSystem;
         TVector<EntityWorldDebugView*>                                          m_debugViews;
         #endif
     };

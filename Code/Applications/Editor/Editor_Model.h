@@ -22,9 +22,10 @@ namespace KRG
         void Shutdown( UpdateContext const& context );
         void Update( UpdateContext const& context );
 
-        inline FileSystem::Path const& GetSourceResourceDirectory() const { return m_editorContext.m_sourceResourceDirectory; }
-        inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.m_compiledResourceDirectory; }
+        inline FileSystem::Path const& GetRawResourceDirectory() const { return m_editorContext.GetRawResourceDirectoryPath(); }
+        inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.GetCompiledResourceDirectoryPath(); }
         inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
+        inline Resource::ResourceDatabase const* GetResourceDatabase() const { return m_editorContext.m_pResourceDatabase; }
         inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
         inline Render::RenderingSystem* GetRenderingSystem() const { return m_pRenderingSystem; }
 
@@ -34,7 +35,8 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         bool IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const;
-        
+        char const* GetMapEditorWindowName() const;
+
         bool IsGamePreviewWorkspace( EditorWorkspace const* pWorkspace ) const;
         inline GamePreviewer* GetGamePreviewWorkspace() const { return m_pGamePreviewer; }
 
@@ -74,8 +76,9 @@ namespace KRG
 
         EntityModel::EntityMapEditor*       m_pMapEditor = nullptr;
         GamePreviewer*                      m_pGamePreviewer = nullptr;
-        EntityWorldManager*                 m_worldManager = nullptr;
+        EntityWorldManager*                 m_pWorldManager = nullptr;
         Render::RenderingSystem*            m_pRenderingSystem = nullptr;
+        Resource::ResourceDatabase          m_resourceDB;
         EditorContext                       m_editorContext;
         TVector<EditorWorkspace*>           m_workspaces;
         TVector<ResourceID>                 m_workspaceCreationRequests;

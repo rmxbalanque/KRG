@@ -210,5 +210,7 @@
     <ClInclude Include="Components\Component_Volumes.h" />
     <ClInclude Include="Entity\EntityIDs.h" />
     <ClInclude Include="DevUI\NumericUIHelpers.h" />
+    <ClInclude Include="Update\UpdateContext.h" />
+    <ClInclude Include="Update\UpdateStage.h" />
   </ItemGroup>
 </Project>

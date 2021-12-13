@@ -24,7 +24,7 @@ namespace KRG::Resource
         virtual bool IsUserCreateableDescriptor() const { return false; }
 
         // What is the compiled resource type for this descriptor - Only needed for user createable descriptors
-        virtual ResourceTypeID GetCompiledResourceTypeID() const { return ResourceTypeID::Unknown; }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const { return ResourceTypeID(); }
     };
 
     // Tools only deserialization function

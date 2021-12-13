@@ -27,7 +27,7 @@ namespace KRG::Resource
         for ( auto pRecord : m_files )
         {
             pRecord->m_filePath.ReplaceParentDirectory( newPath );
-            pRecord->m_path = ResourcePath::FromFileSystemPath( rawResourceDirectoryPath, pRecord->m_filePath );
+            pRecord->m_resourcePath = ResourcePath::FromFileSystemPath( rawResourceDirectoryPath, pRecord->m_filePath );
         }
     }
 
@@ -60,13 +60,23 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
-    void ResourceDatabase::Initialize( TypeSystem::TypeRegistry const* pTypeRegistry, FileSystem::Path const& rawResourceDirPath )
+    TVector<ResourceDatabase::ResourceRecord*> const& ResourceDatabase::GetAllResourcesOfType( ResourceTypeID typeID ) const
     {
-        KRG_ASSERT( !m_rawResourceDirPath.IsValid() && m_pTypeRegistry == nullptr );
+        KRG_ASSERT( m_pTypeRegistry->IsRegisteredResourceType( typeID ) );
+        return m_resourcesPerType.at( typeID );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void ResourceDatabase::Initialize( TypeSystem::TypeRegistry const* pTypeRegistry, FileSystem::Path const& rawResourceDirPath, FileSystem::Path const& compiledResourceDirPath )
+    {
+        KRG_ASSERT( m_pTypeRegistry == nullptr );
         KRG_ASSERT( pTypeRegistry != nullptr );
-        KRG_ASSERT( FileSystem::Exists( rawResourceDirPath ) );
+        KRG_ASSERT( !m_rawResourceDirPath.IsValid() && FileSystem::Exists( rawResourceDirPath ) );
+        KRG_ASSERT( !m_compiledResourceDirPath.IsValid() && FileSystem::Exists( compiledResourceDirPath ) );
 
         m_rawResourceDirPath = rawResourceDirPath;
+        m_compiledResourceDirPath = compiledResourceDirPath;
         m_dataDirectoryPathDepth = m_rawResourceDirPath.GetPathDepth();
         m_pTypeRegistry = pTypeRegistry;
 
@@ -102,23 +112,15 @@ namespace KRG::Resource
     bool ResourceDatabase::Update()
     {
         KRG_ASSERT( m_fileSystemWatcher.IsWatching() );
-        return m_fileSystemWatcher.Update();
-    }
-
-    //-------------------------------------------------------------------------
-
-    void ResourceDatabase::GetAllResourcesOfType( ResourceTypeID typeID, TVector<ResourceRecord*>& outResources ) const
-    {
-        KRG_ASSERT( m_pTypeRegistry->IsRegisteredResourceType( typeID ) );
-        TVector<ResourceRecord*> const& knownResources = m_resourcesPerType.at( typeID );
-
-        outResources.clear();
-        outResources.reserve( knownResources.size() );
-
-        for ( auto pRecord : knownResources )
+        bool const databaseUpdated = m_fileSystemWatcher.Update();
+        if ( databaseUpdated )
         {
-            outResources.emplace_back( pRecord );
+            if ( m_databaseUpdatedEvent.HasBoundUsers() )
+            {
+                m_databaseUpdatedEvent.Execute();
+            }
         }
+        return databaseUpdated;
     }
 
     //-------------------------------------------------------------------------
@@ -127,12 +129,18 @@ namespace KRG::Resource
     {
         m_resourcesPerType.clear();
         m_rootDir.Clear();
+
+        if ( m_databaseUpdatedEvent.HasBoundUsers() )
+        {
+            m_databaseUpdatedEvent.Execute();
+        }
     }
 
     // TODO: Make this async!
     void ResourceDatabase::RebuildDatabase()
     {
-        ClearDatabase();
+        m_resourcesPerType.clear();
+        m_rootDir.Clear();
 
         //-------------------------------------------------------------------------
 
@@ -152,6 +160,13 @@ namespace KRG::Resource
         for ( auto const& filePath : foundPaths )
         {
             AddFileRecord( filePath );
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_databaseUpdatedEvent.HasBoundUsers() )
+        {
+            m_databaseUpdatedEvent.Execute();
         }
     }
 
@@ -192,7 +207,7 @@ namespace KRG::Resource
         return pCurrentDir;
     }
 
-    KRG::Resource::ResourceDatabase::Directory* ResourceDatabase::FindOrCreateDirectory( FileSystem::Path const& dirPathToFind )
+    ResourceDatabase::Directory* ResourceDatabase::FindOrCreateDirectory( FileSystem::Path const& dirPathToFind )
     {
         KRG_ASSERT( dirPathToFind.IsDirectory() );
 
@@ -235,7 +250,7 @@ namespace KRG::Resource
     {
         auto pNewRecord = KRG::New<ResourceRecord>();
         pNewRecord->m_filePath = path;
-        pNewRecord->m_path = ResourcePath::FromFileSystemPath( m_rawResourceDirPath, path );
+        pNewRecord->m_resourcePath = ResourcePath::FromFileSystemPath( m_rawResourceDirPath, path );
 
         // Add to directory list
         Directory* pDirectory = FindOrCreateDirectory( path.GetParentDirectory() );
@@ -243,7 +258,7 @@ namespace KRG::Resource
         pDirectory->m_files.emplace_back( pNewRecord );
 
         // Add to per-type lists
-        ResourceTypeID resourceTypeID( pNewRecord->m_path.GetExtension() );
+        ResourceTypeID resourceTypeID( pNewRecord->m_resourcePath.GetExtension() );
         if ( m_pTypeRegistry->IsRegisteredResourceType( resourceTypeID ) )
         {
             pNewRecord->m_resourceTypeID = resourceTypeID;

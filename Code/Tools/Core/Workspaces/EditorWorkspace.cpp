@@ -29,6 +29,32 @@ namespace KRG
         m_workspaceWindowID.sprintf( "%s###window%u", m_displayName.c_str(), GetID() );
     }
 
+    void EditorWorkspace::DrawDefaultToolbarItems()
+    {
+        bool const isSavingAllowed = AlwaysAllowSaving() || IsDirty();
+
+        ImGui::BeginDisabled( !isSavingAllowed );
+        if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
+        {
+            Save();
+        }
+        ImGui::EndDisabled();
+
+        ImGui::BeginDisabled( !CanUndo() );
+        if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
+        {
+            Undo();
+        }
+        ImGui::EndDisabled();
+
+        ImGui::BeginDisabled( !CanRedo() );
+        if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
+        {
+            Redo();
+        }
+        ImGui::EndDisabled();
+    }
+
     void EditorWorkspace::Initialize( UpdateContext const& context )
     {
         SetDisplayName( m_displayName );

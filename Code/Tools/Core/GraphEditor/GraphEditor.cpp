@@ -169,6 +169,30 @@ namespace KRG::GraphEditor
         m_pChildGraph = pGraph;
     }
 
+    void BaseNode::BeginModification()
+    {
+        // Gets forwarded to the parent graph since all nodes have parent graph
+        m_pParentGraph->BeginModification();
+    }
+
+    void BaseNode::EndModification()
+    {
+        // Gets forwarded to the parent graph since all nodes have parent graph
+        m_pParentGraph->EndModification();
+    }
+
+    void BaseNode::SetCanvasPosition( ImVec2 const& newPosition )
+    {
+        BeginModification();
+        m_canvasPosition = newPosition;
+        EndModification();
+    }
+
+    //-------------------------------------------------------------------------
+
+    TMultiUserEventInternal<BaseGraph*> BaseGraph::s_onEndModification;
+    TMultiUserEventInternal<BaseGraph*> BaseGraph::s_onBeginModification;
+
     //-------------------------------------------------------------------------
 
     BaseGraph::~BaseGraph()
@@ -195,6 +219,45 @@ namespace KRG::GraphEditor
         m_nodes.clear();
         m_pParentNode = nullptr;
         m_ID.Clear();
+    }
+
+    BaseGraph* BaseGraph::GetRootGraph()
+    {
+        auto pRootGraph = this;
+        while ( pRootGraph->m_pParentNode != nullptr )
+        {
+            pRootGraph = pRootGraph->m_pParentNode->GetParentGraph();
+        }
+
+        return pRootGraph;
+    }
+
+    void BaseGraph::BeginModification()
+    {
+        if ( m_beginModificationCallCount == 0 )
+        {
+            if ( s_onBeginModification.HasBoundUsers() )
+            {
+                auto pRootGraph = GetRootGraph();
+                s_onBeginModification.Execute( pRootGraph );
+            }
+        }
+        m_beginModificationCallCount++;
+    }
+
+    void BaseGraph::EndModification()
+    {
+        KRG_ASSERT( m_beginModificationCallCount > 0 );
+        m_beginModificationCallCount--;
+
+        if ( m_beginModificationCallCount == 0 )
+        {
+            if ( s_onEndModification.HasBoundUsers() )
+            {
+                auto pRootGraph = GetRootGraph();
+                s_onEndModification.Execute( pRootGraph );
+            }
+        }
     }
 
     void BaseGraph::FindAllNodesOfType( TypeSystem::TypeID typeID, TInlineVector<BaseNode*, 20>& results, SearchMode mode, SearchTypeMatch typeMatch ) const
@@ -238,6 +301,7 @@ namespace KRG::GraphEditor
             auto pNode = *iter;
             if ( pNode->GetID() == nodeID )
             {
+                BeginModification();
                 PreDestroyNode( pNode );
 
                 // Delete the node
@@ -246,6 +310,7 @@ namespace KRG::GraphEditor
                 KRG::Delete( pNode );
 
                 PostDestroyNode( nodeID );
+                EndModification();
                 return;
             }
         }

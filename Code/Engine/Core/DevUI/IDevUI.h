@@ -28,10 +28,10 @@ namespace KRG::ImGuiX
         virtual void Shutdown( UpdateContext const& context ) = 0;
 
         // This is called at the start of the frame before we start updating any entities. Any entity/world/map state changes need to be done via this update!
-        virtual void FrameStartUpdate( UpdateContext const& context ) {}
+        virtual void StartFrame( UpdateContext const& context ) {}
 
         // This is called after all entity updates and just before we kick off rendering. It is generally NOT safe to modify any world/map during this update!
-        virtual void FrameEndUpdate( UpdateContext const& context ) {}
+        virtual void EndFrame( UpdateContext const& context ) {}
 
         // Hot Reload Support
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) = 0;

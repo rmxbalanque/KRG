@@ -32,7 +32,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         bool isOpen = true;
-        if ( ImGui::Begin( "Data Browser", &isOpen ) )
+        if ( ImGui::Begin( GetWindowName(), &isOpen) )
         {
             UpdateAndDrawBrowserFilters( context );
             m_treeView.Draw();
@@ -249,7 +249,7 @@ namespace KRG
         {
             if ( Resource::RawResourceInspectorFactory::CanCreateInspector( pResourceFileItem->GetFilePath() ) )
             {
-                m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_model.GetTypeRegistry(), m_model.GetSourceResourceDirectory(), pResourceFileItem->GetFilePath() );
+                m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_model.GetTypeRegistry(), *m_model.GetResourceDatabase(), pResourceFileItem->GetFilePath() );
             }
         }
     }

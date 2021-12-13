@@ -68,9 +68,7 @@ namespace KRG::GraphEditor
 
         bool DoesTransitionConduitExist( SM::State const* pStartState, SM::State const* pEndState ) const;
         bool CanCreateTransitionConduit( SM::State const* pStartState, SM::State const* pEndState ) const;
-
         void CreateTransitionConduit( SM::State const* pStartState, SM::State const* pEndState );
-        void DestroyAllTransitionConduitsForState( SM::State const* pState );
 
     protected:
 

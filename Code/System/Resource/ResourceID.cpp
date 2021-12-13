@@ -61,12 +61,12 @@ namespace KRG
             else
             {
                 m_path.Clear();
-                m_type = ResourceTypeID::Unknown;
+                m_type.Clear();
             }
         }
         else
         {
-            m_type = ResourceTypeID::Unknown;
+            m_type.Clear();
         }
     }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EntitySpatialComponent.h"
-#include "System/Core/Update/UpdateStage.h"
+#include "Engine/Core/Update/UpdateStage.h"
 #include "System/Core/Threading/Threading.h"
 #include "System/Core/Types/Event.h"
 

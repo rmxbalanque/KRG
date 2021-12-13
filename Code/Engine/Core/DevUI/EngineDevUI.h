@@ -2,7 +2,7 @@
 
 #include "IDevUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Logging/Log.h"
@@ -43,7 +43,7 @@ namespace KRG
 
         virtual void Initialize( UpdateContext const& context ) override final;
         virtual void Shutdown( UpdateContext const& context ) override final;
-        virtual void FrameEndUpdate( UpdateContext const& context ) override final;
+        virtual void EndFrame( UpdateContext const& context ) override final;
 
     private:
 
@@ -63,7 +63,9 @@ namespace KRG
         String                                              m_windowName;
 
         TVector<ModalPopupMessage>                          m_modalPopups;
-        Seconds                                             m_avgTimeDelta = 0.0f;
+        Seconds                                             m_averageDeltaTime = 0.0f;
+        float                                               m_timeScale = 1.0f;
+        bool                                                m_stepRequested = false;
         bool                                                m_debugOverlayEnabled = false;
 
         SystemLogView                                       m_systemLogView;

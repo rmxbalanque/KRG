@@ -15,7 +15,7 @@ namespace KRG::EntityModel
 {
     EntityMapEditor::EntityMapEditor( EditorContext const& context, EntityWorld* pWorld )
         : EditorWorkspace( context, pWorld )
-        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
+        , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
         m_gizmo.SetTargetTransform( &m_editedTransform );
 
@@ -29,6 +29,15 @@ namespace KRG::EntityModel
     {
         m_propertyGrid.OnPreEdit().Unbind( m_preEditBindingID );
         m_propertyGrid.OnPostEdit().Unbind( m_postEditBindingID );
+    }
+
+    void EntityMapEditor::Initialize( UpdateContext const& context )
+    {
+        EditorWorkspace::Initialize( context );
+
+        m_outlinerWindowName.sprintf( "Map Outline", GetID() );
+        m_entityViewWindowName.sprintf( "Entity Inspector##%u", GetID() );
+        m_propertyGridWindowName.sprintf( "Properties##%u", GetID() );
     }
 
     //-------------------------------------------------------------------------
@@ -56,7 +65,7 @@ namespace KRG::EntityModel
         // Should we save the current map before unloading?
         if ( IsDirty() )
         {
-            pfd::message saveChangesMsg( m_editorContext.m_sourceResourceDirectory.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+            pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
             if ( saveChangesMsg.result() == pfd::button::yes )
             {
                 Save();
@@ -66,7 +75,7 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        auto const mapFilename = pfd::save_file( "Create New Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" } ).result();
+        auto const mapFilename = pfd::save_file( "Create New Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" } ).result();
         if ( mapFilename.empty() )
         {
             return;
@@ -81,7 +90,7 @@ namespace KRG::EntityModel
             }
         }
 
-        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
         if ( mapResourceID == m_loadedMap )
         {
             pfd::message( "Error", "Cant override currently loaded map!", pfd::choice::ok, pfd::icon::error ).result();
@@ -111,14 +120,14 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::SelectAndLoadMap()
     {
-        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.m_sourceResourceDirectory.c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
+        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), {"Map Files", "*.map"}, pfd::opt::none).result();
         if ( selectedMap.empty() )
         {
             return;
         }
 
         FileSystem::Path const mapFilePath( selectedMap[0].c_str() );
-        ResourceID const mapToLoad = ResourcePath::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+        ResourceID const mapToLoad = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
         LoadMap( mapToLoad );
     }
 
@@ -131,7 +140,7 @@ namespace KRG::EntityModel
             // Should we save the current map before unloading?
             if ( IsDirty() )
             {
-                pfd::message saveChangesMsg( m_editorContext.m_sourceResourceDirectory.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+                pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no);
                 if ( saveChangesMsg.result() == pfd::button::yes )
                 {
                     Save();
@@ -147,7 +156,7 @@ namespace KRG::EntityModel
             // Load map
             m_loadedMap = mapToLoad.GetResourceID();
             m_pWorld->LoadMap( m_loadedMap );
-            SetDisplayName( m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory ).GetFileNameWithoutExtension() );
+            SetDisplayName( m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() ).GetFileNameWithoutExtension() );
         }
     }
 
@@ -167,7 +176,7 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.m_sourceResourceDirectory.c_str(), "Map File" );
+        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.GetRawResourceDirectoryPath().c_str(), "Map File");
         if ( !mapFilePath.IsValid() )
         {
             return;
@@ -179,7 +188,7 @@ namespace KRG::EntityModel
         EntityCollectionDescriptorWriter writer;
         if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, *pEditedMap ) )
         {
-            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.m_sourceResourceDirectory, mapFilePath );
+            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath);
             LoadMap( mapResourcePath );
         }
         else
@@ -196,7 +205,7 @@ namespace KRG::EntityModel
             return false;
         }
 
-        FileSystem::Path const filePath = m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+        FileSystem::Path const filePath = m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() );
         EntityCollectionDescriptorWriter writer;
         return writer.WriteCollection( *m_editorContext.m_pTypeRegistry, filePath, *pEditedMap );
     }
@@ -230,18 +239,25 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
-        ImGuiID topDockID = 0;
-        ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, nullptr, &topDockID );
+        ImGuiID topDockID = 0, bottomLeftDockID = 0, bottomCenterDockID = 0, bottomRightDockID = 0;
+        ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, &bottomCenterDockID, &topDockID );
+        ImGui::DockBuilderSplitNode( bottomCenterDockID, ImGuiDir_Right, 0.66f, &bottomCenterDockID, &bottomLeftDockID );
+        ImGui::DockBuilderSplitNode( bottomCenterDockID, ImGuiDir_Right, 0.5f, &bottomRightDockID, &bottomCenterDockID );
 
-        // Dock viewport
+        // Viewport Flags
         ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
-        pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
+        pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
+
+        // Dock windows
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
+        ImGui::DockBuilderDockWindow( m_outlinerWindowName.c_str(), bottomLeftDockID );
+        ImGui::DockBuilderDockWindow( m_entityViewWindowName.c_str(), bottomCenterDockID );
+        ImGui::DockBuilderDockWindow( m_propertyGridWindowName.c_str(), bottomRightDockID );
     }
 
     void EntityMapEditor::DrawWorkspaceToolbar( UpdateContext const& context )
     {
-        if ( ImGui::BeginMenu( "Map" ) )
+        if ( ImGui::BeginMenu( "File" ) )
         {
             if ( ImGui::MenuItem( "Create New Map" ) )
             {
@@ -265,6 +281,8 @@ namespace KRG::EntityModel
 
             ImGui::EndMenu();
         }
+
+        DrawDefaultToolbarItems();
     }
 
     void EntityMapEditor::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
@@ -486,7 +504,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawEntityOutliner( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Entity Outliner" ) )
+        if ( ImGui::Begin( m_outlinerWindowName.c_str() ) )
         {
             auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
             if ( pEditedMap != nullptr )
@@ -518,7 +536,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawEntityView( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Entity View" ) )
+        if ( ImGui::Begin( m_entityViewWindowName.c_str() ) )
         {
             if ( m_pSelectedEntity != nullptr )
             {
@@ -594,7 +612,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawPropertyGrid( UpdateContext const& context )
     {
-        if ( ImGui::Begin( "Properties" ) )
+        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
         {
             m_propertyGrid.DrawGrid();
         }

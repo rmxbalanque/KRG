@@ -18,7 +18,7 @@ namespace KRG
         ResourceBrowser( EditorModel& model );
         ~ResourceBrowser();
 
-        virtual char const * const GetName() { return "Resource Browser"; }
+        char const* const GetWindowName() { return "Resource Browser"; }
         bool Draw( UpdateContext const& context );
 
         void RebuildBrowserTree();

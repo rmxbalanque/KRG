@@ -10,7 +10,7 @@
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Types/String.h"
 #include "System/Core/Types/IntegralTypes.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "Win32/Application_Win32.h"
 #include <shellapi.h>
 
@@ -57,7 +57,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         SettingsRegistry                        m_settingsRegistry;
-        InternalUpdateContext                   m_updateContext;
+        Seconds                                 m_deltaTime = 0.0f;
 
         ImGuiX::ImguiSystem                     m_imguiSystem;
 

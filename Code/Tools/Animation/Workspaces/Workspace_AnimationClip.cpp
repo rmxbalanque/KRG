@@ -8,7 +8,7 @@
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Core/Math/MathStringHelpers.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "Engine/Core/DevUI/NumericUIHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace KRG::Animation
 
     AnimationClipWorkspace::AnimationClipWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
         : TResourceWorkspace<AnimationClip>( context, pWorld, resourceID )
-        , m_propertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
+        , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {}
 
     AnimationClipWorkspace::~AnimationClipWorkspace()
@@ -74,17 +74,12 @@ namespace KRG::Animation
 
     void AnimationClipWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
-        ImGuiID topDockID = 0;
-        ImGuiID bottomLeftDockID = 0;
-        ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.6f, nullptr, &topDockID );
-        ImGuiID bottomRightDockID = ImGui::DockBuilderSplitNode( bottomDockID, ImGuiDir_Right, 0.25f, nullptr, &bottomLeftDockID );
-
-        // Dock viewport
-        ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
-        pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-        ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
+        ImGuiID topDockID = 0, bottomDockID = 0, bottomLeftDockID = 0, bottomRightDockID = 0;
+        ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.33f, &bottomDockID, &topDockID );
+        ImGui::DockBuilderSplitNode( bottomDockID, ImGuiDir_Right, 0.25f, &bottomRightDockID, &bottomLeftDockID );
 
         // Dock windows
+        ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
         ImGui::DockBuilderDockWindow( m_timelineWindowName.c_str(), bottomLeftDockID );
         ImGui::DockBuilderDockWindow( m_trackDataWindowName.c_str(), bottomRightDockID );
         ImGui::DockBuilderDockWindow( m_detailsWindowName.c_str(), bottomRightDockID );
@@ -98,14 +93,14 @@ namespace KRG::Animation
             // Lazy init of the event editor
             if ( m_pEventEditor == nullptr )
             {
-                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.m_sourceResourceDirectory, m_pResource.GetPtr() );
+                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.GetRawResourceDirectoryPath(), m_pResource.GetPtr() );
             }
 
             // Initialize preview mesh
             if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
             {
                 // Load resource descriptor for skeleton to get the preview mesh
-                FileSystem::Path const resourceDescPath = m_pResource->GetSkeleton()->GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+                FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( m_pResource->GetSkeleton()->GetResourcePath() );
                 SkeletonResourceDescriptor resourceDesc;
                 TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
 

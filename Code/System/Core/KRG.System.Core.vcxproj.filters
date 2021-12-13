@@ -357,9 +357,6 @@
     <ClCompile Include="Serialization\BinaryArchive.cpp">
       <Filter>Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="Update\UpdateContext.cpp">
-      <Filter>Update</Filter>
-    </ClCompile>
     <ClCompile Include="Math\MathStringHelpers.cpp">
       <Filter>Math</Filter>
     </ClCompile>
@@ -1684,12 +1681,6 @@
     </ClInclude>
     <ClInclude Include="Serialization\UserTypes\krg_stringid.hpp">
       <Filter>Serialization\UserTypes</Filter>
-    </ClInclude>
-    <ClInclude Include="Update\UpdateContext.h">
-      <Filter>Update</Filter>
-    </ClInclude>
-    <ClInclude Include="Update\UpdateStage.h">
-      <Filter>Update</Filter>
     </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/_Module/API.h"
 #include "EntityIDs.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,6 +19,9 @@ namespace KRG
     public:
 
         EntityUpdateContext( UpdateContext const& context, EntityWorld* pWorld );
+
+        // Get the original delta time for this frame (without the world timescale applied)
+        KRG_FORCE_INLINE Seconds GetRawDeltaTime() const { return m_rawDeltaTime; }
 
         // Get the world ID - threadsafe
         EntityWorldID const& GetWorldID() const;
@@ -59,6 +62,7 @@ namespace KRG
     private:
 
         EntityWorld*                    m_pWorld = nullptr;
+        Seconds                         m_rawDeltaTime;
         bool                            m_isGameWorld = true;
     };
 }

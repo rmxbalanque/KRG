@@ -10,7 +10,7 @@ namespace KRG::Animation
 {
     namespace Graph
     {
-        class AnimationToolsGraph; 
+        class AnimationGraphToolsDefinition; 
         class ToolsGraphCompilationContext;
     }
 

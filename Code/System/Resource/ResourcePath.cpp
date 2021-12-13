@@ -147,6 +147,51 @@ namespace KRG
         }
     }
 
+    String ResourcePath::GetFileNameWithoutExtension() const
+    {
+        KRG_ASSERT( IsValid() );
+        auto filenameStartIdx = m_path.find_last_of( PathDelimiter );
+        KRG_ASSERT( filenameStartIdx != String::npos );
+        filenameStartIdx++;
+
+        //-------------------------------------------------------------------------
+
+        size_t extStartIdx = FindExtensionStartIdx( m_path );
+        if ( extStartIdx != String::npos )
+        {
+            return m_path.substr( filenameStartIdx, extStartIdx - filenameStartIdx - 1 );
+        }
+        else
+        {
+            return String( &m_path[filenameStartIdx] );
+        }
+    }
+
+    String ResourcePath::GetParentDirectory() const
+    {
+        KRG_ASSERT( IsValid() );
+
+        size_t lastDelimiterIdx = m_path.rfind( PathDelimiter );
+
+        // Handle directory paths
+        if ( lastDelimiterIdx == m_path.length() - 1 )
+        {
+            lastDelimiterIdx = m_path.rfind( PathDelimiter, lastDelimiterIdx - 1 );
+        }
+
+        //-------------------------------------------------------------------------
+
+        String parentPath;
+
+        // If we found a parent, create the substring for it
+        if ( lastDelimiterIdx != String::npos )
+        {
+            parentPath = m_path.substr( 0, lastDelimiterIdx + 1 );
+        }
+
+        return parentPath;
+    }
+
     String ResourcePath::GetExtension() const
     {
         KRG_ASSERT( IsValid() );

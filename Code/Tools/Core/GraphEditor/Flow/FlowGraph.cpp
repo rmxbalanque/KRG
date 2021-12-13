@@ -60,6 +60,7 @@ namespace KRG::GraphEditor::Flow
 
     void Node::CreateInputPin( char const* pPinName, uint32 valueType )
     {
+        ScopedNodeModification snm( this );
         auto& newPin = m_inputPins.emplace_back( Pin() );
         newPin.m_name = pPinName;
         newPin.m_type = valueType;
@@ -68,6 +69,7 @@ namespace KRG::GraphEditor::Flow
 
     void Node::CreateOutputPin( char const* pPinName, uint32 valueType, bool allowMultipleOutputConnections )
     {
+        ScopedNodeModification snm( this );
         auto& newPin = m_outputPins.emplace_back( Pin() );
         newPin.m_name = pPinName;
         newPin.m_type = valueType;
@@ -78,17 +80,17 @@ namespace KRG::GraphEditor::Flow
     void Node::DestroyInputPin( int32 pinIdx )
     {
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_inputPins.size() );
+        ScopedNodeModification snm( this );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_inputPins[pinIdx].m_ID );
         m_inputPins.erase( m_inputPins.begin() + pinIdx );
-        return;
     }
 
     void Node::DestroyOutputPin( int32 pinIdx )
     {
         KRG_ASSERT( pinIdx >= 0 && pinIdx < m_outputPins.size() );
+        ScopedNodeModification snm( this );
         static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( m_outputPins[pinIdx].m_ID );
         m_outputPins.erase( m_outputPins.begin() + pinIdx );
-        return;
     }
 
     void Node::DestroyPin( UUID const& pinID )
@@ -97,6 +99,7 @@ namespace KRG::GraphEditor::Flow
         {
             if ( iter->m_ID == pinID )
             {
+                ScopedNodeModification snm( this );
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_inputPins.erase( iter );
                 return;
@@ -107,6 +110,7 @@ namespace KRG::GraphEditor::Flow
         {
             if ( iter->m_ID == pinID )
             {
+                ScopedNodeModification snm( this );
                 static_cast<GraphEditor::FlowGraph*>( GetParentGraph() )->BreakAnyConnectionsForPin( pinID );
                 m_outputPins.erase( iter );
                 return;
@@ -118,6 +122,7 @@ namespace KRG::GraphEditor::Flow
 
     void Node::CreateDynamicInputPin()
     {
+        ScopedNodeModification snm( this );
         auto& newPin = m_inputPins.emplace_back( Pin() );
         newPin.m_name = GetNewDynamicInputPinName();
         newPin.m_type = GetDynamicInputPinValueType();
@@ -128,6 +133,7 @@ namespace KRG::GraphEditor::Flow
 
     void Node::DestroyDynamicInputPin( UUID const& pinID )
     {
+        ScopedNodeModification snm( this );
         auto pPin = GetInputPin( pinID );
         KRG_ASSERT( pPin != nullptr && pPin->IsDynamicPin() );
         OnDynamicPinDestruction( pinID );
@@ -271,6 +277,7 @@ namespace KRG::GraphEditor
         auto pPin = pNode->GetInputPin( pinID );
         KRG_ASSERT( pPin->IsDynamicPin() && pPin->IsInputPin() );
 
+        ScopedGraphModification sgm( this );
         BreakAnyConnectionsForPin( pPin->m_ID );
         pNode->DestroyDynamicInputPin( pPin->m_ID );
     }
@@ -308,6 +315,8 @@ namespace KRG::GraphEditor
 
         //-------------------------------------------------------------------------
 
+        ScopedGraphModification sgm( this );
+
         // Should we break any existing connections
         if ( !pOutputPin->m_allowMultipleOutConnections )
         {
@@ -333,6 +342,7 @@ namespace KRG::GraphEditor
         {
             if ( m_connections[i].m_ID == connectionID )
             {
+                ScopedGraphModification sgm( this );
                 m_connections.erase_unsorted( m_connections.begin() + i );
                 return;
             }
@@ -343,6 +353,7 @@ namespace KRG::GraphEditor
 
     void FlowGraph::BreakAnyConnectionsForPin( UUID const& pinID )
     {
+        ScopedGraphModification sgm( this );
         for ( int32 i = int32( m_connections.size() ) - 1; i >= 0; i-- )
         {
             if ( m_connections[i].m_startPinID == pinID || m_connections[i].m_endPinID == pinID )
@@ -356,6 +367,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( pNode != nullptr );
 
+        ScopedGraphModification sgm( this );
         for ( int32 i = int32( m_connections.size() ) - 1; i >= 0; i-- )
         {
             if ( m_connections[i].m_pStartNode == pNode || m_connections[i].m_pEndNode == pNode )
@@ -369,6 +381,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( nodeID.IsValid() );
 
+        ScopedGraphModification sgm( this );
         for ( int32 i = int32( m_connections.size() ) - 1; i >= 0; i-- )
         {
             if ( m_connections[i].m_pStartNode->GetID() == nodeID || m_connections[i].m_pEndNode->GetID() == nodeID )

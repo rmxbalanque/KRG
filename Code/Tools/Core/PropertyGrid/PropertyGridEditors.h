@@ -4,6 +4,10 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG::Resource { class ResourceDatabase; }
+
+//-------------------------------------------------------------------------
+
 namespace KRG::TypeSystem
 {
     struct PropertyInfo;
@@ -43,5 +47,5 @@ namespace KRG::TypeSystem
 
     //-------------------------------------------------------------------------
 
-    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
+    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, PropertyInfo const& propertyInfo, Byte* pPropertyInstance );
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "Tools/Core/UndoStack.h"
+#include "Tools/Core/Resource/ResourceDatabase.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Resource/ResourceID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -27,9 +28,25 @@ namespace KRG
 {
     struct EditorContext
     {
-        FileSystem::Path                    m_sourceResourceDirectory;
-        FileSystem::Path                    m_compiledResourceDirectory;
+        inline FileSystem::Path const& GetRawResourceDirectoryPath() const { return m_pResourceDatabase->GetRawResourceDirectoryPath(); }
+        inline FileSystem::Path const& GetCompiledResourceDirectoryPath() const { return m_pResourceDatabase->GetCompiledResourceDirectoryPath(); }
+
+        inline FileSystem::Path ToFileSystemPath( ResourcePath const& resourcePath ) const
+        {
+            KRG_ASSERT( m_pResourceDatabase != nullptr && resourcePath.IsValid() );
+            return resourcePath.ToFileSystemPath( m_pResourceDatabase->GetRawResourceDirectoryPath() );
+        }
+
+        inline FileSystem::Path ToFileSystemPath( ResourceID const& resourceID ) const
+        {
+            KRG_ASSERT( m_pResourceDatabase != nullptr && resourceID.IsValid() );
+            return resourceID.GetResourcePath().ToFileSystemPath(m_pResourceDatabase->GetRawResourceDirectoryPath());
+        }
+
+    public:
+
         TypeSystem::TypeRegistry const*     m_pTypeRegistry = nullptr;
+        Resource::ResourceDatabase const*   m_pResourceDatabase = nullptr;
         Resource::ResourceSystem*           m_pResourceSystem = nullptr;
     };
 
@@ -89,7 +106,7 @@ namespace KRG
         virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Draw any toolbar buttons that this workspace needs
-        virtual void DrawWorkspaceToolbar( UpdateContext const& context ) {}
+        virtual void DrawWorkspaceToolbar( UpdateContext const& context ) { DrawDefaultToolbarItems(); }
 
         // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) {}
@@ -97,21 +114,28 @@ namespace KRG
         // Draw the viewport toolbar
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
+        // Draw the viewport for this workspace
         bool DrawViewport( UpdateContext const& context, ImTextureID pViewportRenderTargetTexture, ImGuiWindowClass* pWindowClass );
 
         // Undo/Redo
         //-------------------------------------------------------------------------
 
+        // Called whenever we execute an undo or redo action
+        virtual void OnUndoRedo() {}
+
         inline bool CanUndo() { return m_undoStack.CanUndo(); }
-        inline void Undo() { return m_undoStack.Undo(); }
+        inline void Undo() { m_undoStack.Undo(); OnUndoRedo(); }
         inline bool CanRedo() { return m_undoStack.CanRedo(); }
-        inline void Redo() { return m_undoStack.Redo(); }
+        inline void Redo() { m_undoStack.Redo(); OnUndoRedo(); }
 
         // Saving and Dirty state
         //-------------------------------------------------------------------------
 
         // Has any modifications been made to this file?
         virtual bool IsDirty() const { return false; }
+
+        // Should we always allow saving?
+        virtual bool AlwaysAllowSaving() const { return false; }
 
         // Optional: Save functionality for files that support it
         virtual bool Save() { return false; }
@@ -126,6 +150,8 @@ namespace KRG
 
         inline Drawing::DrawContext GetDrawingContext();
         void SetDisplayName( String const& name );
+
+        void DrawDefaultToolbarItems();
 
         // Disable copies
         EditorWorkspace& operator=( EditorWorkspace const& ) = delete;

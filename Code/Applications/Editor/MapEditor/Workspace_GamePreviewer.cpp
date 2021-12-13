@@ -22,7 +22,7 @@ namespace KRG
             // Load map
             m_loadedMap = mapResourceID;
             m_pWorld->LoadMap( m_loadedMap );
-            SetDisplayName( m_loadedMap.GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory ).GetFileNameWithoutExtension() );
+            SetDisplayName( m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() ).GetFileNameWithoutExtension() );
         }
     }
 

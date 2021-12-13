@@ -13,18 +13,19 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class AnimationToolsGraph
+    class AnimationGraphToolsDefinition
     {
 
     public:
 
         // Graph will be initialize in an invalid state, you need to either create a new graph or load an existing graph
-        AnimationToolsGraph() = default;
-        ~AnimationToolsGraph();
+        AnimationGraphToolsDefinition() = default;
+        ~AnimationGraphToolsDefinition();
 
-        bool IsValid() const { return m_pRootGraph != nullptr; }
-
-        bool IsDirty() const { return false; }
+        inline bool IsValid() const { return m_pRootGraph != nullptr; }
+        inline bool IsDirty() const { return m_isDirty; }
+        inline void MarkDirty() { m_isDirty = true; }
+        inline void ClearDirty() { m_isDirty = false; }
 
         // File Operations
         //-------------------------------------------------------------------------
@@ -33,10 +34,10 @@ namespace KRG::Animation::Graph
         void CreateNew();
 
         // Load an existing graph
-        bool Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue );
+        bool LoadFromJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue );
 
         // Saves this graph
-        void Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const;
+        void SaveToJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const;
 
         // Graph
         //-------------------------------------------------------------------------
@@ -82,6 +83,10 @@ namespace KRG::Animation::Graph
         // Variations and Data Slots
         //-------------------------------------------------------------------------
 
+        inline bool IsDefaultVariationSelected() const { return m_selectedVariationID == AnimationGraphVariation::DefaultVariationID; }
+        inline StringID GetSelectedVariationID() const { return m_selectedVariationID; }
+        inline void SetSelectedVariation( StringID variationID ) { KRG_ASSERT( IsValidVariation( variationID ) ); m_selectedVariationID = variationID; }
+
         inline VariationHierarchy const& GetVariationHierarchy() const { return m_variationHierarchy; }
         inline VariationHierarchy& GetVariationHierarchy() { return m_variationHierarchy; }
         inline bool IsValidVariation( StringID variationID ) const { return m_variationHierarchy.IsValidVariation( variationID ); }
@@ -109,5 +114,7 @@ namespace KRG::Animation::Graph
         VariationHierarchy                              m_variationHierarchy;
         TVector<Tools_ControlParameterNode*>            m_controlParameters;
         TVector<Tools_VirtualParameterNode*>            m_virtualParameters;
+        StringID                                        m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
+        bool                                            m_isDirty = false;
     };
 }

@@ -5,7 +5,7 @@
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DevUI/NumericUIHelpers.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -67,12 +67,6 @@ namespace KRG::Animation
         ImGuiID leftDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.3f, nullptr, &viewportDockID );
         ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( viewportDockID, ImGuiDir_Down, 0.2f, nullptr, &viewportDockID );
 
-        // Set Flags
-        //-------------------------------------------------------------------------
-
-        ImGuiDockNode* pViewportNode = ImGui::DockBuilderGetNode( viewportDockID );
-        pViewportNode->LocalFlags |= ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-
         // Dock windows
         //-------------------------------------------------------------------------
 
@@ -119,7 +113,7 @@ namespace KRG::Animation
             if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
             {
                 // Load resource descriptor for skeleton to get the preview mesh
-                FileSystem::Path const resourceDescPath = m_pResource->GetResourcePath().ToFileSystemPath( m_editorContext.m_sourceResourceDirectory );
+                FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( m_pResource->GetResourcePath() );
                 SkeletonResourceDescriptor resourceDesc;
                 TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
 

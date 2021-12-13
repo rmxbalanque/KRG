@@ -396,7 +396,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevToolsUI->FrameStartUpdate( m_updateContext );
+                m_pDevToolsUI->StartFrame( m_updateContext );
                 #endif
 
                 //-------------------------------------------------------------------------
@@ -439,9 +439,6 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Pre-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PrePhysics;
-
-                //-------------------------------------------------------------------------
-
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -450,11 +447,11 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Physics Update" );
                 m_updateContext.m_stage = UpdateStage::Physics;
-
-                //-------------------------------------------------------------------------
-
-                m_pPhysicsSystem->Update( m_updateContext );
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
+
+                // Any global non-simulation updates needed (i.e. PVD)
+                // Scene simulations is run via the physics world system updates
+                m_pPhysicsSystem->Update( m_updateContext );
             }
 
             // Post-Physics
@@ -462,9 +459,15 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Post-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PostPhysics;
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
+            }
 
-                //-------------------------------------------------------------------------
-
+            // Pause Updates
+            //-------------------------------------------------------------------------
+            // This is an optional update that's only run when a world is "paused"
+            {
+                KRG_PROFILE_SCOPE_SCENE( "Paused Update" );
+                m_updateContext.m_stage = UpdateStage::Paused;
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -473,13 +476,12 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Frame End" );
                 m_updateContext.m_stage = UpdateStage::FrameEnd;
+                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 //-------------------------------------------------------------------------
 
-                m_pEntityWorldManager->UpdateWorlds( m_updateContext );
-
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevToolsUI->FrameEndUpdate( m_updateContext );
+                m_pDevToolsUI->EndFrame( m_updateContext );
                 m_pImguiSystem->EndFrame();
                 #endif
 

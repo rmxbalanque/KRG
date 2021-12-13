@@ -1,6 +1,6 @@
 #include "ResourceCompiler_AnimationGraph.h"
 #include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Compilation.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Definition.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "System/Core/FileSystem/FileSystem.h"
 
@@ -40,8 +40,8 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationToolsGraph toolsGraph;
-        if ( !toolsGraph.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
+        Graph::AnimationGraphToolsDefinition toolsGraph;
+        if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
@@ -132,8 +132,8 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationToolsGraph toolsGraph;
-        if ( !toolsGraph.Load( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
+        Graph::AnimationGraphToolsDefinition toolsGraph;
+        if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
@@ -216,7 +216,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationToolsGraph const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationGraphToolsDefinition const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
     {
         AnimationGraphDataSet dataSet;
         dataSet.m_variationID = variationID;

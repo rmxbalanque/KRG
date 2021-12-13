@@ -56,6 +56,13 @@ namespace KRG
         inline void Clear() { m_path.clear(); m_ID = 0; }
         inline uint32 GetID() const { return m_ID; }
 
+        // Path info
+        //-------------------------------------------------------------------------
+
+        String GetFileNameWithoutExtension() const;
+
+        String GetParentDirectory() const;
+
         // Extension
         //-------------------------------------------------------------------------
 

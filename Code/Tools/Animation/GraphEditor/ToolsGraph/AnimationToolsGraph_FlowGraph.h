@@ -8,7 +8,7 @@ namespace KRG::Animation::Graph
 {
     class FlowGraph : public GraphEditor::FlowGraph
     {
-        friend class AnimationToolsGraph;
+        friend class AnimationGraphToolsDefinition;
         KRG_REGISTER_TYPE( FlowGraph );
 
     public:
@@ -23,6 +23,8 @@ namespace KRG::Animation::Graph
         template<typename T, typename ... ConstructorParams>
         T* CreateNode( ConstructorParams&&... params )
         {
+            GraphEditor::ScopedGraphModification sgm( this );
+
             static_assert( std::is_base_of<Tools_GraphNode, T>::value );
             auto pNode = KRG::New<T>( std::forward<ConstructorParams>( params )... );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );
@@ -33,6 +35,8 @@ namespace KRG::Animation::Graph
 
         Tools_GraphNode* CreateNode( TypeSystem::TypeInfo const* pTypeInfo )
         {
+            GraphEditor::ScopedGraphModification sgm( this );
+
             KRG_ASSERT( pTypeInfo->IsDerivedFrom( Tools_GraphNode::GetStaticTypeID() ) );
             auto pNode = Cast<Tools_GraphNode>( pTypeInfo->m_pTypeHelper->CreateType() );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );

@@ -245,7 +245,7 @@ namespace KRG::Physics
         cullingBoundsPosition += viewForward * debugHalfDistance;
 
         AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );
-        pPhysicsSystem->m_pScene->setVisualizationCullingBox( ToPx( debugBounds ) );
+        pPhysicsSystem->SetDebugCullingBox( debugBounds );
 
         //-------------------------------------------------------------------------
 

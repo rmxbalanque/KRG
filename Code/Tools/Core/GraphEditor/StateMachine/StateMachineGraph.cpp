@@ -7,6 +7,7 @@ namespace KRG::GraphEditor
     void StateMachineGraph::SetDefaultEntryState( UUID const& newDefaultEntryStateID )
     {
         KRG_ASSERT( newDefaultEntryStateID.IsValid() && FindNode( newDefaultEntryStateID ) != nullptr );
+        ScopedGraphModification sgm( this );
         m_entryStateID = newDefaultEntryStateID;
     }
 
@@ -48,6 +49,7 @@ namespace KRG::GraphEditor
     {
         KRG_ASSERT( CanCreateTransitionConduit( pStartState, pEndState ) );
 
+        ScopedGraphModification sgm( this );
         auto pTransitionNode = CreateTransitionNode();
         pTransitionNode->Initialize( this );
         pTransitionNode->m_startStateID = pStartState->m_ID;
@@ -55,24 +57,19 @@ namespace KRG::GraphEditor
         AddNode( pTransitionNode );
     }
 
-    void StateMachineGraph::DestroyAllTransitionConduitsForState( SM::State const* pState )
-    {
-        auto const transitions = FindAllNodesOfType<SM::TransitionConduit>();
-        for ( auto pTransition : transitions )
-        {
-            if ( pTransition->m_startStateID == pState->m_ID || pTransition->m_endStateID == pState->m_ID )
-            {
-                DestroyNode( pTransition->GetID() );
-            }
-        }
-    }
-
     void StateMachineGraph::PreDestroyNode( BaseNode* pNodeAboutToBeDestroyed )
     {
         auto pStateNode = TryCast<SM::State>( pNodeAboutToBeDestroyed );
         if ( pStateNode != nullptr )
         {
-            DestroyAllTransitionConduitsForState( pStateNode );
+            auto const transitions = FindAllNodesOfType<SM::TransitionConduit>();
+            for ( auto pTransition : transitions )
+            {
+                if ( pTransition->m_startStateID == pStateNode->m_ID || pTransition->m_endStateID == pStateNode->m_ID )
+                {
+                    DestroyNode( pTransition->GetID() );
+                }
+            }
         }
 
         BaseGraph::PreDestroyNode( pNodeAboutToBeDestroyed );

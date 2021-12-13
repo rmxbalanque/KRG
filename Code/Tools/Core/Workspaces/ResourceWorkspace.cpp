@@ -52,10 +52,10 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     GenericResourceWorkspace::GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
-        : EditorWorkspace( context, pWorld, resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ).GetFileNameWithoutExtension() )
+        : EditorWorkspace( context, pWorld, context.ToFileSystemPath( resourceID.GetResourcePath() ).GetFileNameWithoutExtension() )
         , m_descriptorID( resourceID )
-        , m_descriptorPath( resourceID.GetResourcePath().ToFileSystemPath( context.m_sourceResourceDirectory ) )
-        , m_descriptorPropertyGrid( *context.m_pTypeRegistry, context.m_sourceResourceDirectory )
+        , m_descriptorPath( resourceID.GetResourcePath().ToFileSystemPath( context.GetRawResourceDirectoryPath() ) )
+        , m_descriptorPropertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
         KRG_ASSERT( resourceID.IsValid() );
 
@@ -139,6 +139,8 @@ namespace KRG
 
     void GenericResourceWorkspace::DrawWorkspaceToolbar( UpdateContext const& context )
     {
+        EditorWorkspace::DrawWorkspaceToolbar( context );
+
         if ( ImGui::MenuItem( KRG_ICON_CLONE" Copy Path" ) )
         {
             ImGui::SetClipboardText( m_descriptorID.c_str() );

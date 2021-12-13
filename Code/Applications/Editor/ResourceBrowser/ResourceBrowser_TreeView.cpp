@@ -32,8 +32,8 @@ namespace KRG
 
     ResourceBrowserTreeView::ResourceBrowserTreeView( EditorModel* pModel )
         : m_pModel( pModel )
-        , m_sourceDirectoryPath( pModel->GetSourceResourceDirectory() )
-        , m_dataDirectoryPathDepth( pModel->GetSourceResourceDirectory().GetPathDepth() )
+        , m_sourceDirectoryPath( pModel->GetRawResourceDirectory() )
+        , m_dataDirectoryPathDepth( pModel->GetRawResourceDirectory().GetPathDepth() )
     {
         KRG_ASSERT( m_pModel != nullptr );
         KRG_ASSERT( FileSystem::Exists( m_sourceDirectoryPath ) );

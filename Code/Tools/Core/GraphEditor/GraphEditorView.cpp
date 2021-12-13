@@ -67,9 +67,16 @@ namespace KRG::GraphEditor
 
     //-------------------------------------------------------------------------
 
+    void BaseGraphView::SelectNode( BaseNode const* pNode )
+    {
+        KRG_ASSERT( GetViewedGraph()->FindNode( pNode->GetID() ) != nullptr );
+        ClearSelection();
+        AddToSelection( const_cast<BaseNode*>( pNode ) );
+    }
+
     void BaseGraphView::ClearSelection()
     {
-        TVector<BaseNode*> oldSelection;
+        TVector<SelectedNode> oldSelection;
         oldSelection.swap( m_selectedNodes );
         OnSelectionChangedInternal( oldSelection, m_selectedNodes );
     }
@@ -79,27 +86,27 @@ namespace KRG::GraphEditor
         KRG_ASSERT( pNewSelectedNode != nullptr );
 
         // Avoid calling the notification if the selection hasn't changed
-        if ( m_selectedNodes.size() == 1 && m_selectedNodes[0] == pNewSelectedNode )
+        if ( m_selectedNodes.size() == 1 && m_selectedNodes[0].m_pNode == pNewSelectedNode )
         {
             return;
         }
 
         //-------------------------------------------------------------------------
 
-        TVector<BaseNode*> oldSelection;
+        TVector<SelectedNode> oldSelection;
         oldSelection.swap( m_selectedNodes );
         m_selectedNodes.emplace_back( pNewSelectedNode );
         OnSelectionChangedInternal( oldSelection, m_selectedNodes );
     }
 
-    void BaseGraphView::UpdateSelection( TVector<BaseNode*>&& newSelection )
+    void BaseGraphView::UpdateSelection( TVector<SelectedNode>&& newSelection )
     {
-        for ( auto pNode : newSelection )
+        for ( auto& selectedNode : newSelection )
         {
-            KRG_ASSERT( pNode != nullptr );
+            KRG_ASSERT( selectedNode.m_pNode != nullptr );
         }
 
-        TVector<BaseNode*> oldSelection;
+        TVector<SelectedNode> oldSelection;
         oldSelection.swap( m_selectedNodes );
         m_selectedNodes.swap( newSelection );
         OnSelectionChangedInternal( oldSelection, m_selectedNodes );
@@ -110,7 +117,7 @@ namespace KRG::GraphEditor
         KRG_ASSERT( pNodeToAdd != nullptr );
         KRG_ASSERT( !IsNodeSelected( pNodeToAdd ) );
 
-        TVector<BaseNode*> oldSelection;
+        TVector<SelectedNode> oldSelection;
         oldSelection.swap( m_selectedNodes );
         m_selectedNodes.emplace_back( pNodeToAdd );
         OnSelectionChangedInternal( oldSelection, m_selectedNodes );
@@ -121,7 +128,7 @@ namespace KRG::GraphEditor
         KRG_ASSERT( pNodeToRemove != nullptr );
         KRG_ASSERT( IsNodeSelected( pNodeToRemove ) );
 
-        TVector<BaseNode*> oldSelection = m_selectedNodes;
+        TVector<SelectedNode> oldSelection = m_selectedNodes;
         m_selectedNodes.erase_first( pNodeToRemove );
         OnSelectionChangedInternal( oldSelection, m_selectedNodes );
     }

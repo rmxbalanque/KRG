@@ -3,7 +3,7 @@
 #include "_Module/API.h"
 #include "PhysX.h"
 #include "PhysicsMaterial.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
 
 //-------------------------------------------------------------------------
@@ -35,16 +35,14 @@ namespace KRG::Physics
         void Shutdown();
         void Update( UpdateContext& ctx );
 
-        // PhysX accessors
+        // PhysX Helpers
         //-------------------------------------------------------------------------
 
+        // Get the created physx context
         inline physx::PxPhysics& GetPxPhysics() const { return *m_pPhysics; }
 
-        // Scene Management
-        //-------------------------------------------------------------------------
-
+        // Scene factory method - transfers ownership of the scene to the calling code
         physx::PxScene* CreateScene();
-        void DestroyScene( physx::PxScene*& pScene );
 
         // Physic Materials
         //-------------------------------------------------------------------------
@@ -81,7 +79,6 @@ namespace KRG::Physics
 
         THashMap<StringID, PhysicsMaterial>             m_materials;
         physx::PxMaterial*                              m_pDefaultMaterial = nullptr;
-        TInlineVector<physx::PxScene*, 4>               m_scenes;
 
         #if KRG_DEVELOPMENT_TOOLS
         physx::PxPvd*                                   m_pPVD = nullptr;

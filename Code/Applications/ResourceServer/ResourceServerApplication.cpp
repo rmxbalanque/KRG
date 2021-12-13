@@ -317,17 +317,17 @@ namespace KRG
 
             if ( !m_applicationWindowHidden )
             {
-                m_imguiSystem.StartFrame( m_updateContext.GetDeltaTime() );
+                m_imguiSystem.StartFrame( m_deltaTime );
               
                 m_resourceServerUI.Draw();
 
                 m_imguiSystem.EndFrame();
-                m_imguiRenderer.RenderViewport( m_updateContext.GetDeltaTime(), m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_viewport );
+                m_imguiRenderer.RenderViewport( m_deltaTime, m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_viewport );
                 m_pRenderDevice->PresentFrame();
             }
         }
 
-        m_updateContext.UpdateDeltaTime( deltaTime );
+        m_deltaTime = deltaTime;
         EngineClock::Update( deltaTime );
 
         return true;

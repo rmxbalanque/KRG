@@ -1,10 +1,18 @@
 #pragma once
-#include "AnimationGraphEditor_Model.h"
+#include "System/Core/Types/UUID.h"
+
+struct ImGuiWindowClass;
+namespace KRG { class UpdateContext; }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
+    class AnimationGraphToolsDefinition;
+    struct DebugContext;
+
+    //-------------------------------------------------------------------------
+
     class GraphControlParameterEditor
     {
         enum class OperationType
@@ -16,23 +24,23 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphControlParameterEditor( GraphEditorModel& graphModel );
+        GraphControlParameterEditor( AnimationGraphToolsDefinition* pGraphDefinition );
 
-        void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
+        void UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
     private:
 
         void DrawAddParameterUI();
 
-        void StartRename( UUID parameterID );
-        void StartDelete( UUID parameterID );
+        void StartRename( UUID const& parameterID );
+        void StartDelete( UUID const& parameterID );
         void DrawActiveOperationUI();
 
     private:
 
-        GraphEditorModel&           m_graphModel;
-        UUID                        m_currentOperationParameterID;
-        char                        m_buffer[255];
-        OperationType               m_activeOperation;
+        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        UUID                                m_currentOperationParameterID;
+        char                                m_buffer[255];
+        OperationType                       m_activeOperation;
     };
 }

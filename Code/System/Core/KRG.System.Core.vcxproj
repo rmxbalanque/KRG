@@ -463,8 +463,6 @@
     <ClInclude Include="Types\StringID.h" />
     <ClInclude Include="Types\Tag.h" />
     <ClInclude Include="Types\UUID.h" />
-    <ClInclude Include="Update\UpdateContext.h" />
-    <ClInclude Include="Update\UpdateStage.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -529,7 +527,6 @@
     <ClCompile Include="Types\Tag.cpp" />
     <ClCompile Include="Types\UUID.cpp" />
     <ClCompile Include="Types\Platform\Types_Win32.cpp" />
-    <ClCompile Include="Update\UpdateContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\concurrentqueue\LICENSE.md" />

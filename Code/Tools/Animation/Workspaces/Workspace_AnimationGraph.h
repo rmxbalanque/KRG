@@ -1,17 +1,27 @@
 #pragma once
 
-#include "Tools/Animation/GraphEditor/AnimationGraphEditor_Model.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_ControlParameterEditor.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_GraphView.h"
-#include "Tools/Animation/GraphEditor/AnimationGraphEditor_PropertyGrid.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_VariationEditor.h"
+#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Common.h"
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Engine/Animation/Graph/AnimationGraphResources.h"
 
 //-------------------------------------------------------------------------
 
+namespace KRG::Animation
+{
+    class AnimationGraphComponent;
+}
+
+//-------------------------------------------------------------------------
+
 namespace KRG::Animation::Graph
 {
+    class GraphUndoableAction;
+
+    //-------------------------------------------------------------------------
+
     class AnimationGraphWorkspace final : public TResourceWorkspace<AnimationGraphDefinition>
     {
     public:
@@ -27,9 +37,19 @@ namespace KRG::Animation::Graph
 
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
-
+        virtual void OnUndoRedo() override;
         virtual bool IsDirty() const override;
+        virtual bool AlwaysAllowSaving() const override { return true; }
         virtual bool Save() override;
+
+        void GenerateAnimGraphVariationDescriptors();
+
+        // Preview
+        //-------------------------------------------------------------------------
+
+        inline bool IsPreviewing() const { return m_isPreviewing; }
+        void StartPreview();
+        void StopPreview();
 
     private:
 
@@ -38,10 +58,26 @@ namespace KRG::Animation::Graph
         String                              m_propertyGridWindowName;
         String                              m_variationEditorWindowName;
 
-        GraphEditorModel                    m_graphEditorModel;
-        GraphControlParameterEditor         m_controlParameterEditor;
-        GraphView                           m_graphView;
-        GraphPropertyGrid                   m_propertyGrid;
-        GraphVariationEditor                m_variationEditor;
+        EventBindingID                      m_rootGraphBeginModificationBindingID;
+        EventBindingID                      m_rootGraphEndModificationBindingID;
+        EventBindingID                      m_preEditEventBindingID;
+        EventBindingID                      m_postEditEventBindingID;
+
+        GraphUndoableAction*                m_pActiveUndoableAction = nullptr;
+        int32                               m_beginCallCount = 0;
+
+        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        FileSystem::Path                    m_graphFilePath;
+        StringID                            m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
+
+        Entity*                             m_pPreviewEntity = nullptr;
+        AnimationGraphComponent*            m_pGraphComponent = nullptr;
+        DebugContext                        m_debugContext;
+        bool                                m_isPreviewing = false;
+
+        GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
+        GraphVariationEditor*               m_pVariationEditor = nullptr;
+        GraphView*                          m_pGraphView = nullptr;
+        PropertyGrid                        m_propertyGrid;
     };
 }

@@ -43,12 +43,8 @@ namespace KRG::Render
         ImGuiID topDockID = 0;
         ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Down, 0.5f, nullptr, &topDockID );
 
-        // Dock viewport
-        ImGuiDockNode* pTopNode = ImGui::DockBuilderGetNode( topDockID );
-        pTopNode->LocalFlags |= ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-        ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
-
         // Dock windows
+        ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
         ImGui::DockBuilderDockWindow( m_materialDetailsWindowName.c_str(), bottomDockID );
     }

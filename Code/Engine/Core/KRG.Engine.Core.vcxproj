@@ -98,6 +98,8 @@
     <ClInclude Include="Modules\EngineModuleContext.h" />
     <ClInclude Include="Modules\IEngineModule.h" />
     <ClInclude Include="DevUI\EngineDevUI.h" />
+    <ClInclude Include="Update\UpdateContext.h" />
+    <ClInclude Include="Update\UpdateStage.h" />
     <ClInclude Include="_Module\API.h" />
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>

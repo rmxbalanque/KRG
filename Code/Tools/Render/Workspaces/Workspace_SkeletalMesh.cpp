@@ -3,7 +3,7 @@
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DevUI/NumericUIHelpers.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -69,15 +69,7 @@ namespace KRG::Render
         ImGuiID bottomDockID = ImGui::DockBuilderSplitNode( viewportDockID, ImGuiDir_Down, 0.2f, nullptr, &viewportDockID );
         ImGuiID leftBottomDockID = ImGui::DockBuilderSplitNode( leftTopDockID, ImGuiDir_Down, 0.2f, nullptr, &leftTopDockID );
 
-        // Set Flags
-        //-------------------------------------------------------------------------
-
-        ImGuiDockNode* pViewportNode = ImGui::DockBuilderGetNode( viewportDockID );
-        pViewportNode->LocalFlags |= ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoDockingSplitMe | ImGuiDockNodeFlags_NoDockingOverMe;
-
         // Dock windows
-        //-------------------------------------------------------------------------
-
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), viewportDockID );
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomDockID );
         ImGui::DockBuilderDockWindow( m_meshInfoWindowName.c_str(), bottomDockID );

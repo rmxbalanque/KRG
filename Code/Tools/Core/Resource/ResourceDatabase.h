@@ -3,6 +3,7 @@
 #include "System/Resource/ResourcePath.h"
 #include "System/Resource/ResourceTypeID.h"
 #include "System/Core/Types/StringID.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -16,7 +17,7 @@ namespace KRG::Resource
     {
         struct ResourceRecord
         {
-            ResourcePath                                            m_path;
+            ResourcePath                                            m_resourcePath;
             FileSystem::Path                                        m_filePath;
             ResourceTypeID                                          m_resourceTypeID;
         };
@@ -42,14 +43,25 @@ namespace KRG::Resource
         ~ResourceDatabase();
 
         inline bool IsInitialized() const { return m_pTypeRegistry != nullptr; }
-        void Initialize( TypeSystem::TypeRegistry const* pTypeRegistry, FileSystem::Path const& rawResourceDirPath );
+        void Initialize( TypeSystem::TypeRegistry const* pTypeRegistry, FileSystem::Path const& rawResourceDirPath, FileSystem::Path const& compiledResourceDirPath );
         void Shutdown();
+
+        inline FileSystem::Path const& GetRawResourceDirectoryPath() const { return m_rawResourceDirPath; }
+        inline FileSystem::Path const& GetCompiledResourceDirectoryPath() const { return m_compiledResourceDirPath; }
+
+        //-------------------------------------------------------------------------
 
         // Process any filesystem updates, returns true if any changes were detected!
         bool Update();
 
+        // Gets the list of all found resources
+        THashMap<ResourceTypeID, TVector<ResourceRecord*>> const& GetAllResources() const { return m_resourcesPerType; }
+
         // Get a list of all known resource of the specified type
-        void GetAllResourcesOfType( ResourceTypeID typeID, TVector<ResourceRecord*>& outResources ) const;
+        TVector<ResourceRecord*> const& GetAllResourcesOfType( ResourceTypeID typeID ) const;
+
+        // Event that fires whenever the database is updated
+        MultiUserSignal OnDatabaseUpdated() const { return m_databaseUpdatedEvent; }
 
     private:
 
@@ -76,10 +88,12 @@ namespace KRG::Resource
 
         TypeSystem::TypeRegistry const*                             m_pTypeRegistry;
         FileSystem::Path                                            m_rawResourceDirPath;
+        FileSystem::Path                                            m_compiledResourceDirPath;
         int32                                                       m_dataDirectoryPathDepth;
         FileSystem::FileSystemWatcher                               m_fileSystemWatcher;
 
         Directory                                                   m_rootDir;
         THashMap<ResourceTypeID, TVector<ResourceRecord*>>          m_resourcesPerType;
+        mutable MultiUserSignalInternal                             m_databaseUpdatedEvent;
     };
 }

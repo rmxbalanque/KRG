@@ -4,10 +4,6 @@
 
 namespace KRG
 {
-    ResourceTypeID const ResourceTypeID::Unknown( 'UNKN' );
-
-    //-------------------------------------------------------------------------
-
     ResourceTypeID::ResourceTypeID( char const* pStr )
     {
         m_ID = 0;

@@ -39,7 +39,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EngineDevUI::FrameEndUpdate( UpdateContext const& context )
+    void EngineDevUI::EndFrame( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
@@ -53,7 +53,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         float const k = 2.0f / ( context.GetFrameID() + 1 );
-        m_avgTimeDelta = context.GetRawDeltaTime() * k + m_avgTimeDelta * ( 1.0f - k );
+        m_averageDeltaTime = context.GetDeltaTime() * k + m_averageDeltaTime * ( 1.0f - k );
 
         // Get game world
         //-------------------------------------------------------------------------
@@ -301,6 +301,9 @@ namespace KRG
         {
             InlineString<100> tempStr;
 
+            // Player Control
+            //-------------------------------------------------------------------------
+
             if ( pPlayerManager->GetDebugMode() != PlayerManager::DebugMode::UseDebugCamera )
             {
                 if ( ImGui::Button( KRG_ICON_GAMEPAD" Player Control = Off" ) )
@@ -316,31 +319,91 @@ namespace KRG
                 }
             }
 
-            ImGuiX::VerticalSeparator();
+            // Time Scaling
+            //-------------------------------------------------------------------------
 
-            ImGui::SetNextItemWidth( 100 );
-            ImGui::SliderFloat( "##TimeScale", const_cast<float*>( &context.m_timeScale ), 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput );
-            ImGuiX::ItemTooltip( "Time Scale" );
-            ImGui::SameLine( 0, 0 );
+            // If we've requested a time step, re-pause the game
+            if ( m_stepRequested )
+            {
+                pGameWorld->SetTimeScale( -1.0f );
+                m_stepRequested = false;
+            }
+
+            ImGuiX::VerticalSeparator();
             {
                 ImGuiX::ScopedFont sf( ImGuiX::Font::Small );
+
+                // Play/Pause
+                if ( pGameWorld->IsPaused() )
+                {
+                    if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld" ) )
+                    {
+                        pGameWorld->SetTimeScale( m_timeScale );
+                    }
+                    ImGuiX::ItemTooltip( "Pause" );
+                }
+                else
+                {
+                    if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld" ) )
+                    {
+                        m_timeScale = pGameWorld->GetTimeScale();
+                        pGameWorld->SetTimeScale( -1.0f );
+                    }
+                    ImGuiX::ItemTooltip( "Pause" );
+                }
+
+                // Step
+                ImGui::SameLine( 0, 0 );
+                ImGui::BeginDisabled( !pGameWorld->IsPaused() );
+                if ( ImGui::Button( KRG_ICON_STEP_FORWARD"##StepFrame" ) )
+                {
+                    m_stepRequested = true;
+                    pGameWorld->SetTimeScale( m_timeScale );
+                }
+                ImGuiX::ItemTooltip( "Step Frame" );
+                ImGui::EndDisabled();
+
+                // Slider
+                ImGui::SameLine( 0, 0 );
+                ImGui::SetNextItemWidth( 100 );
+                if ( ImGui::SliderFloat( "##TimeScale", &m_timeScale, 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput ) )
+                {
+                    pGameWorld->SetTimeScale( m_timeScale );
+                }
+                ImGuiX::ItemTooltip( "Time Scale" );
+
+                // Reset
+                ImGui::SameLine( 0, 0 );
                 if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
                 {
-                    const_cast<float&>( context.m_timeScale ) = 1.0f;
+                    m_timeScale = 1.0f;
+                    pGameWorld->SetTimeScale( 1.0f );
                 }
                 ImGuiX::ItemTooltip( "Reset TimeScale" );
             }
 
+            // Spacer
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine( 0, 0 );
+            ImGui::Dummy( ImVec2( ImGui::GetContentRegionAvail().x - 230, 1 ) );
+
+            // Debug Settings
+            //-------------------------------------------------------------------------
+
             ImGuiX::VerticalSeparator();
 
-            if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings" ) )
+            if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings", ImVec2( 130, 0 ) ) )
             {
                 m_isDebugSettingsWindowOpen = true;
             }
 
+            // Log
+            //-------------------------------------------------------------------------
+
             ImGuiX::VerticalSeparator();
 
-            tempStr.sprintf( KRG_ICON_QUESTION_CIRCLE" %d", Log::GetNumWarnings() );
+            tempStr.sprintf( KRG_ICON_QUESTION_CIRCLE" %d", Log::GetNumWarnings(), ImVec2( 45, 0 ) );
             if ( ImGui::Button( tempStr.c_str() ) )
             {
                 m_isLogWindowOpen = true;
@@ -351,7 +414,7 @@ namespace KRG
             
             ImGuiX::VerticalSeparator();
 
-            tempStr.sprintf( KRG_ICON_EXCLAMATION_CIRCLE" %d", Log::GetNumErrors() );
+            tempStr.sprintf( KRG_ICON_EXCLAMATION_CIRCLE" %d", Log::GetNumErrors(), ImVec2( 45, 0 ) );
             if ( ImGui::Button( tempStr.c_str() ) )
             {
                 m_isLogWindowOpen = true;

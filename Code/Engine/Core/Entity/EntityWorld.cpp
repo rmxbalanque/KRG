@@ -227,7 +227,7 @@ namespace KRG
         KRG_ASSERT( Threading::IsMainThread() );
         KRG_ASSERT( !m_isSuspended );
 
-        struct EntityUpdateTask : public ITaskSet
+        struct EntityUpdateTask final : public ITaskSet
         {
             EntityUpdateTask( EntityUpdateContext const& context, TVector<Entity*>& updateList )
                 : m_context( context )
@@ -282,8 +282,24 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        bool const isWorldPaused = IsPaused();
+
+        // Skip all non-pause updates for paused worlds
+        if ( isWorldPaused && context.GetUpdateStage() != UpdateStage::Paused )
+        {
+            return;
+        }
+
+        // Skip paused update for non-paused worlds
+        if ( context.GetUpdateStage() == UpdateStage::Paused && !isWorldPaused )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
         EntityUpdateContext entityUpdateContext( context, this );
-        UpdateStage const updateStage =  entityUpdateContext.GetUpdateStage();
+        UpdateStage const updateStage = entityUpdateContext.GetUpdateStage();
 
         // Update entities
         //-------------------------------------------------------------------------

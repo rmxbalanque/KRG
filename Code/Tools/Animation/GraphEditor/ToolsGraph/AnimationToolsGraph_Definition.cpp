@@ -1,4 +1,4 @@
-#include "AnimationToolsGraph.h"
+#include "AnimationToolsGraph_Definition.h"
 #include "AnimationToolsGraph_Compilation.h"
 #include "Nodes/AnimationToolsNode_Results.h"
 
@@ -6,12 +6,12 @@
 
 namespace KRG::Animation::Graph
 {
-    AnimationToolsGraph::~AnimationToolsGraph()
+    AnimationGraphToolsDefinition::~AnimationGraphToolsDefinition()
     {
         ResetInternalState();
     }
 
-    void AnimationToolsGraph::ResetInternalState()
+    void AnimationGraphToolsDefinition::ResetInternalState()
     {
         m_variationHierarchy.Reset();
 
@@ -40,7 +40,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationToolsGraph::CreateNew()
+    void AnimationGraphToolsDefinition::CreateNew()
     {
         ResetInternalState();
 
@@ -49,7 +49,7 @@ namespace KRG::Animation::Graph
         m_pRootGraph->CreateNode<Tools_ResultNode>( ValueType::Pose );
     }
 
-    bool AnimationToolsGraph::Load( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue )
+    bool AnimationGraphToolsDefinition::LoadFromJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue )
     {
         KRG_ASSERT( graphDescriptorObjectValue.IsObject() );
 
@@ -154,7 +154,7 @@ namespace KRG::Animation::Graph
         return true;
     }
 
-    void AnimationToolsGraph::Save( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void AnimationGraphToolsDefinition::SaveToJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
         // Write descriptor header
         writer.StartObject();
@@ -212,7 +212,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void AnimationToolsGraph::CreateControlParameter( ValueType type )
+    void AnimationGraphToolsDefinition::CreateControlParameter( ValueType type )
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
@@ -222,7 +222,7 @@ namespace KRG::Animation::Graph
         m_controlParameters.emplace_back( pParameter );
     }
 
-    void AnimationToolsGraph::CreateVirtualParameter( ValueType type )
+    void AnimationGraphToolsDefinition::CreateVirtualParameter( ValueType type )
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
@@ -232,7 +232,7 @@ namespace KRG::Animation::Graph
         m_virtualParameters.emplace_back( pParameter );
     }
 
-    void AnimationToolsGraph::RenameControlParameter( UUID parameterID, String newName )
+    void AnimationGraphToolsDefinition::RenameControlParameter( UUID parameterID, String newName )
     {
         auto pParameter = FindControlParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
@@ -240,7 +240,7 @@ namespace KRG::Animation::Graph
         pParameter->m_name = newName;
     }
 
-    void AnimationToolsGraph::RenameVirtualParameter( UUID parameterID, String newName )
+    void AnimationGraphToolsDefinition::RenameVirtualParameter( UUID parameterID, String newName )
     {
         auto pParameter = FindVirtualParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
@@ -248,7 +248,7 @@ namespace KRG::Animation::Graph
         pParameter->m_name = newName;
     }
 
-    void AnimationToolsGraph::DestroyControlParameter( UUID parameterID )
+    void AnimationGraphToolsDefinition::DestroyControlParameter( UUID parameterID )
     {
         // Find and remove all reference nodes
         auto const controlParameterReferences = FindAllNodesOfType<Tools_ControlParameterReferenceNode>( GraphEditor::SearchMode::Recursive, GraphEditor::SearchTypeMatch::Exact );
@@ -275,7 +275,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationToolsGraph::DestroyVirtualParameter( UUID parameterID )
+    void AnimationGraphToolsDefinition::DestroyVirtualParameter( UUID parameterID )
     {
         KRG_ASSERT( FindVirtualParameter( parameterID ) != nullptr );
 
@@ -304,7 +304,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationToolsGraph::EnsureUniqueParameterName( String& parameterName ) const
+    void AnimationGraphToolsDefinition::EnsureUniqueParameterName( String& parameterName ) const
     {
         String tempString = parameterName;
         bool isNameUnique = false;
@@ -349,7 +349,7 @@ namespace KRG::Animation::Graph
         parameterName = tempString;
     }
 
-    Tools_ControlParameterNode* AnimationToolsGraph::FindControlParameter( UUID parameterID ) const
+    Tools_ControlParameterNode* AnimationGraphToolsDefinition::FindControlParameter( UUID parameterID ) const
     {
         for ( auto pParameter : m_controlParameters )
         {
@@ -361,7 +361,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    Tools_VirtualParameterNode* AnimationToolsGraph::FindVirtualParameter( UUID parameterID ) const
+    Tools_VirtualParameterNode* AnimationGraphToolsDefinition::FindVirtualParameter( UUID parameterID ) const
     {
         for ( auto pParameter : m_virtualParameters )
         {
@@ -373,7 +373,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    bool AnimationToolsGraph::Compile( ToolsGraphCompilationContext& context ) const
+    bool AnimationGraphToolsDefinition::Compile( ToolsGraphCompilationContext& context ) const
     {
         KRG_ASSERT( IsValid() );
 

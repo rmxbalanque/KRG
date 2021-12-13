@@ -7,6 +7,20 @@ namespace KRG::GraphEditor
 {
     class KRG_TOOLS_CORE_API BaseGraphView
     {
+
+    public:
+
+        // Helper to unsure we can maintain selection after a undo/redo
+        struct SelectedNode
+        {
+            SelectedNode( BaseNode* pNode ) : m_nodeID( pNode->GetID() ), m_pNode( pNode ) {}
+            bool operator==( SelectedNode const& rhs ) const { return m_nodeID == rhs.m_nodeID; }
+            bool operator==( BaseNode const* pNode ) const { return m_nodeID == pNode->GetID(); }
+
+            UUID            m_nodeID;
+            BaseNode*       m_pNode = nullptr;
+        };
+
     protected:
 
         enum class DragMode
@@ -30,15 +44,12 @@ namespace KRG::GraphEditor
 
     public:
 
+        bool HasFocus() const { return m_hasFocus; }
+
         virtual BaseGraph* GetViewedGraph() = 0;
         inline BaseGraph const* GetViewedGraph() const { return const_cast<BaseGraphView*>( this )->GetViewedGraph(); }
 
-        // Visual
-        //-------------------------------------------------------------------------
-
-        bool HasFocus() const { return m_hasFocus; }
-
-        virtual void Draw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) = 0;
+        virtual void UpdateAndDraw( float childHeightOverride = 0.0f, void* pUserContext = nullptr ) = 0;
 
         // Selection
         //-------------------------------------------------------------------------
@@ -46,9 +57,10 @@ namespace KRG::GraphEditor
         // This returns whether any selection changes occurred this update, will be cleared on each call to draw
         inline bool HasSelectionChanged() const { return m_selectionChanged; }
 
+        inline void SelectNode( BaseNode const* pNode );
         inline bool HasSelectedNodes() const { return !m_selectedNodes.empty(); }
         inline bool IsNodeSelected( BaseNode const* pNode ) const { return eastl::find( m_selectedNodes.begin(), m_selectedNodes.end(), pNode ) != m_selectedNodes.end(); }
-        inline TVector<BaseNode*> const& GetSelectedNodes() const { return m_selectedNodes; }
+        inline TVector<SelectedNode> const& GetSelectedNodes() const { return m_selectedNodes; }
         void ClearSelection();
 
     protected:
@@ -114,12 +126,12 @@ namespace KRG::GraphEditor
         //-------------------------------------------------------------------------
 
         void UpdateSelection( BaseNode* pNewSelectedNode );
-        void UpdateSelection( TVector<BaseNode*>&& newSelection );
+        void UpdateSelection( TVector<SelectedNode>&& newSelection );
         void AddToSelection( BaseNode* pNodeToAdd );
         void RemoveFromSelection( BaseNode* pNodeToRemove );
 
         // User implementable custom selection change handler
-        virtual void OnSelectionChanged( TVector<BaseNode*> const& oldSelection, TVector<BaseNode*> const& newSelection ) {}
+        virtual void OnSelectionChanged( TVector<SelectedNode> const& oldSelection, TVector<SelectedNode> const& newSelection ) {}
 
         // Events
         //-------------------------------------------------------------------------
@@ -129,7 +141,7 @@ namespace KRG::GraphEditor
 
     private:
 
-        KRG_FORCE_INLINE void OnSelectionChangedInternal( TVector<BaseNode*> const& oldSelection, TVector<BaseNode*> const& newSelection )
+        KRG_FORCE_INLINE void OnSelectionChangedInternal( TVector<SelectedNode> const& oldSelection, TVector<SelectedNode> const& newSelection )
         {
             m_selectionChanged = true;
             OnSelectionChanged( oldSelection, newSelection );
@@ -138,7 +150,7 @@ namespace KRG::GraphEditor
     protected:
 
         ImVec2                          m_viewOffset = ImVec2( 0, 0 );
-        TVector<BaseNode*>              m_selectedNodes;
+        TVector<SelectedNode>           m_selectedNodes;
         bool                            m_hasFocus = false;
         bool                            m_selectionChanged = false;
     };

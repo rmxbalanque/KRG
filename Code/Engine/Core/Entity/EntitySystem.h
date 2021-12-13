@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "System/Core/Update/UpdateStage.h"
+#include "Engine/Core/Update/UpdateStage.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 
 //-------------------------------------------------------------------------

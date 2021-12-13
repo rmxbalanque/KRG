@@ -1,6 +1,7 @@
 #include "RawResourceInspector.h"
 #include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
+#include "Tools/Core/Resource/ResourceDatabase.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "imgui.h"
@@ -9,13 +10,13 @@
 
 namespace KRG::Resource
 {
-    RawResourceInspector::RawResourceInspector( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& filePath )
+    RawResourceInspector::RawResourceInspector( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, FileSystem::Path const& filePath )
         : m_typeRegistry( typeRegistry )
-        , m_rawResourceDirectory( rawResourceDirectoryPath )
+        , m_rawResourceDirectory( resourceDatabase.GetRawResourceDirectoryPath() )
         , m_filePath( filePath )
-        , m_propertyGrid( typeRegistry, rawResourceDirectoryPath )
+        , m_propertyGrid( typeRegistry, resourceDatabase )
     {
-        KRG_ASSERT( rawResourceDirectoryPath.IsDirectory() && FileSystem::Exists( rawResourceDirectoryPath ) );
+        KRG_ASSERT( m_rawResourceDirectory.IsDirectory() && FileSystem::Exists( m_rawResourceDirectory ) );
         KRG_ASSERT( filePath.IsFile() && FileSystem::Exists( filePath ) );
     }
 
@@ -120,7 +121,7 @@ namespace KRG::Resource
         return false;
     }
 
-    RawResourceInspector* RawResourceInspectorFactory::TryCreateInspector( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath, FileSystem::Path const& filePath )
+    RawResourceInspector* RawResourceInspectorFactory::TryCreateInspector( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, FileSystem::Path const& filePath )
     {
         KRG_ASSERT( filePath.IsValid() );
 
@@ -129,7 +130,7 @@ namespace KRG::Resource
         {
             if ( pCurrentFactory->IsSupportedFile( filePath ) )
             {
-                return pCurrentFactory->CreateInspector( typeRegistry, rawResourceDirectoryPath, filePath );
+                return pCurrentFactory->CreateInspector( typeRegistry, resourceDatabase, filePath );
             }
 
             pCurrentFactory = pCurrentFactory->GetNextItem();

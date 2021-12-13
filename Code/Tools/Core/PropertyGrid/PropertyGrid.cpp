@@ -57,9 +57,9 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    PropertyGrid::PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath )
+    PropertyGrid::PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase )
         : m_typeRegistry( typeRegistry )
-        , m_rawResourceDirectoryPath( rawResourceDirectoryPath )
+        , m_resourceDB( resourceDatabase )
     {}
 
     PropertyGrid::~PropertyGrid()
@@ -106,7 +106,7 @@ namespace KRG
         }
         else // Create new editor instance
         {
-            pPropertyEditor = CreatePropertyEditor( m_typeRegistry, m_rawResourceDirectoryPath, propertyInfo, pActualPropertyInstance );
+            pPropertyEditor = CreatePropertyEditor( m_typeRegistry, m_resourceDB, propertyInfo, pActualPropertyInstance );
             m_propertyEditors[pActualPropertyInstance] = pPropertyEditor;
         }
 
@@ -181,6 +181,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
 
         InlineString<255> propertyName;
         if ( arrayIdx != InvalidIndex )
@@ -236,7 +237,6 @@ namespace KRG
             {
                 ImGui::Text( "No Editor Found!" );
             }
-            
         }
 
         //-------------------------------------------------------------------------
@@ -327,6 +327,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ImGui::TableNextColumn();
+        ImGui::AlignTextToFramePadding();
 
         bool showContents = false;
         if ( ImGui::TreeNodeEx( propertyInfo.m_ID.c_str(), ImGuiTreeNodeFlags_None ) )

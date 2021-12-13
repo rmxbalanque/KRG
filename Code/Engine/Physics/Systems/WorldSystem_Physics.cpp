@@ -7,6 +7,7 @@
 #include "Engine/Physics/Components/Component_PhysicsBox.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "System/Core/Profiling/Profiling.h"
 
 //-------------------------------------------------------------------------
 
@@ -37,7 +38,10 @@ namespace KRG::Physics
 
     void PhysicsWorldSystem::ShutdownSystem()
     {
-        m_pPhysicsSystem->DestroyScene( m_pScene );
+        // Destroy scene
+        m_pScene->release();
+        m_pScene = nullptr;
+
         m_pPhysicsSystem = nullptr;
 
         KRG_ASSERT( m_physicsShapeComponents.empty() );
@@ -447,40 +451,64 @@ namespace KRG::Physics
     
     void PhysicsWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        auto drawingContext = ctx.GetDrawingContext();
-        #endif
-
-        AcquireReadLock();
-
-        for ( auto const& pDynamicPhysicsComponent : m_dynamicShapeComponents )
+        if ( ctx.GetUpdateStage() == UpdateStage::Physics )
         {
-            // Transfer physics pose back to component
-            if ( pDynamicPhysicsComponent->m_pPhysicsActor != nullptr && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
+            AcquireWriteLock();
             {
-                auto physicsPose = pDynamicPhysicsComponent->m_pPhysicsActor->getGlobalPose();
-                pDynamicPhysicsComponent->SetWorldTransform( FromPx( physicsPose ) );
+                KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
+                // TODO: run at fixed time step
+                m_pScene->simulate( ctx.GetDeltaTime() );
             }
 
-            // Debug
-            //-------------------------------------------------------------------------
+            {
+                KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
+                m_pScene->fetchResults( true );
+            }
+            ReleaseWriteLock();
+        }
+        else if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
+        {
+            KRG_PROFILE_SCOPE_PHYSICS( "Update Dynamic Objects" );
 
             #if KRG_DEVELOPMENT_TOOLS
-            if ( m_drawDynamicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
-            {
-                drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange.GetAlphaVersion( 0.5f ) );
-                drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange );
-            }
-
-            if ( m_drawKinematicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Kinematic )
-            {
-                drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink.GetAlphaVersion( 0.5f ) );
-                drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink );
-            }
+            auto drawingContext = ctx.GetDrawingContext();
             #endif
-        }
 
-        ReleaseReadLock();
+            AcquireReadLock();
+
+            for ( auto const& pDynamicPhysicsComponent : m_dynamicShapeComponents )
+            {
+                // Transfer physics pose back to component
+                if ( pDynamicPhysicsComponent->m_pPhysicsActor != nullptr && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
+                {
+                    auto physicsPose = pDynamicPhysicsComponent->m_pPhysicsActor->getGlobalPose();
+                    pDynamicPhysicsComponent->SetWorldTransform( FromPx( physicsPose ) );
+                }
+
+                // Debug
+                //-------------------------------------------------------------------------
+
+                #if KRG_DEVELOPMENT_TOOLS
+                if ( m_drawDynamicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Dynamic )
+                {
+                    drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange.GetAlphaVersion( 0.5f ) );
+                    drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::Orange );
+                }
+
+                if ( m_drawKinematicActorBounds && pDynamicPhysicsComponent->m_actorType == ActorType::Kinematic )
+                {
+                    drawingContext.DrawBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink.GetAlphaVersion( 0.5f ) );
+                    drawingContext.DrawWireBox( pDynamicPhysicsComponent->GetWorldBounds(), Colors::HotPink );
+                }
+                #endif
+            }
+
+            ReleaseReadLock();
+        }
+        else
+        {
+            KRG_UNREACHABLE_CODE();
+        }
     }
 
     //------------------------------------------------------------------------- 
@@ -523,6 +551,13 @@ namespace KRG::Physics
         SetVisualizationParameter( PxVisualizationParameter::eBODY_MASS_AXES, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LIMITS, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f, 0.0f );
+        ReleaseWriteLock();
+    }
+
+    void PhysicsWorldSystem::SetDebugCullingBox( AABB const& cullingBox )
+    {
+        AcquireWriteLock();
+        m_pScene->setVisualizationCullingBox( ToPx( cullingBox ) );
         ReleaseWriteLock();
     }
     #endif

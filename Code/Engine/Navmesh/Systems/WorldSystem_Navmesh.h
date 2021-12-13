@@ -3,7 +3,7 @@
 #include "Engine/Navmesh/_Module/API.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
-#include "System/Core/Update/UpdateContext.h"
+#include "Engine/Core/Update/UpdateContext.h"
 
 //-------------------------------------------------------------------------
 // Navmesh World System

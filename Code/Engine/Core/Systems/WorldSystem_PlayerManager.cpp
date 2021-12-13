@@ -297,43 +297,58 @@ namespace KRG
 
     void PlayerManager::UpdateSystem( EntityUpdateContext const& ctx )
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        if ( m_pDebugCameraComponent == nullptr )
+        if ( ctx.GetUpdateStage() == UpdateStage::FrameStart )
         {
-            SpawnDebugCamera( ctx );
-        }
-
-        // Always ensure we have an active camera set
-        if ( m_pActiveCamera == nullptr && m_pDebugCameraComponent->IsInitialized() )
-        {
-            m_pActiveCamera = m_pDebugCameraComponent;
-        }
-
-        // If we are in full debug mode, update the camera position
-        if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
-        {
-            UpdateDebugCamera( ctx );
-        }
-        #endif
-
-        //-------------------------------------------------------------------------
-
-        // Spawn players in game worlds
-        if ( ctx.IsGameWorld() && !m_hasSpawnedPlayer )
-        {
-            m_hasSpawnedPlayer = TrySpawnPlayer( ctx );
-        }
-
-        // Handle players state changes
-        if ( m_registeredPlayerStateChanged )
-        {
-            if ( m_player.IsValid() )
+            #if KRG_DEVELOPMENT_TOOLS
+            if ( m_pDebugCameraComponent == nullptr )
             {
-                m_pActiveCamera = m_player.m_pCameraComponent;
-                m_player.m_pPlayerComponent->SetPlayerEnabled( m_isControllerEnabled );
+                SpawnDebugCamera( ctx );
             }
 
-            m_registeredPlayerStateChanged = false;
+            // Always ensure we have an active camera set
+            if ( m_pActiveCamera == nullptr && m_pDebugCameraComponent->IsInitialized() )
+            {
+                m_pActiveCamera = m_pDebugCameraComponent;
+            }
+
+            // If we are in full debug mode, update the camera position
+            if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
+            {
+                UpdateDebugCamera( ctx );
+            }
+            #endif
+
+            //-------------------------------------------------------------------------
+
+            // Spawn players in game worlds
+            if ( ctx.IsGameWorld() && !m_hasSpawnedPlayer )
+            {
+                m_hasSpawnedPlayer = TrySpawnPlayer( ctx );
+            }
+
+            // Handle players state changes
+            if ( m_registeredPlayerStateChanged )
+            {
+                if ( m_player.IsValid() )
+                {
+                    m_pActiveCamera = m_player.m_pCameraComponent;
+                    m_player.m_pPlayerComponent->SetPlayerEnabled( m_isControllerEnabled );
+                }
+
+                m_registeredPlayerStateChanged = false;
+            }
+        }
+        else if ( ctx.GetUpdateStage() == UpdateStage::Paused )
+        {
+            // If we are in full debug mode, update the camera position
+            if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
+            {
+                UpdateDebugCamera( ctx );
+            }
+        }
+        else
+        {
+            KRG_UNREACHABLE_CODE();
         }
     }
 }

@@ -14,6 +14,8 @@ namespace KRG::TypeSystem
     struct PropertyInfo;
 }
 
+namespace KRG::Resource { class ResourceDatabase; }
+
 //-------------------------------------------------------------------------
 // Property grid
 //-------------------------------------------------------------------------
@@ -50,7 +52,7 @@ namespace KRG
 
     public:
 
-        PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& rawResourceDirectoryPath );
+        PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase );
         ~PropertyGrid();
 
         // Set the type instance to edit, will reset dirty status
@@ -88,7 +90,7 @@ namespace KRG
     private:
 
         TypeSystem::TypeRegistry const&                             m_typeRegistry;
-        FileSystem::Path const                                      m_rawResourceDirectoryPath;
+        Resource::ResourceDatabase const&                           m_resourceDB;
         TypeSystem::TypeInfo const*                                 m_pTypeInfo = nullptr;
         IRegisteredType*                                            m_pTypeInstance = nullptr;
         bool                                                        m_isDirty = false;
