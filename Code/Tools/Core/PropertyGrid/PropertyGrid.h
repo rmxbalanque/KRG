@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/Core/_Module/API.h"
+#include "Tools/Core/Resource/ResourceFilePicker.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/TypeSystem/TypeInfo.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
@@ -90,8 +91,8 @@ namespace KRG
     private:
 
         TypeSystem::TypeRegistry const&                             m_typeRegistry;
-        Resource::ResourceDatabase const&                           m_resourceDB;
         TypeSystem::TypeInfo const*                                 m_pTypeInfo = nullptr;
+        Resource::ResourceFilePicker                                m_resourcePicker;
         IRegisteredType*                                            m_pTypeInstance = nullptr;
         bool                                                        m_isDirty = false;
 

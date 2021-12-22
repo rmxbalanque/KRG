@@ -38,6 +38,7 @@ namespace KRG::Physics
 
         KRG_FORCE_INLINE bool HadInitialOverlap() const { return hasBlock && block.hadInitialOverlap(); }
         KRG_FORCE_INLINE Vector const& GetShapePosition() const { return m_finalShapePosition; }
+        KRG_FORCE_INLINE float GetSweptDistance() const { KRG_ASSERT( hasBlock ); return block.distance; }
         KRG_FORCE_INLINE float GetRemainingDistance() const { return m_remainingDistance; }
 
     private:

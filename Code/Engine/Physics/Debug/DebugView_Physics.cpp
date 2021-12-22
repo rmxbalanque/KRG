@@ -212,7 +212,7 @@ namespace KRG::Physics
 
         if ( auto pCapsuleComponent = TryCast<CapsuleComponent>( pComponent ) )
         {
-            drawingContext.DrawCapsule( pComponent->GetWorldTransform(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetCapsuleHalfHeight(), Colors::Cyan );
+            drawingContext.DrawCapsuleHeightX( pComponent->GetWorldTransform(), pCapsuleComponent->GetRadius(), pCapsuleComponent->GetCapsuleHalfHeight(), Colors::Cyan );
         }
         else if ( auto pSphereComponent = TryCast<SphereComponent>( pComponent ) )
         {

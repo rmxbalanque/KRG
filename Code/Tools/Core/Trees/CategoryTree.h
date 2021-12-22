@@ -21,17 +21,47 @@ namespace KRG
     template<typename T>
     struct Category
     {
-        Category( String const& name )
+        Category( String const& name, int32 depth = -1 )
             : m_name( name )
+            , m_depth( depth )
         {}
 
-        Category( String&& name )
+        Category( String&& name, int32 depth = -1 )
             : m_name( name )
+            , m_depth( depth )
         {}
+
+        bool HasItemsThatMatchFilter( TFunction<bool( CategoryItem<T> const& )> const& filter ) const
+        {
+            for ( auto const& childCategory : m_childCategories )
+            {
+                if ( childCategory.HasItemsThatMatchFilter( filter ) )
+                {
+                    return true;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            for ( auto const& item : m_items )
+            {
+                if ( filter( item ) )
+                {
+                    return true;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            return false;
+        }
+
+    public:
 
         String                      m_name;
         TVector<Category<T>>        m_childCategories;
         TVector<CategoryItem<T>>    m_items;
+        int32                       m_depth = -1;
     };
 
     // Category Tree
@@ -162,7 +192,7 @@ namespace KRG
             };
 
             auto insertionPosition = eastl::lower_bound( currentCategory.m_childCategories.begin(), currentCategory.m_childCategories.end(), path[currentPathIdx], Comparision );
-            auto newCategoryIter = currentCategory.m_childCategories.insert( insertionPosition, Category<T>( path[currentPathIdx] ) );
+            auto newCategoryIter = currentCategory.m_childCategories.insert( insertionPosition, Category<T>( path[currentPathIdx], currentPathIdx ) );
             return FindOrCreateCategory( *newCategoryIter, path, currentPathIdx + 1 );
         }
 

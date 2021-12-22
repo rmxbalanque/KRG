@@ -4,6 +4,8 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG { class EntityUpdateContext; }
+
 namespace KRG::Physics
 {
     class CharacterComponent;
@@ -24,7 +26,7 @@ namespace KRG::AI
             KRG_ASSERT( m_pCharacterComponent != nullptr );
         }
 
-        bool TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+        bool TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation );
 
     public:
 

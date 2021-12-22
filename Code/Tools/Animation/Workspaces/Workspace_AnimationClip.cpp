@@ -7,9 +7,8 @@
 #include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "System/Core/Math/MathStringHelpers.h"
 #include "Engine/Core/Update/UpdateContext.h"
-#include "Engine/Core/DevUI/NumericUIHelpers.h"
+#include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
 

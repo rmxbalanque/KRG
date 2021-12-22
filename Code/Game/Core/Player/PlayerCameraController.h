@@ -23,6 +23,7 @@ namespace KRG::Player
         void UpdateCamera( EntityUpdateContext const& ctx );
         void FinalizeCamera();
 
+        Vector const& GetCameraPosition() const;
         inline Vector const& GetCameraRelativeForwardVector() const { return m_cameraRelativeForwardVector; }
         inline Vector const& GetCameraRelativeRightVector() const { return m_cameraRelativeRightVector; }
         inline Vector const& GetCameraRelativeForwardVector2D() const { return m_cameraRelativeForwardVector2D; }

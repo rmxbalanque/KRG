@@ -39,10 +39,10 @@ namespace KRG::Player
         m_actionTransitions[Locomotion].emplace_back( Dash, Transition::Availability::Always );
         m_actionTransitions[Jump].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
         m_actionTransitions[Jump].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
-        m_actionTransitions[Falling].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
         m_actionTransitions[Falling].emplace_back( Dash, Transition::Availability::Always );
-        m_actionTransitions[Dash].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Falling].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
         m_actionTransitions[Dash].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Dash].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
     }
 
     ActionStateMachine::~ActionStateMachine()
@@ -165,6 +165,9 @@ namespace KRG::Player
             m_activeBaseActionID = DefaultAction;
             bool const tryStartResult = m_baseActions[m_activeBaseActionID]->TryStart( m_actionContext );
             KRG_ASSERT( tryStartResult ); // The default state MUST always be able to start
+
+            Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
+            KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
             #if KRG_DEVELOPMENT_TOOLS
             m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );

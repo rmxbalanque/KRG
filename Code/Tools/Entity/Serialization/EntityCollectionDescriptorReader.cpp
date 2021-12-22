@@ -1,5 +1,5 @@
 #include "EntityCollectionDescriptorReader.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
+#include "System/TypeSystem/TypeSerialization.h"
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "System/TypeSystem/CoreTypeConversions.h"
@@ -117,7 +117,7 @@ namespace KRG::EntityModel
 
             RapidJsonValue const& componentTypeDataObject = typeDataIter->value;
 
-            auto typeIDIter = componentTypeDataObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
+            auto typeIDIter = componentTypeDataObject.FindMember( TypeSystem::Serialization::s_typeIDKey );
             if ( typeIDIter == componentTypeDataObject.MemberEnd() || !typeIDIter->value.IsString() )
             {
                 Error( "Invalid type data found for component: '%s' on entity %s!", nameIter->value.GetString(), ctx.m_parsingContextName.c_str() );
@@ -163,7 +163,7 @@ namespace KRG::EntityModel
             for ( auto itr = componentTypeDataObject.MemberBegin(); itr != componentTypeDataObject.MemberEnd(); ++itr )
             {
                 // Skip Type ID
-                if ( strcmp( itr->name.GetString(), TypeSystem::Serialization::Constants::s_typeID ) == 0 )
+                if ( strcmp( itr->name.GetString(), TypeSystem::Serialization::s_typeIDKey ) == 0 )
                 {
                     continue;
                 }
@@ -200,7 +200,7 @@ namespace KRG::EntityModel
 
         static bool ReadSystemData( ParsingContext& ctx, RapidJsonValue const& systemObject, SystemDescriptor& outSystemDesc )
         {
-            auto typeIDIter = systemObject.FindMember( TypeSystem::Serialization::Constants::s_typeID );
+            auto typeIDIter = systemObject.FindMember( TypeSystem::Serialization::s_typeIDKey );
             if ( typeIDIter == systemObject.MemberEnd() || !typeIDIter->value.IsString() )
             {
                 return Error( "Invalid entity system format (systems must have a TypeID string value set) on entity %s", ctx.m_parsingContextName.c_str() );

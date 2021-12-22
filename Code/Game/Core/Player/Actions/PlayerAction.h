@@ -21,6 +21,7 @@ namespace KRG
 namespace KRG::Player
 {
     class MainPlayerComponent;
+    class AnimationController;
     class CharacterPhysicsController;
     class CameraController;
 
@@ -54,6 +55,7 @@ namespace KRG::Player
         //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityUpdateContext->GetDeltaTime(); }
+        KRG_FORCE_INLINE Drawing::DrawContext GetDrawingContext() const { return m_pEntityUpdateContext->GetDrawingContext(); }
         template<typename T> inline T* GetWorldSystem() const { return m_pEntityUpdateContext->GetWorldSystem<T>(); }
         template<typename T> inline T* GetSystem() const { return m_pEntityUpdateContext->GetSystem<T>(); }
         template<typename T> inline T* GetAnimSubGraphController() const { return m_pAnimationController->GetSubGraphController<T>(); }
@@ -68,7 +70,7 @@ namespace KRG::Player
         Physics::CharacterComponent*                m_pCharacterComponent = nullptr;
         CharacterPhysicsController*                 m_pCharacterController = nullptr;
         CameraController*                           m_pCameraController = nullptr;
-        Animation::GraphController*                 m_pAnimationController = nullptr;
+        AnimationController*                        m_pAnimationController = nullptr;
         TInlineVector<EntityComponent*, 10>         m_components;
     };
 

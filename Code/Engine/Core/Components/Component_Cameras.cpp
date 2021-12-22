@@ -15,7 +15,8 @@ namespace KRG
 
     void CameraComponent::OnWorldTransformUpdated()
     {
-        m_viewVolume.SetWorldMatrix( GetWorldTransform().ToMatrix() );
+        Transform const& worldTransform = GetWorldTransform();
+        m_viewVolume.SetView( worldTransform.GetTranslation(), worldTransform.GetForwardVector(), worldTransform.GetUpVector() );
     }
 
     //-------------------------------------------------------------------------
@@ -28,7 +29,7 @@ namespace KRG
         return Transform( rotTotal, position );
     }
 
-    void FreeLookCameraComponent::AdjustHeadingAndPitch( Radians headingDelta, Radians pitchDelta )
+    void FreeLookCameraComponent::AdjustPitchAndYaw( Radians headingDelta, Radians pitchDelta )
     {
         // Adjust heading and pitch based on input
         m_yaw += headingDelta;
@@ -85,9 +86,10 @@ namespace KRG
     void OrbitCameraComponent::FinalizeCameraPosition()
     {
         Transform const& parentTransform = GetSpatialParentWorldTransform();
-        Vector const orbitTarget = parentTransform.GetTranslation() + parentTransform.RotateVector( m_orbitTargetOffset );
-
         Transform camWorldTransform = m_orbitTransform;
+        // rotation offset is relative to camera to avoid pops when target rotates
+		Vector const orbitTarget = parentTransform.GetTranslation() + camWorldTransform.RotateVector( m_orbitTargetOffset );
+
         camWorldTransform.AddTranslation( orbitTarget );
         SetWorldTransform( camWorldTransform );
     }

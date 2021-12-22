@@ -65,7 +65,7 @@ namespace KRG::Physics
         renderContext.SetDepthTestMode( DepthTestMode::Off );
         renderContext.SetPrimitiveTopology( Topology::PointList );
 
-        auto pData = reinterpret_cast<Float4*>( m_pointRS.m_stagingVertexData.data() );
+        auto pData = reinterpret_cast<Drawing::PointCommand*>( m_pointRS.m_stagingVertexData.data() );
         auto const dataSize = (uint32) m_pointRS.m_stagingVertexData.size();
 
         //-------------------------------------------------------------------------
@@ -79,8 +79,10 @@ namespace KRG::Physics
             for ( auto p = 0u; p < numPointsToDraw; p++ )
             {
                 physx::PxDebugPoint const& point = pPoints[currentPointIdx + p];
-                pData[bufferVertexIdx++] = Float4( point.pos.x, point.pos.y, point.pos.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( point.color );
+                pData[bufferVertexIdx].m_position = Float3( point.pos.x, point.pos.y, point.pos.z );
+                pData[bufferVertexIdx].m_thickness = 1.0f;
+                pData[bufferVertexIdx].m_color = Physics::FromPxColor( point.color );
+                bufferVertexIdx++;
             }
 
             currentPointIdx += numPointsToDraw;
@@ -95,7 +97,7 @@ namespace KRG::Physics
         renderContext.SetDepthTestMode( DepthTestMode::Off );
         renderContext.SetPrimitiveTopology( Topology::LineList );
 
-        auto pData = reinterpret_cast<Float4*>( m_lineRS.m_stagingVertexData.data() );
+        auto pData = reinterpret_cast<Drawing::LineCommand*>( m_lineRS.m_stagingVertexData.data() );
         auto const dataSize = (uint32) m_lineRS.m_stagingVertexData.size();
 
         //-------------------------------------------------------------------------
@@ -109,10 +111,12 @@ namespace KRG::Physics
             for ( auto l = 0u; l < numLinesToDraw; l++ )
             {
                 physx::PxDebugLine const& line = pLines[currentLineIdx + l];
-                pData[bufferVertexIdx++] = Float4( line.pos0.x, line.pos0.y, line.pos0.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color0 );
-                pData[bufferVertexIdx++] = Float4( line.pos1.x, line.pos1.y, line.pos1.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( line.color1 );
+                pData[bufferVertexIdx].m_startPosition = Float3( line.pos0.x, line.pos0.y, line.pos0.z );
+                pData[bufferVertexIdx].m_startColor = Physics::FromPxColor( line.color0 );
+                pData[bufferVertexIdx].m_endPosition = Float3( line.pos1.x, line.pos1.y, line.pos1.z );
+                pData[bufferVertexIdx].m_endThickness = 1.0f;
+                pData[bufferVertexIdx].m_endColor = Physics::FromPxColor( line.color1 );
+                bufferVertexIdx++;
             }
 
             currentLineIdx += numLinesToDraw;
@@ -127,7 +131,7 @@ namespace KRG::Physics
         renderContext.SetDepthTestMode( DepthTestMode::Off );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
 
-        auto pData = reinterpret_cast<Float4*>( m_primitiveRS.m_stagingVertexData.data() );
+        auto pData = reinterpret_cast<Drawing::TriangleCommand*>( m_primitiveRS.m_stagingVertexData.data() );
         auto const dataSize = (uint32) m_primitiveRS.m_stagingVertexData.size();
 
         //-------------------------------------------------------------------------
@@ -141,12 +145,13 @@ namespace KRG::Physics
             for ( auto t = 0u; t < numTrianglesToDraw; t++ )
             {
                 physx::PxDebugTriangle const& tri = pTriangles[currentTriangleIdx + t];
-                pData[bufferVertexIdx++] = Float4( tri.pos0.x, tri.pos0.y, tri.pos0.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color0 );
-                pData[bufferVertexIdx++] = Float4( tri.pos1.x, tri.pos1.y, tri.pos1.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color1 );
-                pData[bufferVertexIdx++] = Float4( tri.pos2.x, tri.pos2.y, tri.pos2.z, 1.0f );
-                pData[bufferVertexIdx++] = Physics::FromPxColor( tri.color2 );
+                pData[bufferVertexIdx].m_vertex0 = Float4( tri.pos0.x, tri.pos0.y, tri.pos0.z, 1.0f );
+                pData[bufferVertexIdx].m_color0 = Physics::FromPxColor( tri.color0 );
+                pData[bufferVertexIdx].m_vertex1 = Float4( tri.pos1.x, tri.pos1.y, tri.pos1.z, 1.0f );
+                pData[bufferVertexIdx].m_color1 = Physics::FromPxColor( tri.color1 );
+                pData[bufferVertexIdx].m_vertex2 = Float4( tri.pos2.x, tri.pos2.y, tri.pos2.z, 1.0f );
+                pData[bufferVertexIdx].m_color2 = Physics::FromPxColor( tri.color2 );
+                bufferVertexIdx++;
             }
 
             currentTriangleIdx += numTrianglesToDraw;
@@ -211,7 +216,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsRenderer::RenderWorld( Seconds const deltaTime, Render::RenderTarget const& target, Render::Viewport const& viewport, EntityWorld* pWorld )
+    void PhysicsRenderer::RenderWorld( Seconds const deltaTime, Render::Viewport const& viewport, Render::RenderTarget const& renderTarget, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -232,7 +237,7 @@ namespace KRG::Physics
         }
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        renderContext.SetRenderTarget( target );
+        renderContext.SetRenderTarget( renderTarget );
         renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ) );
 
         //-------------------------------------------------------------------------
@@ -241,7 +246,7 @@ namespace KRG::Physics
         float const debugHalfDistance = ( pPhysicsSystem->GetDebugDrawDistance() );
 
         Vector const viewForward = viewport.GetViewForwardDirection();
-        Vector cullingBoundsPosition = viewport.GetViewOrigin();
+        Vector cullingBoundsPosition = viewport.GetViewPosition();
         cullingBoundsPosition += viewForward * debugHalfDistance;
 
         AABB const debugBounds = AABB( cullingBoundsPosition, debugHalfDistance );

@@ -101,7 +101,7 @@ namespace KRG::EntityModel
                 // Log warning about invalid data
                 if ( navmeshComponents.size() > 1 )
                 {
-                    Warning( "More than one navmesh component detected!" );
+                    Warning( "More than one navmesh component detected! Only using the first one!" );
                 }
 
                 // Remove any values for the navmesh resource property
@@ -117,12 +117,21 @@ namespace KRG::EntityModel
                 navmeshResourcePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
                 navmeshComponents[0].m_pComponent->m_properties.emplace_back( TypeSystem::PropertyDescriptor( ctx.m_typeRegistry, navmeshResourcePropertyPath, GetCoreTypeID( TypeSystem::CoreTypeID::TResourcePtr ), TypeSystem::TypeID(), navmeshResourcePath.GetString() ) );
 
+                // Create navmesh component and generate navmesh
+                auto pNavmeshComponent = navmeshComponents[0].m_pComponent->CreateTypeInstance<Navmesh::NavmeshComponent>( ctx.m_typeRegistry );
+                KRG_ASSERT( pNavmeshComponent != nullptr );
+
                 // Generate navmesh
                 FileSystem::Path navmeshFilePath = ctx.m_outputFilePath;
                 navmeshFilePath.ReplaceExtension( Navmesh::NavmeshData::GetStaticResourceTypeID().ToString() );
 
                 Navmesh::NavmeshBuilder navmeshBuilder;
-                if ( !navmeshBuilder.Build( ctx, map, navmeshFilePath ) )
+                bool const navmeshBuildResult = navmeshBuilder.Build( ctx, map, navmeshFilePath, pNavmeshComponent );
+
+                // Delete component instance
+                KRG::Delete( pNavmeshComponent );
+
+                if ( !navmeshBuildResult )
                 {
                     return Resource::CompilationResult::Failure;
                 }

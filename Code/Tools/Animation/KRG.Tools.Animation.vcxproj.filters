@@ -45,98 +45,11 @@
     <ClCompile Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.cpp">
       <Filter>GraphEditor</Filter>
     </ClCompile>
-    <ClCompile Include="GraphEditor\AnimationGraphEditor_GraphView.cpp">
+    <ClCompile Include="GraphEditor\AnimationGraphEditor_GraphEditor.cpp">
       <Filter>GraphEditor</Filter>
     </ClCompile>
     <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp">
       <Filter>GraphEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Compilation.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowGraph.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowNode.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_StateMachineGraph.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Variations.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_BoneMasks.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Bools.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Events.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Floats.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_IDs.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Layers.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_RootMotionOverride.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_SpeedScale.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_State.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_StateConditions.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Targets.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Transitions.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Pose.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Selector.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_AnimationClip.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_ConstValues.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Parameters.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Blends.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Results.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_EntryStateOverrides.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_StateMachine.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Vectors.cpp">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
     </ClCompile>
     <ClCompile Include="Events\AnimationEventData.cpp">
       <Filter>Events</Filter>
@@ -144,12 +57,31 @@
     <ClCompile Include="Events\AnimationEventEditor.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="GraphEditor\ToolsGraph\AnimationToolsGraph_StateMachineNode.cpp">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClCompile>
     <ClCompile Include="Workspaces\Workspace_AnimationClip.cpp" />
     <ClCompile Include="Workspaces\Workspace_AnimationGraph.cpp" />
     <ClCompile Include="Workspaces\Workspace_Skeleton.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_FlowGraph.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Common.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Compilation.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Definition.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_StateMachineGraph.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Variations.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_AnimationClip.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Blends.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_BoneMasks.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Bools.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_ConstValues.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Events.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Floats.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_IDs.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Layers.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Pose.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_RootMotionOverride.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Selector.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_SpeedScale.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_StateConditions.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Targets.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Vectors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceCompilers\ResourceCompiler_AnimationClip.h">
@@ -170,98 +102,11 @@
     <ClInclude Include="GraphEditor\AnimationGraphEditor_ControlParameterEditor.h">
       <Filter>GraphEditor</Filter>
     </ClInclude>
-    <ClInclude Include="GraphEditor\AnimationGraphEditor_GraphView.h">
+    <ClInclude Include="GraphEditor\AnimationGraphEditor_GraphEditor.h">
       <Filter>GraphEditor</Filter>
     </ClInclude>
     <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h">
       <Filter>GraphEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Definition.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Common.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Compilation.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowGraph.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_FlowNode.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_StateMachineGraph.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_Variations.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_BoneMasks.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Bools.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Events.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Floats.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_IDs.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Layers.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_RootMotionOverride.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_SpeedScale.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_State.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_StateConditions.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Targets.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Transitions.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Pose.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Selector.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_AnimationClip.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_ConstValues.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Parameters.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Blends.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Results.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_EntryStateOverrides.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_StateMachine.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\Nodes\AnimationToolsNode_Vectors.h">
-      <Filter>GraphEditor\ToolsGraph\Nodes</Filter>
     </ClInclude>
     <ClInclude Include="Events\AnimationEventEditor.h">
       <Filter>Events</Filter>
@@ -269,14 +114,33 @@
     <ClInclude Include="Events\AnimationEventData.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="GraphEditor\ToolsGraph\AnimationToolsGraph_StateMachineNode.h">
-      <Filter>GraphEditor\ToolsGraph</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationClip.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationGraph.h" />
     <ClInclude Include="ResourceDescriptors\ResourceDescriptor_AnimationSkeleton.h" />
     <ClInclude Include="Workspaces\Workspace_AnimationClip.h" />
     <ClInclude Include="Workspaces\Workspace_AnimationGraph.h" />
     <ClInclude Include="Workspaces\Workspace_Skeleton.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_FlowGraph.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Common.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Compilation.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Definition.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_StateMachineGraph.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Variations.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Vectors.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_AnimationClip.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Blends.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_BoneMasks.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Bools.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_ConstValues.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Events.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Floats.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_IDs.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Layers.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Pose.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_RootMotionOverride.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Selector.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_SpeedScale.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_StateConditions.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Targets.h" />
   </ItemGroup>
 </Project>

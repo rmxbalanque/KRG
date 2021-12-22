@@ -205,31 +205,39 @@ namespace KRG::Animation
 
     Percentage SyncTrack::CalculatePercentageCovered( SyncTrackTime const& startTime, SyncTrackTime const& endTime ) const
     {
-        float eventDuration = 0.0f;
+        float syncTimeDistance = 0;
 
-        // If both positions are on the same event
-        if ( startTime.m_eventIdx == endTime.m_eventIdx )
+        // Handle the same event case
+        if ( startTime.m_eventIdx == endTime.m_eventIdx && startTime.m_percentageThrough < endTime.m_percentageThrough )
         {
-            KRG_ASSERT( startTime.m_percentageThrough <= endTime.m_percentageThrough );
-            eventDuration = endTime.m_percentageThrough - startTime.m_percentageThrough;
+            syncTimeDistance = endTime.m_percentageThrough - startTime.m_percentageThrough;
         }
-        else // Perform full calculation
+        else // Calculate the multi-event/looped distance
         {
-            // Calculate the in-event distance need to be traveled i.e. how far to the end position of the 'From' event + progress through the 'To' event
-            eventDuration = ( 1.0f - startTime.m_percentageThrough ) + endTime.m_percentageThrough;
+            // calculate the distance to the end of the start event
+            syncTimeDistance = ( 1.0f - startTime.m_percentageThrough );
 
-            // We can now work entire with the event indices - NB. take into account that we are at the end of the 'From' event and at the beginning of the 'To' event
-            int32 const eventDelta = endTime.m_eventIdx - ( startTime.m_eventIdx + 1 );
-            if ( eventDelta > 0 )
+            int32 eventIdx = startTime.m_eventIdx + 1;
+            while ( eventIdx != endTime.m_eventIdx )
             {
-                eventDuration += ( eventDelta - 1 );
+                // If we go past the number of event, then loop back around
+                if ( eventIdx == m_syncEvents.size() )
+                {
+                    eventIdx = 0;
+                }
+                else // Add this event's distance and continue
+                {
+                    syncTimeDistance += 1;
+                    eventIdx++;
+                }
             }
-            else if ( eventDelta < 0 )
-            {
-                eventDuration += GetNumEvents() + eventDelta;
-            }
+
+            syncTimeDistance += endTime.m_percentageThrough;
         }
 
-        return eventDuration;
+        //-------------------------------------------------------------------------
+
+        Percentage const percentageCovered( syncTimeDistance / m_syncEvents.size() );
+        return percentageCovered;
     }
 }

@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-map data://maps/br_nav.map</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>-map data://maps/br_nav.map</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-map data://maps/Prototype_Full.map</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-map data://maps/Prototype_Full.map</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>

@@ -5,31 +5,161 @@
 
 namespace KRG::Math
 {
-    // Creates a Y-up view matrix for rendering from a Z-up world transform
-    static Matrix CalculateViewMatrix( Matrix const& worldTransform )
+    // Taken from DirectXMath: XMMatrixPerspectiveFovRH
+    // TODO: Rewrite with KRG math lib
+    static Matrix CreatePerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlaneZ, float farPlaneZ )
     {
-        Vector const& eyePos = worldTransform.GetTranslationWithW();
-        Vector const& eyeDir = worldTransform.GetForwardVector();
-        Vector const& upDir = worldTransform.GetAxisZ();
+        KRG_ASSERT( nearPlaneZ > 0.f && farPlaneZ > 0.f );
+        KRG_ASSERT( !Math::IsNearEqual( verticalFOV, 0.0f, 0.00001f * 2.0f ) && !Math::IsNearEqual( aspectRatio, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlaneZ, nearPlaneZ, 0.00001f ) );
 
-        KRG_ASSERT( eyePos.IsW1() && !eyeDir.IsZero3() && !eyeDir.IsInfinite3() && !upDir.IsZero3() && !upDir.IsInfinite3() );
+        Vector sinFov, cosFov;
+        Vector::SinCos( sinFov, cosFov, 0.5f * verticalFOV );
+        Vector height = cosFov / sinFov;
+        float const focalRange = farPlaneZ / ( nearPlaneZ - farPlaneZ );
 
-        Vector const forward = eyeDir.GetNormalized3().GetNegated();
-        Vector const right = Vector::Cross3( upDir, forward ).GetNormalized3();
-        Vector const up = Vector::Cross3( forward, right );
+        Vector vValues( height.GetX() / aspectRatio, height.GetX(), focalRange, focalRange * nearPlaneZ );
+        Vector vTemp = _mm_setzero_ps();
+        vTemp = _mm_move_ss( vTemp, vValues );
 
-        Vector NegEyePosition = eyePos.GetNegated();
+        static __m128 const negativeUnitW = { 0, 0, 0, -1.0f };
 
-        Vector const D0 = Vector::Dot3( right, NegEyePosition );
-        Vector const D1 = Vector::Dot3( up, NegEyePosition );
-        Vector const D2 = Vector::Dot3( forward, NegEyePosition );
+        // CosFov / SinFov,0,0,0
+        Matrix M;
+        M.m_rows[0] = vTemp;
+        // 0,Height / AspectRatio,0,0
+        vTemp = vValues;
+        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
+        M.m_rows[1] = vTemp;
+        // m_x=fRange,m_y=-fRange * NearZ,0,-1.0f
+        vTemp = _mm_setzero_ps();
+        vValues = _mm_shuffle_ps( vValues, negativeUnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        // 0,0,fRange,-1.0f
+        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 0, 0, 0 ) );
+        M.m_rows[2] = vTemp;
+        // 0,0,fRange * NearZ,0.0f
+        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 1, 0, 0 ) );
+        M.m_rows[3] = vTemp;
+        return M;
+    }
 
-        static Vector const mask( 1, 1, 1, 0 );
+    // Taken from DirectXMath: XMMatrixOrthographicRH
+    // TODO: Rewrite with KRG math lib
+    static Matrix CreateOrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane )
+    {
+        KRG_ASSERT( !Math::IsNearEqual( width, 0.0f, 0.00001f ) && !Math::IsNearEqual( height, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
+
+        float const fRange = 1.0f / ( nearPlane - farPlane );
+
+        Vector vValues = { 2.0f / width, 2.0f / height, fRange, fRange * nearPlane };
+        Vector vTemp = _mm_setzero_ps();
+        // Copy m_x only
+        vTemp = _mm_move_ss( vTemp, vValues );
 
         Matrix M;
-        M[0] = Vector::Select( D0, right, mask );
-        M[1] = Vector::Select( D1, up, mask );
-        M[2] = Vector::Select( D2, forward, mask );
+        // 2.0f / ViewWidth,0,0,0
+        M.m_rows[0] = vTemp;
+        // 0,2.0f / ViewHeight,0,0
+        vTemp = vValues;
+        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
+        M.m_rows[1] = vTemp;
+        // m_x=fRange,m_y=fRange * nearPlane,0,1.0f
+        vTemp = _mm_setzero_ps();
+        vValues = _mm_shuffle_ps( vValues, Vector::UnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
+        // 0,0,fRange,0.0f
+        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 0, 0, 0 ) );
+        M.m_rows[2] = vTemp;
+        // 0,0,fRange * nearPlane,1.0f
+        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 1, 0, 0 ) );
+        M.m_rows[3] = vTemp;
+        return M;
+    }
+
+    // Taken from DirectXMath: XMMatrixOrthographicOffCenterRH
+    // TODO: Rewrite with KRG math lib
+    static Matrix CreateOrthographicProjectionMatrixOffCenter( float left, float right, float bottom, float top, float nearPlane, float farPlane )
+    {
+        KRG_ASSERT( !Math::IsNearEqual( right, left, 0.00001f ) && !Math::IsNearEqual( top, bottom, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
+
+        float const fReciprocalWidth = 1.0f / ( right - left );
+        float const fReciprocalHeight = 1.0f / ( top - bottom );
+        float const fRange = 1.0f / ( nearPlane - farPlane );
+
+        Vector vValues = { fReciprocalWidth, fReciprocalHeight, fRange, 1.0f };
+        Vector rMem2 = { -( left + right ), -( top + bottom ), nearPlane, 1.0f };
+        Vector vTemp = _mm_setzero_ps();
+
+        // Copy x only
+        vTemp = _mm_move_ss( vTemp, vValues );
+        // fReciprocalWidth*2,0,0,0
+        vTemp = _mm_add_ss( vTemp, vTemp );
+
+        Matrix M;
+        M.m_rows[0] = vTemp;
+        // 0,fReciprocalHeight*2,0,0
+        vTemp = vValues;
+        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
+        vTemp = _mm_add_ps( vTemp, vTemp );
+        M.m_rows[1] = vTemp;
+        // 0,0,fRange,0.0f
+        vTemp = vValues;
+        vTemp = _mm_and_ps( vTemp, SIMD::g_mask00Z0 );
+        M.m_rows[2] = vTemp;
+        // -(left + right)*fReciprocalWidth,-(top + bottom)*fReciprocalHeight,fRange*-nearPlane,1.0f
+        vValues = _mm_mul_ps( vValues, rMem2 );
+        M.m_rows[3] = vValues;
+        return M;
+    }
+
+    // Adapted from DirectXMath: XMMatrixLookAtLH (but changed to be right handed)
+    // View matrix is -Z forward, +Y up and +X right
+    static Matrix CreateLookToMatrix( Vector const& viewPosition, Vector const& viewDirection, Vector const& upDirection )
+    {
+        KRG_ASSERT( viewPosition.IsW1() && !viewDirection.IsZero3() && !viewDirection.IsInfinite3() && !upDirection.IsZero3() && !upDirection.IsInfinite3() );
+
+        Vector const R2 = viewDirection.GetNegated().GetNormalized3();
+        Vector const R0 = Vector::Cross3( upDirection, R2 ).GetNormalized3();
+        Vector const R1 = Vector::Cross3( R2, R0 );
+
+        Vector const NegViewPosition = viewPosition.GetNegated();
+
+        Vector const D0 = Vector::Dot3( R0, NegViewPosition );
+        Vector const D1 = Vector::Dot3( R1, NegViewPosition );
+        Vector const D2 = Vector::Dot3( R2, NegViewPosition );
+
+        Matrix M;
+        M[0] = Vector::Select( D0, R0, Vector::Select1110 );
+        M[1] = Vector::Select( D1, R1, Vector::Select1110 );
+        M[2] = Vector::Select( D2, R2, Vector::Select1110 );
+        M[3] = Vector::UnitW;
+
+        M.Transpose();
+        return M;
+    }
+
+    KRG_FORCE_INLINE static Matrix CreateLookAtMatrix( Vector const& viewPosition, Vector const& focusPosition, Vector const& upDirection )
+    {
+        Vector const viewDirection = focusPosition - viewPosition;
+        return CreateLookToMatrix( viewPosition, viewDirection, upDirection );
+    }
+
+    // Adapted from DirectXMath: XMMatrixLookAtLH (but changed to be right handed)
+    // View matrix is -Z forward, +Y up and +X right
+    static Matrix CreateLookToMatrix( Vector const& viewPosition, Vector const& viewForward, Vector const& viewRight, Vector const& viewUp )
+    {
+        Vector const R2 = viewForward.GetNegated();
+        Vector const R0 = viewRight;
+        Vector const R1 = viewUp;
+
+        Vector const NegViewPosition = viewPosition.GetNegated();
+
+        Vector const D0 = Vector::Dot3( R0, NegViewPosition );
+        Vector const D1 = Vector::Dot3( R1, NegViewPosition );
+        Vector const D2 = Vector::Dot3( R2, NegViewPosition );
+
+        Matrix M;
+        M[0] = Vector::Select( D0, R0, Vector::Select1110 );
+        M[1] = Vector::Select( D1, R1, Vector::Select1110 );
+        M[2] = Vector::Select( D2, R2, Vector::Select1110 );
         M[3] = Vector::UnitW;
 
         M.Transpose();
@@ -87,24 +217,25 @@ namespace KRG::Math
     //-------------------------------------------------------------------------
 
     ViewVolume::ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Matrix const& worldMatrix )
-        : m_worldMatrix( worldMatrix )
-        , m_viewDimensions( viewDimensions )
+        : m_viewDimensions( viewDimensions )
         , m_depthRange( depthRange )
         , m_type( ProjectionType::Orthographic )
     {
         KRG_ASSERT( IsValid() );
         CalculateProjectionMatrix();
+        SetView( worldMatrix.GetTranslation(), worldMatrix.GetForwardVector(), worldMatrix.GetUpVector() ); // Updates all internals
+
     }
 
     ViewVolume::ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Radians FOV, Matrix const& worldMatrix )
-        : m_worldMatrix( worldMatrix )
-        , m_viewDimensions( viewDimensions )
+        : m_viewDimensions( viewDimensions )
         , m_FOV( FOV )
         , m_depthRange( depthRange )
         , m_type( ProjectionType::Perspective )
     {
         KRG_ASSERT( IsValid() );
         CalculateProjectionMatrix();
+        SetView( worldMatrix.GetTranslation(), worldMatrix.GetForwardVector(), worldMatrix.GetUpVector() ); // Updates all internals
     }
 
     bool ViewVolume::IsValid() const
@@ -127,18 +258,16 @@ namespace KRG::Math
 
     //-------------------------------------------------------------------------
 
-    void ViewVolume::SetView( Float3 const& position, Float3 const& viewDir, Float3 const& upDir )
+    void ViewVolume::SetView( Vector const& position, Vector const& viewDir, Vector const& upDir )
     {
-        Vector const vDir = ( Vector( viewDir ) - Vector( position ) ).Normalize3();
-        Vector vUp = Vector( upDir ).Normalize3();
-        Vector const vRight = Vector::Cross3( vDir, vUp ).Normalize3();
-        vUp = Vector::Cross3( vRight, vDir ).Normalize3();
+        KRG_ASSERT( viewDir.IsNormalized3() && upDir.IsNormalized3() );
 
-        m_worldMatrix[0] = vRight;
-        m_worldMatrix[1] = vDir;
-        m_worldMatrix[2] = vUp;
-        m_worldMatrix[3] = Vector( position, 1.0f );
+        m_viewPosition = position;
+        m_viewForwardDirection = viewDir;
+        m_viewRightDirection = Vector::Cross3( viewDir, upDir );
+        m_viewUpDirection = Vector::Cross3( m_viewRightDirection, viewDir );
 
+        m_viewMatrix = CreateLookToMatrix( position.GetWithW1(), m_viewForwardDirection, m_viewRightDirection, m_viewUpDirection );
         UpdateInternals();
     }
 
@@ -147,6 +276,7 @@ namespace KRG::Math
         KRG_ASSERT( dimensions.m_x > 0.0f && dimensions.m_y > 0.0f );
         m_viewDimensions = dimensions;
         CalculateProjectionMatrix();
+        UpdateInternals();
     }
 
     void ViewVolume::SetHorizontalFOV( Radians FOV )
@@ -154,6 +284,7 @@ namespace KRG::Math
         KRG_ASSERT( IsPerspective() && FOV > 0.0f );
         m_FOV = FOV;
         CalculateProjectionMatrix();
+        UpdateInternals();
     }
 
     //-------------------------------------------------------------------------
@@ -162,21 +293,13 @@ namespace KRG::Math
     {
         if ( IsOrthographic() )
         {
-            m_projectionMatrix = Matrix::OrthographicProjectionMatrix( m_viewDimensions.m_x, m_viewDimensions.m_y, m_depthRange.m_start, m_depthRange.m_end );
+            m_projectionMatrix = CreateOrthographicProjectionMatrix( m_viewDimensions.m_x, m_viewDimensions.m_y, m_depthRange.m_start, m_depthRange.m_end );
         }
         else
         {
             Radians const verticalFOV = ConvertHorizontalToVerticalFOV( m_viewDimensions.m_x, m_viewDimensions.m_y, m_FOV );
-            m_projectionMatrix = Matrix::PerspectiveProjectionMatrix( (float) verticalFOV, GetAspectRatio(), m_depthRange.m_start, m_depthRange.m_end );
+            m_projectionMatrix = CreatePerspectiveProjectionMatrix( (float) verticalFOV, GetAspectRatio(), m_depthRange.m_start, m_depthRange.m_end );
         }
-
-        UpdateInternals();
-    }
-
-    void ViewVolume::SetWorldMatrix( Matrix const& worldTransform )
-    {
-        m_worldMatrix = worldTransform;
-        UpdateInternals();
     }
 
     OBB ViewVolume::GetOBB() const
@@ -190,11 +313,11 @@ namespace KRG::Math
         KRG_ASSERT( depthRange.m_start > 0 && depthRange.m_end > 0 && depthRange.IsValid() );
         m_depthRange = depthRange;
         CalculateProjectionMatrix();
+        UpdateInternals();
     }
 
     void ViewVolume::UpdateInternals()
     {
-        m_viewMatrix = CalculateViewMatrix( m_worldMatrix );
         m_viewProjectionMatrix = m_viewMatrix * m_projectionMatrix;
         m_inverseViewProjectionMatrix = m_viewProjectionMatrix.GetInverse();
         CalculateViewPlanes( m_viewProjectionMatrix, m_viewPlanes );
@@ -207,9 +330,9 @@ namespace KRG::Math
         if ( IsOrthographic() )
         {
             Vector const viewPosition = GetViewPosition();
-            Vector const fwdDir = GetForwardVector();
-            Vector const upDir = GetUpVector();
-            Vector const rightDir = GetRightVector();
+            Vector const fwdDir = GetViewForwardVector();
+            Vector const upDir = GetViewUpVector();
+            Vector const rightDir = GetViewRightVector();
 
             Vector const nearPlaneDepthCenterPoint = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_end ), viewPosition );
             Vector const halfWidth( m_viewDimensions.m_x / 2, m_viewDimensions.m_y / 2, 0.0f, 0.0f );
@@ -228,9 +351,9 @@ namespace KRG::Math
         else
         {
             Vector const viewPosition = GetViewPosition();
-            Vector const fwdDir = GetForwardVector();
-            Vector const rightDir = GetRightVector();
-            Vector const upDir = GetUpVector();
+            Vector const fwdDir = GetViewForwardVector();
+            Vector const rightDir = GetViewRightVector();
+            Vector const upDir = GetViewUpVector();
 
             // Near/far plane center points
             Vector const centerNear = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_start ), viewPosition );
@@ -268,7 +391,7 @@ namespace KRG::Math
         Vector const viewPosition = GetViewPosition();
         drawingContext.DrawPoint( viewPosition, Colors::LimeGreen, 10.0f );
 
-        Vector const fwdDir = GetForwardVector();
+        Vector const fwdDir = GetViewForwardVector();
         drawingContext.DrawArrow( viewPosition, viewPosition + ( fwdDir * m_depthRange.m_end ), Colors::Pink, 3.0f );
 
         //-------------------------------------------------------------------------

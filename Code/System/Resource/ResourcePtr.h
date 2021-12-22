@@ -34,6 +34,12 @@ namespace KRG
             inline ResourcePath const& GetResourcePath() const { return m_resourceID.GetResourcePath(); }
             inline ResourceTypeID GetResourceTypeID() const { return m_resourceID.GetResourceTypeID(); }
 
+            inline void Clear()
+            {
+                KRG_ASSERT( m_pResource == nullptr ); // Only allowed to clear unloaded resource ptrs
+                m_resourceID.Clear();
+            }
+
             template<typename T>
             inline T* GetPtr() { return (T*) m_pResource; }
 
@@ -58,6 +64,12 @@ namespace KRG
                 rhs.m_resourceID = ResourceID();
                 rhs.m_pResource = nullptr;
                 return *this;
+            }
+
+            inline TInlineVector<ResourceID, 4> const& GetInstallDependencies() const
+            {
+                KRG_ASSERT( m_pResource != nullptr && m_pResource->IsLoaded() );
+                return m_pResource->GetInstallDependencies(); 
             }
 
             // Load status

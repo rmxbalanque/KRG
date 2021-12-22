@@ -3,7 +3,7 @@
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerAnimationController.h"
 #include "Game/Core/Player/PlayerCameraController.h"
-#include "Engine/Animation/Graph/AnimationGraphController.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Controller.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Core/Components/Component_Cameras.h"
@@ -25,7 +25,7 @@ namespace KRG::Player
 
         if ( m_pAnimGraphComponent != nullptr && m_pCharacterMeshComponent != nullptr )
         {
-            m_actionContext.m_pAnimationController = KRG::New<PlayerAnimationController>( m_pAnimGraphComponent, m_pCharacterMeshComponent );
+            m_actionContext.m_pAnimationController = KRG::New<AnimationController>( m_pAnimGraphComponent, m_pCharacterMeshComponent );
         }
 
         if ( m_pCameraComponent != nullptr )
@@ -157,7 +157,7 @@ namespace KRG::Player
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_actionContext.m_pCharacterController->TryMoveCapsule( m_actionContext.m_pPhysicsWorld, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+            m_actionContext.m_pCharacterController->TryMoveCapsule( ctx, m_actionContext.m_pPhysicsWorld, deltaTranslation, deltaRotation );
 
             // Update camera position relative to new character position
             m_actionContext.m_pCameraController->FinalizeCamera();

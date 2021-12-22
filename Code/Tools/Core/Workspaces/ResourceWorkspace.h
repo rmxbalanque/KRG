@@ -102,8 +102,30 @@ namespace KRG
         // Hot-reload
         virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override
         {
-            bool const shouldReload = ( m_pResource.IsLoaded() || m_pResource.IsLoading() );
-            if ( shouldReload && VectorContains( resourcesToBeReloaded, m_pResource.GetResourceID() ) )
+            bool shouldReload = ( m_pResource.IsLoaded() || m_pResource.IsLoading() );
+            if ( !shouldReload )
+            {
+                return;
+            }
+
+            // Check if we are directly referencing the resource being reloaded
+            shouldReload = VectorContains( resourcesToBeReloaded, m_pResource.GetResourceID() );
+
+            // If we aren't directly referencing it, check install dependencies
+            if ( !shouldReload )
+            {
+                for ( ResourceID const& installDependency : m_pResource.GetInstallDependencies() )
+                {
+                    if ( VectorContains( resourcesToBeReloaded, installDependency ) )
+                    {
+                        shouldReload = true;
+                        break;
+                    }
+                }
+            }
+
+            // Should we unload this resource
+            if ( shouldReload )
             {
                 m_editorContext.m_pResourceSystem->UnloadResource( m_pResource );
                 m_isHotReloading = true;

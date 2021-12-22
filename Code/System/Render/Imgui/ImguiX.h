@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../_Module/API.h"
+#include "System/Render/_Module/API.h"
 #include "ImguiFont.h"
 #include "ImguiStyle.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/String.h"
 
@@ -46,7 +47,7 @@ namespace KRG::ImGuiX
     }
 
     //-------------------------------------------------------------------------
-    // Docking helpers
+    // General helpers
     //-------------------------------------------------------------------------
 
     inline void MakeTabVisible( char const* const pWindowName )
@@ -61,60 +62,7 @@ namespace KRG::ImGuiX
         pWindow->DockNode->TabBar->NextSelectedTabId = pWindow->ID;
     }
 
-    //-------------------------------------------------------------------------
-    // Widgets
-    //-------------------------------------------------------------------------
-
-    inline void ItemTooltip( const char* fmt, ... )
-    {
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
-        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Style::s_toolTipDelay )
-        {
-            va_list args;
-            va_start( args, fmt );
-            ImGui::SetTooltipV( fmt, args );
-            va_end( args );
-        }
-        ImGui::PopStyleVar();
-    }
-
-    inline void ItemTooltipDelayed( float tooltipDelay, const char* fmt, ... )
-    {
-        KRG_ASSERT( tooltipDelay > 0 );
-        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > tooltipDelay )
-        {
-            va_list args;
-            va_start( args, fmt );
-            ImGui::SetTooltipV( fmt, args );
-            va_end( args );
-        }
-    }
-
-    inline void SelectableText( String const& value, float width = 0 )
-    {
-        if ( width != 0 )
-        {
-            ImGui::SetNextItemWidth( width );
-        }
-        ImGui::InputText( "##", const_cast<char*>( value.c_str() ), value.length(), ImGuiInputTextFlags_ReadOnly );
-    }
-
-    inline bool ButtonColored( ImVec4 const& foregroundColor, char const* label, ImVec2 const& size = ImVec2( 0, 0 ) )
-    {
-        ImGui::PushStyleColor( ImGuiCol_Text, foregroundColor );
-        bool const result = ImGui::Button( label, size );
-        ImGui::PopStyleColor();
-
-        return result;
-    }
-
     KRG_SYSTEM_RENDER_API ImVec2 const& GetClosestPointOnRect( ImRect const& rect, ImVec2 const& inPoint );
-
-    // Draw an arrow between two points
-    KRG_SYSTEM_RENDER_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
-
-    // Draw an overlaid icon in a window, returns true if clicked
-    KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID );
 
     //-------------------------------------------------------------------------
     // Separators
@@ -131,5 +79,74 @@ namespace KRG::ImGuiX
 
     // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
     KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
+
+    //-------------------------------------------------------------------------
+    // Widgets
+    //-------------------------------------------------------------------------
+
+    // Draw a tooltip for the immediately preceding item
+    inline void ItemTooltip( const char* fmt, ... )
+    {
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 4 ) );
+        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > Style::s_toolTipDelay )
+        {
+            va_list args;
+            va_start( args, fmt );
+            ImGui::SetTooltipV( fmt, args );
+            va_end( args );
+        }
+        ImGui::PopStyleVar();
+    }
+
+    // Draw a tooltip with a custom hover delay for the immediately preceding item
+    inline void ItemTooltipDelayed( float tooltipDelay, const char* fmt, ... )
+    {
+        KRG_ASSERT( tooltipDelay > 0 );
+        if ( ImGui::IsItemHovered() && GImGui->HoveredIdTimer > tooltipDelay )
+        {
+            va_list args;
+            va_start( args, fmt );
+            ImGui::SetTooltipV( fmt, args );
+            va_end( args );
+        }
+    }
+
+    // Draw a colored button
+    KRG_SYSTEM_RENDER_API bool ColoredButton( ImColor const& backgroundColor, ImColor const& foregroundColor, char const* label, ImVec2 const& size = ImVec2( 0, 0 ) );
+
+    // Draw a colored button
+    inline bool ColoredButton( Color backgroundColor, Color foregroundColor, char const* label, ImVec2 const& size = ImVec2( 0, 0 ) )
+    {
+        return ColoredButton( ConvertColor( backgroundColor ), ConvertColor( foregroundColor ), label, size );
+    }
+
+    // Draw an arrow between two points
+    KRG_SYSTEM_RENDER_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
+
+    // Draw an overlaid icon in a window, returns true if clicked
+    KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID );
+
+    // Draw a basic spinner
+    KRG_SYSTEM_RENDER_API bool DrawSpinner( char const* pLabel, ImColor const& color = Style::s_textColor, float radius = 6.0f, float thickness = 3.0f );
+
+    //-------------------------------------------------------------------------
+    // Numeric Widgets
+    //-------------------------------------------------------------------------
+
+    KRG_SYSTEM_RENDER_API bool InputFloat2( char const* pID, Float2& value, float width = -1, bool readOnly = false );
+    KRG_SYSTEM_RENDER_API bool InputFloat3( char const* pID, Float3& value, float width = -1, bool readOnly = false );
+    KRG_SYSTEM_RENDER_API bool InputFloat4( char const* pID, Float4& value, float width = -1, bool readOnly = false );
+    KRG_SYSTEM_RENDER_API bool InputFloat4( char const* pID, Vector& value, float width = -1, bool readOnly = false );
+
+    //-------------------------------------------------------------------------
+
+    KRG_SYSTEM_RENDER_API void DisplayVector2( Vector const& v, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayVector3( Vector const& v, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayVector4( Vector const& v, float width = -1 );
+    KRG_FORCE_INLINE void DisplayVector( Float2 const& v, float width = -1 ) { return DisplayVector2( v, width ); }
+    KRG_FORCE_INLINE void DisplayVector( Float3 const& v, float width = -1 ) { return DisplayVector3( v, width ); }
+    KRG_FORCE_INLINE void DisplayVector( Float4 const& v, float width = -1 ) { return DisplayVector4( v, width ); }
+    KRG_SYSTEM_RENDER_API void DisplayRotation( Quaternion const& q, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayTransform( Transform const& t, float width = -1 );
 }
 #endif

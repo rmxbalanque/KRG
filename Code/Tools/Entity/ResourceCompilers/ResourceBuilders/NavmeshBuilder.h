@@ -16,6 +16,7 @@ namespace KRG::EntityModel { class EntityCollectionDescriptor; }
 namespace KRG::Navmesh
 {
     class NavmeshData;
+    class NavmeshComponent;
 
     //-------------------------------------------------------------------------
 
@@ -25,13 +26,13 @@ namespace KRG::Navmesh
 
     public:
 
-        bool Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystem::Path const& navmeshResourcePath );
+        bool Build( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, FileSystem::Path const& navmeshResourcePath, NavmeshComponent const* pNavmeshComponent );
 
     private:
 
         bool CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<ResourcePath, TVector<Transform>>& collisionPrimitives );
         bool CollectTriangles( Resource::CompileContext const& ctx, THashMap<ResourcePath, TVector<Transform>> const& collisionPrimitives );
-        bool BuildNavmesh( Resource::CompileContext const& ctx, NavmeshData& navmeshData );
+        bool BuildNavmesh( Resource::CompileContext const& ctx, NavmeshComponent const* pNavmeshComponent, NavmeshData& navmeshData );
 
         bool Error( char const* pFormat, ... ) const;
         void Warning( char const* pFormat, ... ) const;
@@ -40,6 +41,5 @@ namespace KRG::Navmesh
     private:
 
         TVector<bfx::BuildFace>         m_buildFaces;
-        TVector<bfx::BuildParams>       m_buildParams;
     };
 }

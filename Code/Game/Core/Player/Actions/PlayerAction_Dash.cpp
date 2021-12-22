@@ -1,22 +1,24 @@
 #include "PlayerAction_Dash.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerCameraController.h"
+#include "Game/Core/Player/PlayerAnimationController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "System/Input/InputSystem.h"
 
 // hack for now
 #include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Ability.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    Radians maxAngularSpeed = Radians( Degrees( 90 ) ); // radians
-    float   dashDistance = 5.0f;                        // meters
-    float   dashDuration = 0.15f;                       // seconds
-    float   dashCooldown = 0.5f;                        // seconds
+    Radians g_maxAngularSpeed = Radians( Degrees( 90 ) ); // radians
+    float   g_dashDistance = 5.0f;                        // meters
+    float   g_dashDuration = 0.15f;                       // seconds
+    float   g_dashCooldown = 0.5f;                        // seconds
 
-    bool    debugDistance = false;
+    bool    g_debugDistance = false;
 
     //-------------------------------------------------------------------------
 
@@ -24,7 +26,7 @@ namespace KRG::Player
     {
         if( ctx.m_pInputSystem->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
         {
-            if( m_isFirstUse || m_timer.GetElapsedTimeSeconds() > dashCooldown )
+            if( m_isFirstUse || m_timer.GetElapsedTimeSeconds() > g_dashCooldown )
             {
                 ctx.m_pCharacterController->DisableGravity();
 
@@ -40,7 +42,7 @@ namespace KRG::Player
                     auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
                     auto const forward = camFwd * movementInputs.m_y;
                     auto const right = camRight * movementInputs.m_x;
-                    m_dashDirection = forward + right;
+                    m_dashDirection = ( forward + right ).GetNormalized2();
                 }
                 else
                 {
@@ -53,6 +55,10 @@ namespace KRG::Player
                 m_isFirstUse = false;
                 m_timer.Start();
                 m_isInSettle = false;
+
+                ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Ability );
+                auto pAbilityAnimController = ctx.GetAnimSubGraphController<AbilityGraphController>();
+                pAbilityAnimController->StartDash();
 
                 return true;
             }
@@ -68,7 +74,7 @@ namespace KRG::Player
 
         // Calculate desired player displacement
         //-------------------------------------------------------------------------
-        Vector const desiredVelocity = m_dashDirection * ( dashDistance / dashDuration );
+        Vector const desiredVelocity = m_dashDirection * ( g_dashDistance / g_dashDuration );
         Quaternion const deltaOrientation = Quaternion::Identity;
 
         // Run physic Prediction if required
@@ -80,7 +86,7 @@ namespace KRG::Player
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
         pLocomotionGraphController->SetLocomotionDesires(ctx.GetDeltaTime(), desiredVelocity, ctx.m_pCharacterComponent->GetForwardVector() );
 
-        if( m_timer.GetElapsedTimeSeconds() > dashDuration && !m_isInSettle )
+        if( m_timer.GetElapsedTimeSeconds() > g_dashDuration && !m_isInSettle )
         {
             m_settleTimer.Start();
             m_isInSettle = true;
@@ -97,10 +103,10 @@ namespace KRG::Player
         }
 
         auto Debugger = ctx.m_pEntityUpdateContext->GetDrawingContext();
-        if( debugDistance )
+        if( g_debugDistance )
         {
             Vector const Origin = ctx.m_pCharacterComponent->GetPosition();
-            Debugger.DrawArrow( m_debugStartPosition, m_debugStartPosition + m_dashDirection * dashDistance, Colors::HotPink );
+            Debugger.DrawArrow( m_debugStartPosition, m_debugStartPosition + m_dashDirection * g_dashDistance, Colors::HotPink );
         }
 
         return Status::Running;
@@ -116,18 +122,18 @@ namespace KRG::Player
         ImGui::Dummy( ImVec2( 0, 10 ) );
         ImGui::Text( "Settings :" );
         ImGui::Separator();
-        ImGui::InputFloat( "Dash distance", &dashDistance, 0.1f );
-        ImGui::InputFloat( "Dash duration", &dashDuration, 0.1f );
-        ImGui::InputFloat( "Dash cooldown", &dashCooldown, 0.1f );
+        ImGui::InputFloat( "Dash distance", &g_dashDistance, 0.1f );
+        ImGui::InputFloat( "Dash duration", &g_dashDuration, 0.1f );
+        ImGui::InputFloat( "Dash cooldown", &g_dashCooldown, 0.1f );
 
         ImGui::Dummy( ImVec2( 0, 10 ) );
         ImGui::Text( "Debug Values :" );
         ImGui::Separator();
-        ImGui::Text( "Cooldown : %.3f s", Math::Max( 0.0f, dashCooldown - m_timer.GetElapsedTimeSeconds() ) );
+        ImGui::Text( "Cooldown : %.3f s", Math::Max( 0.0f, g_dashCooldown - m_timer.GetElapsedTimeSeconds() ) );
 
         ImGui::Dummy( ImVec2( 0, 10 ) );
         ImGui::Text( "Debug drawings :" );
         ImGui::Separator();
-        ImGui::Checkbox( "Distance", &debugDistance );
+        ImGui::Checkbox( "Distance", &g_debugDistance );
     }
 }

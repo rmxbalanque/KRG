@@ -22,44 +22,20 @@ namespace KRG::Resource
         : m_database( database )
     {
         Memory::MemsetZero( m_filterBuffer, 256 * sizeof( char ) );
-        m_databaseUpdateEventBindingID = m_database.OnDatabaseUpdated().Bind( [this] () { RefreshResourceList(); } );
-        RefreshResourceList();
     }
 
-    ResourceFilePicker::~ResourceFilePicker()
+    FileSystem::Path const& ResourceFilePicker::GetRawResourceDirectoryPath() const
     {
-        if ( m_databaseUpdateEventBindingID.IsValid() )
-        {
-            m_database.OnDatabaseUpdated().Unbind( m_databaseUpdateEventBindingID );
-        }
+        return m_database.GetRawResourceDirectoryPath();
     }
 
-    void ResourceFilePicker::SetInitialResourceID( ResourceID const& initialID )
-    {
-        m_resourceID = initialID;
-        m_selectedID = initialID;
-    }
-
-    void ResourceFilePicker::SetTypeFilter( ResourceTypeID allowedResourceType )
-    {
-        KRG_ASSERT( allowedResourceType.IsValid() );
-        m_allowedResourceTypeID = allowedResourceType;
-        RefreshResourceList();
-    }
-
-    void ResourceFilePicker::ClearTypeFilter()
-    {
-        m_allowedResourceTypeID.Clear();
-        RefreshResourceList();
-    }
-
-    void ResourceFilePicker::RefreshResourceList()
+    void ResourceFilePicker::RefreshResourceList( ResourceTypeID resourceTypeID )
     {
         m_knownResourceIDs.clear();
 
-        if ( m_allowedResourceTypeID.IsValid() )
+        if ( resourceTypeID.IsValid() )
         {
-            for ( auto const& resourceRecord : m_database.GetAllResourcesOfType( m_allowedResourceTypeID ) )
+            for ( auto const& resourceRecord : m_database.GetAllResourcesOfType( resourceTypeID ) )
             {
                 m_knownResourceIDs.emplace_back( resourceRecord->m_resourcePath );
             }
@@ -110,32 +86,31 @@ namespace KRG::Resource
         }
     }
 
-    //-------------------------------------------------------------------------
-
-    bool ResourceFilePicker::Draw()
+    bool ResourceFilePicker::DrawPicker( ResourceTypeID resourceTypeID, ResourceID const* pResourceID )
     {
-        float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-        constexpr float const buttonWidth = 22;
-        constexpr float const resourceTypeWindowWidth = 36;
-
-        //-------------------------------------------------------------------------
-
+        KRG_ASSERT( pResourceID != nullptr );
+        if ( resourceTypeID.IsValid() && pResourceID->IsValid() )
+        {
+            KRG_ASSERT( pResourceID->GetResourceTypeID() == resourceTypeID );
+        }
         bool valueUpdated = false;
 
         //-------------------------------------------------------------------------
 
-        ImGui::PushID( this );
+        float const contentRegionAvailable = ImGui::GetContentRegionAvail().x;
+        constexpr float const resourceTypeWindowWidth = 36;
+
+        ImGui::PushID( pResourceID );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 2 ) );
         ImGui::BeginChild( "IDLabel", ImVec2( resourceTypeWindowWidth, 18 ), true, ImGuiWindowFlags_None | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
         {
-            if ( m_resourceID.IsValid() )
+            if ( pResourceID->IsValid() )
             {
-                ImVec2 const textSize = ImGui::CalcTextSize( m_resourceID.GetResourceTypeID().ToString().c_str() );
+                ImVec2 const textSize = ImGui::CalcTextSize( pResourceID->GetResourceTypeID().ToString().c_str());
                 ImGui::SameLine( 0, ( resourceTypeWindowWidth - textSize.x ) / 2 );
                 ImGui::AlignTextToFramePadding();
-                ImGui::TextColored( Colors::LightPink.ToFloat4(), m_resourceID.GetResourceTypeID().ToString().c_str() );
+                ImGui::TextColored( Colors::LightPink.ToFloat4(), pResourceID->GetResourceTypeID().ToString().c_str() );
             }
             else
             {
@@ -148,20 +123,27 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
+        constexpr float const buttonWidth = 22;
+        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+
         ImGui::SameLine( 0, itemSpacing );
-        ImGui::SetNextItemWidth( cellContentWidth - ( itemSpacing * 3 ) - ( buttonWidth * 2 ) - resourceTypeWindowWidth );
-        ImGui::InputText( "##DataPath", const_cast<char*>( m_resourceID.GetResourcePath().c_str() ), m_resourceID.GetResourcePath().GetString().length(), ImGuiInputTextFlags_ReadOnly);
+        ImGui::SetNextItemWidth( contentRegionAvailable - ( itemSpacing * 3 ) - ( buttonWidth * 2 ) - resourceTypeWindowWidth );
+        ImGui::InputText( "##DataPath", const_cast<char*>( pResourceID->GetResourcePath().c_str() ), pResourceID->GetResourcePath().GetString().length(), ImGuiInputTextFlags_ReadOnly );
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( buttonWidth, 0 ) ) )
         {
-            ImGui::OpenPopup( "Picker" );
+            ImGui::OpenPopup( "Resource Picker" );
+            m_filterBuffer[0] = 0;
+            m_initializeFocus = true;
+            RefreshResourceList( resourceTypeID );
+            m_selectedID = *pResourceID;
         }
 
         ImGui::SameLine( 0, itemSpacing );
         if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear", ImVec2( buttonWidth, 0 ) ) )
         {
-            m_resourceID.Clear();
+            m_selectedID.Clear();
             valueUpdated = true;
         }
 
@@ -169,20 +151,20 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        valueUpdated |= DrawDialog();
+        valueUpdated |= DrawDialog( resourceTypeID, pResourceID );
 
         return valueUpdated;
     }
 
-    bool ResourceFilePicker::DrawDialog()
+    bool ResourceFilePicker::DrawDialog( ResourceTypeID resourceTypeID, ResourceID const* pResourceID )
     {
-        ImGui::PushID( this );
+        ImGui::PushID( pResourceID );
 
         bool selectionMade = false;
         bool isDialogOpen = true;
-        ImGui::SetNextWindowSize( ImVec2( 800, 400 ), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2( 1000, 400 ), ImGuiCond_FirstUseEver );
         ImGui::SetNextWindowSizeConstraints( ImVec2( 400, 400 ), ImVec2( FLT_MAX, FLT_MAX ) );
-        if ( ImGui::BeginPopupModal( "Picker", &isDialogOpen, ImGuiWindowFlags_NoSavedSettings ) )
+        if ( ImGui::BeginPopupModal( "Resource Picker", &isDialogOpen, ImGuiWindowFlags_NoSavedSettings ) )
         {
             ImVec2 const contentRegionAvailable = ImGui::GetContentRegionAvail();
 
@@ -192,17 +174,30 @@ namespace KRG::Resource
             bool filterUpdated = false;
 
             ImGui::SetNextItemWidth( contentRegionAvailable.x - ImGui::GetStyle().WindowPadding.x - 22 );
-            if ( ImGui::InputText( "##Filter", m_filterBuffer, 256 ) )
+            InlineString<256> filterCopy( m_filterBuffer );
+            
+            if ( m_initializeFocus )
             {
-                // Convert buffer to lower case
-                int32 i = 0;
-                while ( i < 256 && m_filterBuffer[i] != 0 )
-                {
-                    m_filterBuffer[i] = eastl::CharToLower( m_filterBuffer[i] );
-                    i++;
-                }
+                ImGui::SetKeyboardFocusHere();
+                m_initializeFocus = false;
+            }
 
-                filterUpdated = true;
+            if ( ImGui::InputText( "##Filter", filterCopy.data(), 256) )
+            {
+                if ( strcmp( filterCopy.data(), m_filterBuffer) != 0 )
+                {
+                    strcpy_s( m_filterBuffer, 256, filterCopy.data() );
+
+                    // Convert buffer to lower case
+                    int32 i = 0;
+                    while ( i < 256 && m_filterBuffer[i] != 0 )
+                    {
+                        m_filterBuffer[i] = eastl::CharToLower( m_filterBuffer[i] );
+                        i++;
+                    }
+
+                    filterUpdated = true;
+                }
             }
 
             ImGui::SameLine();
@@ -212,12 +207,12 @@ namespace KRG::Resource
                 filterUpdated = true;
             }
 
-            // Update available options
+            // Update filter options
             //-------------------------------------------------------------------------
 
             if ( filterUpdated )
             {
-                RefreshResourceList();
+                RefreshResourceList( resourceTypeID );
             }
 
             // Draw results
@@ -227,7 +222,7 @@ namespace KRG::Resource
             ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorMedium.Value );
             if ( ImGui::BeginTable( "Resource List", 2, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, ImVec2( contentRegionAvailable.x, tableHeight ) ) )
             {
-                ImGui::TableSetupColumn( "File", ImGuiTableColumnFlags_WidthStretch, 0.45 );
+                ImGui::TableSetupColumn( "File", ImGuiTableColumnFlags_WidthStretch, 0.65f );
                 ImGui::TableSetupColumn( "Path", ImGuiTableColumnFlags_WidthStretch );
 
                 //-------------------------------------------------------------------------
@@ -250,7 +245,6 @@ namespace KRG::Resource
 
                             if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
                             {
-                                m_resourceID = m_filteredResourceIDs[i].m_resourceID;
                                 selectionMade = true;
                                 ImGui::CloseCurrentPopup();
                             }
@@ -266,15 +260,14 @@ namespace KRG::Resource
 
             ImGui::EndPopup();
         }
-        else // Reset filter
-        {
-            if ( m_filterBuffer[0] != 0 )
-            {
-                m_filterBuffer[0] = 0;
-                RefreshResourceList();
-            }
-        }
         ImGui::PopID();
+
+        //-------------------------------------------------------------------------
+
+        if ( !isDialogOpen )
+        {
+            m_selectedID = *pResourceID;
+        }
 
         //-------------------------------------------------------------------------
 

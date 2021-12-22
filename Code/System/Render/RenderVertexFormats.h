@@ -10,7 +10,7 @@
 
 namespace KRG::Render
 {
-    KRG_SYSTEM_RENDER_API uint32 GetDataTypeFormatByteSize( DataTypeFormat format );
+    KRG_SYSTEM_RENDER_API uint32 GetDataTypeFormatByteSize( DataFormat format );
 
     //-------------------------------------------------------------------------
 
@@ -50,14 +50,14 @@ namespace KRG::Render
 
             ElementDescriptor() = default;
 
-            ElementDescriptor( DataSemantic semantic, DataTypeFormat format, uint16 semanticIndex, uint16 offset ) : m_semantic( semantic )
+            ElementDescriptor( DataSemantic semantic, DataFormat format, uint16 semanticIndex, uint16 offset ) : m_semantic( semantic )
                 , m_format( format )
                 , m_semanticIndex( semanticIndex )
                 , m_offset( offset )
             {}
 
             DataSemantic        m_semantic = DataSemantic::None;
-            DataTypeFormat      m_format = DataTypeFormat::Unknown;
+            DataFormat      m_format = DataFormat::Unknown;
             uint16              m_semanticIndex = 0;
             uint16              m_offset = 0;
         };

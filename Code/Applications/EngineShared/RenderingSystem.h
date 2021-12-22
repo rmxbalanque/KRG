@@ -30,6 +30,13 @@ namespace KRG
         {
             struct ViewportRenderTarget
             {
+                ViewportRenderTarget( UUID const& viewportID, RenderTarget* pRT )
+                    : m_viewportID( viewportID )
+                    , m_pRenderTarget( pRT )
+                {
+                    KRG_ASSERT( pRT != nullptr );
+                }
+
                 UUID                    m_viewportID;
                 RenderTarget*           m_pRenderTarget = nullptr;
             };
@@ -48,9 +55,11 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            void CreateCustomRenderTargetForViewport( Viewport const* pViewport );
+            void CreateCustomRenderTargetForViewport( Viewport const* pViewport, bool requiresPickingBuffer = false );
             void DestroyCustomRenderTargetForViewport( Viewport const* pViewport );
+
             ViewSRVHandle const& GetRenderTargetTextureForViewport( Viewport const* pViewport ) const;
+            uint64 GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const;
 
         private:
 

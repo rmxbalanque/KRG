@@ -322,7 +322,8 @@ namespace KRG
                 m_resourceServerUI.Draw();
 
                 m_imguiSystem.EndFrame();
-                m_imguiRenderer.RenderViewport( m_deltaTime, m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_viewport );
+
+                m_imguiRenderer.RenderViewport( m_deltaTime, m_viewport, *m_pRenderDevice->GetPrimaryWindowRenderTarget() );
                 m_pRenderDevice->PresentFrame();
             }
         }

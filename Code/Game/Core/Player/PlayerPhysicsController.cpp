@@ -1,87 +1,144 @@
 #include "PlayerPhysicsController.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
+#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Math/MathHelpers.h"
-#include "System/Core/Math/Vector.h"
 
 //------------------------------------------------------------------------- 
 
 namespace KRG::Player
 {
-    bool CharacterPhysicsController::TryMoveCapsule( Physics::PhysicsWorldSystem* pPhysicsWorld, Seconds const deltaTime, Vector const& deltaTranslation, Quaternion const& deltaRotation )
+    bool CharacterPhysicsController::TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation )
     {
         // Be careful that deltaTransform only rotate the Z axis !
+        Vector const StepHeightOffset = Vector( 0.0f, 0.0f, 0.5f * m_settings.m_stepHeight );
 
-        Transform const capsuleWorldTransform = m_pCharacterComponent->GetCapsuleWorldTransform();
-        Vector const CurrentVelocity = m_pCharacterComponent->GetCharacterVelocity();
-
-        float VerticalSpeed = 0.0f;
-        if ( m_isGravityEnabled )
+        Transform capsuleWorldTransform = m_pCharacterComponent->GetCapsuleWorldTransform();
+        if( m_isStepHeightEnabled )
         {
-            VerticalSpeed += CurrentVelocity.m_z - ( m_gravitationalAcceleration * deltaTime );
+            capsuleWorldTransform.AddTranslation( StepHeightOffset );
         }
-        Vector const deltaTranslationWithGravity = deltaTranslation + Vector( 0.f, 0.f, VerticalSpeed * deltaTime );
+
+        float const capsuleRadius = m_pCharacterComponent->GetCapsuleRadius();
+        float const CylinderHalfHeight = m_isStepHeightEnabled ? 0.5f * ( m_pCharacterComponent->GetCapsuleHeight() - m_settings.m_stepHeight ) : m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight();
+        Vector const stepHeightOffset = m_isStepHeightEnabled ? Vector( 0.f, 0.f, m_settings.m_stepHeight ) : Vector::Zero;
 
         //-------------------------------------------------------------------------
 
         pPhysicsWorld->AcquireReadLock();
 
-        int32 recursion = 0;
-        auto MoveResult = SweepCapsule( pPhysicsWorld, capsuleWorldTransform.GetTranslation(), deltaTranslationWithGravity, recursion );
-        pPhysicsWorld->ReleaseReadLock();
+        Vector deltaMovement = deltaTranslation;
+        if( m_isOnGround && m_ProjectOntoFloor )
+        {
+            Vector const projection = Plane::FromNormal( m_floorNormal ).ProjectVectorVertically( deltaTranslation );
+            deltaMovement = projection.GetNormalized3() * deltaTranslation.GetLength3();
+        }
+
+        // Move horizontally
+        int32 moveRecursion = 0;
+        auto moveResult = SweepCylinder( pPhysicsWorld, CylinderHalfHeight, capsuleRadius, capsuleWorldTransform.GetTranslation(), deltaMovement, moveRecursion );
+
+        // Update gravity if needed
+        Vector verticalAjustement;
+        if( m_isGravityEnabled )
+        {
+            m_verticalSpeed -= ( m_settings.m_gravitationalAcceleration * ctx.GetDeltaTime() );
+            verticalAjustement = Vector::UnitZ * m_verticalSpeed * ctx.GetDeltaTime();
+        }
+        else
+        {
+            m_verticalSpeed = 0.f;
+            verticalAjustement = Vector::Zero;
+        }
+
+        // Move vertically
+        int32 verticalMoveRecursion = 0;
+        auto const  verticalMoveResult = SweepCylinderVertical( pPhysicsWorld, CylinderHalfHeight, capsuleRadius, moveResult.GetFinalPosition(), verticalAjustement, stepHeightOffset, verticalMoveRecursion );
+
+        // Collided with a floor
+        if( verticalMoveResult.GetSweepResults().hasBlock )
+        {
+            Vector const normal = Physics::FromPx( verticalMoveResult.GetSweepResults().block.normal );
+            if( Math::GetAngleBetweenNormalizedVectors( normal, Vector::UnitZ ) < m_settings.m_maxNavigableSlopeAngle )
+            {
+                // Reset vertical speed
+                m_verticalSpeed = 0.0;
+                m_isOnGround = true;
+                m_floorNormal = normal;
+            }
+            else
+            {
+                m_isOnGround = false;
+            }
+        }
+        else
+        {
+            m_isOnGround = false;
+        }
 
         //-------------------------------------------------------------------------
 
-        // this is a horrible hack
-        if ( MoveResult.NeededDepenetration() )
+        Transform finalCapsuleWorldTransform( m_pCharacterComponent->GetCapsuleOrientation(), verticalMoveResult.GetFinalPosition() );
+        if( m_isStepHeightEnabled )
         {
-            Transform finalCapsuleWorldTransform = capsuleWorldTransform;
-            finalCapsuleWorldTransform.SetTranslation( MoveResult.m_correctedPosition );
-
-            auto CharacterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
-            CharacterWorldTransform.SetRotation( deltaRotation * CharacterWorldTransform.GetRotation() );
-            // this is only needed since we don't want to account for the depenetration displacement in the velocity
-            m_pCharacterComponent->TeleportCharacter( CharacterWorldTransform );
+            finalCapsuleWorldTransform.AddTranslation( -StepHeightOffset );
         }
 
-        Transform finalCapsuleWorldTransform = capsuleWorldTransform;
-        finalCapsuleWorldTransform.SetTranslation( MoveResult.m_finalPosition );
+        if( m_isOnGround )
+        {
+            // Adjust the position to the capsule collision with the floor, required for not floating on slope
+            MoveResult const capsuleMoveResult = AdjustCapsuleToGround( pPhysicsWorld, m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), m_pCharacterComponent->GetCapsuleRadius(), finalCapsuleWorldTransform, m_settings.m_stepHeight );
+            finalCapsuleWorldTransform.SetTranslation( capsuleMoveResult.GetFinalPosition() );
+        }
 
-        auto CharacterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
-        CharacterWorldTransform.SetRotation( deltaRotation * CharacterWorldTransform.GetRotation() );
-        m_pCharacterComponent->MoveCharacter( deltaTime, CharacterWorldTransform );
+        pPhysicsWorld->ReleaseReadLock();
+
+        auto characterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
+        characterWorldTransform.SetRotation( deltaRotation * characterWorldTransform.GetRotation() );
+
+        m_pCharacterComponent->MoveCharacter( ctx.GetDeltaTime(), characterWorldTransform );
 
         return true;
     }
 
-    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCapsule( Physics::PhysicsWorldSystem* pPhysicsSystem, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx )
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinder( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& idx )
     {
         MoveResult moveResult( startPosition );
-        Idx++;
+        idx++;
 
-        if ( Idx > 10 )
+        if ( idx > 10 )
         {
             return moveResult;
         }
 
+        bool onlyApplyDepenetration = false;
+
         Vector moveDirection;
         float distance = 0.0f;
         deltaTranslation.ToDirectionAndLength3( moveDirection, distance );
+
         if ( distance < Math::Epsilon )
         {
-            return moveResult;
+            // we need to force a direction and distance to test for initial penetration even if the displacement is null.
+            moveDirection = -Vector::UnitZ;
+            distance = 0.01;
+            onlyApplyDepenetration = true;
         }
 
         Vector adjustedDeltaTranslation = deltaTranslation;
 
         Physics::QueryFilter filter;
-        filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
+        filter.SetLayerMask( m_settings.m_physicsLayerMask );
         filter.AddIgnoredEntity( m_pCharacterComponent->GetEntityID() );
+        for( auto IgnoredActor : m_settings.m_ignoredActors )
+        {
+            filter.AddIgnoredEntity( IgnoredActor );
+        }
 
         Physics::SweepResults sweepResults;
-        if ( pPhysicsSystem->CapsuleSweep( m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), m_pCharacterComponent->GetCapsuleRadius(), m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        if ( pPhysicsSystem->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
-            if ( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
+            if ( sweepResults.hasBlock &&sweepResults.block.hadInitialOverlap() )
             {
                 // Sometime PhysX will detect an initial overlap with 0.0 penetration depth,
                 // this is due to the discrepancy between math of the scene query (sweep) and the geo query (use for penetration dept calculation).
@@ -92,12 +149,18 @@ namespace KRG::Player
                 float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
                 Vector const correctedStartPosition = startPosition + ( normal * penetrationDistance );
 
-                auto const depenetratedResult = SweepCapsule( pPhysicsSystem, correctedStartPosition, deltaTranslation, Idx );
+                auto const depenetratedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, idx );
                 moveResult.ApplyCorrectiveMove( depenetratedResult );
             }
             else
             {
                 KRG_ASSERT( sweepResults.hasBlock );
+
+                // We have no movement and only want to apply depenetration, we didn't have any penetration here, so return without moving
+                if( onlyApplyDepenetration )
+                {
+                    return moveResult;
+                }
 
                 // Purely vertical movement
                 if ( moveDirection.GetLength2() == 0.f )
@@ -111,19 +174,19 @@ namespace KRG::Player
 
                     float const initialHorizontalSpeed = deltaTranslation.GetLength2();
                     Vector const collisionPosition = sweepResults.GetShapePosition();
-                    Vector const TranslationDone = collisionPosition - startPosition;
+                    Vector const translationDone = collisionPosition - startPosition;
 
                     Vector const normal = Physics::FromPx( sweepResults.block.normal );
                     Radians const slopeAngle = Math::GetAngleBetweenNormalizedVectors( normal, Vector::UnitZ );
 
                     // Collision with the floor
-                    if ( slopeAngle < m_maxNavigableSlopeAngle )
+                    if ( slopeAngle < m_settings.m_maxNavigableSlopeAngle )
                     {
                         // Re-project the displacement vertically on the new ground
                         float const remainingDistance = sweepResults.GetRemainingDistance();
                         // the vertical projection is required since a simple projection tend to "suck" the direction along the perpendicular side of the slope
-                        Vector const ProjectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVectorVertically( deltaTranslation );
-                        Vector const unitProjection = ProjectedDeltaTranslation.GetNormalized3();
+                        Vector const projectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVectorVertically( deltaTranslation );
+                        Vector const unitProjection = projectedDeltaTranslation.GetNormalized3();
                         Vector newDeltaMovement = unitProjection * remainingDistance;
                         KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
 
@@ -136,7 +199,7 @@ namespace KRG::Player
                             newDeltaMovement.m_y *= ratio;
                         }
 
-                        auto const reprojectedResult = SweepCapsule( pPhysicsSystem, collisionPosition, newDeltaMovement, Idx );
+                        auto const reprojectedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
                         moveResult.ApplySubsequentMove( reprojectedResult );
                     }
                     // collision with a wall / unnavigable slope
@@ -144,13 +207,13 @@ namespace KRG::Player
                     {
                         // Only reproject if the direction is close to (60 degree +) perpendicular to the normal
                         Radians const normalAngle = Math::GetAngleBetweenNormalizedVectors( normal, -moveDirection );
-                        if ( normalAngle > m_wallSlideAngle )
+                        if ( normalAngle > m_settings.m_wallSlideAngle )
                         {
                             // Re-project the displacement along the wall
                             float const remainingDistance = sweepResults.GetRemainingDistance();
                             // use a regular vector projection since we want to keep the vertically momentum when sliding along a wall;
-                            Vector const ProjectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVector( deltaTranslation );
-                            Vector const unitProjection = ProjectedDeltaTranslation.GetNormalized3();
+                            Vector const projectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVector( deltaTranslation );
+                            Vector const unitProjection = projectedDeltaTranslation.GetNormalized3();
                             Vector newDeltaMovement = unitProjection * remainingDistance;
                             KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
 
@@ -163,13 +226,12 @@ namespace KRG::Player
                                 newDeltaMovement.m_y *= ratio;
                             }
 
-                            auto const reprojectedResult = SweepCapsule( pPhysicsSystem, collisionPosition, newDeltaMovement, Idx );
+                            auto const reprojectedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
                             moveResult.ApplySubsequentMove( reprojectedResult );
                         }
                         else
                         {
-                            moveResult.m_finalPosition = sweepResults.GetShapePosition();
-                            moveResult.m_remainingDistance = sweepResults.GetRemainingDistance();
+                            moveResult.FinalisePosition( sweepResults );
                         }
                     }
                 }
@@ -177,10 +239,116 @@ namespace KRG::Player
         }
         else
         {
-            moveResult.m_finalPosition = startPosition + deltaTranslation;
-            moveResult.m_remainingDistance = 0.0f;
+            moveResult.FinalisePosition( sweepResults );
         }
 
+        return moveResult;
+    }
+
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinderVertical( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& idx )
+    {
+        MoveResult moveResult( startPosition );
+
+        Vector const downSweep = deltaTranslation - stepHeightOffset;
+
+        Vector moveDirection;
+        float distance = 0.0f;
+        downSweep.ToDirectionAndLength3( moveDirection, distance );
+
+        bool onlyApplyDepenetration = false;
+        if( distance < Math::Epsilon )
+        {
+            // we need to force a direction and distance to test for initial penetration even if the displacement is null.
+            moveDirection = -Vector::UnitZ;
+            distance = 0.01;
+            onlyApplyDepenetration = true;
+        }
+
+        Physics::QueryFilter filter;
+        filter.SetLayerMask( m_settings.m_physicsLayerMask );
+        filter.AddIgnoredEntity( m_pCharacterComponent->GetEntityID() );
+        for( auto IgnoredActor : m_settings.m_ignoredActors )
+        {
+            filter.AddIgnoredEntity( IgnoredActor );
+        }
+
+        Physics::SweepResults sweepResults;
+        if( pPhysicsSystem->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        {
+            if( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
+            {
+                // This should not happen since we swept vertically and resolved collision earlier, but we should handle it just in case I'm proved wrong
+                KRG_ASSERT( false ); // this assumption need to be validated
+
+                // Sometime PhysX will detect an initial overlap with 0.0 penetration depth,
+                // this is due to the discrepancy between math of the scene query (sweep) and the geo query (use for penetration dept calculation).
+                // Read this for more info : 
+                // https://gameworksdocs.nvidia.com/PhysX/4.1/documentation/physxguide/Manual/BestPractices.html#character-controller-systems-using-scene-queries-and-penetration-depth-computation
+
+                Vector const normal = Physics::FromPx( sweepResults.block.normal );
+                float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
+                Vector const correctedStartPosition = startPosition + ( normal * penetrationDistance );
+
+                auto const depenetratedResult = SweepCylinderVertical( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, stepHeightOffset, idx );
+                moveResult.ApplyCorrectiveMove( depenetratedResult );
+            }
+            else
+            {
+                if( onlyApplyDepenetration )
+                {
+                    return moveResult;
+                }
+
+                Vector const normal = Physics::FromPx( sweepResults.block.normal );
+
+                // Only reproject if the direction is close to (60 degree +) perpendicular to the normal
+                Radians const normalAngle = Math::GetAngleBetweenNormalizedVectors( normal, -moveDirection );
+                if( normalAngle > m_settings.m_maxNavigableSlopeAngle )
+                {
+                    // Re-project the displacement along the wall
+                    Vector const collisionPosition = sweepResults.GetShapePosition();
+                    float const remainingDistance = sweepResults.GetRemainingDistance();
+
+                    // use a regular vector projection since we want to keep the vertically momentum when sliding along a wall;
+                    Vector const projectedDeltaTranslation = Plane::FromNormal( normal ).ProjectVector( downSweep );
+                    Vector const unitProjection = projectedDeltaTranslation.GetNormalized3();
+                    Vector const newDeltaMovement = unitProjection * remainingDistance;
+                    KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
+
+                    auto const reprojectedResult = SweepCylinderVertical( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, Vector::Zero, idx );
+                    moveResult.ApplySubsequentMove( reprojectedResult, stepHeightOffset );
+                }
+                else
+                {
+                    moveResult.FinalisePosition( sweepResults, stepHeightOffset );
+                }
+            }
+        }
+        else
+        {
+            moveResult.FinalisePosition( sweepResults, stepHeightOffset );
+        }
+
+        return moveResult;
+    }
+
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::AdjustCapsuleToGround( Physics::PhysicsWorldSystem* pPhysicsSystem, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance )
+    {
+        MoveResult moveResult( transform.GetTranslation() );
+
+        Physics::QueryFilter filter;
+        filter.SetLayerMask( m_settings.m_physicsLayerMask );
+        filter.AddIgnoredEntity( m_pCharacterComponent->GetEntityID() );
+        for( auto IgnoredActor : m_settings.m_ignoredActors )
+        {
+            filter.AddIgnoredEntity( IgnoredActor );
+        }
+
+        Physics::SweepResults sweepResults;
+        pPhysicsSystem->CapsuleSweep( capsuleCylinderPortionHalfHeight, capsuleRadius - 0.01f, transform.GetRotation(), transform.GetTranslation(), -Vector::UnitZ, distance, filter, sweepResults );
+        KRG_ASSERT( sweepResults.hasBlock ? !sweepResults.block.hadInitialOverlap() : true );
+
+        moveResult.FinalisePosition( sweepResults );
         return moveResult;
     }
 }

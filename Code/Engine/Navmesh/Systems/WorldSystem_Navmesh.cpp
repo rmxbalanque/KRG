@@ -138,7 +138,7 @@ namespace KRG::Navmesh
             Render::Viewport const* pViewport = ctx.GetViewport();
         
             bfx::DrawCullParams cullParams;
-            cullParams.m_cameraPos = ToBfx( pViewport->GetViewOrigin() );
+            cullParams.m_cameraPos = ToBfx( pViewport->GetViewPosition() );
             cullParams.m_cameraDir = ToBfx( pViewport->GetViewForwardDirection() );
             cullParams.m_farClipDist = pViewport->GetViewVolume().GetDepthRange().m_end;
             cullParams.m_fov = pViewport->GetViewVolume().IsPerspective() ? pViewport->GetViewVolume().GetFOV().ToDegrees().ToFloat() : 0.0f;

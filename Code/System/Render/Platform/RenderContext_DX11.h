@@ -27,6 +27,8 @@ namespace KRG
             static ID3D11DepthStencilState* s_pDepthTestingOff;
             static ID3D11DepthStencilState* s_pDepthTestingReadOnly;
 
+            static Float4 const s_defaultClearColor;
+
         public:
 
             RenderContext() = default;
@@ -51,20 +53,17 @@ namespace KRG
             void SetIndexBuffer( RenderBuffer const& buffer, uint32 offset = 0 ) const;
 
             // Rasterizer
-            void SetViewport( Float2 dimensions, Float2 topLeft, Float2 zRange=Float2(0, 1) ) const;
+            void SetViewport( Float2 dimensions, Float2 topLeft, Float2 zRange = Float2(0, 1) ) const;
             void SetDepthTestMode( DepthTestMode mode ) const;
             void SetRasterizerScissorRectangles( ScissorRect const* pScissorRects, uint32 numRects = 0 ) const;
             void SetBlendState( BlendState const& blendState ) const;
 
             // Render Targets
-            void SetRenderTargetViews( ViewRTHandle const& rtView, ViewDSHandle const& dsView ) const;
-            void ClearRenderTargetView( ViewRTHandle const& rtView,  Float4 clearColor ) const;
+            void SetRenderTarget( RenderTarget const& renderTarget ) const;
+            void SetRenderTarget( ViewDSHandle const& dsView ) const;
+            void SetRenderTarget( nullptr_t ) const;
             void ClearDepthStencilView( ViewDSHandle const& dsView, float depth, uint8 stencil ) const;
-
-            // TODO: remove
-            void SetRenderTarget( RenderTarget const& renderTarget, bool clearOnSet = false ) const;
             void ClearRenderTargetViews( RenderTarget const& renderTarget ) const;
-            void ClearRenderTargets() const;
 
             // Drawing
             void SetPrimitiveTopology( Topology topology ) const;

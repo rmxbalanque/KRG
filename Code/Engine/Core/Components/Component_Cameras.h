@@ -74,8 +74,11 @@ namespace KRG
         inline FreeLookCameraComponent() = default;
         inline FreeLookCameraComponent( StringID name ) : CameraComponent( name ) {}
 
+        inline Radians GetPitch() const { return m_pitch; }
+        inline Radians GetYaw() const { return m_yaw; }
+
         // Perform local adjustments to the camera's heading and pitch
-        void AdjustHeadingAndPitch( Radians headingDelta, Radians pitchDelta );
+        void AdjustPitchAndYaw( Radians headingDelta, Radians pitchDelta );
 
         // Set the camera world position and world look at target
         void SetPositionAndLookatTarget( Vector const& cameraPosition, Vector const& lookatTarget );
@@ -124,13 +127,13 @@ namespace KRG
     protected:
 
         KRG_EXPOSE Float3               m_defaultOrbitTargetOffset = Float3::Zero;
-        KRG_EXPOSE float                m_defaultOrbitDistance = 2.0f;
+        KRG_EXPOSE float                m_defaultOrbitDistance = 2.f;
 
         Radians                         m_yaw = 0;
         Radians                         m_pitch = 0;
         Transform                       m_orbitTransform; // The orbit transform (local to the orbit world space point)
 
         Float3                          m_orbitTargetOffset = Float3::Zero;
-        float                           m_orbitDistance = 2.0f;
+        float                           m_orbitDistance = 2.f;
     };
 }

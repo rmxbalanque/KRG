@@ -24,15 +24,17 @@ namespace KRG::Physics
         friend class PhysicsDebugView;
         friend class PhysicsRenderer;
 
-        // The distance that the shape is pushed away from a detected collision after a sweep - currently set to 5mm as that is a relatively standard value
-        static constexpr float const s_sweepSeperationDistance = 0.005f;
-
         struct EntityPhysicsRecord
         {
             inline bool IsEmpty() const { return m_components.empty(); }
 
             TVector<PhysicsShapeComponent*>                  m_components;
         };
+
+    public:
+
+        // The distance that the shape is pushed away from a detected collision after a sweep - currently set to 5mm as that is a relatively standard value
+        static constexpr float const s_sweepSeperationDistance = 0.005f;
 
     public:
 
@@ -49,24 +51,28 @@ namespace KRG::Physics
 
         inline void AcquireReadLock()
         {
+            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->lockRead();
-            KRG_DEVELOPMENT_TOOLS_ONLY( m_readLockAcquired = true );
+            KRG_DEVELOPMENT_TOOLS_ONLY( ++m_readLockCount );
         }
 
         inline void ReleaseReadLock()
         {
+            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->unlockRead();
-            KRG_DEVELOPMENT_TOOLS_ONLY( m_readLockAcquired = false );
+            KRG_DEVELOPMENT_TOOLS_ONLY( --m_readLockCount );
         }
 
         inline void AcquireWriteLock()
         {
+            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->lockWrite();
             KRG_DEVELOPMENT_TOOLS_ONLY( m_writeLockAcquired = true );
         }
 
         inline void ReleaseWriteLock()
         {
+            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->unlockWrite();
             KRG_DEVELOPMENT_TOOLS_ONLY( m_writeLockAcquired = false );
         }
@@ -80,21 +86,21 @@ namespace KRG::Physics
         template<int N>
         bool RayCast( Vector const& start, Vector const& end, QueryFilter& filter, RayCastResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_start = start;
             outResults.m_end = end;
 
-            Vector unitDirection, distance;
+             Vector unitDirection; float distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
-            return RayCast( start, unitDirection, distance.m_x, filter, outResults );
+            return RayCast( start, unitDirection, distance, filter, outResults );
         }
 
         template<int N>
         bool RayCast( Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, RayCastResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
             outResults.m_start = start;
@@ -110,17 +116,17 @@ namespace KRG::Physics
         template<int N>
         bool SphereSweep( float radius, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_sweepStart = start;
             outResults.m_sweepEnd = end;
 
-            Vector unitDirection, distance;
+            Vector unitDirection; float distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
             physx::PxSphereGeometry const sphereGeo( radius );
-            bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            bool const result = m_pScene->sweep( sphereGeo, physx::PxTransform( ToPx( start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
@@ -128,7 +134,7 @@ namespace KRG::Physics
         template<int N>
         bool SphereSweep( float radius, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
             outResults.m_sweepStart = start;
@@ -145,7 +151,7 @@ namespace KRG::Physics
         template<int N>
         bool SphereOverlap( float radius, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_position = position;
 
@@ -163,7 +169,7 @@ namespace KRG::Physics
         template<int N>
         bool CapsuleSweep( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_sweepStart = start;
             outResults.m_sweepEnd = end;
@@ -187,7 +193,7 @@ namespace KRG::Physics
         template<int N>
         bool CapsuleSweep( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
             outResults.m_sweepStart = start;
@@ -208,7 +214,7 @@ namespace KRG::Physics
         template<int N>
         bool CapsuleOverlap( float cylinderPortionHalfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_position = position;
             outResults.m_orientation = orientation;
@@ -225,17 +231,17 @@ namespace KRG::Physics
         template<int N>
         bool CylinderSweep( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             outResults.m_sweepStart = start;
             outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
-            Vector unitDirection, distance;
+             Vector unitDirection; float distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
-            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
-            bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( 2.0f * halfHeight, 2.0f * radius, 2.0f * radius ) ) );
+            bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
@@ -243,7 +249,7 @@ namespace KRG::Physics
         template<int N>
         bool CylinderSweep( float halfHeight, float radius, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
             KRG_ASSERT( SharedMeshes::s_pUnitCylinderMesh != nullptr );
 
@@ -251,7 +257,7 @@ namespace KRG::Physics
             outResults.m_sweepEnd = Vector::MultiplyAdd( unitDirection, Vector( distance ), start );
             outResults.m_orientation = orientation;
 
-            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
+            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( 2.0f * halfHeight, 2.0f * radius, 2.0f * radius ) ) );
             bool const result = m_pScene->sweep( cylinderGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
@@ -262,14 +268,14 @@ namespace KRG::Physics
         template<int N>
         bool CylinderOverlap( float halfHeight, float radius, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_position = position;
             outResults.m_orientation = orientation;
 
             // Set the no block value for overlaps
             TScopedGuardValue guard( filter.m_filterData.flags, filter.m_filterData.flags | physx::PxQueryFlag::eNO_BLOCK );
-            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( radius, radius, halfHeight ) ) );
+            physx::PxConvexMeshGeometry const cylinderGeo( SharedMeshes::s_pUnitCylinderMesh, physx::PxMeshScale( physx::PxVec3( 2.0f * halfHeight, 2.0f * radius, 2.0f * radius ) ) );
             bool const result = m_pScene->overlap( cylinderGeo, physx::PxTransform( ToPx( position ), ToPx( orientation ) ), outResults, filter.m_filterData, &filter );
             return result;
         }
@@ -279,7 +285,7 @@ namespace KRG::Physics
         template<int N>
         bool BoxSweep( Vector halfExtents, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
             outResults.m_sweepStart = start;
@@ -295,9 +301,9 @@ namespace KRG::Physics
         template<int N>
         bool BoxSweep( Vector halfExtents, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
-            Vector unitDirection, distance;
+             Vector unitDirection; float distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
@@ -306,7 +312,7 @@ namespace KRG::Physics
             outResults.m_orientation = orientation;
 
             physx::PxBoxGeometry const boxGeo( ToPx( halfExtents ) );
-            bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            bool const result = m_pScene->sweep( boxGeo, physx::PxTransform( ToPx( start ), ToPx( orientation ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
@@ -316,7 +322,7 @@ namespace KRG::Physics
         template<int N>
         bool BoxOverlap( Vector halfExtents, Quaternion const& orientation, Vector const& position, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_position = position;
             outResults.m_orientation = orientation;
@@ -333,7 +339,7 @@ namespace KRG::Physics
         template<int N>
         bool ShapeSweep( physx::PxShape* pShape, Quaternion const& orientation, Vector const& start, Vector const& unitDirection, float distance, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
             KRG_ASSERT( unitDirection.IsNormalized3() && distance > 0 );
 
             outResults.m_sweepStart = start;
@@ -348,8 +354,8 @@ namespace KRG::Physics
         template<int N>
         bool ShapeSweep( physx::PxShape* pShape, Quaternion const& orientation, Vector const& start, Vector const& end, QueryFilter& filter, SweepResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
-            Vector unitDirection, distance;
+            KRG_ASSERT( m_readLockCount > 0 );
+             Vector unitDirection; float distance;
             ( end - start ).ToDirectionAndLength3( unitDirection, distance );
             KRG_ASSERT( !unitDirection.IsNearZero3() );
 
@@ -357,7 +363,7 @@ namespace KRG::Physics
             outResults.m_sweepEnd = end;
             outResults.m_orientation = orientation;
 
-            bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance.m_x, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
+            bool const result = m_pScene->sweep( pShape->getGeometry().any(), ToPx( Transform( orientation, start ) ), ToPx( unitDirection ), distance, outResults, filter.m_hitFlags, filter.m_filterData, &filter );
             outResults.CalculateFinalShapePosition( s_sweepSeperationDistance );
             return result;
         }
@@ -367,7 +373,7 @@ namespace KRG::Physics
         template<int N>
         bool ShapeOverlap( physx::PxShape* pShape, Quaternion const& orientation, Vector const& start, QueryFilter& filter, OverlapResultBuffer<N>& outResults )
         {
-            KRG_ASSERT( m_readLockAcquired );
+            KRG_ASSERT( m_readLockCount > 0 );
 
             outResults.m_position = start;
             outResults.m_orientation = orientation;
@@ -415,7 +421,7 @@ namespace KRG::Physics
         TIDVector<ComponentID, PhysicsShapeComponent*>          m_dynamicShapeComponents; // TODO: profile and see if we need to use a dynamic pool
 
         #if KRG_DEVELOPMENT_TOOLS
-        std::atomic<bool>                                       m_readLockAcquired = false;     // Assertion helper
+        std::atomic<int32>                                      m_readLockCount = false;        // Assertion helper
         std::atomic<bool>                                       m_writeLockAcquired = false;    // Assertion helper
 
         bool                                                    m_drawDynamicActorBounds = false;

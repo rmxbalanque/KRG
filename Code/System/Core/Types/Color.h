@@ -249,6 +249,7 @@ namespace KRG
         static Color const PowderBlue = 0xB0E0E6FF;
         static Color const Purple = 0x800080FF;
         static Color const Red = 0xFF0000FF;
+        static Color const MediumRed = 0xC90000FF;
         static Color const RosyBrown = 0xBC8F8FFF;
         static Color const RoyalBlue = 0x4169E1FF;
         static Color const SaddleBrown = 0x8B4513FF;

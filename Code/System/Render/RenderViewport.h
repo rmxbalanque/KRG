@@ -52,10 +52,10 @@ namespace KRG::Render
         void SetViewVolume( Math::ViewVolume const& viewVolume );
         inline Math::ViewVolume const& GetViewVolume() const { return m_viewVolume; }
 
-        inline Vector GetViewOrigin() const { return m_viewVolume.GetWorldMatrix().GetTranslation(); }
-        inline Vector GetViewForwardDirection() const { return m_viewVolume.GetForwardVector(); }
-        inline Vector GetViewRightDirection() const { return m_viewVolume.GetRightVector(); }
-        inline Vector GetViewUpDirection() const { return m_viewVolume.GetUpVector(); }
+        inline Vector GetViewPosition() const { return m_viewVolume.GetViewPosition(); }
+        inline Vector GetViewForwardDirection() const { return m_viewVolume.GetViewForwardVector(); }
+        inline Vector GetViewRightDirection() const { return m_viewVolume.GetViewRightVector(); }
+        inline Vector GetViewUpDirection() const { return m_viewVolume.GetViewUpVector(); }
 
         // Queries
         //-------------------------------------------------------------------------
@@ -64,6 +64,11 @@ namespace KRG::Render
         {
             Float2 const bottomRightPosition = GetBottomRightPosition();
             return Math::IsInRangeInclusive( point.m_x, m_topLeftPosition.m_x, bottomRightPosition.m_x ) && Math::IsInRangeInclusive( point.m_y, m_topLeftPosition.m_y, bottomRightPosition.m_y );
+        }
+
+        inline bool IsWorldSpacePointVisible( Vector const& point ) const
+        {
+            return m_viewVolume.Contains( point );
         }
 
         // Space conversions

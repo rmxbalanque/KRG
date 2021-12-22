@@ -38,4 +38,9 @@ namespace KRG::Player
     {
         m_pCamera->FinalizeCameraPosition();
     }
+
+    Vector const& CameraController::GetCameraPosition() const
+    {
+        return m_pCamera->GetPosition();
+    }
 }

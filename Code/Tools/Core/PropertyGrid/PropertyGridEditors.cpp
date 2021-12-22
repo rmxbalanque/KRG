@@ -3,9 +3,8 @@
 #include "Tools/Core/Resource/ResourceDatabase.h"
 #include "Tools/Core/Widgets/CurveEditor.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
-#include "Engine/Core/DevUI/NumericUIHelpers.h"
-#include "System/TypeSystem/PropertyInfo.h"
 #include "System/Render/Imgui/ImguiX.h"
+#include "System/TypeSystem/PropertyInfo.h"
 #include "System/TypeSystem/TypeRegistry.h"
 
 //-------------------------------------------------------------------------
@@ -1101,10 +1100,9 @@ namespace KRG::TypeSystem
     {
     public:
 
-        ResourcePathEditor( TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+        ResourcePathEditor( TypeRegistry const& typeRegistry, Resource::ResourceFilePicker& resourcePicker, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
             : PropertyEditor( typeRegistry, propertyInfo, m_pPropertyInstance )
-            , m_resourceDB( resourceDatabase )
-            , m_resourceFilePicker( resourceDatabase )
+            , m_resourceFilePicker( resourcePicker )
         {
             ResourcePathEditor::ResetWorkingCopy();
             KRG_ASSERT( m_coreType == CoreTypeID::ResourcePath || m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr );
@@ -1113,21 +1111,17 @@ namespace KRG::TypeSystem
 
             if ( m_coreType == CoreTypeID::TResourcePtr )
             {
-                ResourceTypeID const allowedResourceTypeID = m_typeRegistry.GetResourceInfoForType( propertyInfo.m_templateArgumentTypeID )->m_resourceTypeID;
-                m_resourceFilePicker.SetTypeFilter( allowedResourceTypeID );
+                m_resourceTypeID = m_typeRegistry.GetResourceInfoForType( propertyInfo.m_templateArgumentTypeID )->m_resourceTypeID;
             }
         }
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-
-            //-------------------------------------------------------------------------
-
             bool valueChanged = false;
 
             if ( m_coreType == CoreTypeID::ResourcePath )
             {
+                float const cellContentWidth = ImGui::GetContentRegionAvail().x;
                 float const textAreaWidth = cellContentWidth - ( g_iconButtonWidth * 2 ) - ( ImGui::GetStyle().ItemSpacing.x * 2 );
 
                 ImGui::SetNextItemWidth( textAreaWidth );
@@ -1136,14 +1130,14 @@ namespace KRG::TypeSystem
                 ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
                 if ( ImGui::Button( KRG_ICON_CROSSHAIRS "##Pick", ImVec2( g_iconButtonWidth, 0 ) ) )
                 {
-                    auto const selectedFiles = pfd::open_file( "Choose Data File", m_resourceDB.GetRawResourceDirectoryPath().c_str(), { "All Files", "*" }, pfd::opt::none ).result();
+                    auto const selectedFiles = pfd::open_file( "Choose Data File", m_resourceFilePicker.GetRawResourceDirectoryPath().c_str(), { "All Files", "*" }, pfd::opt::none ).result();
                     if ( !selectedFiles.empty() )
                     {
                         FileSystem::Path const selectedPath( selectedFiles[0].c_str() );
 
-                        if ( selectedPath.IsUnderDirectory( m_resourceDB.GetRawResourceDirectoryPath() ) )
+                        if ( selectedPath.IsUnderDirectory( m_resourceFilePicker.GetRawResourceDirectoryPath() ) )
                         {
-                            m_value_imgui = ResourcePath::FromFileSystemPath( m_resourceDB.GetRawResourceDirectoryPath().c_str(), selectedPath );
+                            m_value_imgui = ResourcePath::FromFileSystemPath( m_resourceFilePicker.GetRawResourceDirectoryPath().c_str(), selectedPath );
                             valueChanged = true;
                         }
                         else
@@ -1162,7 +1156,12 @@ namespace KRG::TypeSystem
             }
             else if ( m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr )
             {
-                valueChanged = m_resourceFilePicker.Draw();
+                if ( m_resourceFilePicker.DrawPicker( m_resourceTypeID, &m_tempResourceID ) )
+                {
+                    m_tempResourceID = m_resourceFilePicker.GetSelectedResourceID();
+                    m_value_imgui = m_tempResourceID.GetResourcePath();
+                    valueChanged = true;
+                }
             }
 
             //-------------------------------------------------------------------------
@@ -1193,16 +1192,25 @@ namespace KRG::TypeSystem
             if ( m_coreType == CoreTypeID::ResourcePath )
             {
                 m_value_cached = m_value_imgui = *reinterpret_cast<ResourcePath*>( m_pPropertyInstance );
+                m_tempResourceID.Clear();
             }
             else if ( m_coreType == CoreTypeID::ResourceID )
             {
-                ResourceID* pResourceID = reinterpret_cast<ResourceID*>( m_pPropertyInstance );
-                m_value_cached = m_value_imgui = pResourceID->GetResourcePath();
+                m_tempResourceID = *reinterpret_cast<ResourceID*>( m_pPropertyInstance );
+                m_value_cached = m_value_imgui = m_tempResourceID.GetResourcePath();
             }
             else if ( m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr )
             {
                 Resource::ResourcePtr* pResourcePtr = reinterpret_cast<Resource::ResourcePtr*>( m_pPropertyInstance );
                 m_value_cached = m_value_imgui = pResourcePtr->GetResourcePath();
+                if ( m_value_imgui.IsValid() )
+                {
+                    m_tempResourceID = m_value_imgui;
+                }
+                else
+                {
+                    m_tempResourceID.Clear();
+                }
             }
         }
 
@@ -1228,13 +1236,26 @@ namespace KRG::TypeSystem
             if ( *pActualPath != m_value_cached )
             {
                 m_value_cached = m_value_imgui = *pActualPath;
+
+                if ( m_coreType == CoreTypeID::ResourceID || m_coreType == CoreTypeID::ResourcePtr || m_coreType == CoreTypeID::TResourcePtr )
+                {
+                    if ( m_value_imgui.IsValid() )
+                    {
+                        m_tempResourceID = m_value_imgui;
+                    }
+                    else
+                    {
+                        m_tempResourceID.Clear();
+                    }
+                }
             }
         }
 
     private:
 
-        Resource::ResourceDatabase const&       m_resourceDB;
-        Resource::ResourceFilePicker            m_resourceFilePicker;
+        Resource::ResourceFilePicker&        m_resourceFilePicker;
+        ResourceTypeID                          m_resourceTypeID;
+        ResourceID                              m_tempResourceID;
         ResourcePath                            m_value_imgui;
         ResourcePath                            m_value_cached;
     };
@@ -1885,7 +1906,7 @@ namespace KRG::TypeSystem
     // Factory Method
     //-------------------------------------------------------------------------
 
-    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
+    PropertyEditor* CreatePropertyEditor( TypeRegistry const& typeRegistry, Resource::ResourceFilePicker& resourcePicker, PropertyInfo const& propertyInfo, Byte* m_pPropertyInstance )
     {
         if ( propertyInfo.IsEnumProperty() )
         {
@@ -2008,7 +2029,7 @@ namespace KRG::TypeSystem
                 case CoreTypeID::ResourcePtr:
                 case CoreTypeID::TResourcePtr:
                 {
-                    return KRG::New<ResourcePathEditor>( typeRegistry, resourceDatabase, propertyInfo, m_pPropertyInstance );
+                    return KRG::New<ResourcePathEditor>( typeRegistry, resourcePicker, propertyInfo, m_pPropertyInstance );
                 }
                 break;
 

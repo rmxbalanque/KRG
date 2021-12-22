@@ -8,7 +8,7 @@ namespace KRG::AI
 {
     void WanderBehavior::StartInternal( BehaviorContext const& ctx )
     {
-
+        m_waitTimer.Start( Math::GetRandomFloat( 1.0f, 3.0f ) );
     }
 
     Behavior::Status WanderBehavior::UpdateInternal( BehaviorContext const& ctx )
@@ -20,22 +20,38 @@ namespace KRG::AI
             return Status::Running;
         }
 
-        navmeshBounds.Shrink( Vector( 0.1, 0.1, 0.0f ) );
+        navmeshBounds.Shrink( Vector( 105, 180, 0.0f ) );
 
         //-------------------------------------------------------------------------
 
-        if ( m_moveToAction.IsRunning() )
+        if ( m_waitTimer.IsRunning() )
         {
-            m_moveToAction.Update( ctx );
-        }
+            m_idleAction.Update( ctx );
 
-        // If we are not moving, find a new wander target and issue a move order
-        if ( !m_moveToAction.IsRunning() )
+            // Wait for the timer to elapse and start a move
+            if ( m_waitTimer.Update() )
+            {
+                Vector const boundsMin = navmeshBounds.GetMin();
+                Vector const boundsMax = navmeshBounds.GetMax();
+                Vector const moveGoalPosition( Math::GetRandomFloat( boundsMin.m_x, boundsMax.m_x ), Math::GetRandomFloat( boundsMin.m_y, boundsMax.m_y ), navmeshBounds.GetCenter().m_z );
+
+                m_moveToAction.Start( ctx, moveGoalPosition );
+            }
+        }
+        else // We're moving
         {
-            Vector const boundsMin = navmeshBounds.GetMin();
-            Vector const boundsMax = navmeshBounds.GetMax();
-            Vector const moveGoalPosition( Math::GetRandomFloat( boundsMin.m_x, boundsMax.m_x ), Math::GetRandomFloat( boundsMin.m_y, boundsMax.m_y ), navmeshBounds.GetCenter().m_z );
-            m_moveToAction.Start( ctx, moveGoalPosition );
+            // Wait for the move to complete
+            if ( m_moveToAction.IsRunning() )
+            {
+                m_moveToAction.Update( ctx );
+            }
+
+            // if the move completed, restart the wait timer
+            if ( !m_moveToAction.IsRunning() )
+            {
+                m_idleAction.Start( ctx );
+                m_waitTimer.Start( Math::GetRandomFloat( 1.0f, 3.0f ) );
+            }
         }
 
         //-------------------------------------------------------------------------

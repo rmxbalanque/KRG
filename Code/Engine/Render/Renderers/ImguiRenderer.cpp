@@ -133,9 +133,9 @@ namespace KRG::Render
 
         // Vertex Shader
         VertexLayoutDescriptor vertexLayoutDesc;
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32, 0, 0 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 8 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataTypeFormat::UNorm_R8G8B8A8, 0, 16 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32, 0, 0 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 0, 8 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataFormat::UNorm_R8G8B8A8, 0, 16 ) );
         vertexLayoutDesc.CalculateByteSize();
 
         m_vertexShader = VertexShader( g_byteCode_VS_imgui, sizeof( g_byteCode_VS_imgui ), cbuffers, vertexLayoutDesc );
@@ -184,7 +184,7 @@ namespace KRG::Render
 
         m_fontTexture = Texture( dimensions );
         KRG_ASSERT( pPixels != nullptr );
-        m_pRenderDevice->CreateTexture( m_fontTexture, TextureFormat::Raw, pPixels, textureDataSize );
+        m_pRenderDevice->CreateDataTexture( m_fontTexture, TextureFormat::Raw, pPixels, textureDataSize );
 
         io.Fonts->TexID = const_cast<ViewSRVHandle*>( &m_fontTexture.GetShaderResourceView() );
 
@@ -256,7 +256,7 @@ namespace KRG::Render
         m_initialized = false;
     }
 
-    void ImguiRenderer::RenderViewport( Seconds const deltaTime, RenderTarget const& target, Render::Viewport const& viewport )
+    void ImguiRenderer::RenderViewport( Seconds const deltaTime, Viewport const& viewport, RenderTarget const& renderTarget )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -269,7 +269,7 @@ namespace KRG::Render
         ImGui::Render();
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        renderContext.SetRenderTarget( target );
+        renderContext.SetRenderTarget( renderTarget );
 
         ImDrawData const* pData = ImGui::GetDrawData();
         if ( pData != nullptr )
@@ -299,8 +299,11 @@ namespace KRG::Render
                 auto pSecondarySwapChain = (RenderWindow*) pViewport->RendererUserData;
                 KRG_ASSERT( pSecondarySwapChain != nullptr );
 
-                bool const clearRenderTarget = !(pViewport->Flags & ImGuiViewportFlags_NoRendererClear);
-                renderContext.SetRenderTarget( *pSecondarySwapChain->GetRenderTarget(), clearRenderTarget );
+                renderContext.SetRenderTarget( *pSecondarySwapChain->GetRenderTarget() );
+                if ( !( pViewport->Flags & ImGuiViewportFlags_NoRendererClear ) )
+                {
+                    renderContext.ClearRenderTargetViews( *pSecondarySwapChain->GetRenderTarget() );
+                }
                 RenderImguiData( renderContext, pViewport->DrawData );
                 renderContext.Present( *pSecondarySwapChain );
             }

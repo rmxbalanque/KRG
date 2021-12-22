@@ -626,6 +626,9 @@ namespace KRG
         inline bool operator>=( Radians const& rhs ) const;
         inline bool operator<=( Radians const& rhs ) const;
 
+        inline bool operator==( float const& v ) const { return Math::IsNearEqual( m_value, v ); }
+        inline bool operator!=( float const& v ) const { return !Math::IsNearEqual( m_value, v ); }
+
         inline bool operator==( Degrees const& rhs ) const  { return m_value == rhs.m_value; }
         inline bool operator!=( Degrees const& rhs ) const  { return m_value != rhs.m_value; }
 
@@ -778,6 +781,9 @@ namespace KRG
         inline bool operator<( Degrees const& rhs ) const;
         inline bool operator>=( Degrees const& rhs ) const;
         inline bool operator<=( Degrees const& rhs ) const;
+
+        inline bool operator==( float const& v ) const { return Math::IsNearEqual( m_value, v ); }
+        inline bool operator!=( float const& v ) const { return !Math::IsNearEqual( m_value, v ); }
 
         inline bool operator==( Radians const& rhs ) const { return m_value == rhs.m_value; }
         inline bool operator!=( Radians const& rhs ) const { return m_value != rhs.m_value; }

@@ -4,7 +4,6 @@
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Threading/TaskSystem.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
 
 //-------------------------------------------------------------------------
 

@@ -2,7 +2,6 @@
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/DevUI/NumericUIHelpers.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 

@@ -25,7 +25,9 @@ namespace KRG
             FileSystem::Path HeaderFilePath;
             if ( pFile != nullptr )
             {
-                HeaderFilePath = FileSystem::Path( ClangUtils::GetString( clang_getFileName( pFile ) ) );
+                CXString clangFilePath = clang_File_tryGetRealPathName( pFile );
+                HeaderFilePath = FileSystem::Path( clang_getCString( clangFilePath ) );
+                clang_disposeString( clangFilePath );
             }
 
             return HeaderFilePath;

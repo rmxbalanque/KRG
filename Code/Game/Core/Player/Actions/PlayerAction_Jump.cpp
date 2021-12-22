@@ -1,6 +1,8 @@
 #include "PlayerAction_Jump.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerCameraController.h"
+#include "Game/Core/Player/PlayerAnimationController.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Ability.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "System/Input/InputSystem.h"
 
@@ -11,11 +13,13 @@
 
 namespace KRG::Player
 {
-    static Radians  maxAngularSpeed = Radians( Degrees( 90 ) ); // radians/second
-    static float    maxAirControlSpeed = 6.0f;                  // meters/second
-    static float    smallJumpVelocity = 4.0f;                   // meters/second
-    static float    bigJumpVelocity = 7.0f;                     // meters/second
-    static Seconds  BigJumpHoldTime = 0.3f;                     // seconds
+    static Radians  g_maxAngularSpeed = Radians( Degrees( 90 ) ); // radians/second
+    static float    g_smallJumpDistance = 2.0f;                   // meters/second
+    static float    g_bigJumpDistance = 6.0f;                     // meters/second
+    static float    g_gravityAcceleration = 30.0f;                // meters/second squared
+    static float    g_maxAirControlAcceleration = 10.0f;          // meters/second squared
+    static float    g_maxAirControlSpeed = 6.5f;                  // meters/second
+    static Seconds  g_bigJumpHoldTime = 0.3f;                     // seconds
 
     //-------------------------------------------------------------------------
 
@@ -23,7 +27,12 @@ namespace KRG::Player
     {
         if( ctx.m_pInputSystem->GetControllerState()->WasReleased( Input::ControllerButton::FaceButtonDown ) )
         {
-            ctx.m_pCharacterController->EnableGravity();
+            ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Ability );
+            auto pAbilityAnimController = ctx.GetAnimSubGraphController<AbilityGraphController>();
+            pAbilityAnimController->StartJump();
+
+            ctx.m_pCharacterController->DisableGravity();
+            ctx.m_pCharacterController->DisableProjectionOntoFloor();
             m_timer.Start();
             return true;
         }
@@ -33,7 +42,7 @@ namespace KRG::Player
             Seconds jumpHoldTime = 0.0f;
             if( ctx.m_pInputSystem->GetControllerState()->IsHeldDown( Input::ControllerButton::FaceButtonDown, &jumpHoldTime ) )
             {
-                if( jumpHoldTime > BigJumpHoldTime )
+                if( jumpHoldTime > g_bigJumpHoldTime )
                 {
                     m_isChargedJumpReady = true;
                 }
@@ -62,18 +71,52 @@ namespace KRG::Player
             auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
             // Use last frame camera orientation
+            Vector const CurrentVelocity = ctx.m_pCharacterComponent->GetCharacterVelocity();
+            Vector const CurrentVelocity2D = CurrentVelocity * Vector( 1.0f, 1.0f, 0.0f );
+            float const CurrentSpeed2D = CurrentVelocity2D.GetLength2();
+
             Vector const forward = camFwd * movementInputs.m_y;
             Vector const right = camRight * movementInputs.m_x;
-            Vector desiredHeadingVelocity = ( forward + right ) * maxAirControlSpeed;
+            Vector const desiredHeadingVelocity2D = ( forward + right ) * g_maxAirControlAcceleration * ctx.GetDeltaTime();
+
+            Vector ResultingVelocity = CurrentVelocity2D + desiredHeadingVelocity2D;
+            float const Length = ResultingVelocity.GetLength2();
+            if( Length > g_maxAirControlSpeed )
+            {
+                ResultingVelocity = ResultingVelocity.GetNormalized2() * g_maxAirControlSpeed;
+            }
+
+            //  1.) V = Vi + a(t)
+            //
+            //      0 = Vi + a(t)                   V = o since we want to reach the apex, hence velocity 0.
+            //      Vi = -a(t)
+            //
+            //  2.)	d = Vi(t) + 0.5(a)(t^2)
+            //
+            //      d = -a(t)(t) + 0.5(a)(t^2)      substitute vi = -a(t) from 1.
+            //      d = -a(t^2)  + 0.5(a)(t^2)
+            //      d =  a(t^2)(-1 + 0.5)
+            //      d = -0.5(a)(t^2)
+            //      t^2 = -2(d)/a
+            //      t = sqrt( -2(d)/a )
+            //  
+            //      Vi = -a(t)                      back to using 1. now that we have t we can calculate Vi.
+            //      Vi = -a( sqrt( -2(d)/a ) )      the negative sign will disappear since our acceleration is negative
 
             if( m_isChargedJumpReady )
             {
-                desiredHeadingVelocity += Vector( 0.f, 0.f, bigJumpVelocity );
+                static float const bigJumpTime = Math::Sqrt( 2 * g_bigJumpDistance / g_gravityAcceleration );
+                static float const bigJumpinitialSpeed = g_gravityAcceleration * bigJumpTime;
+                ResultingVelocity.m_z = bigJumpinitialSpeed;
             }
             else
             {
-                desiredHeadingVelocity += Vector( 0.f, 0.f, smallJumpVelocity );
+                static float const smallJumpTime = Math::Sqrt( 2 * g_smallJumpDistance / g_gravityAcceleration );
+                static float const smallJumpinitialSpeed = g_gravityAcceleration * smallJumpTime;
+                ResultingVelocity.m_z = smallJumpinitialSpeed;
             }
+
+            Vector const Facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
 
             // Run physic Prediction if required
             //-------------------------------------------------------------------------
@@ -82,8 +125,7 @@ namespace KRG::Player
             // Update animation controller
             //-------------------------------------------------------------------------
             auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
-            pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), desiredHeadingVelocity, desiredHeadingVelocity.GetNormalized2() );
-
+            pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), ResultingVelocity, Facing );
         }
 
         return Status::Running;

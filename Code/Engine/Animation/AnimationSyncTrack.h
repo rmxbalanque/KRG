@@ -195,7 +195,9 @@ namespace KRG::Animation
 
         // Return the percentage of the sync track covered by the specified range
         Percentage CalculatePercentageCovered( SyncTrackTime const& startTime, SyncTrackTime const& endTime ) const;
-        inline float CalculatePercentageCovered( SyncTrackTimeRange const& range ) const { return CalculatePercentageCovered( range.m_startTime, range.m_endTime ); }
+
+        // Return the percentage of the sync track covered by the specified range
+        inline Percentage CalculatePercentageCovered( SyncTrackTimeRange const& range ) const { return CalculatePercentageCovered( range.m_startTime, range.m_endTime ); }
 
         // Time conversions
         //-------------------------------------------------------------------------

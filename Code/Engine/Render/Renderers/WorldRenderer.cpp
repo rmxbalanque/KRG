@@ -18,7 +18,6 @@ namespace KRG::Render
 {
     static Matrix ComputeShadowMatrix( Viewport const& viewport, Transform const& lightWorldTransform, float shadowDistance, float guardFactor = 0.01f )
     {
-        Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
         Transform lightTransform = lightWorldTransform;
         lightTransform.SetTranslation( Vector( 0.0 ) );
         lightTransform.Inverse();
@@ -27,10 +26,10 @@ namespace KRG::Render
         viewport.GetViewVolume().GetCorners( corners );
         Vector nearCorners[4];
 
-        nearCorners[0] = lightTransform.ApplyTransform( corners[0] - camPosition );
-        nearCorners[1] = lightTransform.ApplyTransform( corners[1] - camPosition );
-        nearCorners[2] = lightTransform.ApplyTransform( corners[2] - camPosition );
-        nearCorners[3] = lightTransform.ApplyTransform( corners[3] - camPosition );
+        nearCorners[0] = lightTransform.ApplyTransform( corners[0] );
+        nearCorners[1] = lightTransform.ApplyTransform( corners[1] );
+        nearCorners[2] = lightTransform.ApplyTransform( corners[2] );
+        nearCorners[3] = lightTransform.ApplyTransform( corners[3] );
 
         float const distScale = shadowDistance / viewport.GetViewVolume().GetDepthRange().m_start;
 
@@ -65,50 +64,7 @@ namespace KRG::Render
         Matrix viewProjMatrix = lightViewVolume.GetViewProjectionMatrix();
         Matrix viewMatrix = lightViewVolume.GetViewMatrix();
         Matrix projMatrix = lightViewVolume.GetProjectionMatrix();
-
         Matrix viewProj = lightViewVolume.GetViewProjectionMatrix(); // TODO: inverse z???
-
-        #if 0
-        Vector result0 = viewProj.ApplyTransform( Vector( 0, 0, 0 ) );
-        Vector result1 = viewProj.ApplyTransform( Vector( 0, -vmin.m_y, 0 ) );
-        Vector result2 = viewProj.ApplyTransform( Vector( 0, -vmax.m_y, 0 ) );
-
-        Vector testCorners[8];
-
-        testCorners[0] = ( corners[0] - camPosition );
-        testCorners[1] = ( corners[1] - camPosition );
-        testCorners[2] = ( corners[2] - camPosition );
-        testCorners[3] = ( corners[3] - camPosition );
-
-        testCorners[4] = ( ( corners[0] - camPosition ) * distScale );
-        testCorners[5] = ( ( corners[1] - camPosition ) * distScale );
-        testCorners[6] = ( ( corners[2] - camPosition ) * distScale );
-        testCorners[7] = ( ( corners[3] - camPosition ) * distScale );
-
-
-        testCorners[0] = viewMatrix.ApplyTransform( ( corners[0] - camPosition ).SetW1() );
-        testCorners[1] = viewMatrix.ApplyTransform( ( corners[1] - camPosition ).SetW1() );
-        testCorners[2] = viewMatrix.ApplyTransform( ( corners[2] - camPosition ).SetW1() );
-        testCorners[3] = viewMatrix.ApplyTransform( ( corners[3] - camPosition ).SetW1() );
-
-        testCorners[4] = viewMatrix.ApplyTransform( ( ( corners[0] - camPosition ) * distScale ).SetW1() );
-        testCorners[5] = viewMatrix.ApplyTransform( ( ( corners[1] - camPosition ) * distScale ).SetW1() );
-        testCorners[6] = viewMatrix.ApplyTransform( ( ( corners[2] - camPosition ) * distScale ).SetW1() );
-        testCorners[7] = viewMatrix.ApplyTransform( ( ( corners[3] - camPosition ) * distScale ).SetW1() );
-
-
-
-        testCorners[0] = viewProj.ApplyTransform( ( corners[0] - camPosition ).SetW1() );
-        testCorners[1] = viewProj.ApplyTransform( ( corners[1] - camPosition ).SetW1() );
-        testCorners[2] = viewProj.ApplyTransform( ( corners[2] - camPosition ).SetW1() );
-        testCorners[3] = viewProj.ApplyTransform( ( corners[3] - camPosition ).SetW1() );
-
-        testCorners[4] = viewProj.ApplyTransform( ( ( corners[0] - camPosition ) * distScale ).SetW1() );
-        testCorners[5] = viewProj.ApplyTransform( ( ( corners[1] - camPosition ) * distScale ).SetW1() );
-        testCorners[6] = viewProj.ApplyTransform( ( ( corners[2] - camPosition ) * distScale ).SetW1() );
-        testCorners[7] = viewProj.ApplyTransform( ( ( corners[3] - camPosition ) * distScale ).SetW1() );
-        #endif
-
         return viewProj;
     }
 
@@ -128,7 +84,7 @@ namespace KRG::Render
         cbuffers.clear();
 
         // World transform const buffer
-        buffer.m_byteSize = sizeof( Transforms );
+        buffer.m_byteSize = sizeof( ObjectTransforms );
         buffer.m_byteStride = sizeof( Matrix ); // Vector4 aligned
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
         buffer.m_type = RenderBuffer::Type::Constant;
@@ -151,10 +107,14 @@ namespace KRG::Render
         buffer.m_slot = 0;
         cbuffers.push_back( buffer );
 
-        // Shaders
         auto const vertexLayoutDescSkeletal = VertexLayoutRegistry::GetDescriptorForFormat( VertexFormat::SkeletalMesh );
         m_vertexShaderSkeletal = VertexShader( g_byteCode_VS_SkinnedPrimitive, sizeof( g_byteCode_VS_SkinnedPrimitive ), cbuffers, vertexLayoutDescSkeletal );
         pRenderDevice->CreateShader( m_vertexShaderSkeletal );
+
+        if ( !m_vertexShaderStatic.IsValid() )
+        {
+            return false;
+        }
 
         // Create Skybox Vertex Shader
         //-------------------------------------------------------------------------
@@ -169,11 +129,14 @@ namespace KRG::Render
         buffer.m_slot = 0;
         cbuffers.push_back( buffer );
 
-        // Shaders
         auto const vertexLayoutDescNone = VertexLayoutRegistry::GetDescriptorForFormat( VertexFormat::None );
         m_vertexShaderSkybox = VertexShader( g_byteCode_VS_Cube, sizeof( g_byteCode_VS_Cube ), cbuffers, vertexLayoutDescNone );
         m_pRenderDevice->CreateShader( m_vertexShaderSkybox );
 
+        if ( !m_vertexShaderSkybox.IsValid() )
+        {
+            return false;
+        }
 
         // Create Pixel Shader
         //-------------------------------------------------------------------------
@@ -182,14 +145,14 @@ namespace KRG::Render
 
         // Pixel shader constant buffer - contains light info
         buffer.m_byteSize = sizeof( LightData );
-        buffer.m_byteStride = sizeof( Vector );
+        buffer.m_byteStride = sizeof( LightData );
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
         buffer.m_type = RenderBuffer::Type::Constant;
         buffer.m_slot = 0;
         cbuffers.push_back( buffer );
 
         buffer.m_byteSize = sizeof( MaterialData );
-        buffer.m_byteStride = sizeof( Vector );
+        buffer.m_byteStride = sizeof( MaterialData );
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
         buffer.m_type = RenderBuffer::Type::Constant;
         buffer.m_slot = 1;
@@ -198,7 +161,7 @@ namespace KRG::Render
         m_pixelShader = PixelShader( g_byteCode_PS_Lit, sizeof( g_byteCode_PS_Lit ), cbuffers );
         m_pRenderDevice->CreateShader( m_pixelShader );
 
-        if ( !( m_pixelShader.IsValid() && m_vertexShaderStatic.IsValid() ) )
+        if ( !m_pixelShader.IsValid() )
         {
             return false;
         }
@@ -206,7 +169,6 @@ namespace KRG::Render
         // Create Skybox Pixel Shader
         //-------------------------------------------------------------------------
 
-        // Shaders
         m_pixelShaderSkybox = PixelShader( g_byteCode_PS_Skybox, sizeof( g_byteCode_PS_Skybox ), cbuffers );
         m_pRenderDevice->CreateShader( m_pixelShaderSkybox );
 
@@ -215,11 +177,29 @@ namespace KRG::Render
             return false;
         }
 
+        // Create Picking-Enabled Pixel Shader
+        //-------------------------------------------------------------------------
+
+        buffer.m_byteSize = 32;
+        buffer.m_byteStride = 32;
+        buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
+        buffer.m_type = RenderBuffer::Type::Constant;
+        buffer.m_slot = 2;
+        cbuffers.push_back( buffer );
+
+        m_pixelShaderPicking = PixelShader( g_byteCode_PS_LitPicking, sizeof( g_byteCode_PS_LitPicking ), cbuffers );
+        m_pRenderDevice->CreateShader( m_pixelShaderPicking );
+
+        if ( !m_pixelShaderPicking.IsValid() )
+        {
+            return false;
+        }
+
         // Create Empty Pixel Shader
         //-------------------------------------------------------------------------
+
         cbuffers.clear();
 
-        // Shaders
         m_emptyPixelShader = PixelShader( g_byteCode_PS_Empty, sizeof( g_byteCode_PS_Empty ), cbuffers );
         m_pRenderDevice->CreateShader( m_emptyPixelShader );
 
@@ -228,9 +208,9 @@ namespace KRG::Render
             return false;
         }
 
-
         // Create BRDF Integration Compute Shader
         //-------------------------------------------------------------------------
+
         cbuffers.clear();
 
         m_precomputeDFGComputeShader = ComputeShader( g_byteCode_CS_PrecomputeDFG, sizeof( g_byteCode_CS_PrecomputeDFG ), cbuffers );
@@ -268,7 +248,9 @@ namespace KRG::Render
             return false;
         }
 
-        // Set up sampler
+        // Set up samplers
+        //-------------------------------------------------------------------------
+
         m_pRenderDevice->CreateSamplerState( m_bilinearSampler );
         if ( !m_bilinearSampler.IsValid() )
         {
@@ -284,7 +266,6 @@ namespace KRG::Render
             return false;
         }
 
-
         m_shadowSampler.m_addressModeU = TextureAddressMode::Border;
         m_shadowSampler.m_addressModeV = TextureAddressMode::Border;
         m_shadowSampler.m_addressModeW = TextureAddressMode::Border;
@@ -295,8 +276,9 @@ namespace KRG::Render
             return false;
         }
 
-
         // Set up input bindings
+        //-------------------------------------------------------------------------
+
         m_pRenderDevice->CreateShaderInputBinding( m_vertexShaderStatic, vertexLayoutDescStatic, m_inputBindingStatic );
         if ( !m_inputBindingStatic.IsValid() )
         {
@@ -310,15 +292,23 @@ namespace KRG::Render
         }
 
         // Set up pipeline states
+        //-------------------------------------------------------------------------
+
         m_pipelineStateStatic.m_pVertexShader = &m_vertexShaderStatic;
         m_pipelineStateStatic.m_pPixelShader = &m_pixelShader;
         m_pipelineStateStatic.m_pBlendState = &m_blendState;
         m_pipelineStateStatic.m_pRasterizerState = &m_rasterizerState;
 
+        m_pipelineStateStaticPicking = m_pipelineStateStatic;
+        m_pipelineStateStaticPicking.m_pPixelShader = &m_pixelShaderPicking;
+
         m_pipelineStateSkeletal.m_pVertexShader = &m_vertexShaderSkeletal;
         m_pipelineStateSkeletal.m_pPixelShader = &m_pixelShader;
         m_pipelineStateSkeletal.m_pBlendState = &m_blendState;
         m_pipelineStateSkeletal.m_pRasterizerState = &m_rasterizerState;
+
+        m_pipelineStateSkeletalPicking = m_pipelineStateSkeletal;
+        m_pipelineStateSkeletalPicking.m_pPixelShader = &m_pixelShaderPicking;
 
         m_pipelineStateStaticShadow.m_pVertexShader = &m_vertexShaderStatic;
         m_pipelineStateStaticShadow.m_pPixelShader = &m_emptyPixelShader;
@@ -333,11 +323,11 @@ namespace KRG::Render
         m_pipelineSkybox.m_pVertexShader = &m_vertexShaderSkybox;
         m_pipelineSkybox.m_pPixelShader = &m_pixelShaderSkybox;
 
-        m_pRenderDevice->CreateTexture( m_precomputedBRDF, DataTypeFormat::Float_R16G16, Float2( 512, 512 ), USAGE_UAV | USAGE_SRV ); // TODO: load from memory?
+        m_pRenderDevice->CreateTexture( m_precomputedBRDF, DataFormat::Float_R16G16, Float2( 512, 512 ), USAGE_UAV | USAGE_SRV ); // TODO: load from memory?
         m_pipelinePrecomputeBRDF.m_pComputeShader = &m_precomputeDFGComputeShader;
 
         // TODO create on directional light add and destroy on remove
-        m_pRenderDevice->CreateTexture( m_shadowMap, DataTypeFormat::Float_D32, Float2( 1536, 1536 ), USAGE_SRV | USAGE_RT_DS );
+        m_pRenderDevice->CreateTexture( m_shadowMap, DataFormat::Float_X32, Float2( 1536, 1536 ), USAGE_SRV | USAGE_RT_DS );
 
         {
             auto const& renderContext = m_pRenderDevice->GetImmediateContext();
@@ -436,6 +426,11 @@ namespace KRG::Render
             m_pRenderDevice->DestroyTexture( m_shadowMap );
         }
 
+        if ( m_pixelShaderPicking.IsValid() )
+        {
+            m_pRenderDevice->DestroyShader( m_pixelShaderPicking );
+        }
+
         m_pRenderDevice = nullptr;
         m_initialized = false;
     }
@@ -449,8 +444,7 @@ namespace KRG::Render
         ViewSRVHandle const& defaultSRV = DefaultResources::GetDefaultTexture()->GetShaderResourceView();
 
         // TODO: cache on GPU in buffer
-        MaterialData materialData{};
-
+        MaterialData materialData;
         materialData.m_surfaceFlags |= pMaterial->HasAlbedoTexture() ? MATERIAL_USE_ALBEDO_TEXTURE : materialData.m_surfaceFlags;
         materialData.m_surfaceFlags |= pMaterial->HasMetalnessTexture() ? MATERIAL_USE_METALNESS_TEXTURE : materialData.m_surfaceFlags;
         materialData.m_surfaceFlags |= pMaterial->HasRoughnessTexture() ? MATERIAL_USE_ROUGHNESS_TEXTURE : materialData.m_surfaceFlags;
@@ -477,7 +471,7 @@ namespace KRG::Render
         MaterialData materialData{};
         materialData.m_surfaceFlags |= MATERIAL_USE_ALBEDO_TEXTURE;
         materialData.m_metalness = 0.0f;
-        materialData.m_roughness = 1.0f;
+        materialData.m_roughness = 0.0f;
         materialData.m_normalScaler = 1.0f;
         materialData.m_albedo = Float4::One;
         renderContext.WriteToBuffer( pixelShader.GetConstBuffer( 1 ), &materialData, sizeof( materialData ) );
@@ -491,19 +485,31 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void WorldRenderer::SetupRenderStates( Viewport const& viewport, RenderData const& data )
+    void WorldRenderer::SetupRenderStates( Viewport const& viewport, PixelShader* pShader, RenderData const& data )
     {
+        KRG_ASSERT( pShader != nullptr && pShader->IsValid() );
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
+
         renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ) );
         renderContext.SetDepthTestMode( DepthTestMode::On );
+
         renderContext.SetSampler( PipelineStage::Pixel, 0, m_bilinearSampler );
         renderContext.SetSampler( PipelineStage::Pixel, 1, m_bilinearClampedSampler );
         renderContext.SetSampler( PipelineStage::Pixel, 2, m_shadowSampler );
 
-        renderContext.WriteToBuffer( m_pixelShader.GetConstBuffer( 0 ), &data.m_lightData, sizeof( data.m_lightData ) );
+        renderContext.WriteToBuffer( pShader->GetConstBuffer( 0 ), &data.m_lightData, sizeof( data.m_lightData ) );
 
-        renderContext.SetShaderResource( PipelineStage::Pixel, 10, ( data.m_lightData.m_lightingFlags & LIGHTING_ENABLE_SUN_SHADOW ) ? m_shadowMap.GetShaderResourceView() : DefaultResources::GetDefaultTexture()->GetShaderResourceView() );
+        // Shadows
+        if ( data.m_lightData.m_lightingFlags & LIGHTING_ENABLE_SUN_SHADOW )
+        {
+            renderContext.SetShaderResource( PipelineStage::Pixel, 10, m_shadowMap.GetShaderResourceView() );
+        }
+        else
+        {
+            renderContext.SetShaderResource( PipelineStage::Pixel, 10, DefaultResources::GetDefaultTexture()->GetShaderResourceView() );
+        }
 
+        // Skybox
         if ( data.m_pSkyboxRadianceTexture )
         {
             renderContext.SetShaderResource( PipelineStage::Pixel, 11, m_precomputedBRDF.GetShaderResourceView() );
@@ -516,31 +522,42 @@ namespace KRG::Render
         }
     }
 
-    void WorldRenderer::RenderStaticMeshes( Viewport const& viewport, RenderData const& data )
+    void WorldRenderer::RenderStaticMeshes( Viewport const& viewport, RenderTarget const& renderTarget, RenderData const& data )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
-        //-------------------------------------------------------------------------
-
-        SetupRenderStates( viewport, data );
 
         // Set primary render state and clear the render buffer
-        renderContext.SetPipelineState( m_pipelineStateStatic );
+        //-------------------------------------------------------------------------
+
+        PipelineState* pPipelineState = renderTarget.HasPickingRT() ? &m_pipelineStateStaticPicking : &m_pipelineStateStatic;
+        SetupRenderStates( viewport, pPipelineState->m_pPixelShader, data );
+
+        renderContext.SetPipelineState( *pPipelineState );
         renderContext.SetShaderInputBinding( m_inputBindingStatic );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
 
         //-------------------------------------------------------------------------
+
         for ( StaticMeshComponent const* pMeshComponent : data.m_staticMeshComponents )
         {
             auto pMesh = pMeshComponent->GetMesh();
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
-            Transforms transforms = data.m_transforms;
+            ObjectTransforms transforms = data.m_transforms;
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() );
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
+
+            // TODO: optimize this when creating render data items
+            if ( renderTarget.HasPickingRT() )
+            {
+                PickingData pd;
+                pd.m_ID[0] = (uint32) ( pMeshComponent->GetEntityID().m_ID & 0x00000000FFFFFFFF );
+                pd.m_ID[1] = (uint32) ( ( pMeshComponent->GetEntityID().m_ID >> 32 ) & 0x00000000FFFFFFFF );
+                renderContext.WriteToBuffer( m_pixelShaderPicking.GetConstBuffer( 2 ), &pd, sizeof( PickingData ) );
+            }
 
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );
             renderContext.SetIndexBuffer( pMesh->GetIndexBuffer() );
@@ -552,7 +569,11 @@ namespace KRG::Render
             {
                 if ( i < materials.size() && materials[i] )
                 {
-                    SetMaterial( renderContext, m_pixelShader, materials[i] );
+                    SetMaterial( renderContext, *pPipelineState->m_pPixelShader, materials[i] );
+                }
+                else // Use default material
+                {
+                    SetDefaultMaterial( renderContext, *pPipelineState->m_pPixelShader );
                 }
 
                 auto const& subMesh = pMesh->GetSection( i );
@@ -562,18 +583,18 @@ namespace KRG::Render
         renderContext.ClearShaderResource( PipelineStage::Pixel, 10 );
     }
 
-    void WorldRenderer::RenderSkeletalMeshes( Viewport const& viewport, RenderData const& data )
+    void WorldRenderer::RenderSkeletalMeshes( Viewport const& viewport, RenderTarget const& renderTarget, RenderData const& data )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        Matrix const& viewProjectionMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-        Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
-
-        //-------------------------------------------------------------------------
-        SetupRenderStates( viewport, data );
 
         // Set primary render state and clear the render buffer
+        //-------------------------------------------------------------------------
+
+        PipelineState* pPipelineState = renderTarget.HasPickingRT() ? &m_pipelineStateStaticPicking : &m_pipelineStateStatic;
+        SetupRenderStates( viewport, pPipelineState->m_pPixelShader, data );
+
         renderContext.SetPipelineState( m_pipelineStateSkeletal );
         renderContext.SetShaderInputBinding( m_inputBindingSkeletal );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
@@ -597,9 +618,9 @@ namespace KRG::Render
             //-------------------------------------------------------------------------
 
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
-            Transforms transforms = data.m_transforms;
+            ObjectTransforms transforms = data.m_transforms;
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() );
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderSkeletal.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
@@ -607,6 +628,15 @@ namespace KRG::Render
             auto const& boneTransforms = pMeshComponent->GetSkinningTransforms();
             KRG_ASSERT( boneTransforms.size() == pCurrentMesh->GetNumBones() );
             renderContext.WriteToBuffer( bonesConstBuffer, boneTransforms.data(), sizeof( Matrix ) * pCurrentMesh->GetNumBones() );
+
+            // TODO: optimize this when creating render data items
+            if ( renderTarget.HasPickingRT() )
+            {
+                PickingData pd;
+                pd.m_ID[0] = (uint32) ( pMeshComponent->GetEntityID().m_ID & 0x00000000FFFFFFFF );
+                pd.m_ID[1] = (uint32) ( ( pMeshComponent->GetEntityID().m_ID >> 32 ) & 0x00000000FFFFFFFF );
+                renderContext.WriteToBuffer( m_pixelShaderPicking.GetConstBuffer( 2 ), &pd, sizeof( PickingData ) );
+            }
 
             // Draw sub-meshes
             //-------------------------------------------------------------------------
@@ -618,11 +648,11 @@ namespace KRG::Render
             {
                 if ( i < materials.size() && materials[i] )
                 {
-                    SetMaterial( renderContext, m_pixelShader, materials[i] );
+                    SetMaterial( renderContext, *pPipelineState->m_pPixelShader, materials[i] );
                 }
                 else // Use default material
                 {
-                    SetDefaultMaterial( renderContext, m_pixelShader );
+                    SetDefaultMaterial( renderContext, *pPipelineState->m_pPixelShader );
                 }
 
                 // Draw mesh
@@ -656,32 +686,33 @@ namespace KRG::Render
         KRG_PROFILE_FUNCTION_RENDER();
 
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
-        Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
 
         if ( !pDirectionalLightComponent || !pDirectionalLightComponent->GetShadowed() ) return;
 
+        // Set primary render state and clear the render buffer
         //-------------------------------------------------------------------------
 
-         // Set primary render state and clear the render buffer
-
         renderContext.ClearDepthStencilView( m_shadowMap.GetDepthStencilView(), 1.0f/*TODO: inverse z*/, 0 );
-        renderContext.SetRenderTargetViews( {}, m_shadowMap.GetDepthStencilView() );
+        renderContext.SetRenderTarget( m_shadowMap.GetDepthStencilView() );
         renderContext.SetViewport( Float2( (float) m_shadowMap.GetDimensions().m_x, (float) m_shadowMap.GetDimensions().m_y ), Float2( 0.0f, 0.0f ) );
         renderContext.SetDepthTestMode( DepthTestMode::On );
 
-        Transforms transforms{ Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}} };
+        ObjectTransforms transforms;
         transforms.m_viewprojTransform = data.m_lightData.m_sunShadowMapMatrix;
 
+        // Static Meshes
         //-------------------------------------------------------------------------
+
         renderContext.SetPipelineState( m_pipelineStateStaticShadow );
         renderContext.SetShaderInputBinding( m_inputBindingStatic );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
+
         for ( StaticMeshComponent const* pMeshComponent : data.m_staticMeshComponents )
         {
             auto pMesh = pMeshComponent->GetMesh();
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition ); // TODO: move to shader
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() ); // TODO: move to shader
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );
@@ -690,26 +721,29 @@ namespace KRG::Render
             auto const numSubMeshes = pMesh->GetNumSections();
             for ( auto i = 0u; i < numSubMeshes; i++ )
             {
-                // Draw mesh
                 auto const& subMesh = pMesh->GetSection( i );
                 renderContext.DrawIndexed( subMesh.m_numIndices, subMesh.m_startIndex );
             }
         }
 
+        // Skeletal Meshes
+        //-------------------------------------------------------------------------
+
         renderContext.SetPipelineState( m_pipelineStateSkeletalShadow );
         renderContext.SetShaderInputBinding( m_inputBindingSkeletal );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
+
         for ( SkeletalMeshComponent const* pMeshComponent : data.m_skeletalMeshComponents )
         {
             auto pMesh = pMeshComponent->GetMesh();
+
             // Update Bones and Transforms
             //-------------------------------------------------------------------------
 
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() - camPosition );
+            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() );
             renderContext.WriteToBuffer( m_vertexShaderSkeletal.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
-
 
             auto const& bonesConstBuffer = m_vertexShaderSkeletal.GetConstBuffer( 1 );
             auto const& boneTransforms = pMeshComponent->GetSkinningTransforms();
@@ -731,7 +765,9 @@ namespace KRG::Render
         }
     }
 
-    void WorldRenderer::RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld )
+    //-------------------------------------------------------------------------
+
+    void WorldRenderer::RenderWorld( Seconds const deltaTime, Viewport const& viewport, RenderTarget const& renderTarget, EntityWorld* pWorld )
     {
         KRG_ASSERT( IsInitialized() && Threading::IsMainThread() );
         KRG_PROFILE_FUNCTION_RENDER();
@@ -742,27 +778,26 @@ namespace KRG::Render
         }
 
         //-------------------------------------------------------------------------
-        auto const& immediateContext = m_pRenderDevice->GetImmediateContext();
 
         auto pWorldSystem = pWorld->GetWorldSystem<WorldRendererSystem>();
         KRG_ASSERT( pWorldSystem != nullptr );
 
+        //-------------------------------------------------------------------------
+
         RenderData renderData
         {
-            Transforms{ Matrix{ZeroInit{}}, Matrix{ZeroInit{}}, Matrix{ZeroInit{}} },
-            LightData{ Vector{0.0f}, Vector{0.0f}, Matrix{ZeroInit{}}, -1.0f, 0, 0 },
+            ObjectTransforms(),
+            LightData(),
             nullptr,
             nullptr,
             pWorldSystem->m_visibleStaticMeshComponents,
             pWorldSystem->m_visibleSkeletalMeshComponents,
         };
 
-        Matrix viewProjMatrix = viewport.GetViewVolume().GetViewProjectionMatrix();
-        Matrix viewMatrix = viewport.GetViewVolume().GetViewMatrix();
-        Matrix projMatrix = viewport.GetViewVolume().GetProjectionMatrix();
-        Vector const& camPosition = viewport.GetViewVolume().GetViewPosition();
-        viewMatrix.SetTranslation( Float3( 0.0f ) );
-        renderData.m_transforms.m_viewprojTransform = viewMatrix * projMatrix;
+        renderData.m_transforms.m_viewprojTransform = viewport.GetViewVolume().GetViewProjectionMatrix();
+
+        //-------------------------------------------------------------------------
+
         uint32 lightingFlags = 0;
 
         DirectionalLightComponent* pDirectionalLightComponent = nullptr;
@@ -790,52 +825,67 @@ namespace KRG::Render
             renderData.m_lightData.m_manualExposure = pGlobalEnvironmentMapComponent->GetExposure();
         }
 
-        uint32_t numPointLights = (uint32) std::min<size_t>( pWorldSystem->m_registeredPointLightComponents.size(), MAX_PUNCTUAL_LIGHTS );
-        uint32_t lightIndex = 0;
-        for ( uint32_t i = 0; i < numPointLights; ++i )
+        int32 const numPointLights = Math::Min( pWorldSystem->m_registeredPointLightComponents.size(), (int32) MAX_PUNCTUAL_LIGHTS );
+        uint32 lightIndex = 0;
+        for ( int32 i = 0; i < numPointLights; ++i )
         {
             KRG_ASSERT( lightIndex < MAX_PUNCTUAL_LIGHTS );
             PointLightComponent* pPointLightComponent = pWorldSystem->m_registeredPointLightComponents[i];
-            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pPointLightComponent->GetLightPosition() - camPosition;
+            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pPointLightComponent->GetLightPosition();
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = Math::Sqr( 1.0f / pPointLightComponent->GetLightRadius() );
-            renderData.m_lightData.m_punctualLights[lightIndex].m_dir = Vector( 0.0f );
-            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector) pPointLightComponent->GetLightColor() * pPointLightComponent->GetLightIntensity();
+            renderData.m_lightData.m_punctualLights[lightIndex].m_dir = Vector::Zero;
+            renderData.m_lightData.m_punctualLights[lightIndex].m_color = Vector( pPointLightComponent->GetLightColor() ) * pPointLightComponent->GetLightIntensity();
             renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( -1.0f, 1.0f, 0.0f );
             ++lightIndex;
         }
 
-        uint32_t numSpotLights = (uint32) std::min<size_t>( pWorldSystem->m_registeredSpotLightComponents.size(), MAX_PUNCTUAL_LIGHTS - numPointLights );
-        for ( uint32_t i = 0; i < numSpotLights; ++i )
+        int32 const numSpotLights = Math::Min( pWorldSystem->m_registeredSpotLightComponents.size(), (int32) MAX_PUNCTUAL_LIGHTS - numPointLights );
+        for ( int32 i = 0; i < numSpotLights; ++i )
         {
             KRG_ASSERT( lightIndex < MAX_PUNCTUAL_LIGHTS );
             SpotLightComponent* pSpotLightComponent = pWorldSystem->m_registeredSpotLightComponents[i];
-            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pSpotLightComponent->GetLightPosition() - camPosition;
+            renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr = pSpotLightComponent->GetLightPosition();
             renderData.m_lightData.m_punctualLights[lightIndex].m_positionInvRadiusSqr.m_w = Math::Sqr( 1.0f / pSpotLightComponent->GetLightRadius() );
             renderData.m_lightData.m_punctualLights[lightIndex].m_dir = -pSpotLightComponent->GetLightDirection();
-            renderData.m_lightData.m_punctualLights[lightIndex].m_color = (Vector) pSpotLightComponent->GetLightColor() * pSpotLightComponent->GetLightIntensity();
-            Degrees innerAngle = pSpotLightComponent->GetLightInnerUmbraAngle().ToRadians();
-            Degrees outerAngle = pSpotLightComponent->GetLightOuterUmbraAngle().ToRadians();
-            innerAngle.Clamp( 0, 90 );
-            outerAngle.Clamp( 0, 90 );
+            renderData.m_lightData.m_punctualLights[lightIndex].m_color = Vector( pSpotLightComponent->GetLightColor() ) * pSpotLightComponent->GetLightIntensity();
+            Radians innerAngle = pSpotLightComponent->GetLightInnerUmbraAngle().ToRadians();
+            Radians outerAngle = pSpotLightComponent->GetLightOuterUmbraAngle().ToRadians();
+            innerAngle.Clamp( 0, Math::PiDivTwo );
+            outerAngle.Clamp( 0, Math::PiDivTwo );
 
-            float cosInner = Math::Cos( (float) innerAngle.ToRadians() );
-            float cosOuter = Math::Cos( (float) outerAngle.ToRadians() );
-            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( cosOuter, 1.0f / std::max( cosInner - cosOuter, 0.001f ), 0.0f );
+            float cosInner = Math::Cos( (float) innerAngle );
+            float cosOuter = Math::Cos( (float) outerAngle );
+            renderData.m_lightData.m_punctualLights[lightIndex].m_spotAngles = Vector( cosOuter, 1.0f / Math::Max( cosInner - cosOuter, 0.001f ), 0.0f );
             ++lightIndex;
         }
 
-        #if KRG_DEVELOPMENT_TOOLS
-        renderData.m_lightData.m_lightingFlags = lightingFlags | ( (int32) pWorldSystem->GetVisualizationMode() << (int32) WorldRendererSystem::VisualizationMode::BitShift );
-        #endif
-
         renderData.m_lightData.m_numPunctualLights = lightIndex;
 
+        //-------------------------------------------------------------------------
+
+        renderData.m_lightData.m_lightingFlags = lightingFlags;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        renderData.m_lightData.m_lightingFlags = renderData.m_lightData.m_lightingFlags | ( (int32) pWorldSystem->GetVisualizationMode() << (int32) WorldRendererSystem::VisualizationMode::BitShift );
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        auto const& immediateContext = m_pRenderDevice->GetImmediateContext();
+
         RenderSunShadows( viewport, pDirectionalLightComponent, renderData );
-        immediateContext.SetRenderTarget( target );
         {
-            RenderStaticMeshes( viewport, renderData );
-            RenderSkeletalMeshes( viewport, renderData );
+            immediateContext.SetRenderTarget( renderTarget );
+            RenderStaticMeshes( viewport, renderTarget, renderData );
+            RenderSkeletalMeshes( viewport, renderTarget, renderData );
         }
         RenderSkybox( viewport, renderData );
+
+        //-------------------------------------------------------------------------
+
+        if ( renderTarget.HasPickingRT() )
+        {
+            uint64 id = m_pRenderDevice->ReadBackPickingID( renderTarget, Int2( 10, 10 ) );
+        }
     }
 }

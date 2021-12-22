@@ -1,6 +1,6 @@
 #include "EntityCollectionDescriptorWriter.h"
-#include "Tools/Core/ThirdParty/KRG_RapidJson.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
+#include "System/Core/ThirdParty/KRG_RapidJson.h"
+#include "System/TypeSystem/TypeSerialization.h"
 #include "Engine/Core/Entity/EntityCollectionDescriptor.h"
 #include "Engine/Core/Entity/EntityCollection.h"
 #include "System/TypeSystem/TypeRegistry.h"

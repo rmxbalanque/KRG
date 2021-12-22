@@ -1,8 +1,6 @@
 #include "ResourceBrowser_DescriptorCreator.h"
 #include "Applications/Editor/Editor_Model.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
 #include "System/Core/Math/MathStringHelpers.h"

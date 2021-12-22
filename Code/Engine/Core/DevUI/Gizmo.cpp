@@ -16,16 +16,22 @@ namespace KRG::ImGuiX
 
     // Scale
     constexpr static float const        g_axisLength = 75.0f;
-    constexpr static float const        g_axisThickness = 5.0f;
-    constexpr static float const        g_originSphereRadius = 4.0f;
+    constexpr static float const        g_axisThickness = 3.0f;
+    constexpr static float const        g_originSphereRadius = 6.0f;
     constexpr static float const        g_selectedOriginSphereRadius = 12.0f;
-    constexpr static float const        g_originSphereAxisOffset = g_originSphereRadius + 8.0f;
-    static Color const                  g_planeColor = Colors::Gray;
+    constexpr static float const        g_originSphereAxisOffset = g_originSphereRadius + 1;
 
     // Translation
-    constexpr static float const        g_axisGuideThickness = 3.0f;
+    constexpr static float const        g_axisGuideThickness = 2.0f;
     constexpr static float const        g_planeWidgetLength = 20.0f;
     constexpr static float const        g_planeWidgetOffset = 15.0f;
+
+    // Colors
+    static Color const                  g_axisColorX = Colors::Red;
+    static Color const                  g_axisColorY = Colors::LimeGreen;
+    static Color const                  g_axisColorZ = Colors::DodgerBlue;
+    static Color const                  g_planeColor = Colors::White;
+    static Color const                  g_originColor = Colors::White;
 
     //-------------------------------------------------------------------------
 
@@ -56,6 +62,23 @@ namespace KRG::ImGuiX
         ResetState();
         m_gizmoMode = newMode;
         m_manipulationMode = ManipulationMode::None;
+
+        if ( m_gizmoMode == GizmoMode::Scale )
+        {
+            m_coordinateSpace = CoordinateSpace::Local;
+        }
+    }
+
+    void Gizmo::SetCoordinateSystemSpace( CoordinateSpace space )
+    {
+        if ( m_gizmoMode == GizmoMode::Scale )
+        {
+            m_coordinateSpace = CoordinateSpace::Local;
+        }
+        else
+        {
+            m_coordinateSpace = space;
+        }
     }
 
     void Gizmo::SetTargetTransform( Transform* pTargetTransform )
@@ -84,11 +107,7 @@ namespace KRG::ImGuiX
         m_isPlaneHoveredXZ = false;
         m_isPlaneHoveredYZ = false;
 
-        m_positionOffset = Vector::Zero;
         m_isOriginHovered = false;
-        m_isAxisNegatedX = false;
-        m_isAxisNegatedY = false;
-        m_isAxisNegatedZ = false;
     }
 
     bool Gizmo::Draw( Render::Viewport const& originalViewport )
@@ -123,9 +142,9 @@ namespace KRG::ImGuiX
         m_axisDir_WS_Y = m_manipulationTransform.GetAxisY();
         m_axisDir_WS_Z = m_manipulationTransform.GetAxisZ();
 
-        m_axisEndPoint_WS_X = m_origin_WS + ( m_axisDir_WS_X * 0.01f );
-        m_axisEndPoint_WS_Y = m_origin_WS + ( m_axisDir_WS_Y * 0.01f );
-        m_axisEndPoint_WS_Z = m_origin_WS + ( m_axisDir_WS_Z * 0.01f );
+        m_axisEndPoint_WS_X = m_origin_WS + ( m_axisDir_WS_X * 1.01f );
+        m_axisEndPoint_WS_Y = m_origin_WS + ( m_axisDir_WS_Y * 1.01f );
+        m_axisEndPoint_WS_Z = m_origin_WS + ( m_axisDir_WS_Z * 1.01f );
 
         m_origin_SS = Vector( viewport.WorldSpaceToScreenSpace( m_origin_WS ) );
 
@@ -133,10 +152,36 @@ namespace KRG::ImGuiX
         m_axisEndPoint_SS_Y = Vector( viewport.WorldSpaceToScreenSpace( m_axisEndPoint_WS_Y ) );
         m_axisEndPoint_SS_Z = Vector( viewport.WorldSpaceToScreenSpace( m_axisEndPoint_WS_Z ) );
 
-        m_axisDir_SS_X = ( m_axisEndPoint_SS_X - m_origin_SS ).GetNormalized2();
-        m_axisDir_SS_Y = ( m_axisEndPoint_SS_Y - m_origin_SS ).GetNormalized2();
-        m_axisDir_SS_Z = ( m_axisEndPoint_SS_Z - m_origin_SS ).GetNormalized2();
+        ( m_axisEndPoint_SS_X - m_origin_SS ).ToDirectionAndLength2( m_axisDir_SS_X, m_axisLength_SS_X );
+        ( m_axisEndPoint_SS_Y - m_origin_SS ).ToDirectionAndLength2( m_axisDir_SS_Y, m_axisLength_SS_Y );
+        ( m_axisEndPoint_SS_Z - m_origin_SS ).ToDirectionAndLength2( m_axisDir_SS_Z, m_axisLength_SS_Z );
 
+        // Calculate the axis scale relative to the longest axis
+        if ( ( m_axisLength_SS_X > m_axisLength_SS_Y ) && ( m_axisLength_SS_X > m_axisLength_SS_Z ) )
+        {
+            m_axisScale_SS_X = 1.0f;
+            m_axisScale_SS_Y = m_axisLength_SS_Y / m_axisLength_SS_X;
+            m_axisScale_SS_Z = m_axisLength_SS_Z / m_axisLength_SS_X;
+        }
+        else if ( ( m_axisLength_SS_Y > m_axisLength_SS_X ) && ( m_axisLength_SS_Y > m_axisLength_SS_Z ) )
+        {
+            m_axisScale_SS_X = m_axisLength_SS_X / m_axisLength_SS_Y;
+            m_axisScale_SS_Y = 1.0f;
+            m_axisScale_SS_Z = m_axisLength_SS_Z / m_axisLength_SS_Y;
+        }
+        else if ( ( m_axisLength_SS_Z > m_axisLength_SS_X ) && ( m_axisLength_SS_Z > m_axisLength_SS_Y ) )
+        {
+            m_axisScale_SS_X = m_axisLength_SS_X / m_axisLength_SS_Z;
+            m_axisScale_SS_Y = m_axisLength_SS_Y / m_axisLength_SS_Z;
+            m_axisScale_SS_Z = 1.0f;
+        }
+
+        // Finalize axis endpoints
+        m_axisEndPoint_SS_X = m_origin_SS + m_axisDir_SS_X * g_axisLength * m_axisScale_SS_X;
+        m_axisEndPoint_SS_Y = m_origin_SS + m_axisDir_SS_Y * g_axisLength * m_axisScale_SS_Y;
+        m_axisEndPoint_SS_Z = m_origin_SS + m_axisDir_SS_Z * g_axisLength * m_axisScale_SS_Z;
+
+        // Calculate axis angle offset
         Vector const viewForwardDir_WS = viewport.GetViewForwardDirection();
         Vector const viewRightDir_WS = viewport.GetViewRightDirection();
 
@@ -144,9 +189,15 @@ namespace KRG::ImGuiX
         m_offsetBetweenViewFwdAndAxis_WS_Y = Math::Min( Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Y ), Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Y.GetNegated() ) );
         m_offsetBetweenViewFwdAndAxis_WS_Z = Math::Min( Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Z ), Math::GetAngleBetweenVectors( viewForwardDir_WS, m_axisDir_WS_Z.GetNegated() ) );
 
+        // Ensure each axis is at least 10 degrees offset from the view direction
+        m_shouldDrawAxis_X = m_offsetBetweenViewFwdAndAxis_WS_X > Degrees( 10.0f );
+        m_shouldDrawAxis_Y = m_offsetBetweenViewFwdAndAxis_WS_Y > Degrees( 10.0f );
+        m_shouldDrawAxis_Z = m_offsetBetweenViewFwdAndAxis_WS_Z > Degrees( 10.0f );
+
         //-------------------------------------------------------------------------
 
         Transform const originalTransform = *m_pTargetTransform;
+        bool const wasManipulating = m_manipulationMode != ManipulationMode::None;
 
         if ( m_gizmoMode == GizmoMode::Rotation )
         {
@@ -154,14 +205,169 @@ namespace KRG::ImGuiX
         }
         else if ( m_gizmoMode == GizmoMode::Translation )
         {
-            Translation_Update( viewport );
+            Translation_DrawAndUpdate( viewport );
         }
         else if ( m_gizmoMode == GizmoMode::Scale )
         {
-            Scale_Update( viewport );
+            Scale_DrawAndUpdate( viewport );
         }
 
+        bool const isManipulating = m_manipulationMode != ManipulationMode::None;
+
+        //-------------------------------------------------------------------------
+
+        // Notify listeners of any manipulation state changes
+        if ( wasManipulating && !isManipulating )
+        {
+            m_manipulationEnded.Execute();
+        }
+        else if ( !wasManipulating && isManipulating )
+        {
+            m_manipulationStarted.Execute();
+        }
+
+        //-------------------------------------------------------------------------
+
+        // Set the hovered ID so that we disable any click through in the UI
+        if ( m_manipulationMode != ManipulationMode::None )
+        {
+            ImGui::SetHoveredID( ImGui::GetID( "Gizmo" ) );
+        }
+
+        //-------------------------------------------------------------------------
+
         return *m_pTargetTransform != originalTransform;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void Gizmo::DrawAxisGuide( Vector const& axis, Color color )
+    {
+        auto pDrawList = ImGui::GetWindowDrawList();
+
+        auto lineLength = ( axis * 10000 );
+        auto lineStart = m_origin_SS + lineLength;
+        auto lineEnd = m_origin_SS - lineLength;
+        pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColor( color ), g_axisGuideThickness );
+    }
+
+    bool Gizmo::DrawAxisWidget( Vector const& start, Vector const& end, Color color, AxisCap cap, float originOffset = g_originSphereAxisOffset )
+    {
+        auto pDrawList = ImGui::GetWindowDrawList();
+        KRG_ASSERT( pDrawList != nullptr );
+
+        uint32 const axisColor = ConvertColor( color );
+        Vector const axisDir = ( end - start ).GetNormalized2();
+        if ( axisDir.IsNearZero4() )
+        {
+            return false;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImVec2 adjustedLineEnd = end;
+
+        if ( cap == AxisCap::Arrow )
+        {
+            float const arrowHeadLength = g_axisThickness * 2;
+            adjustedLineEnd = end - ( axisDir * arrowHeadLength );
+        }
+
+        //-------------------------------------------------------------------------
+
+        Vector const offsetStart = start + ( axisDir * originOffset );
+
+        ImVec2 const l0 = offsetStart.ToFloat2();
+        ImVec2 const l1 = adjustedLineEnd + axisDir;
+        pDrawList->AddLine( l0, l1, axisColor, g_axisThickness );
+
+        //-------------------------------------------------------------------------
+
+        if ( cap == AxisCap::Dot )
+        {
+            pDrawList->AddCircleFilled( end.ToFloat2(), g_axisThickness * 1.5, axisColor );
+        }
+        else
+        {
+            float const arrowHeadThickness = g_axisThickness * 2;
+
+            Float2 const orthogonalDir( axisDir.m_y, -axisDir.m_x );
+            Float2 const orthogonalOffset = orthogonalDir * arrowHeadThickness;
+            Float2 const orthogonalBoundsOffset = orthogonalDir * ( arrowHeadThickness * 0.75f );
+
+            ImVec2 const t0 = end.ToFloat2();
+            ImVec2 const t1 = adjustedLineEnd - orthogonalOffset;
+            ImVec2 const t2 = adjustedLineEnd + orthogonalOffset;
+            pDrawList->AddTriangleFilled( t0, t1, t2, axisColor );
+        }
+
+        //-------------------------------------------------------------------------
+
+        bool isHovered = false;
+
+        if ( !offsetStart.IsNearEqual3( end ) )
+        {
+            Vector const mousePos = ImGui::GetMousePos();
+            LineSegment const arrowLine( offsetStart, end );
+            float const mouseToLineDistance = arrowLine.GetDistanceBetweenSegmentAndPoint( mousePos );
+            isHovered = mouseToLineDistance < ( ( g_axisThickness / 2 ) + 3.0f );
+        }
+
+        return isHovered;
+    }
+
+    bool Gizmo::DrawPlaneWidget( Vector const& origin, Vector const& axis0, Vector const& axis1, Color color )
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        auto pDrawList = ImGui::GetWindowDrawList();
+        KRG_ASSERT( pDrawList != nullptr );
+
+        Vector const planeAxisDeltaNearX = axis0 * g_planeWidgetOffset;
+        Vector const planeAxisDeltaFarX = axis0 * ( g_planeWidgetLength + g_planeWidgetOffset );
+        Vector const planeAxisDeltaNearY = axis1 * g_planeWidgetOffset;
+        Vector const planeAxisDeltaFarY = axis1 * ( g_planeWidgetLength + g_planeWidgetOffset );
+
+        Vector quadVerts[4] =
+        {
+            ( origin + planeAxisDeltaFarX + planeAxisDeltaNearY ),
+            ( origin + planeAxisDeltaNearX + planeAxisDeltaNearY ),
+            ( origin + planeAxisDeltaNearX + planeAxisDeltaFarY ),
+            ( origin + planeAxisDeltaFarX + planeAxisDeltaFarY ),
+        };
+
+        float const distanceAcross0 = quadVerts[0].GetDistance2( quadVerts[2] );
+        float const distanceAcross1 = quadVerts[1].GetDistance2( quadVerts[3] );
+        if ( distanceAcross0 < 5.0f || distanceAcross1 < 5.0f )
+        {
+            return false;
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImVec2 drawQuadVerts[4] =
+        {
+            quadVerts[0].ToFloat2(),
+            quadVerts[1].ToFloat2(),
+            quadVerts[2].ToFloat2(),
+            quadVerts[3].ToFloat2(),
+        };
+
+        pDrawList->AddPolyline( drawQuadVerts, 4, ConvertColor( color ), true, 1.0f );
+        pDrawList->AddConvexPolyFilled( drawQuadVerts, 4, ConvertColor( color.GetAlphaVersion( 0.75f ) ) );
+
+        //-------------------------------------------------------------------------
+
+        Vector const mousePos = io.MousePos;
+        auto LeftHandTest = [&mousePos, &drawQuadVerts] ( int32 side0, int32 side1 )
+        {
+            float D = ( drawQuadVerts[side1].x - drawQuadVerts[side0].x ) * ( mousePos.m_y - drawQuadVerts[side0].y ) - ( mousePos.m_x - drawQuadVerts[side0].x ) * ( drawQuadVerts[side1].y - drawQuadVerts[side0].y );
+            return D > 0;
+        };
+
+        bool const allInsideClockwise = LeftHandTest( 0, 1 ) && LeftHandTest( 1, 2 ) && LeftHandTest( 2, 3 ) && LeftHandTest( 3, 0 );
+        bool const allInsideCounterClockwise = LeftHandTest( 0, 3 ) && LeftHandTest( 3, 2 ) && LeftHandTest( 2, 1 ) && LeftHandTest( 1, 0 );
+        bool const isHovered = allInsideClockwise || allInsideCounterClockwise;
+        return isHovered;
     }
 
     //-------------------------------------------------------------------------
@@ -256,6 +462,7 @@ namespace KRG::ImGuiX
     void Gizmo::Rotation_DrawManipulationWidget( Render::Viewport const& viewport, Vector const& axisOfRotation_ws, Vector const& axisOfRotation_ss, Color color )
     {
         KRG_ASSERT( m_gizmoMode == GizmoMode::Rotation );
+        KRG_ASSERT( axisOfRotation_ws.IsNormalized3() );
 
         static float const gizmoRadius = 40.0f;
         static float const gizmoThickness = 3.0f;
@@ -310,7 +517,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        if ( Math::Abs( (float) m_rotationDeltaAngle ) < (float) Degrees( 3.0f ) )
+        if ( Math::Abs( (float) m_rotationDeltaAngle ) < (float) Degrees( 3.0f ).ToRadians() )
         {
             Vector const pointOnCircle_WS = m_origin_WS + ( startRotationVector.GetNormalized3() * scaleMultiplier );
             Float2 const pointOnCircle_SS = viewport.WorldSpaceToScreenSpace( pointOnCircle_WS );
@@ -358,14 +565,6 @@ namespace KRG::ImGuiX
         KRG_ASSERT( m_gizmoMode == GizmoMode::Rotation );
 
         ImGuiIO& io = ImGui::GetIO();
-
-        if ( io.MouseClicked[1] )
-        {
-            m_manipulationMode = ManipulationMode::None;
-            return;
-        }
-
-        //-------------------------------------------------------------------------
 
         if ( io.MouseClicked[0] )
         {
@@ -460,7 +659,6 @@ namespace KRG::ImGuiX
                 {
                     m_rotationDeltaAngle = -m_rotationDeltaAngle;
                 }
-
             }
 
             //-------------------------------------------------------------------------
@@ -470,10 +668,6 @@ namespace KRG::ImGuiX
                 // Calculate rotation delta and apply it
                 Quaternion const rotationDelta( m_rotationAxis, m_rotationDeltaAngle );
                 m_pTargetTransform->SetRotation( m_originalStartRotation * rotationDelta );
-            }
-            else
-            {
-                m_rotationDeltaAngle = 0.0f;
             }
         }
     }
@@ -544,106 +738,12 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    bool Gizmo::Translation_DrawPlaneWidget( Vector const& origin, Vector const& axis0, Vector const& axis1, Color color )
-    {
-        KRG_ASSERT( m_gizmoMode == GizmoMode::Translation );
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto pDrawList = ImGui::GetWindowDrawList();
-        KRG_ASSERT( pDrawList != nullptr );
-
-        Vector const planeAxisDeltaNearX = axis0 * g_planeWidgetOffset;
-        Vector const planeAxisDeltaFarX = axis0 * ( g_planeWidgetLength + g_planeWidgetOffset );
-        Vector const planeAxisDeltaNearY = axis1 * g_planeWidgetOffset;
-        Vector const planeAxisDeltaFarY = axis1 * ( g_planeWidgetLength + g_planeWidgetOffset );
-
-        Vector quadVerts[4] =
-        {
-            ( origin + planeAxisDeltaFarX + planeAxisDeltaNearY ),
-            ( origin + planeAxisDeltaNearX + planeAxisDeltaNearY ),
-            ( origin + planeAxisDeltaNearX + planeAxisDeltaFarY ),
-            ( origin + planeAxisDeltaFarX + planeAxisDeltaFarY ),
-        };
-
-        float const distanceAcross0 = quadVerts[0].GetDistance2( quadVerts[2] );
-        float const distanceAcross1 = quadVerts[1].GetDistance2( quadVerts[3] );
-        if ( distanceAcross0 < 5.0f || distanceAcross1 < 5.0f )
-        {
-            return false;
-        }
-
-        //-------------------------------------------------------------------------
-
-        ImVec2 drawQuadVerts[4] =
-        {
-            quadVerts[0].ToFloat2(),
-            quadVerts[1].ToFloat2(),
-            quadVerts[2].ToFloat2(),
-            quadVerts[3].ToFloat2(),
-        };
-
-        pDrawList->AddPolyline( drawQuadVerts, 4, ConvertColor( color ), true, 1.0f );
-        pDrawList->AddConvexPolyFilled( drawQuadVerts, 4, ConvertColor( color.GetAlphaVersion( 0.75f ) ) );
-
-        //-------------------------------------------------------------------------
-
-        Vector const mousePos = io.MousePos;
-        auto LeftHandTest = [&mousePos, &drawQuadVerts] ( int32 side0, int32 side1 )
-        {
-            float D = ( drawQuadVerts[side1].x - drawQuadVerts[side0].x ) * ( mousePos.m_y - drawQuadVerts[side0].y ) - ( mousePos.m_x - drawQuadVerts[side0].x ) * ( drawQuadVerts[side1].y - drawQuadVerts[side0].y );
-            return D > 0;
-        };
-
-        bool const allInsideClockwise = LeftHandTest( 0, 1 ) && LeftHandTest( 1, 2 ) && LeftHandTest( 2, 3 ) && LeftHandTest( 3, 0 );
-        bool const allInsideCounterClockwise = LeftHandTest( 0, 3 ) && LeftHandTest( 3, 2 ) && LeftHandTest( 2, 1 ) && LeftHandTest( 1, 0 );
-        bool const isHovered = allInsideClockwise || allInsideCounterClockwise;
-        return isHovered;
-    }
-
-    bool Gizmo::Translation_DrawAxis( Vector const& start, Vector const& end, Color color )
-    {
-        KRG_ASSERT( m_gizmoMode == GizmoMode::Translation );
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto pDrawList = ImGui::GetWindowDrawList();
-        KRG_ASSERT( pDrawList != nullptr );
-
-        Vector const arrowDirection = ( end - start ).GetNormalized2();
-        if ( arrowDirection.IsNearZero4() )
-        {
-            return false;
-        }
-
-        float const arrowHeadThickness = g_axisThickness * 2;
-        float const arrowHeadLength = g_axisThickness * 2;
-
-        Float2 const arrowHeadBase = end - ( arrowDirection * arrowHeadLength );
-        Float2 const orthogonalDir( arrowDirection.m_y, -arrowDirection.m_x );
-        Float2 const orthogonalOffset = orthogonalDir * arrowHeadThickness;
-        Float2 const orthogonalBoundsOffset = orthogonalDir * ( arrowHeadThickness * 0.75f );
-
-        //-------------------------------------------------------------------------
-
-        Vector const offsetStart = start + ( arrowDirection * g_originSphereAxisOffset );
-        uint32 const axisColor = ConvertColor( color );
-        pDrawList->AddLine( offsetStart.ToFloat2(), arrowHeadBase + arrowDirection, axisColor, g_axisThickness );
-        pDrawList->AddTriangleFilled( end.ToFloat2(), arrowHeadBase - orthogonalOffset, arrowHeadBase + orthogonalOffset, axisColor );
-
-        //-------------------------------------------------------------------------
-
-        LineSegment const arrowLine( offsetStart, end );
-        Vector const mousePos = io.MousePos;
-        float const mouseToLineDistance = arrowLine.GetDistanceBetweenSegmentAndPoint( mousePos );
-        bool const isHovered = mouseToLineDistance < ( ( g_axisThickness / 2 ) + 3.0f );
-
-        return isHovered;
-    }
-
     void Gizmo::Translation_UpdateMode( Render::Viewport const& viewport )
     {
         KRG_ASSERT( m_gizmoMode == GizmoMode::Translation );
 
         ImGuiIO& io = ImGui::GetIO();
+
         if ( !viewport.ContainsPointScreenSpace( io.MousePos ) )
         {
             return;
@@ -651,7 +751,7 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        if ( io.MouseClicked[0]  )
+        if ( io.MouseClicked[0] )
         {
             Vector projectedPoint;
             Vector const& origin = m_manipulationTransform.GetTranslation();
@@ -742,11 +842,11 @@ namespace KRG::ImGuiX
         if ( io.MouseDownDuration[0] > 0 )
         {
             Vector const mousePos( io.MousePos.x, io.MousePos.y, 0, 1.0f );
+            Vector const mouseDelta( io.MouseDelta );
             LineSegment const mouseWorldRay = viewport.ScreenSpaceToWorldSpace( mousePos );
             Vector projectedPoint;
             Vector translationDelta = Vector::Zero;
 
-            Vector const mouseDelta( io.MouseDelta );
             if ( !mouseDelta.IsNearZero2() )
             {
                 if ( m_manipulationMode == ManipulationMode::TranslateX )
@@ -814,7 +914,7 @@ namespace KRG::ImGuiX
         }
     }
 
-    void Gizmo::Translation_Update( Render::Viewport const& viewport )
+    void Gizmo::Translation_DrawAndUpdate( Render::Viewport const& viewport )
     {
         KRG_ASSERT( m_gizmoMode == GizmoMode::Translation );
 
@@ -824,67 +924,74 @@ namespace KRG::ImGuiX
         // Draw Mode guides and origin
         //-------------------------------------------------------------------------
 
-        auto drawAxisGuide = [&pDrawList, this] ( Vector const& axis, Color color )
-        {
-            auto lineLength = ( axis * 10000 );
-            auto lineStart = m_origin_SS + lineLength;
-            auto lineEnd = m_origin_SS - lineLength;
-            pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColor( color ), g_axisGuideThickness );
-        };
-
         if ( m_manipulationMode == ManipulationMode::TranslateX )
         {
-            drawAxisGuide( m_axisDir_SS_X, Colors::Red );
+            DrawAxisGuide( m_axisDir_SS_X, g_axisColorX );
         }
         else if ( m_manipulationMode == ManipulationMode::TranslateY )
         {
-            drawAxisGuide( m_axisDir_SS_Y, Colors::Lime );
+            DrawAxisGuide( m_axisDir_SS_Y, g_axisColorY );
         }
         else if ( m_manipulationMode == ManipulationMode::TranslateZ )
         {
-            drawAxisGuide( m_axisDir_SS_Z, Colors::Blue );
+            DrawAxisGuide( m_axisDir_SS_Z, g_axisColorZ );
         }
 
-        pDrawList->AddCircleFilled( m_origin_SS.ToFloat2(), g_originSphereRadius, Colors::White );
+        ImVec2 const originPosSS = ImVec2( m_origin_SS.ToFloat2() );
+        pDrawList->AddCircleFilled( originPosSS, g_originSphereRadius, Colors::White );
 
         //-------------------------------------------------------------------------
         // Draw axes
         //-------------------------------------------------------------------------
 
-        // If any axes face away from the camera negate them before drawing
-        Vector const viewForwardDir_WS = viewport.GetViewForwardDirection();
-        Vector const drawAxisDir_SS_X = m_axisDir_SS_X;
-        Vector const drawAxisDir_SS_Y = m_axisDir_SS_Y;
-        Vector const drawAxisDir_SS_Z = m_axisDir_SS_Z;
-
-        // Ensure that gizmo is alway uniform size
-        Vector const axisEndPoint_SS_X = m_origin_SS + drawAxisDir_SS_X * g_axisLength;
-        Vector const axisEndPoint_SS_Y = m_origin_SS + drawAxisDir_SS_Y * g_axisLength;
-        Vector const axisEndPoint_SS_Z = m_origin_SS + drawAxisDir_SS_Z * g_axisLength;
-
-        // Ensure each axis is at least 10 degrees offset from the view direction
-        bool const shouldDrawAxis_X = m_offsetBetweenViewFwdAndAxis_WS_X > Degrees( 10.0f );
-        bool const shouldDrawAxis_Y = m_offsetBetweenViewFwdAndAxis_WS_Y > Degrees( 10.0f );
-        bool const shouldDrawAxis_Z = m_offsetBetweenViewFwdAndAxis_WS_Z > Degrees( 10.0f );
-
         Color elementColor;
 
-        if ( shouldDrawAxis_X )
+        if ( m_shouldDrawAxis_X )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::TranslateX || m_manipulationMode == ManipulationMode::TranslateXY || m_manipulationMode == ManipulationMode::TranslateXZ || m_isAxisHoveredX ) ? g_selectedColor : Colors::Red;
-            m_isAxisHoveredX = Translation_DrawAxis( m_origin_SS, axisEndPoint_SS_X, elementColor );
+            bool const isHovered = 
+            (
+                m_manipulationMode == ManipulationMode::TranslateX || 
+                m_manipulationMode == ManipulationMode::TranslateXY || 
+                m_manipulationMode == ManipulationMode::TranslateXZ ||
+                m_isAxisHoveredX ||
+                m_isPlaneHoveredXY ||
+                m_isPlaneHoveredXZ
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorX;
+            m_isAxisHoveredX = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_X, elementColor, AxisCap::Arrow );
         }
 
-        if ( shouldDrawAxis_Y )
+        if ( m_shouldDrawAxis_Y )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::TranslateY || m_manipulationMode == ManipulationMode::TranslateXY || m_manipulationMode == ManipulationMode::TranslateYZ || m_isAxisHoveredY ) ? g_selectedColor : Colors::Green;
-            m_isAxisHoveredY = Translation_DrawAxis( m_origin_SS, axisEndPoint_SS_Y, elementColor );
+            bool const isHovered = 
+            (
+                m_manipulationMode == ManipulationMode::TranslateY || 
+                m_manipulationMode == ManipulationMode::TranslateXY || 
+                m_manipulationMode == ManipulationMode::TranslateYZ ||
+                m_isAxisHoveredY ||
+                m_isPlaneHoveredXY ||
+                m_isPlaneHoveredYZ
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorY;
+            m_isAxisHoveredY = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_Y, elementColor, AxisCap::Arrow );
         }
 
-        if ( shouldDrawAxis_Z )
+        if ( m_shouldDrawAxis_Z )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::TranslateZ || m_manipulationMode == ManipulationMode::TranslateXZ || m_manipulationMode == ManipulationMode::TranslateYZ || m_isAxisHoveredZ ) ? g_selectedColor : Colors::Blue;
-            m_isAxisHoveredZ = Translation_DrawAxis( m_origin_SS, axisEndPoint_SS_Z, elementColor );
+            bool const isHovered = 
+            (
+                m_manipulationMode == ManipulationMode::TranslateZ ||
+                m_manipulationMode == ManipulationMode::TranslateXZ ||
+                m_manipulationMode == ManipulationMode::TranslateYZ ||
+                m_isAxisHoveredZ ||
+                m_isPlaneHoveredXZ ||
+                m_isPlaneHoveredYZ
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorZ;
+            m_isAxisHoveredZ = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_Z, elementColor, AxisCap::Arrow );
         }
 
         //-------------------------------------------------------------------------
@@ -892,13 +999,13 @@ namespace KRG::ImGuiX
         //-------------------------------------------------------------------------
 
         elementColor = ( m_isPlaneHoveredXY || m_manipulationMode == ManipulationMode::TranslateXY ) ? g_selectedColor : g_planeColor;
-        m_isPlaneHoveredXY = Translation_DrawPlaneWidget( m_origin_SS, drawAxisDir_SS_X, drawAxisDir_SS_Y, elementColor );
+        m_isPlaneHoveredXY = DrawPlaneWidget( m_origin_SS, m_axisDir_SS_X, m_axisDir_SS_Y, elementColor );
 
         elementColor = ( m_isPlaneHoveredXZ || m_manipulationMode == ManipulationMode::TranslateXZ ) ? g_selectedColor : g_planeColor;
-        m_isPlaneHoveredXZ = Translation_DrawPlaneWidget( m_origin_SS, drawAxisDir_SS_X, drawAxisDir_SS_Z, elementColor );
+        m_isPlaneHoveredXZ = DrawPlaneWidget( m_origin_SS, m_axisDir_SS_X, m_axisDir_SS_Z, elementColor );
 
         elementColor = ( m_isPlaneHoveredYZ || m_manipulationMode == ManipulationMode::TranslateYZ ) ? g_selectedColor : g_planeColor;
-        m_isPlaneHoveredYZ = Translation_DrawPlaneWidget( m_origin_SS, drawAxisDir_SS_Y, drawAxisDir_SS_Z, elementColor );
+        m_isPlaneHoveredYZ = DrawPlaneWidget( m_origin_SS, m_axisDir_SS_Y, m_axisDir_SS_Z, elementColor );
 
         //-------------------------------------------------------------------------
         // Switch Mode and calculate the translation delta
@@ -909,101 +1016,6 @@ namespace KRG::ImGuiX
     }
 
     //-------------------------------------------------------------------------
-
-    bool Gizmo::Scale_DrawOrigin( Vector const& originPosition )
-    {
-        KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto pDrawList = ImGui::GetWindowDrawList();
-        KRG_ASSERT( pDrawList != nullptr );
-
-        uint32 const originColor = ConvertColor( ( m_manipulationMode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : Colors::White );
-
-        pDrawList->AddCircleFilled( originPosition.ToFloat2(), 3.0f, originColor, 20 );
-        pDrawList->AddCircle( originPosition.ToFloat2(), 8.0f, originColor, 20, 2.0f );
-
-        if ( m_isOriginHovered || m_manipulationMode == ManipulationMode::ScaleXYZ )
-        {
-            pDrawList->AddCircle( originPosition.ToFloat2(), g_selectedOriginSphereRadius, originColor, 12, 2.0f );
-        }
-
-        //-------------------------------------------------------------------------
-
-        Vector const mousePos = io.MousePos;
-        float const mouseToOriginDistance = originPosition.GetDistance2( mousePos );
-        bool const isHovered = mouseToOriginDistance < g_originSphereRadius;
-        return isHovered;
-    }
-
-    bool Gizmo::Scale_DrawAxis( Vector const& start, Vector const& end, Color color )
-    {
-        KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto pDrawList = ImGui::GetWindowDrawList();
-        KRG_ASSERT( pDrawList != nullptr );
-
-        Vector const axisDirection = ( end - start ).GetNormalized2();
-        if ( axisDirection.IsNearZero4() )
-        {
-            return false;
-        }
-
-        //-------------------------------------------------------------------------
-
-        Vector const offsetStart = start + ( axisDirection * g_originSphereAxisOffset );
-        uint32 const axisColor = ConvertColor( color );
-        pDrawList->AddLine( offsetStart.ToFloat2(), end.ToFloat2(), axisColor, g_axisThickness );
-        pDrawList->AddCircleFilled( end.ToFloat2(), g_axisThickness * 1.5, axisColor );
-
-        //-------------------------------------------------------------------------
-
-        LineSegment const axisLine( offsetStart, end );
-        Vector const mousePos = io.MousePos;
-        float const mouseToLineDistance = axisLine.GetDistanceBetweenSegmentAndPoint( mousePos );
-        bool const isHovered = mouseToLineDistance < ( ( g_axisThickness / 2 ) + 3.0f );
-
-        return isHovered;
-    }
-
-    bool Gizmo::Scale_DrawPlaneWidget( Vector const& origin, Vector const& axis0, Vector const& axis1, Color color )
-    {
-        KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
-
-        ImGuiIO& io = ImGui::GetIO();
-        auto pDrawList = ImGui::GetWindowDrawList();
-        KRG_ASSERT( pDrawList != nullptr );
-
-        auto planeAxisDeltaNearX = ( axis0 * ( g_axisLength * 0.0f + g_originSphereAxisOffset ) );
-        auto planeAxisDeltaFarX = ( axis0 * ( g_axisLength * 0.4f + g_originSphereAxisOffset ) );
-        auto planeAxisDeltaNearY = ( axis1 * ( g_axisLength * 0.0f + g_originSphereAxisOffset ) );
-        auto planeAxisDeltaFarY = ( axis1 * ( g_axisLength * 0.4f + g_originSphereAxisOffset ) );
-
-        ImVec2 manipulationQuadVerts[] =
-        {
-            ( origin + planeAxisDeltaFarX + planeAxisDeltaNearY ).ToFloat2(),
-            ( origin + planeAxisDeltaNearX + planeAxisDeltaNearY ).ToFloat2(),
-            ( origin + planeAxisDeltaNearX + planeAxisDeltaFarY ).ToFloat2(),
-        };
-
-        pDrawList->AddPolyline( manipulationQuadVerts, 3, ConvertColor( color ), true, 1.0f );
-        pDrawList->AddConvexPolyFilled( manipulationQuadVerts, 3, ConvertColor( color.GetAlphaVersion( 0.75f ) ) );
-
-        //-------------------------------------------------------------------------
-
-        Vector const mousePos = io.MousePos;
-        auto LeftHandTest = [&mousePos, &manipulationQuadVerts] ( int32 side0, int32 side1 )
-        {
-            float D = ( manipulationQuadVerts[side1].x - manipulationQuadVerts[side0].x ) * ( mousePos.m_y - manipulationQuadVerts[side0].y ) - ( mousePos.m_x - manipulationQuadVerts[side0].x ) * ( manipulationQuadVerts[side1].y - manipulationQuadVerts[side0].y );
-            return D > 0;
-        };
-
-        bool const allInsideClockwise = LeftHandTest( 0, 1 ) && LeftHandTest( 1, 2 ) && LeftHandTest( 2, 0 );
-        bool const allInsideCounterClockwise = LeftHandTest( 0, 2 ) && LeftHandTest( 2, 1 ) && LeftHandTest( 1, 0 );
-        bool const isHovered = allInsideClockwise || allInsideCounterClockwise;
-        return isHovered;
-    }
 
     void Gizmo::Scale_UpdateMode( Render::Viewport const& viewport )
     {
@@ -1030,38 +1042,14 @@ namespace KRG::ImGuiX
             }
             else if ( m_isAxisHoveredX )
             {
-                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
-                if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
-                {
-                    LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisX() );
-                    Vector const projectedTranslation = manipulationAxis.GetClosestPointOnLine( projectedPoint );
-                    m_positionOffset = projectedTranslation - origin;
-                }
-
                 m_manipulationMode = ManipulationMode::ScaleX;
             }
             else if ( m_isAxisHoveredY )
             {
-                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
-                if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
-                {
-                    LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisY() );
-                    Vector const projectedTranslation = manipulationAxis.GetClosestPointOnLine( projectedPoint );
-                    m_positionOffset = projectedTranslation - origin;
-                }
-
                 m_manipulationMode = ManipulationMode::ScaleY;
             }
             else if ( m_isAxisHoveredZ )
             {
-                Plane const viewPlane = Plane::FromNormalAndPoint( viewport.GetViewVolume().GetForwardVector(), origin );
-                if ( viewPlane.IntersectLine( mouseWorldRay.GetStartPoint(), mouseWorldRay.GetEndPoint(), projectedPoint ) )
-                {
-                    LineSegment const manipulationAxis( origin, origin + m_manipulationTransform.GetAxisZ() );
-                    Vector const projectedTranslation = manipulationAxis.GetClosestPointOnLine( projectedPoint );
-                    m_positionOffset = projectedTranslation - origin;
-                }
-
                 m_manipulationMode = ManipulationMode::ScaleZ;
             }
         }
@@ -1076,63 +1064,49 @@ namespace KRG::ImGuiX
     {
         KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
 
-        Vector const& originWS = m_manipulationTransform.GetTranslation();
 
         ImGuiIO& io = ImGui::GetIO();
         if ( io.MouseDownDuration[0] > 0 )
         {
+            Vector const& origin = m_manipulationTransform.GetTranslation();
+            Vector const originSS = viewport.WorldSpaceToScreenSpace( origin );
+
+            Vector const mousePos( io.MousePos.x, io.MousePos.y, 0, 1.0f );
             Vector const mouseDelta( io.MouseDelta );
-            Vector const originSS = viewport.WorldSpaceToScreenSpace( originWS );
 
             if ( !mouseDelta.IsNearZero2() )
             {
                 Vector scaleDelta = Vector::Zero;
                 Vector manipulationAxis;
+                Vector scaleDeltaAxis;
 
                 if ( m_manipulationMode == ManipulationMode::ScaleXYZ )
                 {
-                    auto const axisSS = viewport.WorldSpaceToScreenSpace( originWS + m_manipulationTransform.GetAxisZ() );
+                    auto const axisSS = viewport.WorldSpaceToScreenSpace( origin + m_manipulationTransform.GetAxisZ() );
                     Vector const unitsPerPixel = Vector::One / Vector( axisSS - originSS ).Length2();
                     scaleDelta = Vector::One * -mouseDelta.m_y * unitsPerPixel;
                 }
-
                 else if ( m_manipulationMode == ManipulationMode::ScaleX || m_manipulationMode == ManipulationMode::ScaleY || m_manipulationMode == ManipulationMode::ScaleZ )
                 {
-                    Vector scaleDeltaAxis;
-
                     if ( m_manipulationMode == ManipulationMode::ScaleX )
                     {
-                        manipulationAxis = m_isAxisNegatedX ? -m_manipulationTransform.GetAxisX() : m_manipulationTransform.GetAxisX();
+                        manipulationAxis = m_manipulationTransform.GetAxisX();
                         scaleDeltaAxis = Vector::UnitX;
                     }
                     else if ( m_manipulationMode == ManipulationMode::ScaleY )
                     {
-                        manipulationAxis = m_isAxisNegatedY ? -m_manipulationTransform.GetAxisY() : m_manipulationTransform.GetAxisY();
+                        manipulationAxis = m_manipulationTransform.GetAxisY();
                         scaleDeltaAxis = Vector::UnitY;
                     }
                     else if ( m_manipulationMode == ManipulationMode::ScaleZ )
                     {
-                        manipulationAxis = m_isAxisNegatedZ ? -m_manipulationTransform.GetAxisZ() : m_manipulationTransform.GetAxisZ();
+                        manipulationAxis = m_manipulationTransform.GetAxisZ();
                         scaleDeltaAxis = Vector::UnitZ;
-                    }
-
-                    // If we are in world we need to calculate the scale delta axis
-                    if ( m_coordinateSpace == CoordinateSpace::World )
-                    {
-                        Vector const localAxisX = m_pTargetTransform->GetAxisX();
-                        Vector const localAxisY = m_pTargetTransform->GetAxisY();
-                        Vector const localAxisZ = m_pTargetTransform->GetAxisZ();
-
-                        float const projectedLengthX = Math::Abs( manipulationAxis.GetScalarProjection( localAxisX ) );
-                        float const projectedLengthY = Math::Abs( manipulationAxis.GetScalarProjection( localAxisY ) );
-                        float const projectedLengthZ = Math::Abs( manipulationAxis.GetScalarProjection( localAxisZ ) );
-
-                        scaleDeltaAxis = Vector( projectedLengthX, projectedLengthY, projectedLengthZ );
                     }
 
                     //-------------------------------------------------------------------------
 
-                    auto const axisSS = viewport.WorldSpaceToScreenSpace( originWS + manipulationAxis );
+                    auto const axisSS = viewport.WorldSpaceToScreenSpace( origin + manipulationAxis );
                     Vector const unitsPerPixel = Vector::One / Vector( axisSS - originSS ).Length2();
 
                     LineSegment const manipulationAxisLine( originSS, axisSS );
@@ -1152,38 +1126,28 @@ namespace KRG::ImGuiX
         }
     }
 
-    void Gizmo::Scale_Update( Render::Viewport const& viewport )
+    void Gizmo::Scale_DrawAndUpdate( Render::Viewport const& viewport )
     {
         KRG_ASSERT( m_gizmoMode == GizmoMode::Scale );
 
         auto pDrawList = ImGui::GetWindowDrawList();
 
         //-------------------------------------------------------------------------
-        // Draw Mode guides and origin
+        // Draw Mode guides
         //-------------------------------------------------------------------------
-
-        auto drawAxisGuide = [&pDrawList, this] ( Vector const& axis, Color color )
-        {
-            auto lineLength = ( axis * 10000 );
-            auto lineStart = m_origin_SS + lineLength;
-            auto lineEnd = m_origin_SS - lineLength;
-            pDrawList->AddLine( lineStart.ToFloat2(), lineEnd.ToFloat2(), ConvertColor( color ), 2.0f );
-        };
 
         if ( m_manipulationMode == ManipulationMode::ScaleX )
         {
-            drawAxisGuide( m_axisDir_SS_X, Colors::Red );
+            DrawAxisGuide( m_axisDir_SS_X, Colors::Red );
         }
         else if ( m_manipulationMode == ManipulationMode::ScaleY )
         {
-            drawAxisGuide( m_axisDir_SS_Y, Colors::Lime );
+            DrawAxisGuide( m_axisDir_SS_Y, Colors::Lime );
         }
         else if ( m_manipulationMode == ManipulationMode::ScaleZ )
         {
-            drawAxisGuide( m_axisDir_SS_Z, Colors::Blue );
+            DrawAxisGuide( m_axisDir_SS_Z, Colors::Blue );
         }
-
-        m_isOriginHovered = Scale_DrawOrigin( m_origin_SS );
 
         //-------------------------------------------------------------------------
         // Draw axes
@@ -1208,23 +1172,62 @@ namespace KRG::ImGuiX
 
         Color elementColor;
 
-        if ( shouldDrawAxis_X )
+        if ( m_shouldDrawAxis_X )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::ScaleX || m_isAxisHoveredX ) ? g_selectedColor : Colors::Red;
-            m_isAxisHoveredX = Scale_DrawAxis( m_origin_SS, axisEndPoint_SS_X, elementColor );
+            bool const isHovered =
+            (
+                m_manipulationMode == ManipulationMode::ScaleXYZ ||
+                m_manipulationMode == ManipulationMode::ScaleX ||
+                m_isAxisHoveredX
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorX;
+            m_isAxisHoveredX = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_X, elementColor, AxisCap::Dot, 9 );
         }
 
-        if ( shouldDrawAxis_Y )
+        if ( m_shouldDrawAxis_Y )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::ScaleY || m_isAxisHoveredY ) ? g_selectedColor : Colors::Lime;
-            m_isAxisHoveredY = Scale_DrawAxis( m_origin_SS, axisEndPoint_SS_Y, elementColor );
+            bool const isHovered =
+            (
+                m_manipulationMode == ManipulationMode::ScaleXYZ ||
+                m_manipulationMode == ManipulationMode::ScaleY ||
+                m_isAxisHoveredY
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorY;
+            m_isAxisHoveredY = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_Y, elementColor, AxisCap::Dot, 9 );
         }
 
-        if ( shouldDrawAxis_Z )
+        if ( m_shouldDrawAxis_Z )
         {
-            elementColor = ( m_manipulationMode == ManipulationMode::ScaleZ || m_isAxisHoveredZ ) ? g_selectedColor : Colors::Blue;
-            m_isAxisHoveredZ = Scale_DrawAxis( m_origin_SS, axisEndPoint_SS_Z, elementColor );
+            bool const isHovered =
+            (
+                m_manipulationMode == ManipulationMode::ScaleXYZ ||
+                m_manipulationMode == ManipulationMode::ScaleZ ||
+                m_isAxisHoveredZ
+            );
+
+            elementColor = isHovered ? g_selectedColor : g_axisColorZ;
+            m_isAxisHoveredZ = DrawAxisWidget( m_origin_SS, m_axisEndPoint_SS_Z, elementColor, AxisCap::Dot, 9 );
         }
+
+        //-------------------------------------------------------------------------
+        // Draw Uniform Scale Widget
+        //-------------------------------------------------------------------------
+
+        ImVec2 const originPosSS = ImVec2( m_origin_SS.ToFloat2() );
+        uint32 const originColor = ConvertColor( ( m_manipulationMode == ManipulationMode::ScaleXYZ || m_isOriginHovered ) ? g_selectedColor : g_originColor );
+
+        pDrawList->AddCircleFilled( originPosSS, 3.0f, originColor, 20 );
+        pDrawList->AddCircle( originPosSS, 8.0f, originColor, 20, 2.0f );
+
+        if ( m_isOriginHovered || m_manipulationMode == ManipulationMode::ScaleXYZ )
+        {
+            pDrawList->AddCircle( originPosSS, g_selectedOriginSphereRadius, originColor, 12, 2.0f );
+        }
+
+        float const mouseToOriginDistance = m_origin_SS.GetDistance2( ImGui::GetMousePos() );
+        m_isOriginHovered = mouseToOriginDistance < g_originSphereRadius;
 
         //-------------------------------------------------------------------------
         // Switch Mode and calculate the translation delta

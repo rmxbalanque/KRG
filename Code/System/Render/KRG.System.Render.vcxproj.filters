@@ -2,43 +2,43 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Fonts">
-      <UniqueIdentifier>{b2b67485-b5d1-4b15-8d55-67559d2b59f0}</UniqueIdentifier>
+      <UniqueIdentifier>{1b45f4f5-915c-4671-88f1-4a9a3ad11250}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform">
-      <UniqueIdentifier>{59a9549f-da53-470d-85ee-43023afb1095}</UniqueIdentifier>
+      <UniqueIdentifier>{9c750072-90d5-4ae2-9b40-a0618d271773}</UniqueIdentifier>
     </Filter>
     <Filter Include="Imgui">
-      <UniqueIdentifier>{a20cb1d8-123e-485a-8a48-d48613d12d9b}</UniqueIdentifier>
+      <UniqueIdentifier>{3316c944-39b0-4920-949b-30033dc23fd0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Imgui\Platform">
-      <UniqueIdentifier>{32137871-b47d-4daf-988c-00810379e44b}</UniqueIdentifier>
+      <UniqueIdentifier>{7d36dcb1-11a5-43fa-92f9-5ec5af3ea2bc}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui">
-      <UniqueIdentifier>{a67eeb1e-9908-4650-89bd-ca3abb4e64ab}</UniqueIdentifier>
+      <UniqueIdentifier>{cf494484-5fbe-49f7-bddc-fb8fb56c4041}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty">
-      <UniqueIdentifier>{1ef6d7c9-8f3d-4c84-bf4e-5e121ea33495}</UniqueIdentifier>
+      <UniqueIdentifier>{7394d769-dbef-46eb-824d-335df264cc31}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc\freetype">
-      <UniqueIdentifier>{def5eb05-387c-49a1-ac94-ed5f052c7051}</UniqueIdentifier>
+      <UniqueIdentifier>{8df4530d-44b8-43c6-ac9a-4260db97003c}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc">
-      <UniqueIdentifier>{9fa41727-c38f-4559-87e9-5724d19d463e}</UniqueIdentifier>
+      <UniqueIdentifier>{fd18db97-cd9e-4824-b7f9-fc603fb55351}</UniqueIdentifier>
     </Filter>
     <Filter Include="_Module">
-      <UniqueIdentifier>{c326cbf3-bb5d-4b77-a352-88fb3d76108e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DebugRenderer\Debug\HLSL">
-      <UniqueIdentifier>{d4157076-8dd6-4bbc-a7af-3d28d783acd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DebugRenderer\Debug">
-      <UniqueIdentifier>{15de42df-3741-4164-be97-7842d26c387c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DebugRenderer">
-      <UniqueIdentifier>{b590668e-0144-4197-a61b-b84e44269938}</UniqueIdentifier>
+      <UniqueIdentifier>{1ce8d3a3-af98-478b-b3ae-caeeef04b116}</UniqueIdentifier>
     </Filter>
     <Filter Include="ThirdParty\imgui\misc\debuggers">
-      <UniqueIdentifier>{d2b4934f-f244-4285-8d0f-6daef9746acb}</UniqueIdentifier>
+      <UniqueIdentifier>{8b6c7d38-6488-4832-9e0f-affb384a6ed0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DebugRenderer\Debug\HLSL">
+      <UniqueIdentifier>{ad578916-364a-42c1-a109-8d143a3dfffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DebugRenderer\Debug">
+      <UniqueIdentifier>{ed9ca9b5-4f10-44d7-8574-abc60907a09f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DebugRenderer">
+      <UniqueIdentifier>{2538fc7f-7629-4f01-afbf-bab1c84c879f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +46,9 @@
       <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontData_Proggy.cpp">
+      <Filter>Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="Fonts\FontData_Roboto.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Fonts\FontDecompressor.cpp">
@@ -59,9 +62,6 @@
     </ClCompile>
     <ClCompile Include="Platform\TextureLoader_Win32.cpp">
       <Filter>Platform</Filter>
-    </ClCompile>
-    <ClCompile Include="Fonts\FontData_Roboto.cpp">
-      <Filter>Fonts</Filter>
     </ClCompile>
     <ClCompile Include="Imgui\ImguiFont.cpp">
       <Filter>Imgui</Filter>
@@ -104,6 +104,9 @@
     <ClInclude Include="Fonts\FontData_Proggy.h">
       <Filter>Fonts</Filter>
     </ClInclude>
+    <ClInclude Include="Fonts\FontData_Roboto.h">
+      <Filter>Fonts</Filter>
+    </ClInclude>
     <ClInclude Include="Fonts\FontDecompressor.h">
       <Filter>Fonts</Filter>
     </ClInclude>
@@ -115,12 +118,6 @@
     </ClInclude>
     <ClInclude Include="Platform\TextureLoader_Win32.h">
       <Filter>Platform</Filter>
-    </ClInclude>
-    <ClInclude Include="_Module\API.h">
-      <Filter>_Module</Filter>
-    </ClInclude>
-    <ClInclude Include="Fonts\FontData_Roboto.h">
-      <Filter>Fonts</Filter>
     </ClInclude>
     <ClInclude Include="Imgui\ImguiFont.h">
       <Filter>Imgui</Filter>
@@ -158,11 +155,14 @@
     <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
       <Filter>ThirdParty\imgui\misc\freetype</Filter>
     </ClInclude>
+    <ClInclude Include="_Module\API.h">
+      <Filter>_Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
-      <Filter>DebugRenderer\Debug\HLSL</Filter>
-    </None>
+    <Text Include="ThirdParty\imgui\LICENSE.txt">
+      <Filter>ThirdParty\imgui</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="ThirdParty\imgui\misc\debuggers\imgui.natvis">
@@ -170,8 +170,8 @@
     </Natvis>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ThirdParty\imgui\LICENSE.txt">
-      <Filter>ThirdParty\imgui</Filter>
-    </Text>
+    <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli">
+      <Filter>DebugRenderer\Debug\HLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

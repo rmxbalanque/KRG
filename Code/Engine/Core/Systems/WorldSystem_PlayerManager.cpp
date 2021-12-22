@@ -15,8 +15,8 @@ namespace KRG
 {
     namespace
     {
-        static float const g_lookSpeed = Math::Pi;
-        static float const g_moveSpeed = 10.0f; // 10 m/s
+        constexpr static float const g_lookSpeed = Math::Pi / 8;
+        constexpr static float const g_moveSpeed = 10.0f; // 10 m/s
         static FloatRange const g_moveSpeedLimits( 0.5f, 100 );
     }
 
@@ -203,9 +203,9 @@ namespace KRG
 
             Vector const spatialInput( LR, FB, 0, 0 );
 
-            Transform const& entityTransform = m_pDebugCameraComponent->GetWorldTransform();
-            Vector const forwardDirection = entityTransform.GetForwardVector();
-            Vector const rightDirection = entityTransform.GetRightVector();
+            Transform cameraTransform = m_pDebugCameraComponent->GetWorldTransform();
+            Vector const forwardDirection = cameraTransform.GetForwardVector();
+            Vector const rightDirection = cameraTransform.GetRightVector();
 
             Vector const moveDelta = Vector( m_debugCameraMoveSpeed * deltaTime );
             Vector const deltaForward = spatialInput.GetSplatY() * moveDelta;
@@ -217,9 +217,8 @@ namespace KRG
             positionDelta.m_w = 0.0f;
 
             // Update camera transform
-            Transform newEntityTransform = entityTransform;
-            newEntityTransform.SetTranslation( entityTransform.GetTranslation() + positionDelta );
-            m_pDebugCameraComponent->SetLocalTransform( newEntityTransform );
+            cameraTransform.AddTranslation( positionDelta );
+            m_pDebugCameraComponent->SetWorldTransform( cameraTransform );
         }
 
         // Direction update
@@ -229,13 +228,13 @@ namespace KRG
 
         if ( pMouseState->IsHeldDown( Input::MouseButton::Right ) )
         {
-            auto const directionDelta = pMouseState->GetMovementDelta();
-            if ( directionDelta.m_x != 0 || directionDelta.m_y != 0 )
+            Vector const mouseDelta = pMouseState->GetMovementDelta();
+            Vector const angleDelta = mouseDelta * Vector( g_lookSpeed * deltaTime );
+            if ( !angleDelta.IsNearZero2() )
             {
-                // Adjust heading and pitch based on input
-                headingDelta = -directionDelta.m_x * g_lookSpeed * deltaTime;
-                pitchDelta = -directionDelta.m_y * g_lookSpeed * deltaTime;
-                m_pDebugCameraComponent->AdjustHeadingAndPitch( headingDelta, pitchDelta );
+                headingDelta = -angleDelta.GetX();
+                pitchDelta = -angleDelta.GetY();
+                m_pDebugCameraComponent->AdjustPitchAndYaw( headingDelta, pitchDelta );
             }
         }
     }

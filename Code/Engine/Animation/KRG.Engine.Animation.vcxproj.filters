@@ -57,108 +57,6 @@
     <ClCompile Include="Events\AnimationEvent_Foot.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphInstance.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphBoneMaskPool.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphResources.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphEvents.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphNode.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\AnimationGraphContexts.cpp">
-      <Filter>Graph</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_BoneMasks.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Bools.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_ConstValues.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Floats.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Passthrough.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Pose.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_AnimationClip.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Parameters.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Blends.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_RootMotionOverride.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Selector.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_SpeedScale.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\AnimationGraphTaskPosePool.cpp">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\AnimationGraphTask.cpp">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\AnimationGraphTaskSystem.cpp">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_CachedPose.cpp">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Blend.cpp">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_DefaultPose.cpp">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.cpp">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Vectors.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Targets.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Events.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_IDs.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Layers.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_State.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateConditions.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_StateMachine.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
-    <ClCompile Include="Graph\Nodes\AnimationGraphNode_Transition.cpp">
-      <Filter>Graph\Nodes</Filter>
-    </ClCompile>
     <ClCompile Include="AnimationBoneMask.cpp" />
     <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationFrameTime.cpp" />
@@ -171,7 +69,44 @@
     <ClCompile Include="Components\Component_AnimatedMeshes.cpp" />
     <ClCompile Include="Components\Component_AnimationGraph.cpp" />
     <ClCompile Include="Components\Component_AnimationClipPlayer.cpp" />
-    <ClCompile Include="Graph\AnimationGraphController.cpp" />
+    <ClCompile Include="DebugViews\DebugView_Animation.cpp" />
+    <ClCompile Include="Systems\WorldSystem_Animation.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_AnimationClip.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Blends.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_BoneMasks.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Bools.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_ConstValues.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Events.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Floats.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_IDs.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Layers.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Parameters.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Passthrough.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Pose.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_RootMotionOverride.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Selector.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_SpeedScale.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_State.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_StateConditions.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_StateMachine.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.cpp" />
+    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.cpp" />
+    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.cpp" />
+    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.cpp" />
+    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_BoneMaskPool.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Common.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Contexts.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Controller.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Events.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Instance.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Node.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Resources.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_Task.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskPosePool.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -198,111 +133,6 @@
     <ClInclude Include="Events\AnimationEvent_Foot.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphInstance.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphBoneMaskPool.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphCommon.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphResources.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphEvents.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphNode.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\AnimationGraphContexts.h">
-      <Filter>Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_BoneMasks.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Bools.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_ConstValues.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Parameters.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Floats.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Passthrough.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Pose.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_AnimationClip.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Blends.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_RootMotionOverride.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Selector.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_SpeedScale.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\AnimationGraphTask.h">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\AnimationGraphTaskPosePool.h">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\AnimationGraphTaskSystem.h">
-      <Filter>Graph\TaskSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_CachedPose.h">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Blend.h">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_DefaultPose.h">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\TaskSystem\Tasks\AnimationGraphTask_Sample.h">
-      <Filter>Graph\TaskSystem\Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Vectors.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Targets.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Events.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_IDs.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Layers.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_State.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateConditions.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_StateMachine.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="Graph\Nodes\AnimationGraphNode_Transition.h">
-      <Filter>Graph\Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="AnimationBoneMask.h" />
     <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationEvent.h" />
@@ -317,11 +147,43 @@
     <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
-    <ClInclude Include="Graph\AnimationGraphController.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Graph\todo.md">
-      <Filter>Graph</Filter>
-    </None>
+    <ClInclude Include="DebugViews\DebugView_Animation.h" />
+    <ClInclude Include="Systems\WorldSystem_Animation.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_AnimationClip.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Blends.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_BoneMasks.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Bools.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_ConstValues.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Events.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Floats.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_IDs.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Layers.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Parameters.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Passthrough.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Pose.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_RootMotionOverride.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Selector.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_SpeedScale.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_State.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_StateConditions.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_StateMachine.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.h" />
+    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.h" />
+    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.h" />
+    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.h" />
+    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_BoneMaskPool.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Common.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Contexts.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Controller.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Events.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Instance.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Node.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Resources.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_Task.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskPosePool.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskSystem.h" />
   </ItemGroup>
 </Project>

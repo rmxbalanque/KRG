@@ -134,27 +134,27 @@ namespace KRG::Render
             // Determine DXGI format
             if ( paramDesc.Mask == 1 )
             {
-                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataTypeFormat::UInt_R32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataTypeFormat::SInt_R32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataTypeFormat::Float_R32;
+                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataFormat::UInt_R32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataFormat::SInt_R32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataFormat::Float_R32;
             }
             else if ( paramDesc.Mask <= 3 )
             {
-                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataTypeFormat::UInt_R32G32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataTypeFormat::SInt_R32G32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataTypeFormat::Float_R32G32;
+                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataFormat::UInt_R32G32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataFormat::SInt_R32G32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataFormat::Float_R32G32;
             }
             else if ( paramDesc.Mask <= 7 )
             {
-                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataTypeFormat::UInt_R32G32B32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataTypeFormat::SInt_R32G32B32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataTypeFormat::Float_R32G32B32;
+                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataFormat::UInt_R32G32B32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataFormat::SInt_R32G32B32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataFormat::Float_R32G32B32;
             }
             else if ( paramDesc.Mask <= 15 )
             {
-                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataTypeFormat::UInt_R32G32B32A32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataTypeFormat::SInt_R32G32B32A32;
-                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataTypeFormat::Float_R32G32B32A32;
+                if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32 ) elementDesc.m_format = DataFormat::UInt_R32G32B32A32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32 ) elementDesc.m_format = DataFormat::SInt_R32G32B32A32;
+                else if ( paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 ) elementDesc.m_format = DataFormat::Float_R32G32B32A32;
             }
 
             vertexLayoutDesc.m_elementDescriptors.push_back( elementDesc );

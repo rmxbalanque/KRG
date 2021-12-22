@@ -223,8 +223,15 @@ namespace KRG::Player
                             }
                         }
 
+                        // Auto scroll the table
+                        if ( ImGui::GetScrollY() >= ImGui::GetScrollMaxY() )
+                        {
+                            ImGui::SetScrollHereY( 1.0f );
+                        }
+
                         ImGui::EndTable();
                     }
+
 
                     ImGui::EndTable();
                 }

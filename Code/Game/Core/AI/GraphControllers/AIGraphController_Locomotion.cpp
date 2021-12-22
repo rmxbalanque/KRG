@@ -12,8 +12,17 @@ namespace KRG::AI
         m_facingParam.TryBind( this );
     }
 
+    void LocomotionGraphController::SetIdle()
+    {
+        m_speedParam.Set( this, 0.0f );
+        m_headingParam.Set( this, Vector::Zero );
+        m_facingParam.Set( this, Vector::WorldForward );
+    }
+
     void LocomotionGraphController::SetLocomotionDesires( Seconds const deltaTime, Vector const& headingVelocityWS, Vector const& facingDirectionWS )
     {
+        KRG_ASSERT( Math::IsNearZero( facingDirectionWS.m_z ) );
+
         Vector const characterSpaceHeading = ConvertWorldSpaceVectorToCharacterSpace( headingVelocityWS );
         float const speed = characterSpaceHeading.GetLength3();
 
@@ -31,8 +40,8 @@ namespace KRG::AI
         else
         {
             KRG_ASSERT( facingDirectionWS.IsNormalized3() );
-            Vector const characterSpaceFacing = ConvertWorldSpaceVectorToCharacterSpace( facingDirectionWS );
-            m_facingParam.Set( this, characterSpaceFacing );
+            Vector const facingDirCS = ConvertWorldSpaceVectorToCharacterSpace( facingDirectionWS ).GetNormalized2();
+            m_facingParam.Set( this, facingDirCS );
         }
     }
 }

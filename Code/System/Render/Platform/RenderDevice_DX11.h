@@ -41,7 +41,8 @@ namespace KRG::Render
         // Swap Chains
         //-------------------------------------------------------------------------
 
-        RenderTarget const& GetPrimaryWindowRenderTarget() const& { return m_primaryWindow.m_renderTarget; }
+        RenderTarget const* GetPrimaryWindowRenderTarget() const { return &m_primaryWindow.m_renderTarget; }
+        RenderTarget* GetPrimaryWindowRenderTarget() { return &m_primaryWindow.m_renderTarget; }
         inline Int2 GetPrimaryWindowDimensions() const { return m_resolution; }
 
         void CreateSecondaryRenderWindow( RenderWindow& window, HWND platformWindowHandle );
@@ -74,18 +75,21 @@ namespace KRG::Render
         void DestroyBlendState( BlendState& state );
 
         // Textures and Sampling
-        void CreateTexture( Texture& texture, TextureFormat format, Byte const* rawData, size_t size );
-        inline void CreateTexture( Texture& texture, TextureFormat format, TVector<Byte> const& rawData ) { CreateTexture( texture, format, rawData.data(), rawData.size() ); }
-        void CreateTexture( Texture& texture, DataTypeFormat format, Int2 Dim, uint32 usage );
+        void CreateDataTexture( Texture& texture, TextureFormat format, Byte const* rawData, size_t size );
+        inline void CreateDataTexture( Texture& texture, TextureFormat format, TVector<Byte> const& rawData ) { CreateDataTexture( texture, format, rawData.data(), rawData.size() ); }
+        void CreateTexture( Texture& texture, DataFormat format, Int2 dimensions, uint32 usage );
         void DestroyTexture( Texture& texture );
 
         void CreateSamplerState( SamplerState& state );
         void DestroySamplerState( SamplerState& state );
 
         // Render Targets
-        void CreateRenderTarget( RenderTarget& renderTarget, Int2 const& dimensions );
+        void CreateRenderTarget( RenderTarget& renderTarget, Int2 const& dimensions, bool createPickingTarget = false );
         void ResizeRenderTarget( RenderTarget& renderTarget, Int2 const& newDimensions );
         void DestroyRenderTarget( RenderTarget& renderTarget );
+
+        // Picking
+        uint64 ReadBackPickingID( RenderTarget const& renderTarget, Int2 const& pixelCoords );
 
     private:
 
@@ -113,7 +117,7 @@ namespace KRG::Render
         RenderContext               m_immediateContext;
 
         // Lock to allow loading resources while rendering across different threads
-        Threading::Mutex            m_deviceMutex;
+        Threading::RecursiveMutex   m_deviceMutex;
     };
 }
 

@@ -4,7 +4,6 @@
 #include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/DevUI/NumericUIHelpers.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 

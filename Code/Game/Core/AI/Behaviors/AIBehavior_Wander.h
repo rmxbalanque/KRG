@@ -1,6 +1,7 @@
 #pragma once
 #include "AIBehavior.h"
 #include "Actions/AIAction_MoveTo.h"
+#include "Actions/AIAction_Idle.h"
 
 //-------------------------------------------------------------------------
 
@@ -20,6 +21,8 @@ namespace KRG::AI
 
     private:
 
-        MoveToAction    m_moveToAction;
+        MoveToAction                m_moveToAction;
+        IdleAction                  m_idleAction;
+        EngineCooldownTimer         m_waitTimer;
     };
 }

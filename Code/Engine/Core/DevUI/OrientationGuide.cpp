@@ -21,7 +21,7 @@ namespace KRG::ImGuiX::OrientationGuide
         // Project world space axis positions to screen space
         //-------------------------------------------------------------------------
 
-        Vector const& originWS = viewport.GetViewOrigin() + viewport.GetViewForwardDirection() * g_worldRenderDistanceZ;
+        Vector const& originWS = viewport.GetViewPosition() + viewport.GetViewForwardDirection() * g_worldRenderDistanceZ;
         Vector const& worldAxisX = ( Vector::UnitX );
         Vector const& worldAxisY = ( Vector::UnitY );
         Vector const& worldAxisZ = ( Vector::UnitZ );

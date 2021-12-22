@@ -110,9 +110,9 @@ namespace KRG::Render
     private:
 
         // Static meshes
-        TIDVector<ComponentID, RegisteredStaticMesh>                   m_registeredStaticMeshComponents;
-        TIDVector<ComponentID, StaticMeshComponent*>                   m_staticStaticMeshComponents;
-        TIDVector<ComponentID, StaticMeshComponent*>                   m_dynamicStaticMeshComponents;
+        TIDVector<ComponentID, RegisteredStaticMesh>                    m_registeredStaticMeshComponents;
+        TIDVector<ComponentID, StaticMeshComponent*>                    m_staticStaticMeshComponents;
+        TIDVector<ComponentID, StaticMeshComponent*>                    m_dynamicStaticMeshComponents;
         TVector<StaticMeshComponent const*>                             m_visibleStaticMeshComponents;
         Threading::Mutex                                                m_mobilityUpdateListLock;               // Mobility switches can occur on any thread so the list needs to be threadsafe. We use a simple lock for now since we dont expect too many switches
         TVector<StaticMeshComponent*>                                   m_mobilityUpdateList;                   // A list of all components that switched mobility during this frame, will results in an update of the various spatial data structures next frame
@@ -124,11 +124,11 @@ namespace KRG::Render
         TVector<SkeletalMeshComponent const*>                           m_visibleSkeletalMeshComponents;
 
         // Lights
-        TIDVector<ComponentID, DirectionalLightComponent*>             m_registeredDirectionLightComponents;
-        TIDVector<ComponentID, PointLightComponent*>                   m_registeredPointLightComponents;
-        TIDVector<ComponentID, SpotLightComponent*>                    m_registeredSpotLightComponents;
-        TIDVector<ComponentID, LocalEnvironmentMapComponent*>          m_registeredLocalEnvironmentMaps;
-        TIDVector<ComponentID, GlobalEnvironmentMapComponent*>         m_registeredGlobalEnvironmentMaps;
+        TIDVector<ComponentID, DirectionalLightComponent*>              m_registeredDirectionLightComponents;
+        TIDVector<ComponentID, PointLightComponent*>                    m_registeredPointLightComponents;
+        TIDVector<ComponentID, SpotLightComponent*>                     m_registeredSpotLightComponents;
+        TIDVector<ComponentID, LocalEnvironmentMapComponent*>           m_registeredLocalEnvironmentMaps;
+        TIDVector<ComponentID, GlobalEnvironmentMapComponent*>          m_registeredGlobalEnvironmentMaps;
 
         #if KRG_DEVELOPMENT_TOOLS
         VisualizationMode                                               m_visualizationMode = VisualizationMode::Lighting;

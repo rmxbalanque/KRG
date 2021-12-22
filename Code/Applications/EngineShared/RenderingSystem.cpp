@@ -13,16 +13,18 @@
 
 namespace KRG::Render
 {
-    void RenderingSystem::CreateCustomRenderTargetForViewport( Viewport const* pViewport )
+    void RenderingSystem::CreateCustomRenderTargetForViewport( Viewport const* pViewport, bool requiresPickingBuffer )
     {
         KRG_ASSERT( pViewport != nullptr && pViewport->IsValid() );
         KRG_ASSERT( FindRenderTargetForViewport( pViewport ) == nullptr );
 
-        auto& vrt = m_viewportRenderTargets.emplace_back();
-        vrt.m_viewportID = pViewport->GetID();
-        vrt.m_pRenderTarget = KRG::New<RenderTarget>();
-        m_pRenderDevice->CreateRenderTarget( *vrt.m_pRenderTarget, pViewport->GetDimensions() );
-        KRG_ASSERT( vrt.m_pRenderTarget->IsValid() );
+        m_pRenderDevice->LockDevice();
+        {
+            auto& vrt = m_viewportRenderTargets.emplace_back( pViewport->GetID(), KRG::New<RenderTarget>() );
+            m_pRenderDevice->CreateRenderTarget( *vrt.m_pRenderTarget, pViewport->GetDimensions(), requiresPickingBuffer );
+            KRG_ASSERT( vrt.m_pRenderTarget->IsValid() );
+        }
+        m_pRenderDevice->UnlockDevice();
     }
 
     void RenderingSystem::DestroyCustomRenderTargetForViewport( Viewport const* pViewport )
@@ -52,6 +54,23 @@ namespace KRG::Render
         KRG_ASSERT( pViewportRenderTarget->m_pRenderTarget != nullptr && pViewportRenderTarget->m_pRenderTarget->IsValid() );
 
         return pViewportRenderTarget->m_pRenderTarget->GetRenderTargetShaderResourceView();
+    }
+
+    uint64 RenderingSystem::GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const
+    {
+        KRG_ASSERT( pViewport != nullptr && pViewport->GetID().IsValid() );
+
+        auto pViewportRenderTarget = FindRenderTargetForViewport( pViewport );
+        KRG_ASSERT( pViewportRenderTarget != nullptr );
+        KRG_ASSERT( pViewportRenderTarget->m_pRenderTarget != nullptr && pViewportRenderTarget->m_pRenderTarget->IsValid() );
+        if ( pViewportRenderTarget->m_pRenderTarget->HasPickingRT() )
+        {
+            return m_pRenderDevice->ReadBackPickingID( *pViewportRenderTarget->m_pRenderTarget, pixelCoords );
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     RenderingSystem::ViewportRenderTarget* RenderingSystem::FindRenderTargetForViewport( Viewport const* pViewport )
@@ -212,6 +231,8 @@ namespace KRG::Render
 
         m_pRenderDevice->LockDevice();
 
+        RenderTarget* pPrimaryRT = m_pRenderDevice->GetPrimaryWindowRenderTarget();
+
         // Render into active viewports
         //-------------------------------------------------------------------------
 
@@ -223,42 +244,40 @@ namespace KRG::Render
             }
 
             Render::Viewport* pViewport = pWorld->GetViewport();
-            ViewportRenderTarget* pVRT = FindRenderTargetForViewport( pViewport );
 
-            // Update and set render target
+            // Set and clear render target
             //-------------------------------------------------------------------------
 
-            // If we are rendering to texture resize and clear the render target
-            const RenderTarget* mainRT = &m_pRenderDevice->GetPrimaryWindowRenderTarget();
+            RenderTarget* pViewportRT = pPrimaryRT;
+            ViewportRenderTarget const* pVRT = FindRenderTargetForViewport( pViewport );
             if ( pVRT != nullptr )
             {
-                auto pViewportRenderTarget = pVRT->m_pRenderTarget;
+                pViewportRT = pVRT->m_pRenderTarget;
 
                 // Resize render target if needed
-                if ( Int2( pViewport->GetDimensions() ) != pViewportRenderTarget->GetDimensions() )
+                if ( Int2( pViewport->GetDimensions() ) != pViewportRT->GetDimensions() )
                 {
-                    m_pRenderDevice->ResizeRenderTarget( *pViewportRenderTarget, pViewport->GetDimensions() );
+                    m_pRenderDevice->ResizeRenderTarget( *pViewportRT, pViewport->GetDimensions() );
                 }
 
                 // Clear render target and depth stencil textures
-                m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( *pViewportRenderTarget );
-                mainRT = pViewportRenderTarget;
+                m_pRenderDevice->GetImmediateContext().ClearRenderTargetViews( *pViewportRT );
             }
 
             // Draw
             //-------------------------------------------------------------------------
 
-            m_pWorldRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
+            m_pWorldRenderer->RenderWorld( ctx.GetDeltaTime(), *pViewport, *pViewportRT, pWorld );
 
             for ( auto const& pCustomRenderer : m_customRenderers )
             {
-                pCustomRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
-                pCustomRenderer->RenderViewport( ctx.GetDeltaTime(), *mainRT, *pViewport );
+                pCustomRenderer->RenderWorld( ctx.GetDeltaTime(), *pViewport, *pViewportRT, pWorld );
+                pCustomRenderer->RenderViewport( ctx.GetDeltaTime(), *pViewport, *pViewportRT );
             }
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_pDebugRenderer->RenderWorld( ctx.GetDeltaTime(), *mainRT, *pViewport, pWorld );
-            m_pDebugRenderer->RenderViewport( ctx.GetDeltaTime(), *mainRT, *pViewport );
+            m_pDebugRenderer->RenderWorld( ctx.GetDeltaTime(), *pViewport, *pViewportRT, pWorld );
+            m_pDebugRenderer->RenderViewport( ctx.GetDeltaTime(), *pViewport, *pViewportRT );
             #endif
         }
 
@@ -268,7 +287,7 @@ namespace KRG::Render
         #if KRG_DEVELOPMENT_TOOLS
         if ( m_pImguiRenderer != nullptr )
         {
-            m_pImguiRenderer->RenderViewport( ctx.GetDeltaTime(), m_pRenderDevice->GetPrimaryWindowRenderTarget(), m_toolsViewport );
+            m_pImguiRenderer->RenderViewport( ctx.GetDeltaTime(), m_toolsViewport, *pPrimaryRT );
         }
         #endif
 

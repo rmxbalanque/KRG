@@ -296,6 +296,7 @@
     <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\vector_set.h" />
     <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\version.h" />
     <ClInclude Include="ThirdParty\EA\EASTL\Include\EASTL\weak_ptr.h" />
+    <ClInclude Include="ThirdParty\KRG_RapidJson.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="ThirdParty\stb\stb_rect_pack.h" />
     <ClInclude Include="ThirdParty\stb\stb_truetype.h" />
@@ -509,6 +510,7 @@
     <ClCompile Include="ThirdParty\EA\EASTL\Source\string.cpp" />
     <ClCompile Include="ThirdParty\EA\EASTL\Source\thread_support.cpp" />
     <ClCompile Include="ThirdParty\enkits\TaskScheduler.cpp" />
+    <ClCompile Include="ThirdParty\KRG_RapidJson.cpp" />
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
     <ClCompile Include="Threading\TaskSystem.cpp" />
     <ClCompile Include="ThirdParty\EA\krg_eastl.cpp" />

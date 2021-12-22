@@ -1,11 +1,11 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
-#include "ToolsGraph/AnimationToolsGraph_Definition.h"
+#include "EditorGraph/Animation_EditorGraph_Definition.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation::Graph
 {
-    GraphControlParameterEditor::GraphControlParameterEditor( AnimationGraphToolsDefinition* pGraphDefinition )
+    GraphControlParameterEditor::GraphControlParameterEditor( AnimationGraphEditorDefinition* pGraphDefinition )
         : m_pGraphDefinition( pGraphDefinition )
     {}
 
@@ -118,37 +118,31 @@ namespace KRG::Animation::Graph
         {
             if ( ImGui::MenuItem( "Control Parameter - Bool" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - ID" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Int" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Float" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Vector" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Target" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateControlParameter( ValueType::Target );
             }
 
@@ -156,43 +150,36 @@ namespace KRG::Animation::Graph
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bool" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - ID" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Int" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Float" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Vector" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Target" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::Target );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bone Mask" ) )
             {
-                GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
                 m_pGraphDefinition->CreateVirtualParameter( ValueType::BoneMask );
             }
 
@@ -250,8 +237,6 @@ namespace KRG::Animation::Graph
 
                 if ( ImGui::Button( "Ok", ImVec2( 50, 0 ) ) || nameChangeConfirmed )
                 {
-                    GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
-
                     if ( auto pControlParameter = m_pGraphDefinition->FindControlParameter( m_currentOperationParameterID ) )
                     {
                         m_pGraphDefinition->RenameControlParameter( m_currentOperationParameterID, m_buffer );
@@ -296,8 +281,6 @@ namespace KRG::Animation::Graph
 
                 if ( ImGui::Button( "Yes", ImVec2( 30, 0 ) ) )
                 {
-                    GraphEditor::ScopedGraphModification gm( m_pGraphDefinition->GetRootGraph() );
-
                     if ( auto pControlParameter = m_pGraphDefinition->FindControlParameter( m_currentOperationParameterID ) )
                     {
                         m_pGraphDefinition->DestroyControlParameter( m_currentOperationParameterID );

@@ -22,6 +22,7 @@
     <ClInclude Include="TypeRegistry.h" />
     <ClInclude Include="CoreTypeConversions.h" />
     <ClInclude Include="ResourceInfo.h" />
+    <ClInclude Include="TypeSerialization.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CoreTypeIDs.cpp" />
@@ -32,5 +33,6 @@
     <ClCompile Include="TypeInfo.cpp" />
     <ClCompile Include="TypeRegistry.cpp" />
     <ClCompile Include="CoreTypeConversions.cpp" />
+    <ClCompile Include="TypeSerialization.cpp" />
   </ItemGroup>
 </Project>

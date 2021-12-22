@@ -1,6 +1,6 @@
 #include "ResourceWorkspace.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
+#include "System/TypeSystem/TypeSerialization.h"
 
 //-------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ namespace KRG
                 }
 
                 ImGui::BeginDisabled( !m_descriptorPropertyGrid.IsDirty() );
-                if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_FLOPPY_O " Save", ImVec2( -1, 0 ) ) )
+                if ( ImGuiX::ColoredButton( ImGuiX::ConvertColor( Colors::ForestGreen ), ImGuiX::ConvertColor( Colors::White ), KRG_ICON_FLOPPY_O " Save", ImVec2( -1, 0 ) ) )
                 {
                     Save();
                 }

@@ -115,7 +115,6 @@
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="Components\Component_Cameras.cpp" />
-    <ClCompile Include="DevUI\NumericUIHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -209,7 +208,6 @@
     <ClInclude Include="Components\Component_Player.h" />
     <ClInclude Include="Components\Component_Volumes.h" />
     <ClInclude Include="Entity\EntityIDs.h" />
-    <ClInclude Include="DevUI\NumericUIHelpers.h" />
     <ClInclude Include="Update\UpdateContext.h" />
     <ClInclude Include="Update\UpdateStage.h" />
   </ItemGroup>

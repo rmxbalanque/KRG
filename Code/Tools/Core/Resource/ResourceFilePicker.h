@@ -1,7 +1,6 @@
 #pragma once
 #include "Tools/Core/_Module/API.h"
 #include "System/Resource/ResourceID.h"
-#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -25,36 +24,30 @@ namespace KRG::Resource
     public:
 
         ResourceFilePicker( ResourceDatabase const& database );
-        ~ResourceFilePicker();
 
-        void SetInitialResourceID( ResourceID const& initialID );
-
-        // Set file restrictions
-        void SetTypeFilter( ResourceTypeID allowedResourceType );
-        void ClearTypeFilter();
+        // Get the raw resource data path
+        FileSystem::Path const& GetRawResourceDirectoryPath() const;
 
         // Draws the resource field - returns true if the value is changed
-        bool Draw();
+        bool DrawPicker( ResourceTypeID resourceTypeID, ResourceID const* pResourceID );
 
-        // Get the result of the file selection
-        ResourceID const& GetPickedResourceID() const { return m_resourceID; }
+        // Get the selected ID - Only use if DrawPicker returns true
+        inline ResourceID const GetSelectedResourceID() const { return m_selectedID; }
 
     private:
 
-        void RefreshResourceList();
-
         // Draw the selection dialog, returns true if the dialog is closed
-        bool DrawDialog();
+        bool DrawDialog( ResourceTypeID resourceTypeID, ResourceID const* pResourceID );
+
+        void RefreshResourceList( ResourceTypeID resourceTypeID );
 
     private:
 
         ResourceDatabase const&         m_database;
-        ResourceID                      m_resourceID;
-        ResourceTypeID                  m_allowedResourceTypeID;
         char                            m_filterBuffer[256];
-        EventBindingID                  m_databaseUpdateEventBindingID;
         TVector<PickerOption>           m_knownResourceIDs;
         TVector<PickerOption>           m_filteredResourceIDs;
         ResourceID                      m_selectedID;
+        bool                            m_initializeFocus = false;
     };
 }

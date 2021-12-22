@@ -1,5 +1,5 @@
 #include "AnimationEventData.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeSerialization.h"
+#include "System/TypeSystem/TypeSerialization.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------

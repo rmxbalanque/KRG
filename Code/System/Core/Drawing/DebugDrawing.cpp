@@ -9,6 +9,8 @@ namespace KRG::Drawing
     namespace
     {
         constexpr static uint32 const g_numCircleVertices = 16;
+        static_assert( ( g_numCircleVertices % 4 ) == 0 );
+
         static bool g_circleVerticesInitialized = false;
         static Float4 g_circleVerticesXUp[g_numCircleVertices];
         static Float4 g_circleVerticesYUp[g_numCircleVertices];
@@ -246,6 +248,47 @@ namespace KRG::Drawing
         }
     }
 
+    void DrawContext::DrawHalfSphereYZ( Transform const& transform, Float4 const& color, float lineThickness, DepthTestState depthTestState, Seconds TTL )
+    {
+        DrawCircle( transform, Axis::X, color, lineThickness, depthTestState, TTL );
+
+        Float4* pCircleVerts = g_circleVerticesZUp;
+        auto vertsZ = KRG_STACK_ARRAY_ALLOC( Vector, g_numCircleVertices );
+        auto vertsY = KRG_STACK_ARRAY_ALLOC( Vector, g_numCircleVertices );
+
+        for ( auto i = 0; i < g_numCircleVertices; i++ )
+        {
+            vertsZ[i] = transform.TransformPoint( g_circleVerticesZUp[i] );
+            vertsY[i] = transform.TransformPoint( g_circleVerticesYUp[i] );
+        }
+
+        for ( auto i = 1; i < g_numCircleVertices / 4; i++ )
+        {
+            InternalDrawLine( m_commandBuffer, vertsZ[i - 1], vertsZ[i], color, lineThickness, depthTestState, TTL );
+        }
+
+        InternalDrawLine( m_commandBuffer, vertsZ[g_numCircleVertices - 1], vertsZ[0], color, lineThickness, depthTestState, TTL );
+
+        for ( auto i = g_numCircleVertices - (g_numCircleVertices / 4 ); i < g_numCircleVertices; i++ )
+        {
+            InternalDrawLine( m_commandBuffer, vertsZ[i - 1], vertsZ[i], color, lineThickness, depthTestState, TTL );
+        }
+
+        //-------------------------------------------------------------------------
+
+        for ( auto i = 1; i < ( g_numCircleVertices / 4 ); i++ )
+        {
+            InternalDrawLine( m_commandBuffer, vertsY[i - 1], vertsY[i], color, lineThickness, depthTestState, TTL );
+        }
+
+        InternalDrawLine( m_commandBuffer, vertsY[g_numCircleVertices - 1], vertsY[0], color, lineThickness, depthTestState, TTL );
+
+        for ( auto i = g_numCircleVertices - ( g_numCircleVertices / 4 ); i < g_numCircleVertices; i++ )
+        {
+            InternalDrawLine( m_commandBuffer, vertsY[i - 1], vertsY[i], color, lineThickness, depthTestState, TTL );
+        }
+    }
+
     void DrawContext::DrawDisc( Float3 const& worldPoint, float radius, Float4 const& color, DepthTestState depthTestState, Seconds TTL )
     {
         if ( !g_circleVerticesInitialized )
@@ -344,8 +387,8 @@ namespace KRG::Drawing
         Transform const cylinderTop( worldTransform.GetRotation(), origin + halfHeightOffset );
 
         // Rotate the transform 180 degrees
-        Quaternion const Rotation( Quaternion( EulerAngles( 0, 180, 0 ) ) * worldTransform.GetRotation() );
-        Transform const cylinderBottom( Rotation, origin - halfHeightOffset );
+        Quaternion const rotation( Quaternion( EulerAngles( 0, 180, 0 ) ) * worldTransform.GetRotation() );
+        Transform const cylinderBottom( rotation, origin - halfHeightOffset );
 
         // Caps
         //-------------------------------------------------------------------------
@@ -362,6 +405,51 @@ namespace KRG::Drawing
         Vector lt1 = cylinderTop.GetTranslation() - xOffset;
         Vector lb0 = cylinderBottom.GetTranslation() + xOffset;
         Vector lb1 = cylinderBottom.GetTranslation() - xOffset;
+
+        DrawLine( lt0, lb0, color, thickness, depthTestState, TTL );
+        DrawLine( lt1, lb1, color, thickness, depthTestState, TTL );
+
+        Vector yOffset = ( axisY * radius );
+        Vector lt2 = cylinderTop.GetTranslation() + yOffset;
+        Vector lt3 = cylinderTop.GetTranslation() - yOffset;
+        Vector lb2 = cylinderBottom.GetTranslation() + yOffset;
+        Vector lb3 = cylinderBottom.GetTranslation() - yOffset;
+
+        DrawLine( lt2, lb2, color, thickness, depthTestState, TTL );
+        DrawLine( lt3, lb3, color, thickness, depthTestState, TTL );
+    }
+
+    void DrawContext::DrawCapsuleHeightX( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness, DepthTestState depthTestState, Seconds TTL )
+    {
+        Vector const axisX = worldTransform.GetAxisX();
+        Vector const axisY = worldTransform.GetAxisY();
+        Vector const axisZ = worldTransform.GetAxisZ();
+
+        Vector const origin = worldTransform.GetTranslation();
+        Vector const halfHeightOffset = ( axisX * halfHeight );
+
+        EulerAngles a = worldTransform.GetRotation().ToEulerAngles();
+        Transform const cylinderTop( worldTransform.GetRotation(), origin + halfHeightOffset );
+
+        // Rotate the transform 180 degrees
+        Quaternion const rotation( Quaternion( EulerAngles( 0, 180, 0 ) ) * worldTransform.GetRotation() );
+        Transform const cylinderBottom( rotation, origin - halfHeightOffset );
+
+        // Caps
+        //-------------------------------------------------------------------------
+
+        Float3 const sphereRadius( radius );
+        DrawHalfSphereYZ( cylinderTop, sphereRadius, color, thickness, depthTestState, TTL );
+        DrawHalfSphereYZ( cylinderBottom, sphereRadius, color, thickness, depthTestState, TTL );
+
+        // 8 lines
+        //-------------------------------------------------------------------------
+
+        Vector zOffset = ( axisZ * radius );
+        Vector lt0 = cylinderTop.GetTranslation() + zOffset;
+        Vector lt1 = cylinderTop.GetTranslation() - zOffset;
+        Vector lb0 = cylinderBottom.GetTranslation() + zOffset;
+        Vector lb1 = cylinderBottom.GetTranslation() - zOffset;
 
         DrawLine( lt0, lb0, color, thickness, depthTestState, TTL );
         DrawLine( lt1, lb1, color, thickness, depthTestState, TTL );

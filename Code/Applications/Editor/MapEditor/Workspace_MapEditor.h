@@ -55,13 +55,16 @@ namespace KRG::EntityModel
         virtual bool IsDirty() const override{ return false; } // TODO
         virtual bool AlwaysAllowSaving() const override { return true; }
         virtual bool Save() override;
+        virtual void OnMousePick( uint64 pickingID );
+
+        void HandleInput( UpdateContext const& context );
 
         void SelectEntity( Entity* pEntity );
         void SelectComponent( EntityComponent* pComponent );
         void ClearSelection();
 
-        void DrawEntityOutliner( UpdateContext const& context );
-        void DrawEntityView( UpdateContext const& context );
+        void DrawMapOutliner( UpdateContext const& context );
+        void DrawEntityEditor( UpdateContext const& context );
         void DrawPropertyGrid( UpdateContext const& context );
 
         void DrawComponentEntry( EntityComponent* pComponent );
@@ -78,11 +81,12 @@ namespace KRG::EntityModel
 
         PropertyGrid                    m_propertyGrid;
         ResourceID                      m_loadedMap;
+
         Entity*                         m_pSelectedEntity = nullptr;
         EntityComponent*                m_pSelectedComponent = nullptr;
-
         Transform                       m_editedTransform;
         ImGuiX::Gizmo                   m_gizmo;
+        bool                            m_syncOutlinerToSelectedItem = false;
 
         EventBindingID                  m_preEditBindingID;
         EventBindingID                  m_postEditBindingID;

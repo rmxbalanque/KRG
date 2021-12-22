@@ -56,6 +56,14 @@ namespace KRG
     {
     public:
 
+        struct ViewportInfo
+        {
+            ImTextureID                         m_pViewportRenderTargetTexture = nullptr;
+            TFunction<uint64( Int2 const& )>    m_retrievePickingID;
+        };
+
+    public:
+
         EditorWorkspace( EditorContext const& context, EntityWorld* pWorld, String const& displayName = "Workspace" );
         virtual ~EditorWorkspace() = default;
 
@@ -115,7 +123,7 @@ namespace KRG
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) {}
 
         // Draw the viewport for this workspace
-        bool DrawViewport( UpdateContext const& context, ImTextureID pViewportRenderTargetTexture, ImGuiWindowClass* pWindowClass );
+        bool DrawViewport( UpdateContext const& context, ViewportInfo const& viewportInfo, ImGuiWindowClass* pWindowClass );
 
         // Undo/Redo
         //-------------------------------------------------------------------------
@@ -148,10 +156,23 @@ namespace KRG
 
     protected:
 
+        // Called whenever we click inside a workspace viewport and get a non-zero picking ID
+        virtual void OnMousePick( uint64 pickingID ) {}
+
+        // Helper function for debug drawing
         inline Drawing::DrawContext GetDrawingContext();
+
+        // Set the workspace tab-title
         void SetDisplayName( String const& name );
 
+        // Draw the default workspace toolbar menu items (save, undo, redo, etc...)
         void DrawDefaultToolbarItems();
+
+        // Begin a toolbar group
+        bool BeginViewportToolbarGroup( char const* pGroupID, ImVec2 const& groupSize );
+
+        // End a toolbar group
+        void EndViewportToolbarGroup();
 
         // Disable copies
         EditorWorkspace& operator=( EditorWorkspace const& ) = delete;
@@ -166,5 +187,6 @@ namespace KRG
         String                              m_workspaceWindowID;
         String                              m_viewportWindowID;
         String                              m_dockspaceID;
+        bool                                m_isViewportFocused = false;
     };
 }

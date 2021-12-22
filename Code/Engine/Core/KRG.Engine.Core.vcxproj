@@ -66,7 +66,6 @@
     <ClInclude Include="Components\Component_Volumes.h" />
     <ClInclude Include="DebugViews\DebugView_Camera.h" />
     <ClInclude Include="Components\Component_SerializationTest.h" />
-    <ClInclude Include="DevUI\NumericUIHelpers.h" />
     <ClInclude Include="Entity\EntityIDs.h" />
     <ClInclude Include="Entity\EntityWorldDebugView.h" />
     <ClInclude Include="Entity\EntityWorldDebugger.h" />
@@ -107,7 +106,6 @@
     <ClCompile Include="Components\Component_Cameras.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
-    <ClCompile Include="DevUI\NumericUIHelpers.cpp" />
     <ClCompile Include="Entity\EntityWorldDebugger.cpp" />
     <ClCompile Include="DebugViews\DebugView_Input.cpp" />
     <ClCompile Include="DebugViews\DebugView_System.cpp" />

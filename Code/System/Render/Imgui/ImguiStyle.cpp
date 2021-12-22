@@ -57,8 +57,8 @@ namespace KRG::ImGuiX
         colors[ImGuiCol_FrameBgActive] = s_backgroundColorSemiLight;
 
         colors[ImGuiCol_Tab] = s_backgroundColorDark;
-        colors[ImGuiCol_TabActive] = s_backgroundColorMedium;
-        colors[ImGuiCol_TabHovered] = s_backgroundColorSemiLight;
+        colors[ImGuiCol_TabActive] = s_itemColorSemiLight;
+        colors[ImGuiCol_TabHovered] = s_itemColorLight;
         colors[ImGuiCol_TabUnfocused] = s_backgroundColorDark;
         colors[ImGuiCol_TabUnfocusedActive] = s_backgroundColorMedium;
 

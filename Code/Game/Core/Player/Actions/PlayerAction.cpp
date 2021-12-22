@@ -1,7 +1,7 @@
 #include "PlayerAction.h"
 #include "Game/Core/Player/Components/Component_MainPlayer.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
-#include "Engine/Animation/Graph/AnimationGraphController.h"
+#include "Game/Core/Player/PlayerAnimationController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 
 //-------------------------------------------------------------------------

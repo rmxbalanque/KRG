@@ -40,11 +40,6 @@ namespace KRG
         inline static Matrix FromTranslationAndScale( Vector const& translation, Vector const& scale );
         inline static Matrix FromRotationBetweenVectors( Vector const sourceVector, Vector const targetVector ) { return Matrix( Quaternion::FromRotationBetweenNormalizedVectors( sourceVector, targetVector ) ); }
 
-        // Projection matrix helpers, note: These assume a unit cube with a Z (depth) range of [0,1] i.e. DirectX
-        inline static Matrix PerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlane, float farPlane );
-        inline static Matrix OrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane );
-        inline static Matrix OrthographicProjectionMatrixOffCenter( float left, float right, float bottom, float top, float nearPlane, float farPlane );
-
     public:
 
         explicit Matrix() { memcpy( this, &Matrix::Identity, sizeof( Matrix ) ); }
@@ -63,14 +58,21 @@ namespace KRG
 
         EulerAngles ToEulerAngles() const;
 
+        inline float* AsFloatArray() { return &m_values[0][0]; }
+        inline float const* AsFloatArray() const { return &m_values[0][0]; }
         inline Vector const& GetRow( uint32 row ) const { return m_rows[row]; }
 
         inline Vector const& GetAxisX() const { return m_rows[0]; }
         inline Vector const& GetAxisY() const { return m_rows[1]; }
         inline Vector const& GetAxisZ() const { return m_rows[2]; }
 
+        // Get the world forward vector (Note: this is not valid for camera transforms!)
         KRG_FORCE_INLINE Float3 GetForwardVector() const { return GetAxisY().GetNegated(); }
+        
+        // Get the world right vector (Note: this is not valid for camera transforms!)
         KRG_FORCE_INLINE Float3 GetRightVector() const { return GetAxisX().GetNegated(); }
+
+        // Get the world up vector (Note: this is not valid for camera transforms!)
         KRG_FORCE_INLINE Float3 GetUpVector() const { return GetAxisZ(); }
 
         inline Vector GetUnitAxisX() const { return m_rows[0].GetNormalized3(); }
@@ -165,7 +167,7 @@ namespace KRG
             return true;
         }
 
-    private:
+    public:
 
         union
         {
@@ -773,105 +775,6 @@ namespace KRG
         M.m_rows[1] = _mm_and_ps( scale, SIMD::g_mask0Y00 );
         M.m_rows[2] = _mm_and_ps( scale, SIMD::g_mask00Z0 );
         M.m_rows[3] = translation.GetWithW1();
-        return M;
-    }
-
-    inline Matrix Matrix::PerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlane, float farPlane )
-    {
-        KRG_ASSERT( nearPlane > 0.f && farPlane > 0.f );
-        KRG_ASSERT( !Math::IsNearEqual( verticalFOV, 0.0f, 0.00001f * 2.0f ) && !Math::IsNearEqual( aspectRatio, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
-
-        Vector sinFov, cosFov;
-        Vector::SinCos( sinFov, cosFov, 0.5f * verticalFOV );
-        Vector height = cosFov / sinFov;
-
-        float const fRange = farPlane / ( nearPlane - farPlane );
-        Vector vValues( height.m_x / aspectRatio, height.m_x, fRange, fRange * nearPlane );
-        Vector vTemp = _mm_setzero_ps();
-        vTemp = _mm_move_ss( vTemp, vValues );
-
-        static __m128 const negativeUnitW = { 0, 0, 0, -1.0f };
-
-        // CosFov / SinFov,0,0,0
-        Matrix M;
-        M.m_rows[0] = vTemp;
-        // 0,Height / AspectRatio,0,0
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
-        M.m_rows[1] = vTemp;
-        // m_x=fRange,m_y=-fRange * NearZ,0,-1.0f
-        vTemp = _mm_setzero_ps();
-        vValues = _mm_shuffle_ps( vValues, negativeUnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // 0,0,fRange,-1.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 0, 0, 0 ) );
-        M.m_rows[2] = vTemp;
-        // 0,0,fRange * NearZ,0.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 1, 0, 0 ) );
-        M.m_rows[3] = vTemp;
-        return M;
-    }
-
-    inline Matrix Matrix::OrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane )
-    {
-        KRG_ASSERT( !Math::IsNearEqual( width, 0.0f, 0.00001f ) && !Math::IsNearEqual( height, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
-
-        float const fRange = 1.0f / ( nearPlane - farPlane );
-
-        Vector vValues = { 2.0f / width, 2.0f / height, fRange, fRange * nearPlane };
-        Vector vTemp = _mm_setzero_ps();
-        // Copy m_x only
-        vTemp = _mm_move_ss( vTemp, vValues );
-
-        Matrix M;
-        // 2.0f / ViewWidth,0,0,0
-        M.m_rows[0] = vTemp;
-        // 0,2.0f / ViewHeight,0,0
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
-        M.m_rows[1] = vTemp;
-        // m_x=fRange,m_y=fRange * nearPlane,0,1.0f
-        vTemp = _mm_setzero_ps();
-        vValues = _mm_shuffle_ps( vValues, Vector::UnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // 0,0,fRange,0.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 0, 0, 0 ) );
-        M.m_rows[2] = vTemp;
-        // 0,0,fRange * nearPlane,1.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 1, 0, 0 ) );
-        M.m_rows[3] = vTemp;
-        return M;
-    }
-
-    inline Matrix Matrix::OrthographicProjectionMatrixOffCenter( float left, float right, float bottom, float top, float nearPlane, float farPlane )
-    {
-        KRG_ASSERT( !Math::IsNearEqual( right, left, 0.00001f ) && !Math::IsNearEqual( top, bottom, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
-
-        float const fReciprocalWidth = 1.0f / ( right - left );
-        float const fReciprocalHeight = 1.0f / ( top - bottom );
-        float const fRange = 1.0f / ( nearPlane - farPlane );
-
-        Vector vValues = { fReciprocalWidth, fReciprocalHeight, fRange, 1.0f };
-        Vector rMem2 = { -( left + right ), -( top + bottom ), nearPlane, 1.0f };
-        Vector vTemp = _mm_setzero_ps();
-
-        // Copy m_x only
-        vTemp = _mm_move_ss( vTemp, vValues );
-        // fReciprocalWidth*2,0,0,0
-        vTemp = _mm_add_ss( vTemp, vTemp );
-
-        Matrix M;
-        M.m_rows[0] = vTemp;
-        // 0,fReciprocalHeight*2,0,0
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
-        vTemp = _mm_add_ps( vTemp, vTemp );
-        M.m_rows[1] = vTemp;
-        // 0,0,fRange,0.0f
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask00Z0 );
-        M.m_rows[2] = vTemp;
-        // -(left + right)*fReciprocalWidth,-(top + bottom)*fReciprocalHeight,fRange*-nearPlane,1.0f
-        vValues = _mm_mul_ps( vValues, rMem2 );
-        M.m_rows[3] = vValues;
         return M;
     }
 }

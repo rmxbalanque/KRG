@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Animation/Graph/AnimationGraphController.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Controller.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,6 +15,10 @@ namespace KRG::AI
 
         LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
 
+        // Request the character go into an idle state
+        void SetIdle();
+
+        // Set movement parameters - facing direction will be converted to 2D
         void SetLocomotionDesires( Seconds const deltaTime, Vector const& headingVelocityWS, Vector const& facingDirectionWS );
 
     private:

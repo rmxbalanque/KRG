@@ -46,7 +46,7 @@ namespace KRG::Render
         auto pTextureResource = pResourceRecord->GetResourceData<Texture>();
         
         m_pRenderDevice->LockDevice();
-        m_pRenderDevice->CreateTexture( *pTextureResource, pTextureResource->m_format, pTextureResource->m_rawData );
+        m_pRenderDevice->CreateDataTexture( *pTextureResource, pTextureResource->m_format, pTextureResource->m_rawData );
         m_pRenderDevice->UnlockDevice();
 
         ResourceLoader::Install( resourceID, pResourceRecord, installDependencies );

@@ -114,15 +114,31 @@ namespace KRG
         void LoadMap( ResourceID const& mapResourceID );
         void UnloadMap( ResourceID const& mapResourceID );
 
-        #if KRG_DEVELOPMENT_TOOLS
-        EntityModel::EntityMap* GetMap( ResourceID const& mapResourceID );
-        #endif
+        // Find an entity in the map
+        inline Entity* FindEntity( EntityID entityID ) const
+        {
+            Entity* pEntity = nullptr;
+            for ( auto const& map : m_maps )
+            {
+                pEntity = map.FindEntity( entityID );
+                if ( pEntity != nullptr )
+                {
+                    break;
+                }
+            }
+
+            return pEntity;
+        }
 
         //-------------------------------------------------------------------------
         // Editor
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
+        
+        // Get a specific loaded map
+        EntityModel::EntityMap* GetMap( ResourceID const& mapResourceID );
+
         // This function will immediately unload the specified component so that its properties can be edited
         void PrepareComponentForEditing( ResourceID const& mapID, EntityID const& entityID, ComponentID const& componentID );
 
@@ -140,6 +156,7 @@ namespace KRG
             }
             return results;
         }
+
         #endif
 
         //-------------------------------------------------------------------------

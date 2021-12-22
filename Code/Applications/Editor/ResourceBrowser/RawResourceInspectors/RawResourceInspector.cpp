@@ -1,5 +1,4 @@
 #include "RawResourceInspector.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"

@@ -23,9 +23,7 @@ namespace KRG::Player
 
     private:
 
-        EngineTimer                 m_timer;
-        bool                        m_timerStarted = false;
-
+        EngineCooldownTimer         m_timer;
         float                       m_debugSpeed = 0.0f;
     };
 }

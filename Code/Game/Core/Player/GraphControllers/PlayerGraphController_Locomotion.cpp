@@ -12,6 +12,13 @@ namespace KRG::Player
         m_facingParam.TryBind( this );
     }
 
+    void LocomotionGraphController::SetIdle()
+    {
+        m_speedParam.Set( this, 0.0f );
+        m_headingParam.Set( this, Vector::Zero );
+        m_facingParam.Set( this, Vector::WorldForward );
+    }
+
     void LocomotionGraphController::SetLocomotionDesires( Seconds const deltaTime, Vector const& headingVelocityWS, Vector const& facingDirectionWS )
     {
         Vector const characterSpaceHeading = ConvertWorldSpaceVectorToCharacterSpace( headingVelocityWS );
@@ -29,7 +36,7 @@ namespace KRG::Player
         else
         {
             KRG_ASSERT( facingDirectionWS.IsNormalized3() );
-            Vector const characterSpaceFacing = ConvertWorldSpaceVectorToCharacterSpace( facingDirectionWS );
+            Vector const characterSpaceFacing = ConvertWorldSpaceVectorToCharacterSpace( facingDirectionWS ).GetNormalized2();
             m_facingParam.Set( this, characterSpaceFacing );
         }
     }

@@ -45,7 +45,7 @@ namespace KRG::Physics
 
         // Capsule Info
         //-------------------------------------------------------------------------
-
+ 
         // The character capsule radius
         KRG_FORCE_INLINE float GetCapsuleRadius() const { return m_radius; }
 
@@ -53,7 +53,7 @@ namespace KRG::Physics
         KRG_FORCE_INLINE float GetCapsuleCylinderPortionHalfHeight() const { return m_cylinderPortionHalfHeight; }
 
         // Get the full height of the character capsule
-        KRG_FORCE_INLINE float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2; }
+        KRG_FORCE_INLINE float GetCapsuleHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ) * 2.0f; }
 
         // Get the half-height of the character capsule
         KRG_FORCE_INLINE float GetCapsuleHalfHeight() const { return ( m_cylinderPortionHalfHeight + m_radius ); }
@@ -70,14 +70,15 @@ namespace KRG::Physics
         // Calculate the Z=height capsule transform from a given world transform
         KRG_FORCE_INLINE Transform CalculateCapsuleTransformFromWorldTransform( Transform const& worldTransform ) const
         {
-            static const Transform correctiveTransform( Quaternion( EulerAngles( 0, 90, 0 ) ) );
+            // Rotated so that +X is 'up'
+            static const Transform correctiveTransform( Quaternion( EulerAngles( 0, -90, 0 ) ) );
             return correctiveTransform * worldTransform;
         }
 
         // Calculate the world transform from a given capsule transform (assuming capsule height = Z )
         KRG_FORCE_INLINE Transform CalculateWorldTransformFromCapsuleTransform( Transform const& physicsWorldTransform ) const
         {
-            static const Transform correctiveTransform( Quaternion( EulerAngles( 0, -90, 0 ) ) );
+            static const Transform correctiveTransform( Quaternion( EulerAngles( 0, 90, 0 ) ) );
             return correctiveTransform * physicsWorldTransform;
         }
 

@@ -21,6 +21,17 @@ cbuffer Materials : register( b1 )
 	float3 m_albedo;
 };
 
+#if WITH_PICKING
+cbuffer EntityID : register( b2 )
+{
+	uint	m_entityID0;
+	uint	m_entityID1;
+	uint	m_padding0; // unused
+	uint	m_padding1; // unused
+	float4	m_padding2; // unused
+};
+#endif
+
 struct SurfaceParams
 {
 	float3 normal;
@@ -152,7 +163,7 @@ float3 IndirectBRDF(float3 R, float NoV, SurfaceParams surfaceParams)
 	float2 maxNVRough = float2(NoV, surfaceParams.roughness);
 	float2 brdf = precomputedBRDF.Sample(bilinearClampedSampler, maxNVRough).rg;
 
-	float3 Is = specular * (F * brdf.x + brdf.y);
+	float3 Is = specular * (F0 * brdf.x + brdf.y);
 	float3 Id = kD * irradiance * surfaceParams.albedo;
 
 	return Id + Is;
@@ -211,35 +222,58 @@ float TestShadow(float3 P)
 	return shadowing;
 }
 
-float4 main(PixelShaderInput psInput): SV_TARGET0
+struct PS_OUTPUT
 {
+	float4 m_color: SV_Target0;
+
+	#if WITH_PICKING
+	uint m_ID[2] : SV_Target1;
+	#endif
+};
+
+PS_OUTPUT main(PixelShaderInput psInput)
+{
+	PS_OUTPUT output;
+
+	#if WITH_PICKING
+	output.m_ID[0] = m_entityID0;
+	output.m_ID[1] = m_entityID1;
+	#endif
+
+	//-------------------------------------------------------------
+
 	SurfaceParams surfaceParams = LoadSurfaceParams(psInput);
 
-	switch(m_lightingFlags>>VISUALIZATION_MODE_BITS_SHIFT)
+	switch( m_lightingFlags >> VISUALIZATION_MODE_BITS_SHIFT )
 	{
 		case VISUALIZATION_MODE_ALBEDO: 
 		{
-			return float4( surfaceParams.albedo, 1.0 );
+			output.m_color = float4( surfaceParams.albedo, 1.0 );
+			return output;
 		}
 
 		case VISUALIZATION_MODE_NORMALS: 
 		{
-			return float4( abs( surfaceParams.normal ), 1.0 );
+			output.m_color = float4( abs( surfaceParams.normal ), 1.0 );
+			return output;
 		}
 
 		case VISUALIZATION_MODE_METALNESS: 
 		{
-			return float4(surfaceParams.metalness.xxx, 1.0);
+			output.m_color = float4(surfaceParams.metalness.xxx, 1.0);
+			return output;
 		}
 
 		case VISUALIZATION_MODE_ROUGHNESS:
 		{
-			return float4( surfaceParams.roughness.xxx, 1.0 );
+			output.m_color = float4( surfaceParams.roughness.xxx, 1.0 );
+			return output;
 		}
 
 		case VISUALIZATION_MODE_AO:
 		{
-			return float4( surfaceParams.ao.xxx, 1.0 );
+			output.m_color = float4( surfaceParams.ao.xxx, 1.0 );
+			return output;
 		}
 	}
 
@@ -293,6 +327,6 @@ float4 main(PixelShaderInput psInput): SV_TARGET0
 
 	// TODO: Tonemapper:)
 	// Gamma correction - can be included in tonemapper
-	float3 color = ToneMap( Lo );
-	return float4( color, 1.0f );
+	output.m_color = float4( ToneMap( Lo ), 1.0f );
+	return output;
 }

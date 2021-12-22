@@ -306,8 +306,8 @@ namespace KRG
                     RAWMOUSE const& rawMouse = pRawInputData->data.mouse;
 
                     // Mouse Movement
-                    m_mouseState.m_movementDelta.m_x = (float) rawMouse.lLastX;
-                    m_mouseState.m_movementDelta.m_y = (float) rawMouse.lLastY;
+                    m_mouseState.m_movementDelta.m_x += (float) rawMouse.lLastX;
+                    m_mouseState.m_movementDelta.m_y += (float) rawMouse.lLastY;
 
                     // Mouse button state
                     if ( rawMouse.usButtonFlags != 0 )

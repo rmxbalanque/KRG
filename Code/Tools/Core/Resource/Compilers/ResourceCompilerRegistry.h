@@ -20,11 +20,11 @@ namespace KRG::Resource
 
         inline TVector<Compiler const*> const& GetRegisteredCompilers() const { return m_compilers; }
 
-        inline bool IsVirtualType( ResourceTypeID const& typeID ) const { return m_compilerVirtualTypeMap.find( typeID ) != m_compilerVirtualTypeMap.end(); }
+        inline bool IsVirtualResourceType( ResourceTypeID const& typeID ) const { return m_compilerVirtualTypeMap.find( typeID ) != m_compilerVirtualTypeMap.end(); }
 
-        inline bool HasCompilerForType( ResourceTypeID const& typeID ) const { return m_compilerTypeMap.find( typeID ) != m_compilerTypeMap.end(); }
+        inline bool HasCompilerForResourceType( ResourceTypeID const& typeID ) const { return m_compilerTypeMap.find( typeID ) != m_compilerTypeMap.end(); }
 
-        inline Compiler const* GetCompilerForType( ResourceTypeID const& typeID ) const
+        inline Compiler const* GetCompilerForResourceType( ResourceTypeID const& typeID ) const
         {
             auto compilerTypeIter = m_compilerTypeMap.find( typeID );
             if ( compilerTypeIter != m_compilerTypeMap.end() )
@@ -37,7 +37,7 @@ namespace KRG::Resource
 
         inline int32 GetVersionForType( ResourceTypeID const& typeID ) const
         {
-            auto pCompiler = GetCompilerForType( typeID );
+            auto pCompiler = GetCompilerForResourceType( typeID );
             KRG_ASSERT( pCompiler != nullptr );
             return pCompiler->GetVersion();
         }

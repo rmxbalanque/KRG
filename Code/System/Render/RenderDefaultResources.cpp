@@ -39,7 +39,7 @@ namespace KRG::Render
             size_t const imageSize = size_t( width ) * height * channels; // 8 bits per channel
 
             g_pDefaultResources->m_defaultTexture = Texture( Int2( 320, 240 ) );
-            pRenderDevice->CreateTexture( g_pDefaultResources->m_defaultTexture, TextureFormat::Raw, pImage, imageSize );
+            pRenderDevice->CreateDataTexture( g_pDefaultResources->m_defaultTexture, TextureFormat::Raw, pImage, imageSize );
 
             stbi_image_free( pImage );
         }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_ControlParameterEditor.h"
-#include "Tools/Animation/GraphEditor/AnimationGraphEditor_GraphView.h"
+#include "Tools/Animation/GraphEditor/AnimationGraphEditor_GraphEditor.h"
 #include "Tools/Animation/GraphEditor/AnimationGraphEditor_VariationEditor.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Common.h"
+#include "Tools/Animation/GraphEditor/EditorGraph/Animation_EditorGraph_Common.h"
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
 
 //-------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ namespace KRG::Animation::Graph
         GraphUndoableAction*                m_pActiveUndoableAction = nullptr;
         int32                               m_beginCallCount = 0;
 
-        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        AnimationGraphEditorDefinition*     m_pGraphDefinition = nullptr;
         FileSystem::Path                    m_graphFilePath;
         StringID                            m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
 
@@ -77,7 +77,7 @@ namespace KRG::Animation::Graph
 
         GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
         GraphVariationEditor*               m_pVariationEditor = nullptr;
-        GraphView*                          m_pGraphView = nullptr;
+        GraphEditor*                        m_pGraphEditor = nullptr;
         PropertyGrid                        m_propertyGrid;
     };
 }

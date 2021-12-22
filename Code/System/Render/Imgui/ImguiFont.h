@@ -68,6 +68,12 @@ namespace KRG::ImGuiX
         ImGui::PushFont( SystemFonts::s_fonts[(int8) font] );
         ImGui::PushStyleColor( ImGuiCol_Text, color.Value );
     }
+
+    KRG_SYSTEM_RENDER_API inline void PushFontAndColor( Font font, Color const& color )
+    {
+        ImGui::PushFont( SystemFonts::s_fonts[(int8) font] );
+        ImGui::PushStyleColor( ImGuiCol_Text, IM_COL32( color.m_byteColor.m_r, color.m_byteColor.m_g, color.m_byteColor.m_b, color.m_byteColor.m_a ) );
+    }
 }
 #endif
 

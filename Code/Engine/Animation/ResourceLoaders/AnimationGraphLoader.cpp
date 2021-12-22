@@ -1,5 +1,5 @@
 #include "AnimationGraphLoader.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/TypeSystem/TypeDescriptors.h"
 #include "System/Core/Logging/Log.h"

@@ -121,14 +121,14 @@ namespace KRG::Drawing
 
         inline void DrawBox( Float3 const& position, Transform const& rotation, Float3 const& halfsize, Float4 const& color, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( halfsize ) * Transform( rotation );
+            Transform transform = Transform::FromScale( halfsize ) * Transform( rotation );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawBox( transform, color, depthTestState, TTL );
         }
 
         inline void DrawBox( Float3 const& position, Quaternion const& rotation, Float3 const& halfsize, Float4 const& color, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( halfsize ) * Transform( Quaternion( rotation ) );
+            Transform transform = Transform::FromScale( halfsize ) * Transform( Quaternion( rotation ) );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawBox( transform, color, depthTestState, TTL );
         }
@@ -153,14 +153,14 @@ namespace KRG::Drawing
 
         inline void DrawWireBox( Float3 const& position, Transform const& rotation, Float3 const& halfsize, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( halfsize ) * Transform( rotation );
+            Transform transform = Transform::FromScale( halfsize ) * Transform( rotation );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawWireBox( transform, color, lineThickness, depthTestState, TTL );
         }
 
         inline void DrawWireBox( Float3 const& position, Quaternion const& rotation, Float3 const& halfsize, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( halfsize ) * Transform( Quaternion( rotation ) );
+            Transform transform = Transform::FromScale( halfsize ) * Transform( Quaternion( rotation ) );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawWireBox( transform, color, lineThickness, depthTestState, TTL );
         }
@@ -213,38 +213,51 @@ namespace KRG::Drawing
 
         inline void DrawSphere( Float3 const& position, Float3 const& radii, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( radii );
+            Transform transform = Transform::FromScale( radii );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawSphere( transform, color, lineThickness, depthTestState, TTL );
         }
 
         inline void DrawSphere( Sphere const& sphere, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( Vector( sphere.GetRadius() ) );
+            Transform transform = Transform::FromScale( Vector( sphere.GetRadius() ) );
             transform.SetTranslation( sphere.GetCenter() );
             DrawSphere( transform, color, lineThickness, depthTestState, TTL );
         }
 
         //-------------------------------------------------------------------------
 
-        // A half sphere from the transform point, with the radius along the +Z axis
+        // A half sphere from the transform point sliced along the XY plane ( Z is up )
         void DrawHalfSphere( Transform const& transform, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 );
 
+        // A half sphere from the transform point, with the radius along the +Z axis
         inline void DrawHalfSphere( Transform const& worldTransform, Float3 const& radii, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
             auto const transform = Transform::FromScale( radii ) * Transform( worldTransform );
             DrawHalfSphere( transform, color, lineThickness, depthTestState, TTL );
         }
 
+        // A half sphere from the transform point sliced along the YZ plane ( X is up )
+        void DrawHalfSphereYZ( Transform const& transform, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 );
+
+        // A half sphere from the transform point, with the radius along the +Z axis
+        inline void DrawHalfSphereYZ( Transform const& worldTransform, Float3 const& radii, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
+        {
+            auto const transform = Transform::FromScale( radii ) * Transform( worldTransform );
+            DrawHalfSphereYZ( transform, color, lineThickness, depthTestState, TTL );
+        }
+
+        // A half sphere from the transform point, with the radius along the +Z axis
         inline void DrawHalfSphere( Float3 const& position, Float3 const& radii, Float4 const& color, float lineThickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 )
         {
-            auto transform = Transform::FromScale( radii );
+            Transform transform = Transform::FromScale( radii );
             transform.SetTranslation( Vector( position, 1.0f ) );
             DrawHalfSphere( transform, color, lineThickness, depthTestState, TTL );
         }
 
         //-------------------------------------------------------------------------
 
+        // Disc align to the XY plane
         void DrawDisc( Float3 const& worldPoint, float radius, Float4 const& color, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 );
 
         // Cylinder with radius on the XY plane and half-height along Z
@@ -252,6 +265,9 @@ namespace KRG::Drawing
 
         // Capsule with radius on the XY plane and half-height along Z, total capsule height = 2 * ( halfHeight + radius )
         void DrawCapsule( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 );
+
+        // Capsule with radius on the YZ plane and half-height along X, total capsule height = 2 * ( halfHeight + radius )
+        void DrawCapsuleHeightX( Transform const& worldTransform, float radius, float halfHeight, Float4 const& color, float thickness = s_defaultLineThickness, DepthTestState depthTestState = DepthTestState::DisableDepthTest, Seconds TTL = -1 );
 
         //-------------------------------------------------------------------------
         // Complex Shapes

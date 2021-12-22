@@ -50,6 +50,24 @@ namespace KRG::AI
         //-------------------------------------------------------------------------
 
         Vector facingDir = ctx.m_pCharacter->GetForwardVector();
+        KRG_ASSERT( m_currentPathSegmentIdx != InvalidIndex );
+        bfx::SurfaceSegment const* pCurrentSegment = m_path.GetSurfaceSegment( m_currentPathSegmentIdx );
+        Vector const currentSegmentStartPos = Navmesh::FromBfx( pCurrentSegment->GetStartPos() );
+        Vector const currentSegmentEndPos = Navmesh::FromBfx( pCurrentSegment->GetEndPos() );
+
+        Vector currentPosition;
+        if ( !currentSegmentStartPos.IsNearEqual3( currentSegmentEndPos ) )
+        {
+            currentPosition = Line( currentSegmentStartPos, currentSegmentEndPos ).GetClosestPointOnLine( ctx.m_pCharacter->GetPosition() );
+        }
+        else
+        {
+            currentPosition = currentSegmentStartPos;
+        }
+
+        // Find the goal position for this frame
+        //-------------------------------------------------------------------------
+
         Vector goalPosition;
 
         bool atEndOfPath = false;
@@ -68,6 +86,12 @@ namespace KRG::AI
                 distanceToMove = 0.0f;
                 m_progressAlongSegment = 1.0f;
                 goalPosition = segmentEnd;
+
+                if( isLastSegment )
+                {
+                    atEndOfPath = true;
+                }
+
                 break;
             }
 
@@ -108,12 +132,12 @@ namespace KRG::AI
         // Calculate goal pos
         //-------------------------------------------------------------------------
 
-        Vector const currentPosition = ctx.m_pCharacter->GetPosition();
         Vector const desiredDelta = ( goalPosition - currentPosition );
         Vector const headingVelocity = desiredDelta / ctx.GetDeltaTime();
+        facingDir = facingDir.GetNormalized2();
 
         auto pLocomotionController = ctx.m_pAnimationController->GetSubGraphController<LocomotionGraphController>();
-        pLocomotionController->SetLocomotionDesires( ctx.GetDeltaTime(), headingVelocity, facingDir.GetNormalized2() );
+        pLocomotionController->SetLocomotionDesires( ctx.GetDeltaTime(), headingVelocity, facingDir );
 
         // Check if we are at the end of the path
         //-------------------------------------------------------------------------

@@ -20,7 +20,7 @@ namespace KRG::Render
         None,
     };
 
-    enum class DataTypeFormat : uint8
+    enum class DataFormat : uint8
     {
         Unknown = 0,
         UInt_R8,
@@ -50,16 +50,10 @@ namespace KRG::Render
         Float_R32G32B32,
         Float_R32G32B32A32,
 
-        Float_D32,
+        // Special case format that changes based on texture usage
+        Float_X32,
 
         Count,
-    };
-
-    enum class Format : uint8
-    {
-        FORMAT_R8G8B8A8,
-        FORMAT_R16G16,
-        FORMAT_D32F,
     };
 
     enum Usage : uint8
@@ -67,6 +61,7 @@ namespace KRG::Render
         USAGE_UAV = 1 << 0,
         USAGE_SRV = 1 << 1,
         USAGE_RT_DS = 1 << 2,
+        USAGE_STAGING = 1 << 3,
     };
 
     enum class TextureFiltering : uint8
@@ -236,26 +231,25 @@ namespace KRG::Render
 
         inline ~ObjectHandle()
         {
-            KRG_ASSERT( m_pData0 == nullptr );
+            KRG_ASSERT( m_pData == nullptr );
         }
 
         inline bool IsValid() const
         {
-            return m_pData0 != nullptr;
+            return m_pData != nullptr;
         }
 
         inline void Reset()
         {
-            m_pData0 = nullptr;
+            m_pData = nullptr;
         }
 
-        inline bool operator==( ObjectHandle const& rhs ) const { return m_pData0 == rhs.m_pData0; }
-        inline bool operator!=( ObjectHandle const& rhs ) const { return m_pData0 != rhs.m_pData0; }
+        inline bool operator==( ObjectHandle const& rhs ) const { return m_pData == rhs.m_pData; }
+        inline bool operator!=( ObjectHandle const& rhs ) const { return m_pData != rhs.m_pData; }
 
     public:
 
-        void*           m_pData0 = nullptr;         // Ptr to the actual API type
-        void*           m_pData1 = nullptr;         // TODO: remove
+        void*           m_pData = nullptr;         // Ptr to the actual API type
     };
 
     //-------------------------------------------------------------------------

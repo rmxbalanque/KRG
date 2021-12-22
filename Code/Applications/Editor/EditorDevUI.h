@@ -6,9 +6,6 @@
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
-
-#include "Tools/Core/Resource/ResourceFilePicker.h"
-
 //-------------------------------------------------------------------------
 
 namespace KRG

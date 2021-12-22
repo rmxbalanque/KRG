@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/_Module/API.h"
-#include "Tools/Core/ThirdParty/KRG_RapidJson.h"
+#include "System/Core/ThirdParty/KRG_RapidJson.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Math/NumericRange.h"

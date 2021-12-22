@@ -1,6 +1,6 @@
 #include "ResourceCompiler_AnimationGraph.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Compilation.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Definition.h"
+#include "Tools/Animation/GraphEditor/EditorGraph/Animation_EditorGraph_Compilation.h"
+#include "Tools/Animation/GraphEditor/EditorGraph/Animation_EditorGraph_Definition.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "System/Core/FileSystem/FileSystem.h"
 
@@ -40,7 +40,7 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationGraphToolsDefinition toolsGraph;
+        Graph::AnimationGraphEditorDefinition toolsGraph;
         if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
@@ -49,7 +49,7 @@ namespace KRG::Animation
         // Compile
         //-------------------------------------------------------------------------
 
-        Graph::ToolsGraphCompilationContext context;
+        Graph::EditorGraphCompilationContext context;
         if ( !toolsGraph.Compile( context ) )
         {
             // Dump log
@@ -132,7 +132,7 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationGraphToolsDefinition toolsGraph;
+        Graph::AnimationGraphEditorDefinition toolsGraph;
         if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
@@ -148,7 +148,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
         // We need to compile the graph to get the order of the data slots
 
-        Graph::ToolsGraphCompilationContext context;
+        Graph::EditorGraphCompilationContext context;
         if ( !toolsGraph.Compile( context ) )
         {
             // Dump log
@@ -216,7 +216,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationGraphToolsDefinition const& toolsGraph, Graph::ToolsGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationGraphEditorDefinition const& toolsGraph, Graph::EditorGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
     {
         AnimationGraphDataSet dataSet;
         dataSet.m_variationID = variationID;
@@ -240,11 +240,11 @@ namespace KRG::Animation
         // Fill data slots
         //-------------------------------------------------------------------------
 
-        THashMap<UUID, Tools_DataSlotNode const*> dataSlotLookupMap;
+        THashMap<UUID, DataSlotEditorNode const*> dataSlotLookupMap;
         auto const& dataSlotNodes = toolsGraph.GetAllDataSlotNodes();
         for ( auto pSlotNode : dataSlotNodes )
         {
-            dataSlotLookupMap.insert( TPair<UUID, Tools_DataSlotNode const*>( pSlotNode->GetID(), pSlotNode ) );
+            dataSlotLookupMap.insert( TPair<UUID, DataSlotEditorNode const*>( pSlotNode->GetID(), pSlotNode ) );
         }
 
         dataSet.m_resources.reserve( compilationContext.m_registeredDataSlots.size() );

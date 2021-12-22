@@ -366,6 +366,7 @@
     <ClCompile Include="ThirdParty\stb\krg_stb.cpp" />
     <ClCompile Include="Math\FloatCurve.cpp" />
     <ClCompile Include="Types\Tag.cpp" />
+    <ClCompile Include="ThirdParty\KRG_RapidJson.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Transform.h">
@@ -1713,6 +1714,7 @@
     <ClInclude Include="Math\FloatCurve.h" />
     <ClInclude Include="Types\IDVector.h" />
     <ClInclude Include="Types\Tag.h" />
+    <ClInclude Include="ThirdParty\KRG_RapidJson.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">

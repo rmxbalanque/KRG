@@ -1,6 +1,5 @@
 #include "PropertyGrid.h"
 #include "PropertyGridEditors.h"
-#include "Tools/Core/Resource/ResourceFilePicker.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/TypeSystem/PropertyInfo.h"
 
@@ -59,7 +58,7 @@ namespace KRG
 
     PropertyGrid::PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase )
         : m_typeRegistry( typeRegistry )
-        , m_resourceDB( resourceDatabase )
+        , m_resourcePicker( resourceDatabase )
     {}
 
     PropertyGrid::~PropertyGrid()
@@ -106,7 +105,7 @@ namespace KRG
         }
         else // Create new editor instance
         {
-            pPropertyEditor = CreatePropertyEditor( m_typeRegistry, m_resourceDB, propertyInfo, pActualPropertyInstance );
+            pPropertyEditor = CreatePropertyEditor( m_typeRegistry, m_resourcePicker, propertyInfo, pActualPropertyInstance );
             m_propertyEditors[pActualPropertyInstance] = pPropertyEditor;
         }
 

@@ -19,7 +19,5 @@ namespace KRG::Player
     private:
 
         virtual void DrawDebugUI() override;
-
-        bool ProbeForGround( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent const* pCapsuleComponent, Vector const& startPosition );
     };
 }

@@ -29,8 +29,8 @@ namespace KRG::Render
 
         // VS
         VertexLayoutDescriptor vertexLayoutDesc;
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32B32A32, 0, 0 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataFormat::Float_R32G32B32A32, 0, 16 ) );
         vertexLayoutDesc.CalculateByteSize();
 
         m_vertexShader = VertexShader( g_byteCode_VS_DebugRendererPoints, sizeof( g_byteCode_VS_DebugRendererPoints ), cbuffers, vertexLayoutDesc );
@@ -196,8 +196,8 @@ namespace KRG::Render
 
         // VS
         VertexLayoutDescriptor vertexLayoutDesc;
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32B32A32, 0, 0 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataFormat::Float_R32G32B32A32, 0, 16 ) );
         vertexLayoutDesc.CalculateByteSize();
 
         m_vertexShader = VertexShader( g_byteCode_VS_DebugRendererLines, sizeof( g_byteCode_VS_DebugRendererLines ), cbuffers, vertexLayoutDesc );
@@ -366,8 +366,8 @@ namespace KRG::Render
 
         // VS
         VertexLayoutDescriptor vertexLayoutDesc;
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32B32A32, 0, 0 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataFormat::Float_R32G32B32A32, 0, 16 ) );
         vertexLayoutDesc.CalculateByteSize();
 
         m_vertexShader = VertexShader( g_byteCode_VS_DebugRendererTriangles, sizeof( g_byteCode_VS_DebugRendererTriangles ), cbuffers, vertexLayoutDesc );
@@ -504,9 +504,9 @@ namespace KRG::Render
 
         // Text VS
         VertexLayoutDescriptor vertexLayoutDesc;
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32, 0, 0 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 8 ) );
-        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataTypeFormat::UNorm_R8G8B8A8, 0, 16 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32, 0, 0 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 0, 8 ) );
+        vertexLayoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Color, DataFormat::UNorm_R8G8B8A8, 0, 16 ) );
         vertexLayoutDesc.CalculateByteSize();
 
         m_vertexShader = VertexShader( g_byteCode_VS_DebugRendererText, sizeof( g_byteCode_VS_DebugRendererText ), cbuffers, vertexLayoutDesc );
@@ -614,7 +614,7 @@ namespace KRG::Render
         }
 
         m_fontAtlasTexture = Texture( fontAtlasDimensions );
-        pRenderDevice->CreateTexture( m_fontAtlasTexture, TextureFormat::Raw, (Byte*) fontdata.data(), fontAtlasDimensions.m_x * fontAtlasDimensions.m_y * 4 );
+        pRenderDevice->CreateDataTexture( m_fontAtlasTexture, TextureFormat::Raw, (Byte*) fontdata.data(), fontAtlasDimensions.m_x * fontAtlasDimensions.m_y * 4 );
 
         // Set up PSO
         m_PSO.m_pVertexShader = &m_vertexShader;

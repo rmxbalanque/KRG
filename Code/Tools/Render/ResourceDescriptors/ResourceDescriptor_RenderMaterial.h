@@ -30,7 +30,7 @@ namespace KRG::Render
         KRG_EXPOSE TResourcePtr<Texture>       m_aoTexture;
         KRG_EXPOSE Color                       m_albedo = Colors::Black;
         KRG_EXPOSE float                       m_metalness = 0.0f;
-        KRG_EXPOSE float                       m_roughness = 1.0f;
+        KRG_EXPOSE float                       m_roughness = 0.0f;
         KRG_EXPOSE float                       m_normalScaler = 1.0f;
     };
 }

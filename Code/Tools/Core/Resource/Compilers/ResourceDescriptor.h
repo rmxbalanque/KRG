@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Tools/Core/_Module/API.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeWriter.h"
+#include "System/TypeSystem/TypeSerialization.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Resource/ResourceID.h"
 #include "System/Core/Types/Function.h"

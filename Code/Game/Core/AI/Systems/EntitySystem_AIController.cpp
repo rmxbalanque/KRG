@@ -129,7 +129,7 @@ namespace KRG::AI
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_behaviorContext.m_pCharacterController->TryMoveCapsule( m_behaviorContext.m_pPhysicsWorld, ctx.GetDeltaTime(), deltaTranslation, deltaRotation );
+            m_behaviorContext.m_pCharacterController->TryMoveCapsule( ctx, m_behaviorContext.m_pPhysicsWorld, deltaTranslation, deltaRotation );
 
         }
         else if ( updateStage == UpdateStage::PostPhysics )

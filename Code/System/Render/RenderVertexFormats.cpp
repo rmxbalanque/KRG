@@ -38,12 +38,12 @@ namespace KRG::Render
         4
     };
 
-    static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataTypeFormat::Count, "Mismatched data type and size arrays" );
+    static_assert( sizeof( g_dataTypeSizes ) / sizeof( uint32 ) == (uint32) DataFormat::Count, "Mismatched data type and size arrays" );
 
-    uint32 GetDataTypeFormatByteSize( DataTypeFormat format )
+    uint32 GetDataTypeFormatByteSize( DataFormat format )
     {
         uint32 const formatIdx = (uint32) format;
-        KRG_ASSERT( formatIdx < (uint32) DataTypeFormat::Count );
+        KRG_ASSERT( formatIdx < (uint32) DataFormat::Count );
         uint32 const size = g_dataTypeSizes[formatIdx];
         return size;
     }
@@ -71,21 +71,21 @@ namespace KRG::Render
 
             if ( format == VertexFormat::StaticMesh )
             {
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32B32A32, 0, 0 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataFormat::Float_R32G32B32A32, 0, 16 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 0, 32 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 1, 40 ) );
 
             }
             else if ( format == VertexFormat::SkeletalMesh )
             {
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataTypeFormat::Float_R32G32B32A32, 0, 0 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataTypeFormat::Float_R32G32B32A32, 0, 16 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 0, 32 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataTypeFormat::Float_R32G32, 1, 40 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Position, DataFormat::Float_R32G32B32A32, 0, 0 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::Normal, DataFormat::Float_R32G32B32A32, 0, 16 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 0, 32 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::TexCoord, DataFormat::Float_R32G32, 1, 40 ) );
 
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendIndex, DataTypeFormat::SInt_R32G32B32A32, 0, 48 ) );
-                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendWeight, DataTypeFormat::Float_R32G32B32A32, 0, 64 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendIndex, DataFormat::SInt_R32G32B32A32, 0, 48 ) );
+                layoutDesc.m_elementDescriptors.push_back( VertexLayoutDescriptor::ElementDescriptor( DataSemantic::BlendWeight, DataFormat::Float_R32G32B32A32, 0, 64 ) );
             }
 
             //-------------------------------------------------------------------------

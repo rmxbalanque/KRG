@@ -47,7 +47,7 @@ namespace KRG
 
         // Create the map editor world
         auto pMapEditorWorld = m_pWorldManager->CreateWorld( EntityWorldType::Editor );
-        m_pRenderingSystem->CreateCustomRenderTargetForViewport( pMapEditorWorld->GetViewport() );
+        m_pRenderingSystem->CreateCustomRenderTargetForViewport( pMapEditorWorld->GetViewport(), true );
         m_pMapEditor = KRG::New<EntityModel::EntityMapEditor>( m_editorContext, pMapEditorWorld );
         m_pMapEditor->Initialize( context );
         m_workspaces.emplace_back( m_pMapEditor );
@@ -55,24 +55,9 @@ namespace KRG
 
     void EditorModel::Shutdown( UpdateContext const& context )
     {
-        for ( auto& pOpenWorkspace : m_workspaces )
+        while( !m_workspaces.empty() )
         {
-            if ( pOpenWorkspace->IsDirty() )
-            {
-                InlineString<255> const messageTitle( InlineString<255>::CtorSprintf(), "Unsaved Changes for %s", pOpenWorkspace->GetDisplayName() );
-                auto messageDialog = pfd::message( messageTitle.c_str(), "You have unsaved changes!\nDo you wish to save these changes before closing?", pfd::choice::yes_no_cancel );
-                switch ( messageDialog.result() )
-                {
-                    case pfd::button::yes:
-                    {
-                        pOpenWorkspace->Save();
-                    }
-                    break;
-                }
-            }
-
-            pOpenWorkspace->Shutdown( context );
-            KRG::Delete( pOpenWorkspace );
+            DestroyWorkspaceInternal( context, m_workspaces[0] );
         }
 
         m_workspaces.clear();
@@ -121,7 +106,7 @@ namespace KRG
         if ( resourceTypeID == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() )
         {
             m_pMapEditor->LoadMap( resourceID );
-            //FocusWorkspace( *foundWorkspaceIter );
+            ImGuiX::MakeTabVisible( m_pMapEditor->GetWorkspaceWindowID() );
             return true;
         }
 
@@ -144,7 +129,7 @@ namespace KRG
         }
         else
         {
-            //FocusWorkspace( *foundWorkspaceIter );
+            ImGuiX::MakeTabVisible( pExistingWorkspace->GetWorkspaceWindowID() );
         }
 
         return true;
@@ -152,8 +137,19 @@ namespace KRG
 
     void EditorModel::DestroyWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace )
     {
-        KRG_ASSERT( pWorkspace != nullptr );
         KRG_ASSERT( m_pMapEditor != pWorkspace );
+        DestroyWorkspaceInternal( context, pWorkspace );
+    }
+
+    void EditorModel::QueueDestroyWorkspace( EditorWorkspace* pWorkspace )
+    {
+        KRG_ASSERT( m_pMapEditor != pWorkspace );
+        m_workspaceDestructionRequests.emplace_back( pWorkspace );
+    }
+
+    void EditorModel::DestroyWorkspaceInternal( UpdateContext const& context, EditorWorkspace* pWorkspace )
+    {
+        KRG_ASSERT( pWorkspace != nullptr );
 
         auto foundWorkspaceIter = eastl::find( m_workspaces.begin(), m_workspaces.end(), pWorkspace );
         KRG_ASSERT( foundWorkspaceIter != m_workspaces.end() );
@@ -234,6 +230,13 @@ namespace KRG
         KRG_ASSERT( pWorkspace != nullptr );
         auto pWorld = pWorkspace->GetWorld();
         return (void*) &m_pRenderingSystem->GetRenderTargetTextureForViewport( pWorld->GetViewport() );
+    }
+
+    uint64 EditorModel::GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const
+    {
+        KRG_ASSERT( pWorkspace != nullptr );
+        auto pWorld = pWorkspace->GetWorld();
+        return m_pRenderingSystem->GetViewportPickingID( pWorld->GetViewport(), pixelCoords );
     }
 
     EditorWorkspace* EditorModel::FindResourceWorkspace( ResourceID const& resourceID ) const

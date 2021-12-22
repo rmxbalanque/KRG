@@ -51,6 +51,7 @@ namespace KRG
 
         inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
         void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
+        uint64 GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const;
 
         inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
         inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }
@@ -59,7 +60,7 @@ namespace KRG
         void DestroyWorkspace( UpdateContext const& context, EditorWorkspace* pWorkspace );
 
         // Queues a workspace destruction request till the next update
-        void QueueDestroyWorkspace( EditorWorkspace* pWorkspace ) { m_workspaceDestructionRequests.emplace_back( pWorkspace ); }
+        void QueueDestroyWorkspace( EditorWorkspace* pWorkspace );
 
         // Tries to immediately create a workspace
         bool TryCreateWorkspace( UpdateContext const& context, ResourceID const& resourceID );
@@ -71,6 +72,8 @@ namespace KRG
 
         EditorWorkspace* FindResourceWorkspace( ResourceID const& resourceID ) const;
         EditorWorkspace* FindResourceWorkspace( uint32 workspaceID ) const;
+
+        void DestroyWorkspaceInternal( UpdateContext const& context, EditorWorkspace* pWorkspace );
 
     private:
 

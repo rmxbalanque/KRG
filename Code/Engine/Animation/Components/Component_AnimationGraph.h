@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Component_Animation.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
-#include "Engine/Animation/Graph/AnimationGraphInstance.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Instance.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,6 +11,8 @@ namespace KRG::Animation
     class KRG_ENGINE_ANIMATION_API AnimationGraphComponent final : public AnimationComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( AnimationGraphComponent );
+
+        friend class AnimationDebugView;
 
     public:
 

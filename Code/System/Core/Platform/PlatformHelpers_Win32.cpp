@@ -121,12 +121,25 @@ namespace KRG::Platform::Win32
     String GetShortPath( String const& origPath )
     {
         TCHAR shortPath[MAX_PATH + 1];
-        if ( GetShortPathName( origPath.c_str(), shortPath, MAX_PATH + 1 ) )
+        DWORD const returnValue = GetShortPathName( origPath.c_str(), shortPath, MAX_PATH + 1 );
+        if ( returnValue > 0 && returnValue <= MAX_PATH )
         {
             return String( shortPath );
         }
 
         return String();
+    }
+
+    String GetLongPath( String const& origPath )
+    {
+         TCHAR shortPath[MAX_PATH + 1];
+         DWORD const returnValue = GetLongPathNameA( origPath.c_str(), shortPath, MAX_PATH + 1 );
+         if ( returnValue > 0 && returnValue <= MAX_PATH )
+         {
+             return String( shortPath );
+         }
+
+         return String();
     }
 }
 #endif

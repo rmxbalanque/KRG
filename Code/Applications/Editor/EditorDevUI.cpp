@@ -447,13 +447,15 @@ namespace KRG
                 pWorld->ResumeUpdates();
             }
 
-            pWorkspace->UpdateAndDrawWindows( context, &workspaceWindowClass );
-
             if ( pWorkspace->HasViewportWindow() )
             {
-                ImTextureID const pTextureID = m_model.GetViewportTextureForWorkspace( pWorkspace );
-                enableInputForWorld = pWorkspace->DrawViewport( context, pTextureID, &workspaceWindowClass );
+                EditorWorkspace::ViewportInfo viewportInfo;
+                viewportInfo.m_pViewportRenderTargetTexture = m_model.GetViewportTextureForWorkspace( pWorkspace );
+                viewportInfo.m_retrievePickingID = [this, pWorkspace] ( Int2 const& pixelCoords ) { return m_model.GetViewportPickingID( pWorkspace, pixelCoords ); };
+                enableInputForWorld = pWorkspace->DrawViewport( context, viewportInfo, &workspaceWindowClass );
             }
+
+            pWorkspace->UpdateAndDrawWindows( context, &workspaceWindowClass );
         }
         else // If the workspace window is hidden suspend world updates
         {

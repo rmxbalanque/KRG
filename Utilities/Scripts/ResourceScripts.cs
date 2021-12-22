@@ -130,6 +130,10 @@ namespace Scripts
 
                 return "data://Packs/Military/Materials/PolygonMilitary_Texture_01_A.mtrl";
             }
+            else if (dirName.Contains("prototype"))
+            {
+                return "data://Packs/Prototype/Materials/PolygonPrototype_Texture_01.mtrl";
+            }
 
             return string.Empty;
         }
@@ -183,21 +187,14 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_meshDataPath", Value = dataPath
+                        Path = "m_meshPath", Value = dataPath
                     },
                     new ResourceDescriptorArrayProperty()
                     {
                         Path = "m_materials",
                         Value = new List<string>
                         {
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
-                            GetDefaultMaterialsForMesh( sourceFile ),
+                            GetDefaultMaterialsForMesh( sourceFile )
                         }
                     }
                 }
@@ -223,7 +220,7 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_meshDataPath", Value = dataPath
+                        Path = "m_meshPath", Value = dataPath
                     }
                 }
             };
@@ -248,7 +245,7 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_textureDataPath", Value = dataPath
+                        Path = "m_path", Value = dataPath
                     }
                 }
             };
@@ -273,7 +270,7 @@ namespace Scripts
                     },
                     new ResourceDescriptorStringProperty()
                     {
-                        Path = "m_diffuseTexture", Value = dataPath
+                        Path = "m_albedoTexture", Value = dataPath
                     }
                 }
             };

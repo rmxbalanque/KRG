@@ -14,6 +14,7 @@ namespace KRG::Platform::Win32
     //-------------------------------------------------------------------------
 
     KRG_SYSTEM_CORE_API String GetShortPath( String const& origPath );
+    KRG_SYSTEM_CORE_API String GetLongPath( String const& origPath );
 
     // Processes
     //-------------------------------------------------------------------------

@@ -159,7 +159,7 @@ int main( int argc, char* argv[] )
         }
 
         // Try find compiler
-        auto pCompiler = compilerRegistry.GetCompilerForType( compileContext.m_resourceID.GetResourceTypeID() );
+        auto pCompiler = compilerRegistry.GetCompilerForResourceType( compileContext.m_resourceID.GetResourceTypeID() );
         if ( pCompiler == nullptr )
         {
             KRG_LOG_ERROR( "ResourceCompiler", "Cant find appropriate resource compiler for type: %u", compileContext.m_resourceID.GetResourceTypeID() );

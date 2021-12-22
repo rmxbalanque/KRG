@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ResourceDescriptor.h"
-#include "Tools/Core/TypeSystem/Serialization/TypeReader.h"
 #include "System/Resource/ResourceHeader.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Logging/Log.h"

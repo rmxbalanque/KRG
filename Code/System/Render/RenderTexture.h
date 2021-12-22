@@ -62,19 +62,30 @@ namespace KRG::Render
         Texture() = default;
         Texture( Int2 const& dimensions ) : m_dimensions( dimensions ) {}
 
-        virtual bool IsValid() const override { return m_shaderResourceView.IsValid(); }
-
+        virtual bool IsValid() const override { return m_textureHandle.IsValid(); }
         inline Int2 const& GetDimensions() const { return m_dimensions; }
-        inline ViewSRVHandle const& GetShaderResourceView() const { return m_shaderResourceView; }
-        inline ViewUAVHandle const& GetUnorderedAccessView() const { return m_unorderedAccessView; }
-        inline ViewRTHandle const& GetRenderTargetView() const { return m_renderTargetView; }
-        inline ViewDSHandle const& GetDepthStencilView() const { return m_depthStencilView; }
 
         inline bool operator==( Texture const& rhs ) const { return m_shaderResourceView == m_shaderResourceView; }
         inline bool operator!=( Texture const& rhs ) const { return m_shaderResourceView != m_shaderResourceView; }
 
+        // Resource Views
+        //-------------------------------------------------------------------------
+
+        inline bool HasShaderResourceView() const { return m_shaderResourceView.IsValid(); }
+        inline ViewSRVHandle const& GetShaderResourceView() const { return m_shaderResourceView; }
+
+        inline bool HasUnorderedAccessView() const { return m_unorderedAccessView.IsValid(); }
+        inline ViewUAVHandle const& GetUnorderedAccessView() const { return m_unorderedAccessView; }
+        
+        inline bool HasRenderTargetView() const { return m_renderTargetView.IsValid(); }
+        inline ViewRTHandle const& GetRenderTargetView() const { return m_renderTargetView; }
+        
+        inline bool HasDepthStencilView() const { return m_depthStencilView.IsValid(); }
+        inline ViewDSHandle const& GetDepthStencilView() const { return m_depthStencilView; }
+
     protected:
 
+        TextureHandle           m_textureHandle;
         ViewSRVHandle           m_shaderResourceView;
         ViewUAVHandle           m_unorderedAccessView;
         ViewRTHandle            m_renderTargetView;

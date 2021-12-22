@@ -280,14 +280,20 @@ namespace KRG::Resource
 
             // Resource type validity check
             ResourceTypeID const resourceTypeID = pRequest->m_resourceID.GetResourceTypeID();
-            if ( m_compilerRegistry.IsVirtualType( resourceTypeID ) )
+            if ( m_compilerRegistry.IsVirtualResourceType( resourceTypeID ) )
             {
+                if ( m_compilerRegistry.HasCompilerForResourceType( resourceTypeID ) )
+                {
+                    pRequest->m_log.sprintf( "Error: No compiler found for resource type (%s)!", pRequest->m_resourceID.ToString().c_str() );
+                    pRequest->m_status = CompilationRequest::Status::Failed;
+                }
+
                 pRequest->m_log.sprintf( "Virtual Resource (%s) - Nothing to do!", pRequest->m_sourceFile.GetFullPath().c_str() );
                 pRequest->m_status = CompilationRequest::Status::Succeeded;
             }
             else
             {
-                if ( !m_compilerRegistry.HasCompilerForType( resourceTypeID ) )
+                if ( !m_compilerRegistry.HasCompilerForResourceType( resourceTypeID ) )
                 {
                     pRequest->m_log.sprintf( "Error: No compiler found for resource type (%s)!", pRequest->m_resourceID.ToString().c_str() );
                     pRequest->m_status = CompilationRequest::Status::Failed;
@@ -615,6 +621,6 @@ namespace KRG::Resource
 
     bool ResourceServer::IsCompileableResourceType( ResourceTypeID ID ) const
     {
-        return ( ID.IsValid() && m_compilerRegistry.HasCompilerForType( ID ) );
+        return ( ID.IsValid() && m_compilerRegistry.HasCompilerForResourceType( ID ) );
     }
 }

@@ -1,6 +1,6 @@
 #include "Workspace_AnimationGraph.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Definition.h"
-#include "Tools/Animation/GraphEditor/ToolsGraph/AnimationToolsGraph_Compilation.h"
+#include "Tools/Animation/GraphEditor/EditorGraph/Animation_EditorGraph_Definition.h"
+#include "Tools/Animation/GraphEditor/EditorGraph/Animation_EditorGraph_Compilation.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
@@ -32,9 +32,9 @@ namespace KRG::Animation::Graph
     {
     public:
 
-        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphToolsDefinition* pToolsGraph )
+        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphEditorDefinition* pEditorGraph )
             : m_typeRegistry( typeRegistry )
-            , m_pGraphDefinition( pToolsGraph )
+            , m_pGraphDefinition( pEditorGraph )
         {
             KRG_ASSERT( m_pGraphDefinition != nullptr );
         }
@@ -72,7 +72,7 @@ namespace KRG::Animation::Graph
     private:
 
         TypeSystem::TypeRegistry const&     m_typeRegistry;
-        AnimationGraphToolsDefinition*      m_pGraphDefinition = nullptr;
+        AnimationGraphEditorDefinition*      m_pGraphDefinition = nullptr;
         String                              m_valueBefore;
         String                              m_valueAfter;
     };
@@ -99,7 +99,7 @@ namespace KRG::Animation::Graph
             }
 
             // Try to load the graph from the file
-            m_pGraphDefinition = KRG::New<AnimationGraphToolsDefinition>();
+            m_pGraphDefinition = KRG::New<AnimationGraphEditorDefinition>();
             graphLoadFailed = !m_pGraphDefinition->LoadFromJson( *m_editorContext.m_pTypeRegistry, reader.GetDocument() );
 
             // Load failed, so clean up and create a new graph
@@ -107,7 +107,7 @@ namespace KRG::Animation::Graph
             {
                 KRG_LOG_ERROR( "Animation", "Failed to load graph definition: %s", m_graphFilePath.c_str() );
                 KRG::Delete( m_pGraphDefinition );
-                m_pGraphDefinition = KRG::New<AnimationGraphToolsDefinition>();
+                m_pGraphDefinition = KRG::New<AnimationGraphEditorDefinition>();
                 m_pGraphDefinition->CreateNew();
             }
         }
@@ -119,24 +119,28 @@ namespace KRG::Animation::Graph
 
         m_pControlParameterEditor = KRG::New<GraphControlParameterEditor>( m_pGraphDefinition );
         m_pVariationEditor = KRG::New<GraphVariationEditor>( m_editorContext, m_pGraphDefinition );
-        m_pGraphView = KRG::New<GraphView>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
+        m_pGraphEditor = KRG::New<GraphEditor>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
 
         // Bind events
         //-------------------------------------------------------------------------
 
-        auto OnBeginGraphModification = [this] ( GraphEditor::BaseGraph* pRootGraph )
+        auto OnBeginGraphModification = [this] ( VisualGraph::BaseGraph* pRootGraph )
         {
             if ( pRootGraph == m_pGraphDefinition->GetRootGraph() )
             {
+                KRG_ASSERT( m_pActiveUndoableAction == nullptr );
+
                 m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
                 m_pActiveUndoableAction->SerializeBeforeState();
             }
         };
 
-        auto OnEndGraphModification = [this] ( GraphEditor::BaseGraph* pRootGraph )
+        auto OnEndGraphModification = [this] ( VisualGraph::BaseGraph* pRootGraph )
         {
             if ( pRootGraph == m_pGraphDefinition->GetRootGraph() )
             {
+                KRG_ASSERT( m_pActiveUndoableAction != nullptr );
+
                 m_pActiveUndoableAction->SerializeAfterState();
                 m_undoStack.RegisterAction( m_pActiveUndoableAction );
                 m_pActiveUndoableAction = nullptr;
@@ -144,8 +148,8 @@ namespace KRG::Animation::Graph
             }
         };
 
-        m_rootGraphBeginModificationBindingID = GraphEditor::BaseGraph::OnBeginModification().Bind( OnBeginGraphModification );
-        m_rootGraphEndModificationBindingID = GraphEditor::BaseGraph::OnEndModification().Bind( OnEndGraphModification );
+        m_rootGraphBeginModificationBindingID = VisualGraph::BaseGraph::OnBeginModification().Bind( OnBeginGraphModification );
+        m_rootGraphEndModificationBindingID = VisualGraph::BaseGraph::OnEndModification().Bind( OnEndGraphModification );
 
         //-------------------------------------------------------------------------
 
@@ -164,13 +168,13 @@ namespace KRG::Animation::Graph
 
         KRG::Delete( m_pControlParameterEditor );
         KRG::Delete( m_pVariationEditor );
-        KRG::Delete( m_pGraphView );
+        KRG::Delete( m_pGraphEditor );
 
         m_propertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
         m_propertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
 
-        GraphEditor::BaseGraph::OnBeginModification().Unbind( m_rootGraphBeginModificationBindingID );
-        GraphEditor::BaseGraph::OnEndModification().Unbind( m_rootGraphEndModificationBindingID );
+        VisualGraph::BaseGraph::OnBeginModification().Unbind( m_rootGraphBeginModificationBindingID );
+        VisualGraph::BaseGraph::OnEndModification().Unbind( m_rootGraphEndModificationBindingID );
     }
 
     void AnimationGraphWorkspace::Initialize( UpdateContext const& context )
@@ -210,13 +214,13 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         m_pControlParameterEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_controlParametersWindowName.c_str() );
-        m_pGraphView->UpdateAndDraw( context, pDebugContext, pWindowClass, m_graphViewWindowName.c_str() );
+        m_pGraphEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_graphViewWindowName.c_str() );
         m_pVariationEditor->UpdateAndDraw( context, pWindowClass, m_variationEditorWindowName.c_str() );
 
         // Property Grid
         //-------------------------------------------------------------------------
 
-        auto const& selection = m_pGraphView->GetSelectedNodes();
+        auto const& selection = m_pGraphEditor->GetSelectedNodes();
         if ( selection.empty() )
         {
             m_propertyGrid.SetTypeToEdit( nullptr );
@@ -296,7 +300,7 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphWorkspace::OnUndoRedo()
     {
-        m_pGraphView->OnUndoRedo();
+        m_pGraphEditor->OnUndoRedo();
     }
 
     //-------------------------------------------------------------------------
@@ -308,7 +312,7 @@ namespace KRG::Animation::Graph
         // Try to compile the graph
         //-------------------------------------------------------------------------
 
-        ToolsGraphCompilationContext compilationContext;
+        EditorGraphCompilationContext compilationContext;
         if ( m_pGraphDefinition->Compile( compilationContext ) )
         {
             m_debugContext.m_nodeIDtoIndexMap = compilationContext.GetIDToIndexMap();

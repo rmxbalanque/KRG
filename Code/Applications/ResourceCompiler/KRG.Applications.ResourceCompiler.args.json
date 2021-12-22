@@ -122,7 +122,7 @@
       "Items": [
         {
           "Id": "699d8cbb-3efb-45ad-9d2c-1e605a4adfc3",
-          "Command": "-compile data://packs/amplify/ar_aim_crouch_enter.anim"
+          "Command": "-compile data://player/playergraph.ag"
         },
         {
           "Id": "cfd76197-83f5-462a-ad94-a17857433e4a",

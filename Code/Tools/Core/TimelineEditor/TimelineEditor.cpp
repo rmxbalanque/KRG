@@ -551,7 +551,7 @@ namespace KRG::Timeline
 
         ImGui::SameLine( 0, buttonSeperation );
 
-        if ( ImGuiX::ButtonColored( m_isFrameSnappingEnabled ? ImGuiX::Style::s_textColor : ImGuiX::Style::s_textColorDisabled, KRG_ICON_MAGNET "##Snap", buttonSize ) )
+        if ( ImGuiX::ColoredButton( ImGuiX::Style::s_itemColorSemiDark, m_isFrameSnappingEnabled ? ImGuiX::Style::s_textColor : ImGuiX::Style::s_textColorDisabled, KRG_ICON_MAGNET "##Snap", buttonSize ) )
         {
             m_isFrameSnappingEnabled = !m_isFrameSnappingEnabled;
         }
@@ -603,7 +603,7 @@ namespace KRG::Timeline
         // Add tracks button
         //-------------------------------------------------------------------------
 
-        if ( ImGuiX::ButtonColored( Colors::LimeGreen.ToFloat4(), KRG_ICON_PLUS "##AddTrack", buttonSize ) )
+        if ( ImGuiX::ColoredButton( ImGuiX::ConvertColor( Colors::ForestGreen ), ImGuiX::ConvertColor( Colors::White ), KRG_ICON_PLUS "##AddTrack", buttonSize ) )
         {
             ImGui::OpenPopup( "AddTracksPopup" );
         }

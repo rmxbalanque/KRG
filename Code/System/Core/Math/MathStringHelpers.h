@@ -12,12 +12,12 @@ namespace KRG::Math
 
     //-------------------------------------------------------------------------
 
-    inline InlineString<128> ToString( Vector vector )
+    inline InlineString<128> ToString( Vector const& vector )
     {
         return InlineString<128>( InlineString<128>::CtorSprintf(), "x=%.3f, y=%.3f, z=%.3f", vector.m_x, vector.m_y, vector.m_z );
     }
 
-    inline InlineString<128> ToString( Quaternion q )
+    inline InlineString<128> ToString( Quaternion const& q )
     {
         EulerAngles const angles = q.ToEulerAngles();
         Float3 const anglesInDegrees = angles.GetAsDegrees();

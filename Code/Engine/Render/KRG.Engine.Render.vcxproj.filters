@@ -235,6 +235,7 @@
     <FxCompile Include="Shaders\DebugRenderer\VS_DebugRendererTriangles.hlsl">
       <Filter>Shaders\DebugRenderer</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\Engine\PS_LitPicking.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\DebugRenderer\DebugShaderCommon.hlsli">

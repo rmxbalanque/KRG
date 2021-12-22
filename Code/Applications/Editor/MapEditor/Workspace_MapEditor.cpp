@@ -35,7 +35,7 @@ namespace KRG::EntityModel
     {
         EditorWorkspace::Initialize( context );
 
-        m_outlinerWindowName.sprintf( "Map Outline", GetID() );
+        m_outlinerWindowName.sprintf( "Map Outliner", GetID() );
         m_entityViewWindowName.sprintf( "Entity Inspector##%u", GetID() );
         m_propertyGridWindowName.sprintf( "Properties##%u", GetID() );
     }
@@ -120,7 +120,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::SelectAndLoadMap()
     {
-        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), {"Map Files", "*.map"}, pfd::opt::none).result();
+        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
         if ( selectedMap.empty() )
         {
             return;
@@ -140,7 +140,7 @@ namespace KRG::EntityModel
             // Should we save the current map before unloading?
             if ( IsDirty() )
             {
-                pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no);
+                pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
                 if ( saveChangesMsg.result() == pfd::button::yes )
                 {
                     Save();
@@ -176,7 +176,7 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.GetRawResourceDirectoryPath().c_str(), "Map File");
+        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.GetRawResourceDirectoryPath().c_str(), "Map File" );
         if ( !mapFilePath.IsValid() )
         {
             return;
@@ -188,7 +188,7 @@ namespace KRG::EntityModel
         EntityCollectionDescriptorWriter writer;
         if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, *pEditedMap ) )
         {
-            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath);
+            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
             LoadMap( mapResourcePath );
         }
         else
@@ -212,12 +212,39 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
+    void EntityMapEditor::OnGamePreviewStarted()
+    {
+        m_pWorld->SuspendUpdates();
+        m_isGamePreviewRunning = true;
+    }
+
+    void EntityMapEditor::OnGamePreviewEnded()
+    {
+        m_isGamePreviewRunning = false;
+        m_pWorld->ResumeUpdates();
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EntityMapEditor::OnMousePick( uint64 pickingID )
+    {
+        EntityID const pickedEntityID( pickingID );
+        auto pEntity = m_pWorld->FindEntity( pickedEntityID );
+        if ( pEntity != nullptr )
+        {
+            SelectEntity( pEntity );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     void EntityMapEditor::SelectEntity( Entity* pEntity )
     {
         KRG_ASSERT( pEntity != nullptr );
         m_pSelectedEntity = pEntity;
         m_pSelectedComponent = nullptr;
         m_propertyGrid.SetTypeToEdit( pEntity );
+        m_syncOutlinerToSelectedItem = true;
     }
 
     void EntityMapEditor::SelectComponent( EntityComponent* pComponent )
@@ -287,11 +314,15 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
-        ImGui::SetNextWindowClass( pWindowClass );
-        DrawEntityOutliner( context );
+        HandleInput( context );
+
+        //-------------------------------------------------------------------------
 
         ImGui::SetNextWindowClass( pWindowClass );
-        DrawEntityView( context );
+        DrawMapOutliner( context );
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawEntityEditor( context );
 
         ImGui::SetNextWindowClass( pWindowClass );
         DrawPropertyGrid( context );
@@ -299,52 +330,46 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        bool isInWorldSpace = m_gizmo.IsInWorldSpace();
-
-        InlineString<10> const coordinateSpaceSwitcherLabel( InlineString<10>::CtorSprintf(), "%s###CoordinateSpace", isInWorldSpace ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
-        if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 16, 0 ) ) )
+        if ( BeginViewportToolbarGroup( "SpatialControls", ImVec2(80, 22 ) ) )
         {
-            isInWorldSpace = !isInWorldSpace;
-            if ( isInWorldSpace )
+            InlineString<10> const coordinateSpaceSwitcherLabel( InlineString<10>::CtorSprintf(), "%s##CoordinateSpace", m_gizmo.IsInWorldSpace() ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
+            if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 14, 0 ) ) )
             {
-                m_gizmo.SwitchToWorldSpace();
+                m_gizmo.SetCoordinateSystemSpace( m_gizmo.IsInWorldSpace() ? CoordinateSpace::Local : CoordinateSpace::World );
             }
-            else
+            ImGuiX::ItemTooltip( "Current Mode: %s", m_gizmo.IsInWorldSpace() ? "World Space" : "Local Space" );
+
+            ImGuiX::VerticalSeparator( ImVec2( 6, -1 ) );
+
+            //-------------------------------------------------------------------------
+
+            bool t = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Translation;
+            bool r = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Rotation;
+            bool s = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Scale;
+
+            if ( ImGui::Selectable( KRG_ICON_ARROWS, t, 0, ImVec2( 14, 0 ) ) )
             {
-                m_gizmo.SwitchToLocalSpace();
+                m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
             }
+            ImGuiX::ItemTooltip( "Translate" );
+
+            ImGui::SameLine();
+
+            if ( ImGui::Selectable( KRG_ICON_REPEAT, r, 0, ImVec2( 14, 0 ) ) )
+            {
+                m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Rotation );
+            }
+            ImGuiX::ItemTooltip( "Rotate" );
+
+            ImGui::SameLine();
+
+            if ( ImGui::Selectable( KRG_ICON_EXPAND, s, 0, ImVec2( 14, 0 ) ) )
+            {
+                m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Scale );
+            }
+            ImGuiX::ItemTooltip( "Scale" );
         }
-        ImGuiX::ItemTooltip( "Current Mode: %s", isInWorldSpace ? "World Space" : "Local Space" );
-
-        ImGui::SameLine();
-
-        //-------------------------------------------------------------------------
-
-        bool t = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Translation;
-        bool r = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Rotation;
-        bool s = m_gizmo.GetMode() == ImGuiX::Gizmo::GizmoMode::Scale;
-
-        if ( ImGui::Selectable( KRG_ICON_ARROWS, &t, 0, ImVec2( 16, 0 ) ) )
-        {
-            m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
-        }
-        ImGuiX::ItemTooltip( "Translate" );
-
-        ImGui::SameLine();
-
-        if ( ImGui::Selectable( KRG_ICON_REPEAT, &r, 0, ImVec2( 16, 0 ) ) )
-        {
-            m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Rotation );
-        }
-        ImGuiX::ItemTooltip( "Rotate" );
-
-        ImGui::SameLine();
-
-        if ( ImGui::Selectable( KRG_ICON_EXPAND, &s, 0, ImVec2( 16, 0 ) ) )
-        {
-            m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Scale );
-        }
-        ImGuiX::ItemTooltip( "Scale" );
+        EndViewportToolbarGroup();
     }
 
     void EntityMapEditor::DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
@@ -359,7 +384,7 @@ namespace KRG::EntityModel
             constexpr static char const* const gamePreviewMsg = "Game Preview Running";
 
             ImGuiX::ScopedFont const sf( ImGuiX::Font::Huge, Colors::Red );
-            ImVec2 const textSize = ImGui::CalcTextSize(  gamePreviewMsg );
+            ImVec2 const textSize = ImGui::CalcTextSize( gamePreviewMsg );
             ImVec2 const msgPos = ( ImGui::GetWindowSize() - textSize ) / 2;
 
             ImGui::SetCursorPos( msgPos );
@@ -367,15 +392,18 @@ namespace KRG::EntityModel
             return;
         }
 
-        // Manage Gizmo State
+        // Selection and Manipulation
         //-------------------------------------------------------------------------
 
         auto drawingCtx = GetDrawingContext();
 
         if ( m_pSelectedEntity != nullptr && m_pSelectedEntity->IsSpatialEntity() )
         {
-            drawingCtx.DrawWireBox( m_pSelectedEntity->GetWorldBounds(), Colors::LimeGreen, 2.0f );
+            drawingCtx.DrawWireBox( m_pSelectedEntity->GetWorldBounds(), Colors::Yellow, 3.0f, Drawing::EnableDepthTest );
+        }
 
+        if ( m_pSelectedEntity != nullptr && m_pSelectedEntity->IsSpatialEntity() )
+        {
             // If we have a component selected, manipulate it
             if ( m_pSelectedComponent != nullptr && m_pSelectedComponent->IsInitialized() )
             {
@@ -409,7 +437,19 @@ namespace KRG::EntityModel
         // Overlay Widgets
         //-------------------------------------------------------------------------
 
-        auto pOverlayDrawList = ImGui::GetWindowDrawList();
+        auto DrawComponentWorldIcon = [this, pViewport] ( SpatialEntityComponent* pComponent, char icon[4] )
+        {
+            if ( pViewport->IsWorldSpacePointVisible( pComponent->GetPosition() ) )
+            {
+                ImVec2 const positionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
+                if ( ImGuiX::DrawOverlayIcon( positionScreenSpace, icon, pComponent ) )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        };
 
         auto const& registeredLights = m_pWorld->GetAllRegisteredComponentsOfType<Render::LightComponent>();
         for ( auto pComponent : registeredLights )
@@ -417,8 +457,7 @@ namespace KRG::EntityModel
             if ( pComponent != m_pSelectedComponent )
             {
                 auto pLightComponent = const_cast<Render::LightComponent*>( pComponent );
-                ImVec2 const lightPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pLightComponent->GetPosition() );
-                if ( ImGuiX::DrawOverlayIcon( lightPositionScreenSpace, KRG_ICON_LIGHTBULB_O, pLightComponent ) )
+                if ( DrawComponentWorldIcon( pLightComponent, KRG_ICON_LIGHTBULB_O ) )
                 {
                     auto pEntity = pEditedMap->FindEntity( pLightComponent->GetEntityID() );
                     SelectEntity( pEntity );
@@ -433,8 +472,7 @@ namespace KRG::EntityModel
             if ( pComponent != m_pSelectedComponent )
             {
                 auto pSpawnComponent = const_cast<Player::PlayerSpawnComponent*>( pComponent );
-                ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
-                if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_GAMEPAD, pSpawnComponent ) )
+                if ( DrawComponentWorldIcon( pSpawnComponent, KRG_ICON_GAMEPAD ) )
                 {
                     auto pEntity = pEditedMap->FindEntity( pSpawnComponent->GetEntityID() );
                     SelectEntity( pEntity );
@@ -452,8 +490,7 @@ namespace KRG::EntityModel
             if ( pComponent != m_pSelectedComponent )
             {
                 auto pSpawnComponent = const_cast<AI::AISpawnComponent*>( pComponent );
-                ImVec2 const componentPositionScreenSpace = pViewport->WorldSpaceToScreenSpace( pComponent->GetPosition() );
-                if ( ImGuiX::DrawOverlayIcon( componentPositionScreenSpace, KRG_ICON_USER_SECRET, pSpawnComponent ) )
+                if ( DrawComponentWorldIcon( pSpawnComponent, KRG_ICON_USER_SECRET ) )
                 {
                     auto pEntity = pEditedMap->FindEntity( pSpawnComponent->GetEntityID() );
                     SelectEntity( pEntity );
@@ -500,63 +537,133 @@ namespace KRG::EntityModel
         }
     }
 
-    //-------------------------------------------------------------------------
-
-    void EntityMapEditor::DrawEntityOutliner( UpdateContext const& context )
+    void EntityMapEditor::DrawPropertyGrid( UpdateContext const& context )
     {
-        if ( ImGui::Begin( m_outlinerWindowName.c_str() ) )
+        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
         {
-            auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
-            if ( pEditedMap != nullptr )
-            {
-                int32 const numEntities = (int32) pEditedMap->GetEntities().size();
-                for ( int32 i = 0; i < numEntities; i++ )
-                {
-                    Entity* pEntity = pEditedMap->GetEntities()[i];
-
-                    String const buttonLabel( String::CtorSprintf(), "%s##%d", pEntity->GetName().c_str(), i );
-                    if ( ImGui::Button( buttonLabel.c_str() ) )
-                    {
-                        SelectEntity( pEntity );
-                    }
-
-                    if ( ImGui::IsItemHovered() )
-                    {
-                        if ( pEntity->IsSpatialEntity() )
-                        {
-                            auto drawingCtx = GetDrawingContext();
-                            drawingCtx.DrawWireBox( pEntity->GetWorldBounds(), Colors::Yellow, 2.0f );
-                        }
-                    }
-                }
-            }
+            m_propertyGrid.DrawGrid();
         }
         ImGui::End();
     }
 
-    void EntityMapEditor::DrawEntityView( UpdateContext const& context )
+    //-------------------------------------------------------------------------
+
+    void EntityMapEditor::HandleInput( UpdateContext const& context )
+    {
+        if ( m_isViewportFocused )
+        {
+            if ( ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Space ) ) )
+            {
+                m_gizmo.SwitchToNextMode();
+            }
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
+// Map Outliner
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
+{
+    void EntityMapEditor::DrawMapOutliner( UpdateContext const& context )
+    {
+        if ( ImGui::Begin( m_outlinerWindowName.c_str() ) )
+        {
+            // Create New Entity
+            //-------------------------------------------------------------------------
+
+            {
+                ImGuiX::ScopedFont const sf( ImGuiX::Font::SmallBold );
+                if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, "CREATE ENTITY", ImVec2( -1, 0 ) ) )
+                {
+                    Entity* pEntity = KRG::New<Entity>( StringID( "New Entity" ) );
+                    m_pWorld->GetMap( m_loadedMap )->AddEntity( pEntity );
+                    SelectEntity( pEntity );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( ImGui::BeginChild( "EntityList", ImVec2( -1, 0 ) ) )
+            {
+                auto pEditedMap = ( m_loadedMap.IsValid() ) ? m_pWorld->GetMap( m_loadedMap ) : nullptr;
+                if ( pEditedMap != nullptr )
+                {
+                    int32 const numEntities = (int32) pEditedMap->GetEntities().size();
+                    for ( int32 i = 0; i < numEntities; i++ )
+                    {
+                        Entity* pEntity = pEditedMap->GetEntities()[i];
+
+                        bool const isSelected = pEntity == m_pSelectedEntity;
+                        if ( isSelected )
+                        {
+                            ImGuiX::PushFontAndColor( ImGuiX::Font::SmallBold, Colors::Yellow );
+                        }
+
+                        String const buttonLabel( String::CtorSprintf(), "%s##%u", pEntity->GetName().c_str(), pEntity->GetID().ToUint64() );
+                        if ( ImGui::Selectable( buttonLabel.c_str(), isSelected, 0 ) )
+                        {
+                            SelectEntity( pEntity );
+                        }
+
+                        if ( isSelected )
+                        {
+                            ImGui::PopFont();
+                            ImGui::PopStyleColor();
+                        }
+
+                        if ( isSelected && m_syncOutlinerToSelectedItem )
+                        {
+                            ImGui::ScrollToItem();
+                            m_syncOutlinerToSelectedItem = false;
+                        }
+
+                        if ( ImGui::IsItemHovered() )
+                        {
+                            if ( pEntity->IsSpatialEntity() )
+                            {
+                                auto drawingCtx = GetDrawingContext();
+                                drawingCtx.DrawWireBox( pEntity->GetWorldBounds(), Colors::Yellow, 2.0f );
+                            }
+                        }
+                    }
+                }
+            }
+            ImGui::EndChild();
+        }
+        ImGui::End();
+    }
+}
+
+//-------------------------------------------------------------------------
+// Entity Inspector
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
+{
+    void EntityMapEditor::DrawEntityEditor( UpdateContext const& context )
     {
         if ( ImGui::Begin( m_entityViewWindowName.c_str() ) )
         {
             if ( m_pSelectedEntity != nullptr )
             {
-                ImGui::Text( "Entity Name: %s", m_pSelectedEntity->GetName().c_str() );
-                ImGui::Text( "Entity ID: %u", m_pSelectedEntity->GetID() );
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Large );
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::Text( "%s", m_pSelectedEntity->GetName().c_str() );
+                }
 
-                ImGui::Separator();
-
-                //-------------------------------------------------------------------------
+                ImGui::SameLine( ImGui::GetContentRegionAvail().x + ImGui::GetStyle().ItemSpacing.x - 22, 0);
+                if ( ImGui::Button( KRG_ICON_PENCIL, ImVec2( 22, 0 ) ) )
+                {
+                    SelectEntity( m_pSelectedEntity );
+                }
+                ImGuiX::ItemTooltip( "Edit Entity Details" );
 
                 if ( m_pSelectedEntity->IsSpatialEntity() )
                 {
-                    if ( ImGui::CollapsingHeader( "Spatial Info", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        auto const& transform = m_pSelectedEntity->GetWorldTransform();
-                        auto const eulerAngles = transform.GetRotation().ToEulerAngles();
-                        ImGui::Text( "Rotation: %.2f %.2f %.2f", eulerAngles.m_x, eulerAngles.m_y, eulerAngles.m_z );
-                        ImGui::Text( "Translation: %.2f %.2f %.2f", transform.GetTranslation().m_x, transform.GetTranslation().m_y, transform.GetTranslation().m_z );
-                        ImGui::Text( "Scale: %.2f %.2f %.2f", transform.GetScale().m_x, transform.GetScale().m_y, transform.GetScale().m_z );
-                    }
+                    ImGuiX::DisplayTransform( m_pSelectedEntity->GetWorldTransform(), ImGui::GetContentRegionAvail().x );
                 }
 
                 //-------------------------------------------------------------------------
@@ -610,17 +717,6 @@ namespace KRG::EntityModel
         ImGui::End();
     }
 
-    void EntityMapEditor::DrawPropertyGrid( UpdateContext const& context )
-    {
-        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
-        {
-            m_propertyGrid.DrawGrid();
-        }
-        ImGui::End();
-    }
-
-    //-------------------------------------------------------------------------
-
     void EntityMapEditor::DrawComponentEntry( EntityComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr );
@@ -629,8 +725,6 @@ namespace KRG::EntityModel
         {
             SelectComponent( pComponent );
         }
-        ImGui::SameLine();
-        ImGui::Text( " - %u - ", pComponent->GetID() );
         ImGui::SameLine();
 
         EntityComponent::Status const componentStatus = pComponent->GetStatus();
@@ -696,17 +790,5 @@ namespace KRG::EntityModel
 
             ImGui::TreePop();
         }
-    }
-
-    void EntityMapEditor::OnGamePreviewStarted()
-    {
-        m_pWorld->SuspendUpdates();
-        m_isGamePreviewRunning = true;
-    }
-
-    void EntityMapEditor::OnGamePreviewEnded()
-    {
-        m_isGamePreviewRunning = false;
-        m_pWorld->ResumeUpdates();
     }
 }

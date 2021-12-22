@@ -57,34 +57,41 @@ namespace KRG::Render
 
         struct LightData
         {
-            Vector        m_SunDirIndirectIntensity;// TODO: refactor to Float3 and float
-            Vector        m_SunColorRoughnessOneLevel;// TODO: refactor to Float3 and float
-            Matrix        m_sunShadowMapMatrix;
-            float         m_manualExposure;
-            uint32        m_lightingFlags;
-            uint32        m_numPunctualLights;
-            PunctualLight m_punctualLights[MAX_PUNCTUAL_LIGHTS];
+            Vector          m_SunDirIndirectIntensity = Vector::Zero;// TODO: refactor to Float3 and float
+            Vector          m_SunColorRoughnessOneLevel = Vector::Zero;// TODO: refactor to Float3 and float
+            Matrix          m_sunShadowMapMatrix = Matrix( InitToZero );
+            float           m_manualExposure = -1.0f;
+            uint32          m_lightingFlags = 0;
+            uint32          m_numPunctualLights = 0;
+            PunctualLight   m_punctualLights[MAX_PUNCTUAL_LIGHTS];
         };
 
-        struct Transforms
+        struct alignas(16) PickingData
         {
-            Matrix m_worldTransform;
-            Matrix m_normalTransform;
-            Matrix m_viewprojTransform;
+            uint32 m_ID[2];
+            uint32 m_padding0[2];
+            Float4 m_padding1;
         };
 
         struct MaterialData
         {
-            uint32   m_surfaceFlags;
-            float    m_metalness;
-            float    m_roughness;
-            float    m_normalScaler;
+            uint32   m_surfaceFlags = 0;
+            float    m_metalness = 0.0f;
+            float    m_roughness = 0.0f;
+            float    m_normalScaler = 1.0f;
             Vector   m_albedo;
+        };
+
+        struct ObjectTransforms
+        {
+            Matrix  m_worldTransform = Matrix( InitToZero );
+            Matrix  m_normalTransform = Matrix( InitToZero );
+            Matrix  m_viewprojTransform = Matrix( InitToZero );
         };
 
         struct RenderData //TODO: optimize - there should not be per frame updates
         {
-            Transforms                              m_transforms;
+            ObjectTransforms                        m_transforms;
             LightData                               m_lightData;
             CubemapTexture const*                   m_pSkyboxRadianceTexture;
             CubemapTexture const*                   m_pSkyboxTexture;
@@ -105,16 +112,16 @@ namespace KRG::Render
         bool Initialize( RenderDevice* pRenderDevice );
         void Shutdown();
 
-        virtual void RenderWorld( Seconds const deltaTime, RenderTarget const& target, Viewport const& viewport, EntityWorld* pWorld ) override final;
+        virtual void RenderWorld( Seconds const deltaTime, Viewport const& viewport, RenderTarget const& renderTarget, EntityWorld* pWorld ) override final;
 
     private:
 
         void RenderSunShadows( Viewport const& viewport, DirectionalLightComponent* pDirectionalLightComponent, RenderData const& data );
-        void RenderStaticMeshes( Viewport const& viewport,  RenderData const& data );
-        void RenderSkeletalMeshes( Viewport const& viewport, RenderData const& data );
+        void RenderStaticMeshes( Viewport const& viewport, RenderTarget const& renderTarget, RenderData const& data );
+        void RenderSkeletalMeshes( Viewport const& viewport, RenderTarget const& renderTarget, RenderData const& data );
         void RenderSkybox( Viewport const& viewport, RenderData const& data );
 
-        void SetupRenderStates( Viewport const& viewport, RenderData const& data );
+        void SetupRenderStates( Viewport const& viewport, PixelShader* pShader, RenderData const& data );
 
     private:
 
@@ -144,5 +151,9 @@ namespace KRG::Render
         Texture                                                 m_precomputedBRDF;
         Texture                                                 m_shadowMap;
         PipelineState                                           m_pipelinePrecomputeBRDF;
+
+        PixelShader                                             m_pixelShaderPicking;
+        PipelineState                                           m_pipelineStateStaticPicking;
+        PipelineState                                           m_pipelineStateSkeletalPicking;
     };
 }

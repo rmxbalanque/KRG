@@ -1,6 +1,7 @@
 #include "PlayerAction_Falling.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerCameraController.h"
+#include "Game/Core/Player/PlayerAnimationController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "System/Input/InputSystem.h"
@@ -12,17 +13,17 @@
 
 namespace KRG::Player
 {
-    static Radians  maxAngularSpeed = Radians( Degrees( 90 ) ); // radians/second
-    static float    maxAirControlSpeed = 6.0f;                  // meters/second
-    static float    GroundDetectionDistance = 0.05f;            // meters
+    static float    g_maxAirControlAcceleration = 10.0f;          // meters/second squared
+    static float    g_maxAirControlSpeed = 6.5f;                  // meters/second
 
     //-------------------------------------------------------------------------
 
     bool FallingAction::TryStartInternal( ActionContext const& ctx )
     {
-        if( !ProbeForGround( ctx.m_pPhysicsWorld, ctx.m_pCharacterComponent, ctx.m_pCharacterComponent->GetCapsulePosition() ) )
+        if( !ctx.m_pCharacterController->IsOnGround() )
         {
-            ctx.m_pCharacterController->EnableGravity();
+            ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Falling );
+            ctx.m_pCharacterController->EnableGravity( ctx.m_pCharacterComponent->GetCharacterVelocity().m_z );
             return true;
         }
 
@@ -42,9 +43,22 @@ namespace KRG::Player
         auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
         // Use last frame camera orientation
+        Vector const currentVelocity = ctx.m_pCharacterComponent->GetCharacterVelocity();
+        Vector const currentVelocity2D = currentVelocity * Vector( 1.0f, 1.0f, 0.0f );
+        float const currentSpeed2D = currentVelocity2D.GetLength2();
+
         Vector const forward = camFwd * movementInputs.m_y;
         Vector const right = camRight * movementInputs.m_x;
-        Vector const desiredHeadingVelocity = ( forward + right ) * maxAirControlSpeed;
+        Vector const desiredHeadingVelocity2D = ( forward + right ) * g_maxAirControlAcceleration * ctx.GetDeltaTime();
+
+        Vector resultingVelocity = currentVelocity2D + desiredHeadingVelocity2D;
+        float const speed2D = resultingVelocity.GetLength2();
+        if( speed2D > g_maxAirControlSpeed )
+        {
+            resultingVelocity = resultingVelocity.GetNormalized2() * g_maxAirControlSpeed;
+        }
+
+        Vector const facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -53,9 +67,9 @@ namespace KRG::Player
         // Update animation controller
         //-------------------------------------------------------------------------
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
-        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), desiredHeadingVelocity, desiredHeadingVelocity.GetNormalized2() );
+        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), resultingVelocity, facing );
 
-        if( ProbeForGround( ctx.m_pPhysicsWorld, ctx.m_pCharacterComponent, ctx.m_pCharacterComponent->GetCapsulePosition() ) )
+        if( ctx.m_pCharacterController->IsOnGround() )
         {
             return Status::Completed;
         }
@@ -81,21 +95,5 @@ namespace KRG::Player
         ImGui::Dummy( ImVec2( 0, 10 ) );
         ImGui::Text( "Debug drawings :" );
         ImGui::Separator();
-    }
-
-    bool FallingAction::ProbeForGround( Physics::PhysicsWorldSystem* pPhysicsWorld, Physics::CharacterComponent const* pCharacterComponent, Vector const& startPosition )
-    {
-        pPhysicsWorld->AcquireReadLock();
-
-        Physics::QueryFilter filter;
-        filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment, Physics::Layers::Characters ) );
-        filter.AddIgnoredEntity( pCharacterComponent->GetEntityID() );
-
-        Physics::SweepResults sweepResults;
-        bool foundGround = pPhysicsWorld->CapsuleSweep( pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), pCharacterComponent->GetCapsuleRadius(), pCharacterComponent->GetCapsuleOrientation(), startPosition, -Vector::UnitZ, 0.05f, filter, sweepResults );
-
-        pPhysicsWorld->ReleaseReadLock();
-
-        return foundGround;
     }
 }

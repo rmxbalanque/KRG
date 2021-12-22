@@ -2,7 +2,7 @@
 
 #include "Tools/Animation/_Module/API.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
-#include "Engine/Animation/Graph/AnimationGraphResources.h"
+#include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,8 +10,8 @@ namespace KRG::Animation
 {
     namespace Graph
     {
-        class AnimationGraphToolsDefinition; 
-        class ToolsGraphCompilationContext;
+        class AnimationGraphEditorDefinition; 
+        class EditorGraphCompilationContext;
     }
 
     //-------------------------------------------------------------------------
