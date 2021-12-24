@@ -1,8 +1,10 @@
 #include "EditorWorkspace.h"
 #include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Render/Debug/DebugView_Render.h"
+#include "Engine/Core/DebugViews/DebugView_Camera.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DevUI/OrientationGuide.h"
+#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,6 +24,15 @@ namespace KRG
     {
         KRG_ASSERT( m_pWorld != nullptr );
     }
+
+    void EditorWorkspace::Initialize( UpdateContext const& context )
+    {
+        SetDisplayName( m_displayName );
+        m_viewportWindowID.sprintf( "Viewport##%u", GetID() );
+        m_dockspaceID.sprintf( "Dockspace##%u", GetID() );
+    }
+
+    //-------------------------------------------------------------------------
 
     void EditorWorkspace::SetDisplayName( String const& name )
     {
@@ -55,12 +66,50 @@ namespace KRG
         ImGui::EndDisabled();
     }
 
-    bool EditorWorkspace::BeginViewportToolbarGroup( char const* pGroupID, ImVec2 const& groupSize )
+    //-------------------------------------------------------------------------
+
+    void EditorWorkspace::DrawDefaultViewportToolbarItems()
+    {
+        ImGui::SetNextItemWidth( 44 );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
+        if ( ImGui::BeginCombo( "##RenderingOptions", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
+        {
+            auto pRenderWorldSystem = GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
+            Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );
+
+            ImGui::EndCombo();
+        }
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextItemWidth( 44 );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
+        if ( ImGui::BeginCombo( "##CameraOptions", KRG_ICON_CAMERA, ImGuiComboFlags_HeightLarge ) )
+        {
+            auto pPlayerManagerSystem = GetWorld()->GetWorldSystem<PlayerManager>();
+            CameraDebugView::DrawDebugCameraOptions( pPlayerManagerSystem );
+
+            ImGui::EndCombo();
+        }
+        ImGui::PopStyleVar();
+        ImGui::SameLine();
+    }
+
+    bool EditorWorkspace::BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize )
     {
         ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Style::s_backgroundColorSemiLight.Value );
         ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorLight.Value );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 4.0f );
+
+        // Adjust "use available" height to default toolbar height
+        if ( groupSize.y <= 0 )
+        {
+            groupSize.y = ImGui::GetFrameHeight();
+        }
+
         return ImGui::BeginChild( pGroupID, groupSize, false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar );
     }
 
@@ -71,12 +120,7 @@ namespace KRG
         ImGui::PopStyleColor( 2 );
     }
 
-    void EditorWorkspace::Initialize( UpdateContext const& context )
-    {
-        SetDisplayName( m_displayName );
-        m_viewportWindowID.sprintf( "Viewport##%u", GetID() );
-        m_dockspaceID.sprintf( "Dockspace##%u", GetID() );
-    }
+    //-------------------------------------------------------------------------
 
     bool EditorWorkspace::DrawViewport( UpdateContext const& context, ViewportInfo const& viewportInfo, ImGuiWindowClass* pWindowClass )
     {
@@ -143,17 +187,7 @@ namespace KRG
             if ( HasViewportToolbar() )
             {
                 ImGui::SetCursorPos( ImGui::GetWindowContentRegionMin() + ImGui::GetStyle().ItemSpacing );
-                ImGui::SetNextItemWidth( 46 );
-                if ( ImGui::BeginCombo( "##RenderingOptions", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
-                {
-                    auto pRenderWorldSystem = GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
-                    Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );
-
-                    ImGui::EndCombo();
-                }
-
-                ImGui::SameLine();
-
+                DrawDefaultViewportToolbarItems();
                 DrawViewportToolbar( context, pViewport );
             }
 

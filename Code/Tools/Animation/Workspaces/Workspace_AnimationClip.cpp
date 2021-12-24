@@ -186,8 +186,12 @@ namespace KRG::Animation
         ImGui::TextColored( color, "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
         ImGui::TextColored( color, "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
         ImGui::TextColored( color, "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().GetLength3() );
-        ImGui::TextColored( color, "Frame: %.f/%d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
-        ImGui::TextColored( color, "Time: %.2fs/%0.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
+
+        if ( m_pEventEditor != nullptr )
+        {
+            ImGui::TextColored( color, "Frame: %.f/%d", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetNumFrames(), m_pResource->GetNumFrames() );
+            ImGui::TextColored( color, "Time: %.2fs/%0.2fs", m_pEventEditor->GetPlayheadPositionAsPercentage().ToFloat() * m_pResource->GetDuration(), m_pResource->GetDuration().ToFloat() );
+        }
 
         ImGui::Unindent();
     }

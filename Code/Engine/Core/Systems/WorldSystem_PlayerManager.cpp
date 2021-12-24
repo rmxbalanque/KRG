@@ -13,15 +13,6 @@
 
 namespace KRG
 {
-    namespace
-    {
-        constexpr static float const g_lookSpeed = Math::Pi / 8;
-        constexpr static float const g_moveSpeed = 10.0f; // 10 m/s
-        static FloatRange const g_moveSpeedLimits( 0.5f, 100 );
-    }
-
-    //-------------------------------------------------------------------------
-
     void PlayerManager::ShutdownSystem()
     {
         KRG_ASSERT( !m_player.m_entityID.IsValid() );
@@ -148,7 +139,7 @@ namespace KRG
         KRG_ASSERT( m_pDebugCameraComponent == nullptr );
         m_pDebugCameraComponent = KRG::New<FreeLookCameraComponent>( StringID( "Debug Camera Component" ) );
         m_pDebugCameraComponent->SetPositionAndLookatTarget( Vector( 0, -5, 5 ), Vector( 0, 0, 0 ) );
-        m_debugCameraMoveSpeed = g_moveSpeed;
+        m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
 
         auto pEntity = KRG::New<Entity>( StringID( "Debug Camera" ) );
         pEntity->AddComponent( m_pDebugCameraComponent );
@@ -174,11 +165,11 @@ namespace KRG
 
         if ( pMouseState->WasReleased( Input::MouseButton::Middle ) )
         {
-            m_debugCameraMoveSpeed = g_moveSpeed;
+            m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
         }
 
         int32 const wheelDelta = pMouseState->GetWheelDelta();
-        m_debugCameraMoveSpeed = g_moveSpeedLimits.GetClampedValue( m_debugCameraMoveSpeed + ( wheelDelta * 0.5f ) );
+        m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( m_debugCameraMoveSpeed + ( wheelDelta * 0.5f ) );
 
         // Position update
         //-------------------------------------------------------------------------
@@ -224,18 +215,49 @@ namespace KRG
         // Direction update
         //-------------------------------------------------------------------------
 
-        Radians headingDelta = 0.0f, pitchDelta = 0.0f;
+        constexpr static float const g_mouseSensitivity = Math::DegreesToRadians * 0.25f; // Convert pixels to radians
+        constexpr static float const g_debugCameraMaxAngularVelocity = Math::Pi * 5.0f;
 
+        // Update accumulator
         if ( pMouseState->IsHeldDown( Input::MouseButton::Right ) )
         {
             Vector const mouseDelta = pMouseState->GetMovementDelta();
-            Vector const angleDelta = mouseDelta * Vector( g_lookSpeed * deltaTime );
-            if ( !angleDelta.IsNearZero2() )
+            Vector const directionDelta = mouseDelta.GetNegated();
+            m_directionChangeAccumulator += ( directionDelta * ( Math::DegreesToRadians * 0.25f ) );
+        }
+
+        // Update view direction
+        if ( !m_directionChangeAccumulator.IsNearZero2() )
+        {
+            float const maxAdjustmentPerFrame = g_debugCameraMaxAngularVelocity * deltaTime;
+
+            Radians yawDelta = 0.0f;
+            if ( m_directionChangeAccumulator.m_x < 0.0f )
             {
-                headingDelta = -angleDelta.GetX();
-                pitchDelta = -angleDelta.GetY();
-                m_pDebugCameraComponent->AdjustPitchAndYaw( headingDelta, pitchDelta );
+                yawDelta = Math::Max( -maxAdjustmentPerFrame, m_directionChangeAccumulator.m_x );
+                m_directionChangeAccumulator.m_x = Math::Min( m_directionChangeAccumulator.m_x - yawDelta.ToFloat(), 0.0f);
             }
+            else
+            {
+                yawDelta = Math::Min( maxAdjustmentPerFrame, m_directionChangeAccumulator.m_x );
+                m_directionChangeAccumulator.m_x = Math::Max( m_directionChangeAccumulator.m_x - yawDelta.ToFloat(), 0.0f );
+            }
+
+            Radians pitchDelta = 0.0f;
+            if ( m_directionChangeAccumulator.m_y < 0.0f )
+            {
+                pitchDelta = Math::Max( -maxAdjustmentPerFrame, m_directionChangeAccumulator.m_y );
+                m_directionChangeAccumulator.m_y = Math::Min( m_directionChangeAccumulator.m_y - pitchDelta.ToFloat(), 0.0f );
+            }
+            else
+            {
+                pitchDelta = Math::Min( maxAdjustmentPerFrame, m_directionChangeAccumulator.m_y );
+                m_directionChangeAccumulator.m_y = Math::Max( m_directionChangeAccumulator.m_y - pitchDelta.ToFloat(), 0.0f );
+            }
+
+            //-------------------------------------------------------------------------
+
+            m_pDebugCameraComponent->AdjustPitchAndYaw( yawDelta, pitchDelta );
         }
     }
 

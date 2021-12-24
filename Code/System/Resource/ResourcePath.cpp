@@ -6,13 +6,9 @@
 
 namespace KRG
 {
-    char const* ResourcePath::PathPrefix = "data://";
-
-    //-------------------------------------------------------------------------
-
     static size_t FindExtensionStartIdx( String const& path )
     {
-        size_t const pathDelimiterIdx = path.find_last_of( FileSystem::Path::PathDelimiter );
+        size_t const pathDelimiterIdx = path.find_last_of( FileSystem::Path::s_pathDelimiter );
 
         size_t idx = path.rfind( '.' );
         size_t prevIdx = idx;
@@ -42,7 +38,7 @@ namespace KRG
             return false;
         }
 
-        if ( strncmp( ResourcePath::PathPrefix, pPath, strlen( ResourcePath::PathPrefix ) ) != 0 )
+        if ( strncmp( ResourcePath::s_pathPrefix, pPath, s_pathPrefixLength ) != 0 )
         {
             return false;
         }
@@ -63,9 +59,9 @@ namespace KRG
 
         if( filePath.IsUnderDirectory( rawResourceDirectoryPath ) )
         {
-            String tempPath = ResourcePath::PathPrefix;
+            String tempPath = ResourcePath::s_pathPrefix;
             tempPath.append( filePath.GetString().substr( rawResourceDirectoryPath.Length() ) );
-            eastl::replace( tempPath.begin(), tempPath.end(), FileSystem::Path::PathDelimiter, ResourcePath::PathDelimiter );
+            eastl::replace( tempPath.begin(), tempPath.end(), FileSystem::Path::s_pathDelimiter, ResourcePath::s_pathDelimiter );
             path = ResourcePath( tempPath );
         }
 
@@ -78,7 +74,7 @@ namespace KRG
 
         // Replace slashes and remove prefix
         String tempPath = resourcePath.m_path;
-        eastl::replace( tempPath.begin(), tempPath.end(), ResourcePath::PathDelimiter, FileSystem::Path::PathDelimiter );
+        eastl::replace( tempPath.begin(), tempPath.end(), ResourcePath::s_pathDelimiter, FileSystem::Path::s_pathDelimiter );
         tempPath = resourcePath.m_path.substr( 7 );
         return FileSystem::Path( rawResourceDirectoryPath + tempPath );
     }
@@ -149,8 +145,8 @@ namespace KRG
 
     String ResourcePath::GetFileNameWithoutExtension() const
     {
-        KRG_ASSERT( IsValid() );
-        auto filenameStartIdx = m_path.find_last_of( PathDelimiter );
+        KRG_ASSERT( IsValid() && IsFile() );
+        auto filenameStartIdx = m_path.find_last_of( s_pathDelimiter );
         KRG_ASSERT( filenameStartIdx != String::npos );
         filenameStartIdx++;
 
@@ -171,12 +167,12 @@ namespace KRG
     {
         KRG_ASSERT( IsValid() );
 
-        size_t lastDelimiterIdx = m_path.rfind( PathDelimiter );
+        size_t lastDelimiterIdx = m_path.rfind( s_pathDelimiter );
 
         // Handle directory paths
         if ( lastDelimiterIdx == m_path.length() - 1 )
         {
-            lastDelimiterIdx = m_path.rfind( PathDelimiter, lastDelimiterIdx - 1 );
+            lastDelimiterIdx = m_path.rfind( s_pathDelimiter, lastDelimiterIdx - 1 );
         }
 
         //-------------------------------------------------------------------------
@@ -192,9 +188,38 @@ namespace KRG
         return parentPath;
     }
 
+    int32 ResourcePath::GetDirectoryDepth() const
+    {
+        int32 dirDepth = -1;
+
+        if ( IsValid() )
+        {
+            size_t delimiterIdx = m_path.find( s_pathDelimiter, s_pathPrefixLength );
+            while ( delimiterIdx != String::npos )
+            {
+                dirDepth++;
+                delimiterIdx = m_path.find( s_pathDelimiter, delimiterIdx + 1 );
+            }
+        }
+
+        return dirDepth;
+    }
+
+    int32 ResourcePath::GetPathDepth() const
+    {
+        int32 pathDepth = GetDirectoryDepth();
+
+        if ( IsFile() )
+        {
+            pathDepth++;
+        }
+
+        return pathDepth;
+    }
+
     String ResourcePath::GetExtension() const
     {
-        KRG_ASSERT( IsValid() );
+        KRG_ASSERT( IsValid() && IsFile() );
         String ext;
 
         size_t const extIdx = FindExtensionStartIdx( m_path.c_str() );
@@ -208,7 +233,7 @@ namespace KRG
 
     void ResourcePath::ReplaceExtension( const char* pExtension )
     {
-        KRG_ASSERT( IsValid() && pExtension != nullptr );
+        KRG_ASSERT( IsValid() && IsFile() && pExtension != nullptr );
         KRG_ASSERT( pExtension[0] != 0 && pExtension[0] != '.' );
 
         size_t const extIdx = FindExtensionStartIdx( m_path.c_str() );

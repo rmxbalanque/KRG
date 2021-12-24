@@ -13,6 +13,28 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
+    void CameraDebugView::DrawDebugCameraOptions( PlayerManager* pPlayerManager )
+    {
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text( "Speed:" );
+
+        ImGui::SameLine();
+
+        float cameraSpeed = pPlayerManager->GetDebugCameraMoveSpeed();
+        ImGui::SetNextItemWidth( 125 );
+        if ( ImGui::SliderFloat( "##CameraSpeed", &cameraSpeed, PlayerManager::s_debugCameraMinSpeed, PlayerManager::s_debugCameraMaxSpeed ) )
+        {
+            pPlayerManager->SetDebugCameraSpeed( cameraSpeed );
+        }
+
+        if ( ImGui::Button( "Reset Camera Speed", ImVec2( -1, 0 ) ) )
+        {
+            pPlayerManager->ResetDebugCameraSpeed();
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     CameraDebugView::CameraDebugView()
     {
         m_menus.emplace_back( DebugMenu( "Player", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );

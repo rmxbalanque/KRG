@@ -19,11 +19,7 @@ namespace KRG::Render
         if ( newMobility != m_mobility )
         {
             m_mobility = newMobility;
-
-            if ( m_mobilityChangedEvent.HasBoundUser() )
-            {
-                m_mobilityChangedEvent.Execute( this );
-            }
+            m_mobilityChangedEvent.Execute( this );
         }
     }
 
@@ -31,10 +27,7 @@ namespace KRG::Render
     {
         if ( m_mobility == Mobility::Static )
         {
-            if ( m_staticMobilityTransformUpdatedEvent.HasBoundUser() )
-            {
-                m_staticMobilityTransformUpdatedEvent.Execute( this );
-            }
+            m_staticMobilityTransformUpdatedEvent.Execute( this );
         }
     }
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Tools/Core/VisualGraph/VisualGraph_View.h"
-#include "Tools/Core/Trees/CategoryTree.h"
+#include "Tools/Core/Helpers/CategoryTree.h"
 
 //-------------------------------------------------------------------------
 

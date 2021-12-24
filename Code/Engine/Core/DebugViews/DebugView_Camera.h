@@ -11,9 +11,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class CameraDebugView : public EntityWorldDebugView
+    class KRG_ENGINE_CORE_API CameraDebugView : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( CameraDebugView );
+
+    public:
+
+        static void DrawDebugCameraOptions( PlayerManager* pPlayerManager );
 
     public:
 
@@ -31,7 +35,7 @@ namespace KRG
     private:
 
         EntityWorld const*              m_pWorld = nullptr;
-        PlayerManager const*        m_pPlayerManager = nullptr;
+        PlayerManager const*            m_pPlayerManager = nullptr;
         bool                            m_isCameraDebugWindowOpen = false;
     };
 }

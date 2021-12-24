@@ -61,7 +61,7 @@ namespace KRG::Resource
         TVector<ResourceRecord*> const& GetAllResourcesOfType( ResourceTypeID typeID ) const;
 
         // Event that fires whenever the database is updated
-        MultiUserSignal OnDatabaseUpdated() const { return m_databaseUpdatedEvent; }
+        TEventHandle<> OnDatabaseUpdated() const { return m_databaseUpdatedEvent; }
 
     private:
 
@@ -94,6 +94,6 @@ namespace KRG::Resource
 
         Directory                                                   m_rootDir;
         THashMap<ResourceTypeID, TVector<ResourceRecord*>>          m_resourcesPerType;
-        mutable MultiUserSignalInternal                             m_databaseUpdatedEvent;
+        mutable TEvent<>                                            m_databaseUpdatedEvent;
     };
 }

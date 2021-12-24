@@ -17,7 +17,7 @@
 
 namespace KRG::FileSystem
 {
-    char const Path::PathDelimiter = '\\';
+    char const Path::s_pathDelimiter = '\\';
 
     //-------------------------------------------------------------------------
 
@@ -33,9 +33,9 @@ namespace KRG::FileSystem
 
             // Ensure directory paths have the final slash appended
             DWORD const result = GetFileAttributesA( fullpath );
-            if ( result != INVALID_FILE_ATTRIBUTES && ( result & FILE_ATTRIBUTE_DIRECTORY ) && fullpath[length - 1] != Path::PathDelimiter )
+            if ( result != INVALID_FILE_ATTRIBUTES && ( result & FILE_ATTRIBUTE_DIRECTORY ) && fullpath[length - 1] != Path::s_pathDelimiter )
             {
-                fullpath[length] = Path::PathDelimiter;
+                fullpath[length] = Path::s_pathDelimiter;
                 fullpath[length + 1] = 0;
             }
         }

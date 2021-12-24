@@ -14,6 +14,7 @@ namespace KRG::Resource
         {
             SkeletalMesh,
             StaticMesh,
+            PhysicsMesh,
             Skeleton,
             Animation
         };

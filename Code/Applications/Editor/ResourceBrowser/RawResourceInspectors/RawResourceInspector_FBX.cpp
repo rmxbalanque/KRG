@@ -2,12 +2,14 @@
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Render/ResourceDescriptors/ResourceDescriptor_RenderMesh.h"
 #include "Tools/Render/ResourceDescriptors/ResourceDescriptor_RenderTexture.h"
+#include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationClip.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
 #include "Engine/Animation/AnimationSkeleton.h"
 #include "Engine/Animation/AnimationClip.h"
+#include "Engine/Physics/PhysicsMesh.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -145,126 +147,133 @@ namespace KRG::Resource
             // Meshes
             //-------------------------------------------------------------------------
 
-            ImGuiX::TextSeparator( "Static Meshes", 10, ImGui::GetColumnWidth() );
+            bool haveSkeletalMeshes = false;
 
-            for ( auto const& meshInfo : m_meshes )
+            if ( !m_meshes.empty() )
             {
-                tmpString.sprintf( KRG_ICON_CUBE" %s", meshInfo.m_nameID.c_str() );
-                bool isSelected = ( m_selectedItemType == InfoType::StaticMesh ) && meshInfo.m_nameID == m_selectedItemID;
-                if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                ImGuiX::TextSeparator( "Static Meshes", 10, ImGui::GetColumnWidth() );
+
+                for ( auto const& meshInfo : m_meshes )
                 {
-                    m_selectedItemType = InfoType::StaticMesh;
-                    m_selectedItemID = meshInfo.m_nameID;
-                    OnSwitchSelectedItem();
+                    tmpString.sprintf( KRG_ICON_CUBE" %s", meshInfo.m_nameID.c_str() );
+                    bool isSelected = ( m_selectedItemType == InfoType::StaticMesh ) && meshInfo.m_nameID == m_selectedItemID;
+                    if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                    {
+                        m_selectedItemType = InfoType::StaticMesh;
+                        m_selectedItemID = meshInfo.m_nameID;
+                        OnSwitchSelectedItem();
+                    }
+
+                    haveSkeletalMeshes |= meshInfo.m_isSkinned;
+                }
+            
+                ImGuiX::TextSeparator( "Physics Meshes", 10, ImGui::GetColumnWidth() );
+
+                for ( auto const& meshInfo : m_meshes )
+                {
+                    tmpString.sprintf( KRG_ICON_CUBES" %s", meshInfo.m_nameID.c_str() );
+                    bool isSelected = ( m_selectedItemType == InfoType::StaticMesh ) && meshInfo.m_nameID == m_selectedItemID;
+                    if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                    {
+                        m_selectedItemType = InfoType::PhysicsMesh;
+                        m_selectedItemID = meshInfo.m_nameID;
+                        OnSwitchSelectedItem();
+                    }
                 }
             }
 
-            if ( m_meshes.empty() )
+            if ( haveSkeletalMeshes )
             {
-                ImGui::Text( "No Static Meshes" );
-            }
+                ImGuiX::TextSeparator( "Skeletal Meshes", 10, ImGui::GetColumnWidth() );
 
-            ImGuiX::TextSeparator( "Skeletal Meshes", 10, ImGui::GetColumnWidth() );
-
-            bool noSkeletalMeshes = true;
-            for ( auto const& meshInfo : m_meshes )
-            {
-                if ( !meshInfo.m_isSkinned )
+                for ( auto const& meshInfo : m_meshes )
                 {
-                    continue;
+                    if ( !meshInfo.m_isSkinned )
+                    {
+                        continue;
+                    }
+
+                    tmpString.sprintf( KRG_ICON_USER" %s", meshInfo.m_nameID.c_str() );
+                    bool isSelected = ( m_selectedItemType == InfoType::SkeletalMesh ) && meshInfo.m_nameID == m_selectedItemID;
+                    if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                    {
+                        m_selectedItemType = InfoType::SkeletalMesh;
+                        m_selectedItemID = meshInfo.m_nameID;
+                        OnSwitchSelectedItem();
+                    }
                 }
-
-                noSkeletalMeshes = false;
-
-                tmpString.sprintf( KRG_ICON_USER" %s", meshInfo.m_nameID.c_str() );
-                bool isSelected = ( m_selectedItemType == InfoType::SkeletalMesh ) && meshInfo.m_nameID == m_selectedItemID;
-                if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
-                {
-                    m_selectedItemType = InfoType::SkeletalMesh;
-                    m_selectedItemID = meshInfo.m_nameID;
-                    OnSwitchSelectedItem();
-                }
-            }
-
-            if ( noSkeletalMeshes )
-            {
-                ImGui::Text( "No Skeletal Meshes" );
             }
 
             //-------------------------------------------------------------------------
             // Skeletons
             //-------------------------------------------------------------------------
 
-            ImGuiX::TextSeparator( "Skeletons", 10, ImGui::GetColumnWidth() );
-
-            for ( auto const& skeletonRoot : m_nullSkeletonRoots )
+            if ( !m_nullSkeletonRoots.empty() )
             {
-                tmpString.sprintf( KRG_ICON_CIRCLE" %s", skeletonRoot.m_nameID.c_str() );
+                ImGuiX::TextSeparator( "Skeletons", 10, ImGui::GetColumnWidth() );
 
-                bool isSelected = ( m_selectedItemType == InfoType::Skeleton ) && skeletonRoot.m_nameID == m_selectedItemID;
-                if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                for ( auto const& skeletonRoot : m_nullSkeletonRoots )
                 {
-                    m_selectedItemType = InfoType::Skeleton;
-                    m_selectedItemID = skeletonRoot.m_nameID;
-                    OnSwitchSelectedItem();
-                }
+                    tmpString.sprintf( KRG_ICON_CIRCLE" %s", skeletonRoot.m_nameID.c_str() );
 
-                ImGui::Indent();
-                for ( auto const& childSkeletonRoot : skeletonRoot.m_childSkeletons )
-                {
-                    tmpString.sprintf( KRG_ICON_MALE" %s", childSkeletonRoot.m_nameID.c_str() );
-
-                    isSelected = ( m_selectedItemType == InfoType::Skeleton ) && childSkeletonRoot.m_nameID == m_selectedItemID;
+                    bool isSelected = ( m_selectedItemType == InfoType::Skeleton ) && skeletonRoot.m_nameID == m_selectedItemID;
                     if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
                     {
                         m_selectedItemType = InfoType::Skeleton;
-                        m_selectedItemID = childSkeletonRoot.m_nameID;
+                        m_selectedItemID = skeletonRoot.m_nameID;
+                        OnSwitchSelectedItem();
+                    }
+
+                    ImGui::Indent();
+                    for ( auto const& childSkeletonRoot : skeletonRoot.m_childSkeletons )
+                    {
+                        tmpString.sprintf( KRG_ICON_MALE" %s", childSkeletonRoot.m_nameID.c_str() );
+
+                        isSelected = ( m_selectedItemType == InfoType::Skeleton ) && childSkeletonRoot.m_nameID == m_selectedItemID;
+                        if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                        {
+                            m_selectedItemType = InfoType::Skeleton;
+                            m_selectedItemID = childSkeletonRoot.m_nameID;
+                            OnSwitchSelectedItem();
+                        }
+                    }
+                    ImGui::Unindent();
+                }
+
+                for ( auto const& skeletonRoot : m_skeletonRoots )
+                {
+                    tmpString.sprintf( KRG_ICON_MALE" %s", skeletonRoot.m_nameID.c_str() );
+
+                    bool isSelected = ( m_selectedItemType == InfoType::Skeleton ) && skeletonRoot.m_nameID == m_selectedItemID;
+                    if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                    {
+                        m_selectedItemType = InfoType::Skeleton;
+                        m_selectedItemID = skeletonRoot.m_nameID;
                         OnSwitchSelectedItem();
                     }
                 }
-                ImGui::Unindent();
-            }
-
-            for ( auto const& skeletonRoot : m_skeletonRoots )
-            {
-                tmpString.sprintf( KRG_ICON_MALE" %s", skeletonRoot.m_nameID.c_str() );
-
-                bool isSelected = ( m_selectedItemType == InfoType::Skeleton ) && skeletonRoot.m_nameID == m_selectedItemID;
-                if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
-                {
-                    m_selectedItemType = InfoType::Skeleton;
-                    m_selectedItemID = skeletonRoot.m_nameID;
-                    OnSwitchSelectedItem();
-                }
-            }
-
-            if ( m_nullSkeletonRoots.empty() && m_skeletonRoots.empty() )
-            {
-                ImGui::Text( "No Skeletons" );
             }
 
             //-------------------------------------------------------------------------
             // Animations
             //-------------------------------------------------------------------------
 
-            ImGuiX::TextSeparator( "Animations", 10, ImGui::GetColumnWidth() );
-
-            for ( auto const& animationInfo : m_animations )
+            if ( !m_animations.empty() )
             {
-                tmpString.sprintf( KRG_ICON_FILM" %s", animationInfo.m_nameID.c_str() );
+                ImGuiX::TextSeparator( "Animations", 10, ImGui::GetColumnWidth() );
 
-                bool isSelected = ( m_selectedItemType == InfoType::Animation ) && animationInfo.m_nameID == m_selectedItemID;
-                if( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                for ( auto const& animationInfo : m_animations )
                 {
-                    m_selectedItemType = InfoType::Animation;
-                    m_selectedItemID = animationInfo.m_nameID;
-                    OnSwitchSelectedItem();
-                }
-            }
+                    tmpString.sprintf( KRG_ICON_FILM" %s", animationInfo.m_nameID.c_str() );
 
-            if ( m_animations.empty() )
-            {
-                ImGui::Text( "No Animations" );
+                    bool isSelected = ( m_selectedItemType == InfoType::Animation ) && animationInfo.m_nameID == m_selectedItemID;
+                    if( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                    {
+                        m_selectedItemType = InfoType::Animation;
+                        m_selectedItemID = animationInfo.m_nameID;
+                        OnSwitchSelectedItem();
+                    }
+                }
             }
         }
     }
@@ -288,6 +297,12 @@ namespace KRG::Resource
                     case InfoType::SkeletalMesh:
                     {
                         CreateNewDescriptor( Render::SkeletalMesh::GetStaticResourceTypeID(), m_pDescriptor );
+                    }
+                    break;
+
+                    case InfoType::PhysicsMesh:
+                    {
+                        CreateNewDescriptor( Physics::PhysicsMesh::GetStaticResourceTypeID(), m_pDescriptor );
                     }
                     break;
 
@@ -323,6 +338,15 @@ namespace KRG::Resource
             case InfoType::StaticMesh:
             {
                 auto pDesc = KRG::New<Render::StaticMeshResourceDescriptor>();
+                pDesc->m_meshPath = ResourcePath::FromFileSystemPath( m_rawResourceDirectory, m_filePath );
+                pDesc->m_meshName = m_selectedItemID.c_str();
+                m_pDescriptor = pDesc;
+            }
+            break;
+
+            case InfoType::PhysicsMesh:
+            {
+                auto pDesc = KRG::New<Physics::PhysicsMeshResourceDescriptor>();
                 pDesc->m_meshPath = ResourcePath::FromFileSystemPath( m_rawResourceDirectory, m_filePath );
                 pDesc->m_meshName = m_selectedItemID.c_str();
                 m_pDescriptor = pDesc;

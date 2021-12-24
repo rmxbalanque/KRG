@@ -5,6 +5,7 @@
 #include "System/Resource/ResourceID.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
 #include "System/Core/Drawing/DebugDrawing.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 
@@ -168,8 +169,11 @@ namespace KRG
         // Draw the default workspace toolbar menu items (save, undo, redo, etc...)
         void DrawDefaultToolbarItems();
 
+        // Draw the default workspace toolbar menu items (rendering options, camera, etc...)
+        void DrawDefaultViewportToolbarItems();
+
         // Begin a toolbar group
-        bool BeginViewportToolbarGroup( char const* pGroupID, ImVec2 const& groupSize );
+        bool BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize );
 
         // End a toolbar group
         void EndViewportToolbarGroup();

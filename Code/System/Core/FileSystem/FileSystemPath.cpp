@@ -28,7 +28,7 @@ namespace KRG::FileSystem
         // If we have the path delimiter and it is after our last period, then there's no extension
         //-------------------------------------------------------------------------
 
-        size_t const pathDelimiterIdx = path.find_last_of( Path::PathDelimiter );
+        size_t const pathDelimiterIdx = path.find_last_of( Path::s_pathDelimiter );
         if ( pathDelimiterIdx > extensionIdx )
         {
             extensionIdx = String::npos;
@@ -124,7 +124,7 @@ namespace KRG::FileSystem
 
         if ( asDirectory && !IsDirectory() )
         {
-            m_fullpath += PathDelimiter;
+            m_fullpath += s_pathDelimiter;
         }
 
         if ( !IsValidPath( m_fullpath ) )
@@ -141,14 +141,14 @@ namespace KRG::FileSystem
         TInlineVector<String, 10> split;
 
         size_t previousDelimiterIdx = 0;
-        size_t currentDelimiterIdx = m_fullpath.find( PathDelimiter );
+        size_t currentDelimiterIdx = m_fullpath.find( s_pathDelimiter );
         while ( currentDelimiterIdx != String::npos )
         {
             KRG_ASSERT( currentDelimiterIdx > previousDelimiterIdx );
             split.emplace_back( m_fullpath.substr( previousDelimiterIdx, currentDelimiterIdx - previousDelimiterIdx ) );
 
             previousDelimiterIdx = currentDelimiterIdx + 1;
-            currentDelimiterIdx = m_fullpath.find( PathDelimiter, previousDelimiterIdx );
+            currentDelimiterIdx = m_fullpath.find( s_pathDelimiter, previousDelimiterIdx );
         }
 
         return split;
@@ -174,18 +174,30 @@ namespace KRG::FileSystem
         return directoryHierarchy;
     }
 
-    int32 Path::GetPathDepth() const
+    int32 Path::GetDirectoryDepth() const
     {
-        int32 pathDepth = -1;
+        int32 dirDepth = -1;
 
         if ( IsValid() )
         {
-            size_t delimiterIdx = m_fullpath.find( PathDelimiter );
+            size_t delimiterIdx = m_fullpath.find( s_pathDelimiter );
             while ( delimiterIdx != String::npos )
             {
-                pathDepth++;
-                delimiterIdx = m_fullpath.find( PathDelimiter, delimiterIdx + 1 );
+                dirDepth++;
+                delimiterIdx = m_fullpath.find( s_pathDelimiter, delimiterIdx + 1 );
             }
+        }
+
+        return dirDepth;
+    }
+
+    int32 Path::GetPathDepth() const
+    {
+        int32 pathDepth = GetDirectoryDepth();
+
+        if ( IsFile() )
+        {
+            pathDepth++;
         }
 
         return pathDepth;
@@ -197,12 +209,12 @@ namespace KRG::FileSystem
     {
         KRG_ASSERT( IsValid() );
 
-        size_t lastDelimiterIdx = m_fullpath.rfind( PathDelimiter );
+        size_t lastDelimiterIdx = m_fullpath.rfind( s_pathDelimiter );
 
         // Handle directory paths
         if ( lastDelimiterIdx == m_fullpath.length() - 1 )
         {
-            lastDelimiterIdx = m_fullpath.rfind( PathDelimiter, lastDelimiterIdx - 1 );
+            lastDelimiterIdx = m_fullpath.rfind( s_pathDelimiter, lastDelimiterIdx - 1 );
         }
 
         //-------------------------------------------------------------------------
@@ -227,7 +239,7 @@ namespace KRG::FileSystem
     {
         if ( !IsDirectory() )
         {
-            m_fullpath.push_back( PathDelimiter );
+            m_fullpath.push_back( s_pathDelimiter );
             m_hashCode = Hash::GetHash32( m_fullpath );
         }
     }
@@ -236,12 +248,12 @@ namespace KRG::FileSystem
     {
         KRG_ASSERT( IsValid() );
 
-        size_t lastDelimiterIdx = m_fullpath.rfind( PathDelimiter );
+        size_t lastDelimiterIdx = m_fullpath.rfind( s_pathDelimiter );
 
         // Handle directory paths
         if ( lastDelimiterIdx == m_fullpath.length() - 1 )
         {
-            lastDelimiterIdx = m_fullpath.rfind( PathDelimiter, lastDelimiterIdx - 1 );
+            lastDelimiterIdx = m_fullpath.rfind( s_pathDelimiter, lastDelimiterIdx - 1 );
         }
 
         m_fullpath.replace( 0, lastDelimiterIdx + 1, newParentDirectory.ToString() );
@@ -252,10 +264,10 @@ namespace KRG::FileSystem
     {
         KRG_ASSERT( IsValid() && IsDirectory() );
 
-        size_t idx = m_fullpath.rfind( PathDelimiter );
+        size_t idx = m_fullpath.rfind( s_pathDelimiter );
         KRG_ASSERT( idx != String::npos );
 
-        idx = m_fullpath.rfind( PathDelimiter, Math::Max( size_t( 0 ), idx - 1 ) );
+        idx = m_fullpath.rfind( s_pathDelimiter, Math::Max( size_t( 0 ), idx - 1 ) );
         if ( idx == String::npos )
         {
             return String();
@@ -314,7 +326,7 @@ namespace KRG::FileSystem
     char const* Path::GetFileNameSubstr() const
     {
         KRG_ASSERT( IsValid() && IsFile() );
-        auto idx = m_fullpath.find_last_of( PathDelimiter );
+        auto idx = m_fullpath.find_last_of( s_pathDelimiter );
         KRG_ASSERT( idx != String::npos );
 
         idx++;
@@ -324,7 +336,7 @@ namespace KRG::FileSystem
     String Path::GetFileNameWithoutExtension() const
     {
         KRG_ASSERT( IsValid() && IsFile() );
-        auto filenameStartIdx = m_fullpath.find_last_of( PathDelimiter );
+        auto filenameStartIdx = m_fullpath.find_last_of( s_pathDelimiter );
         KRG_ASSERT( filenameStartIdx != String::npos );
         filenameStartIdx++;
 

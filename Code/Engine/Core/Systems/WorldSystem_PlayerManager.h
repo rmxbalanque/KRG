@@ -50,6 +50,12 @@ namespace KRG
             UseDebugCamera,     // Game plays as normal, but we use the debug camera to view it 
             FullDebug,          // Player controller is disabled and we have full control of the debug camera
         };
+
+        //-------------------------------------------------------------------------
+
+        constexpr static float const            s_debugCameraDefaultSpeed = 15.0f; // m/s
+        constexpr static float const            s_debugCameraMinSpeed = 0.5f; // m/s
+        constexpr static float const            s_debugCameraMaxSpeed = 100.0f; // m/s
         #endif
 
     public:
@@ -75,6 +81,8 @@ namespace KRG
         void SetDebugMode( DebugMode mode );
         inline DebugMode GetDebugMode() const { return m_debugMode; }
         inline FreeLookCameraComponent* GetDebugCamera() const { return m_pDebugCameraComponent; }
+        inline void ResetDebugCameraSpeed() { m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed; }
+        inline void SetDebugCameraSpeed( float speed ) { m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( speed ); }
         inline float GetDebugCameraMoveSpeed() const { return m_debugCameraMoveSpeed; }
         #endif
 
@@ -106,6 +114,7 @@ namespace KRG
         #if KRG_DEVELOPMENT_TOOLS
         FreeLookCameraComponent*                    m_pDebugCameraComponent = nullptr;
         float                                       m_debugCameraMoveSpeed = 0;
+        Vector                                      m_directionChangeAccumulator = Vector::Zero;
         DebugMode                                   m_debugMode = DebugMode::None;
         #endif
     };

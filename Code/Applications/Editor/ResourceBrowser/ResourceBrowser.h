@@ -1,17 +1,18 @@
 #pragma once
-
-#include "ResourceBrowser_TreeView.h"
 #include "Applications/Editor/Editor_Model.h"
+#include "Tools/Core/Widgets/TreeListView.h"
+#include "Tools/Core/FileSystem/FileSystemWatcher.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG
 {
+    class ResourceDescriptorCreator;
     namespace Resource{ class RawResourceInspector; }
 
     //-------------------------------------------------------------------------
 
-    class ResourceBrowser
+    class ResourceBrowser final: public TreeListView, public FileSystem::IFileSystemChangeListener
     {
     public:
 
@@ -25,9 +26,16 @@ namespace KRG
 
     private:
 
+        void OnBrowserItemDoubleClicked( TreeListViewItem* pItem );
+
+        TreeListViewItem& FindOrCreateParentForItem( FileSystem::Path const& path );
+
         void UpdateVisibility();
-        void UpdateAndDrawBrowserFilters( UpdateContext const& context );
-        void OnBrowserItemDoubleClicked( TreeViewItem* pItem );
+
+        virtual void DrawItemContextMenu( TreeListViewItem* pItem ) override;
+        void DrawCreateNewDescriptorMenu( FileSystem::Path const& path );
+
+        void DrawFilterOptions( UpdateContext const& context );
         bool DrawResourceTypeFilterMenu();
 
     private:
@@ -37,7 +45,10 @@ namespace KRG
         TVector<ResourceTypeID>                             m_typeFilter;
         bool                                                m_showRawFiles = false;
 
-        ResourceBrowserTreeView                             m_treeView;
+        int32                                               m_dataDirectoryPathDepth;
+        TVector<FileSystem::Path>                           m_foundPaths;
+
+        ResourceDescriptorCreator*                          m_pResourceDescriptorCreator = nullptr;
         Resource::RawResourceInspector*                     m_pRawResourceInspector = nullptr;
         EventBindingID                                      m_onDoubleClickEventID;
     };

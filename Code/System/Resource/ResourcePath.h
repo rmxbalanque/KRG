@@ -32,8 +32,9 @@ namespace KRG
 
     public:
 
-        static char const* PathPrefix;
-        static constexpr char const PathDelimiter = '/';
+        constexpr static char const* s_pathPrefix = "data://";
+        constexpr static int32 const s_pathPrefixLength = 7;
+        constexpr static char const s_pathDelimiter = '/';
 
         static bool IsValidPath( char const* pPath );
         static bool IsValidPath( String const& path ) { return IsValidPath( path.c_str() ); }
@@ -62,6 +63,18 @@ namespace KRG
         String GetFileNameWithoutExtension() const;
 
         String GetParentDirectory() const;
+
+        // Get the directory depth for this path e.g. D:\Foo\Bar\Moo.txt = 2
+        int32 GetDirectoryDepth() const;
+
+        // Get the full path depth for this path e.g. D:\Foo\Bar\Moo.txt = 3
+        int32 GetPathDepth() const;
+
+        // Is this a file path
+        inline bool IsFile() const { KRG_ASSERT( IsValid() ); return m_path[m_path.length() - 1] != s_pathDelimiter; }
+
+        // Is this a directory path
+        inline bool IsDirectory() const { KRG_ASSERT( IsValid() ); return ( m_path[m_path.length() - 1] == s_pathDelimiter ); }
 
         // Extension
         //-------------------------------------------------------------------------

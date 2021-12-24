@@ -172,13 +172,13 @@ namespace KRG::VisualGraph
 
         static BaseGraph* CreateGraphFromSerializedData( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphObjectValue, BaseNode* pParentNode  );
 
-        static inline TMultiUserEvent<BaseGraph*> OnBeginModification() { return s_onBeginModification; }
-        static inline TMultiUserEvent<BaseGraph*> OnEndModification() { return s_onEndModification; }
+        static inline TEventHandle<BaseGraph*> OnBeginModification() { return s_onBeginModification; }
+        static inline TEventHandle<BaseGraph*> OnEndModification() { return s_onEndModification; }
 
     private:
 
-        static TMultiUserEventInternal<BaseGraph*>                 s_onBeginModification;
-        static TMultiUserEventInternal<BaseGraph*>                 s_onEndModification;
+        static TEvent<BaseGraph*>                 s_onBeginModification;
+        static TEvent<BaseGraph*>                 s_onEndModification;
 
     public:
 

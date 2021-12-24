@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "System/Core/Types/UUID.h"
-#include "System/Core/Types/Event.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
+#include "System/Core/Types/UUID.h"
+#include "System/Core/Types/Function.h"
 
 //-------------------------------------------------------------------------
 

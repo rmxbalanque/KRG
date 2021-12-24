@@ -61,7 +61,7 @@ namespace KRG
         };
 
         // Event that's fired whenever a component/system is added or removed
-        static TMultiUserEventInternal<Entity*> EntityStateUpdatedEvent;
+        static TEvent<Entity*>                  s_entityStateUpdatedEvent;
 
         // Registration state
         enum class RegistrationStatus : uint8
@@ -82,7 +82,7 @@ namespace KRG
         };
 
         // Event that's fired whenever a component/system is added or removed
-        static TMultiUserEvent<Entity*> OnEntityStateUpdated() { return EntityStateUpdatedEvent; }
+        static TEventHandle<Entity*> OnEntityStateUpdated() { return s_entityStateUpdatedEvent; }
 
     public:
 
@@ -183,7 +183,7 @@ namespace KRG
                 action.m_ptr = T::s_pTypeInfo;
 
                 // Send notification that the internal state changed
-                EntityStateUpdatedEvent.Execute( this );
+                s_entityStateUpdatedEvent.Execute( this );
             }
         }
 
@@ -206,7 +206,7 @@ namespace KRG
                 action.m_ptr = T::s_pTypeInfo;
 
                 // Send notification that the internal state changed
-                EntityStateUpdatedEvent.Execute( this );
+                s_entityStateUpdatedEvent.Execute( this );
             }
         }
 

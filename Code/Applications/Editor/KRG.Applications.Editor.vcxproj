@@ -127,7 +127,6 @@
   <ItemGroup>
     <ClCompile Include="EditorDevUI.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
-    <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp" />
     <ClCompile Include="Editor_Model.cpp" />
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
@@ -141,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="EditorDevUI.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
-    <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h" />
     <ClInclude Include="Editor_Model.h" />
     <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />

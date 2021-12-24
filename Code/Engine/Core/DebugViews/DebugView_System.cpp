@@ -3,6 +3,7 @@
 #include "System/Core/Profiling/Profiling.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/SettingsRegistry.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 

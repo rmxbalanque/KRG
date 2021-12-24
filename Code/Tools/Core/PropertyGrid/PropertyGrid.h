@@ -74,10 +74,10 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Event fired just before a property is modified
-        inline TSingleUserEvent<void( PropertyEditInfo const& )> OnPreEdit() { return m_preEditEvent; }
+        inline TEventHandle<PropertyEditInfo const&> OnPreEdit() { return m_preEditEvent; }
 
         // Event fired just after a property was modified
-        inline TSingleUserEvent<void( PropertyEditInfo const& )> OnPostEdit() { return m_postEditEvent; }
+        inline TEventHandle<PropertyEditInfo const&> OnPostEdit() { return m_postEditEvent; }
 
     private:
 
@@ -96,8 +96,8 @@ namespace KRG
         IRegisteredType*                                            m_pTypeInstance = nullptr;
         bool                                                        m_isDirty = false;
 
-        TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_preEditEvent; // Fired just before we change a property value
-        TSingleUserEventInternal<void( PropertyEditInfo const& )>   m_postEditEvent; // Fired just after we change a property value
+        TEvent<PropertyEditInfo const&>                             m_preEditEvent; // Fired just before we change a property value
+        TEvent<PropertyEditInfo const&>                             m_postEditEvent; // Fired just after we change a property value
         THashMap<void*, TypeSystem::PropertyEditor*>                m_propertyEditors;
     };
 }

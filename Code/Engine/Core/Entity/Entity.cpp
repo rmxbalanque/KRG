@@ -8,7 +8,7 @@
 
 namespace KRG
 {
-    TMultiUserEventInternal<Entity*> Entity::EntityStateUpdatedEvent;
+    TEvent<Entity*> Entity::s_entityStateUpdatedEvent;
 
     //-------------------------------------------------------------------------
 
@@ -456,7 +456,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Send notification that the internal state changed
-        EntityStateUpdatedEvent.Execute( this );
+        s_entityStateUpdatedEvent.Execute( this );
     }
 
     void Entity::DestroySpatialAttachment()
@@ -488,7 +488,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         // Send notification that the internal state changed
-        EntityStateUpdatedEvent.Execute( this );
+        s_entityStateUpdatedEvent.Execute( this );
     }
 
     void Entity::RefreshChildSpatialAttachments()
@@ -718,7 +718,7 @@ namespace KRG
             action.m_parentComponentID = parentSpatialComponentID;
 
             // Send notification that the internal state changed
-            EntityStateUpdatedEvent.Execute( this );
+            s_entityStateUpdatedEvent.Execute( this );
         }
     }
 
@@ -754,7 +754,7 @@ namespace KRG
             KRG_ASSERT( action.m_ptr != nullptr );
 
             // Send notification that the internal state changed
-            EntityStateUpdatedEvent.Execute( this );
+            s_entityStateUpdatedEvent.Execute( this );
         }
     }
 

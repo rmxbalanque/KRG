@@ -168,10 +168,7 @@
     <ClInclude Include="TimelineEditor\TimelineEditor.h">
       <Filter>TimelineEditor</Filter>
     </ClInclude>
-    <ClInclude Include="Trees\CategoryTree.h">
-      <Filter>Trees</Filter>
-    </ClInclude>
-    <ClInclude Include="Trees\TreeView.h">
+    <ClInclude Include="Helpers\CategoryTree.h">
       <Filter>Trees</Filter>
     </ClInclude>
     <ClInclude Include="_Module\Module.h">
@@ -191,6 +188,7 @@
     <ClInclude Include="VisualGraph\VisualGraph_FlowGraph.h" />
     <ClInclude Include="VisualGraph\VisualGraph_StateMachineGraph.h" />
     <ClInclude Include="VisualGraph\VisualGraph_View.h" />
+    <ClInclude Include="Widgets\TreeListView.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ThirdParty\sqlite\SqliteHelpers.cpp">
@@ -262,9 +260,6 @@
     <ClCompile Include="TimelineEditor\TimelineEditor.cpp">
       <Filter>TimelineEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Trees\TreeView.cpp">
-      <Filter>Trees</Filter>
-    </ClCompile>
     <ClCompile Include="_Module\Module.cpp">
       <Filter>_Module</Filter>
     </ClCompile>
@@ -283,6 +278,7 @@
     <ClCompile Include="VisualGraph\VisualGraph_FlowGraph.cpp" />
     <ClCompile Include="VisualGraph\VisualGraph_StateMachineGraph.cpp" />
     <ClCompile Include="VisualGraph\VisualGraph_View.cpp" />
+    <ClCompile Include="Widgets\TreeListView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\subprocess\LICENSE">

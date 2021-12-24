@@ -66,8 +66,8 @@ namespace KRG::ImGuiX
 
         inline void SetTargetTransform( Transform* pTargetTransform );
 
-        inline MultiUserSignal OnManipulationStarted() { return m_manipulationStarted; }
-        inline MultiUserSignal OnManipulationEnded() { return m_manipulationEnded; }
+        inline TEventHandle<> OnManipulationStarted() { return m_manipulationStarted; }
+        inline TEventHandle<> OnManipulationEnded() { return m_manipulationEnded; }
 
     private:
 
@@ -104,8 +104,8 @@ namespace KRG::ImGuiX
         GizmoMode                   m_gizmoMode = GizmoMode::None;
         ManipulationMode            m_manipulationMode = ManipulationMode::None;
 
-        MultiUserSignalInternal     m_manipulationStarted;
-        MultiUserSignalInternal     m_manipulationEnded;
+        TEvent<>                    m_manipulationStarted;
+        TEvent<>                    m_manipulationEnded;
 
         // Updated each frame
         Vector                      m_origin_WS;

@@ -117,7 +117,7 @@ namespace KRG::FileSystem
         // Add trailing delimiter for directories
         if ( isPathADirectory && !filePath.IsDirectory() )
         {
-            filePath.m_fullpath += Path::PathDelimiter;
+            filePath.m_fullpath += Path::s_pathDelimiter;
         }
 
         // Remove trailing delimiter for files

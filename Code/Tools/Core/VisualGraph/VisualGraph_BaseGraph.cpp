@@ -217,8 +217,8 @@ namespace KRG::VisualGraph
 
     //-------------------------------------------------------------------------
 
-    TMultiUserEventInternal<BaseGraph*> BaseGraph::s_onEndModification;
-    TMultiUserEventInternal<BaseGraph*> BaseGraph::s_onBeginModification;
+    TEvent<BaseGraph*> BaseGraph::s_onEndModification;
+    TEvent<BaseGraph*> BaseGraph::s_onBeginModification;
 
     //-------------------------------------------------------------------------
 

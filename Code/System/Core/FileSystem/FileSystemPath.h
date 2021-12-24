@@ -21,7 +21,7 @@ namespace KRG::FileSystem
     public:
 
         // Platform specific path delimiter
-        static char const PathDelimiter;
+        static char const s_pathDelimiter;
 
         // Platform specific path conversion
         static String GetFullPathString( char const* pPath );
@@ -58,7 +58,10 @@ namespace KRG::FileSystem
         inline Path& operator+=( String const& pathString ) { return Append( pathString.c_str() ); }
         inline Path operator+( String const& pathString ) const { return Path( m_fullpath ).Append( pathString.c_str() ); }
 
-        // Get the directory depth for this path e.g. D:\Foo\Bar\Moo.txt -> 2
+        // Get the directory depth for this path e.g. D:\Foo\Bar\Moo.txt = 2
+        int32 GetDirectoryDepth() const;
+
+        // Get the full path depth for this path e.g. D:\Foo\Bar\Moo.txt = 3
         int32 GetPathDepth() const;
 
         // Splits the path into multiple strings e.g. D:\Foo\Bar\Moo.txt -> { D:, Foo, Bar, Moo.txt }
@@ -72,7 +75,7 @@ namespace KRG::FileSystem
         // NOTE! These functions just operate on the string path and infer information from it, they dont check the actual file system
 
         // This will return true if the path string doesnt end with a path delimiter
-        inline bool IsFile() const { KRG_ASSERT( IsValid() ); return m_fullpath[m_fullpath.length() - 1] != PathDelimiter; }
+        inline bool IsFile() const { KRG_ASSERT( IsValid() ); return m_fullpath[m_fullpath.length() - 1] != s_pathDelimiter; }
 
         inline String GetFileName() const { return String( GetFileNameSubstr() ); }
         bool IsFilenameEqual( char const* pString ) const;
@@ -108,7 +111,7 @@ namespace KRG::FileSystem
         // NOTE! These functions just operate on the string path and infer information from it, they dont check the actual file system
 
         // This will return true if the path string ends with a path delimiter
-        bool IsDirectory() const { KRG_ASSERT( IsValid() ); return ( m_fullpath[m_fullpath.length() - 1] == PathDelimiter ); }
+        inline bool IsDirectory() const { KRG_ASSERT( IsValid() ); return ( m_fullpath[m_fullpath.length() - 1] == s_pathDelimiter ); }
 
         // This will ensure that this path ends in a path delimiter
         void MakeDirectory();

@@ -18,9 +18,6 @@
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp">
       <Filter>ResourceBrowser</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceBrowser\ResourceBrowser_TreeView.cpp">
-      <Filter>ResourceBrowser</Filter>
-    </ClCompile>
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp">
       <Filter>MapEditor</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h">
-      <Filter>ResourceBrowser</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceBrowser\ResourceBrowser_TreeView.h">
       <Filter>ResourceBrowser</Filter>
     </ClInclude>
     <ClInclude Include="MapEditor\Workspace_MapEditor.h">

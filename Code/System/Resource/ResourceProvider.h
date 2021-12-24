@@ -44,7 +44,7 @@ namespace KRG
             void CancelRequest( ResourceRequest* pRequest );
 
             // This event is fired when a resource is updated, this is primarily used to support hot-reload
-            inline TSingleUserEvent<void( ResourceID const& )> OnResourceExternallyUpdated() { return m_resourceExternalUpdateEvent; }
+            inline TEventHandle<ResourceID const&> OnResourceExternallyUpdated() { return m_resourceExternalUpdateEvent; }
 
         protected:
 
@@ -59,8 +59,8 @@ namespace KRG
 
         protected:
 
-            TVector<ResourceRequest*>                                   m_requests;
-            TSingleUserEventInternal<void(ResourceID const& )>          m_resourceExternalUpdateEvent;
+            TVector<ResourceRequest*>          m_requests;
+            TEvent<ResourceID const&>          m_resourceExternalUpdateEvent;
         };
     }
 }

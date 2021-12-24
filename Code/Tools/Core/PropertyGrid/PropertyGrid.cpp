@@ -19,19 +19,12 @@ namespace KRG
             m_eventInfo.m_pEditedTypeInstance = m_pGrid->m_pTypeInstance;
             m_eventInfo.m_pPropertyInfo = pPropertyInfo;
             m_eventInfo.m_action = action;
-
-            if ( m_pGrid->m_preEditEvent.HasBoundUser() )
-            {
-                m_pGrid->m_preEditEvent.Execute( m_eventInfo );
-            }
+            m_pGrid->m_preEditEvent.Execute( m_eventInfo );
         }
 
         ~ScopedChangeNotifier()
         {
-            if ( m_pGrid->m_postEditEvent.HasBoundUser() )
-            {
-                m_pGrid->m_postEditEvent.Execute( m_eventInfo );
-            }
+            m_pGrid->m_postEditEvent.Execute( m_eventInfo );
             m_pGrid->m_isDirty = true;
         }
 

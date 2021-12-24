@@ -77,7 +77,7 @@ namespace KRG::Resource
 
         m_rawResourceDirPath = rawResourceDirPath;
         m_compiledResourceDirPath = compiledResourceDirPath;
-        m_dataDirectoryPathDepth = m_rawResourceDirPath.GetPathDepth();
+        m_dataDirectoryPathDepth = m_rawResourceDirPath.GetDirectoryDepth();
         m_pTypeRegistry = pTypeRegistry;
 
         //-------------------------------------------------------------------------
