@@ -24,11 +24,11 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void WorldRendererSystem::InitializeSystem( SystemRegistry const& systemRegistry )
+    void RendererWorldSystem::InitializeSystem( SystemRegistry const& systemRegistry )
     {
     }
 
-    void WorldRendererSystem::ShutdownSystem()
+    void RendererWorldSystem::ShutdownSystem()
     {
         KRG_ASSERT( m_registeredStaticMeshComponents.empty() );
         KRG_ASSERT( m_registeredSkeletalMeshComponents.empty() );
@@ -42,7 +42,7 @@ namespace KRG::Render
         KRG_ASSERT( m_registeredGlobalEnvironmentMaps.empty() );
     }
 
-    void WorldRendererSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
+    void RendererWorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
         // Meshes
         //-------------------------------------------------------------------------
@@ -88,7 +88,7 @@ namespace KRG::Render
         }
     }
 
-    void WorldRendererSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
+    void RendererWorldSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
         // Meshes
         //-------------------------------------------------------------------------
@@ -134,7 +134,7 @@ namespace KRG::Render
         }
     }
 
-    void WorldRendererSystem::RegisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
+    void RendererWorldSystem::RegisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
         RegisteredStaticMesh registeredComponent;
         registeredComponent.m_pComponent = pMeshComponent;
@@ -158,7 +158,7 @@ namespace KRG::Render
         }
     }
 
-    void WorldRendererSystem::UnregisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
+    void RendererWorldSystem::UnregisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
         auto const pRecord = m_registeredStaticMeshComponents.Get( pMeshComponent->GetID() );
 
@@ -192,7 +192,7 @@ namespace KRG::Render
         m_registeredStaticMeshComponents.Remove( pMeshComponent->GetID() );
     }
 
-    void WorldRendererSystem::RegisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
+    void RendererWorldSystem::RegisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
     {
         m_registeredSkeletalMeshComponents.Add( pMeshComponent );
 
@@ -210,7 +210,7 @@ namespace KRG::Render
         }
     }
 
-    void WorldRendererSystem::UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
+    void RendererWorldSystem::UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
     {
         // Remove component from mesh group
         if ( pMeshComponent->HasMeshResourceSet() )
@@ -232,7 +232,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void WorldRendererSystem::UpdateSystem( EntityUpdateContext const& ctx )
+    void RendererWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 
@@ -332,7 +332,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void WorldRendererSystem::OnStaticMeshMobilityUpdated( StaticMeshComponent* pComponent )
+    void RendererWorldSystem::OnStaticMeshMobilityUpdated( StaticMeshComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
 
@@ -341,7 +341,7 @@ namespace KRG::Render
         m_mobilityUpdateList.emplace_back( pComponent );
     }
 
-    void WorldRendererSystem::OnStaticMobilityComponentTransformUpdated( StaticMeshComponent* pComponent )
+    void RendererWorldSystem::OnStaticMobilityComponentTransformUpdated( StaticMeshComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
         KRG_ASSERT( pComponent->GetMobility() == Mobility::Static );

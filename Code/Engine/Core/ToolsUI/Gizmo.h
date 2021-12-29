@@ -4,6 +4,7 @@
 #include "System/Core/Math/Matrix.h"
 #include "System/Core/Types/Color.h"
 #include "System/Core/Types/Event.h"
+#include "System/Core/Types/BitFlags.h"
 
 //-------------------------------------------------------------------------
 
@@ -50,23 +51,44 @@ namespace KRG::ImGuiX
             ScaleXYZ,
         };
 
+        enum class Options
+        {
+            DrawManipulationPlanes = 0,
+            AllowScale,
+            AllowCoordinateSpaceSwitching
+        };
+
     public:
+
+        Gizmo();
 
         // Draw the gizmo, returns true if any manipulation was performed
         bool Draw( Render::Viewport const& viewport );
+        void SetTargetTransform( Transform* pTargetTransform );
         inline Transform const& GetTransform() const { return *m_pTargetTransform; }
+
+        //-------------------------------------------------------------------------
+
+        inline void SetOption( Options option, bool isEnabled ) { m_options.SetFlag( option, isEnabled ); }
+
+        //-------------------------------------------------------------------------
 
         inline GizmoMode GetMode() const { return m_gizmoMode; }
         void SwitchMode( GizmoMode newMode );
         void SwitchToNextMode();
 
+        //-------------------------------------------------------------------------
+
         void SetCoordinateSystemSpace( CoordinateSpace space );
         inline bool IsInWorldSpace() const { return m_coordinateSpace == CoordinateSpace::World; }
         inline bool IsInLocalSpace() const { return m_coordinateSpace == CoordinateSpace::Local; }
 
-        inline void SetTargetTransform( Transform* pTargetTransform );
+        //-------------------------------------------------------------------------
 
+        // Fired when we start to manipulate a transform
         inline TEventHandle<> OnManipulationStarted() { return m_manipulationStarted; }
+
+        // Fired when we stop manipulating a transform
         inline TEventHandle<> OnManipulationEnded() { return m_manipulationEnded; }
 
     private:
@@ -106,6 +128,8 @@ namespace KRG::ImGuiX
 
         TEvent<>                    m_manipulationStarted;
         TEvent<>                    m_manipulationEnded;
+
+        TBitFlags<Options>      m_options;
 
         // Updated each frame
         Vector                      m_origin_WS;

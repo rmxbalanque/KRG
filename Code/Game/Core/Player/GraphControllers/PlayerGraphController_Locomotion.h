@@ -13,7 +13,7 @@ namespace KRG::Player
 
     public:
 
-        LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
+        LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent );
 
         // Request the character go into an idle state
         void SetIdle();

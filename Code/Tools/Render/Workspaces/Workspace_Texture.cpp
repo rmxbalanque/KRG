@@ -17,11 +17,6 @@ namespace KRG::Render
         m_infoWindowName.sprintf( "Info##%u", GetID() );
     }
 
-    void TextureWorkspace::Shutdown( UpdateContext const& context )
-    {
-        TResourceWorkspace<Texture>::Shutdown( context );
-    }
-
     void TextureWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
         ImGuiID topDockID = 0;
@@ -33,12 +28,12 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 
-    void TextureWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void TextureWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_previewWindowName.c_str() ) )
         {
-            if ( IsLoaded() )
+            if ( IsResourceLoaded() )
             {
                 ImTextureID const textureID = (void*) &m_pResource->GetShaderResourceView();
                 ImGui::Image( textureID, Float2( m_pResource->GetDimensions() ) );

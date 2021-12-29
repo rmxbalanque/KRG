@@ -6,6 +6,7 @@
 #include "Engine/Physics/Debug/PhysicsDebugRenderer.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMaterialDatabase.h"
 #include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsMesh.h"
+#include "Engine/Physics/ResourceLoaders/ResourceLoader_PhysicsRagdoll.h"
 #include "Engine/Core/Modules/IEngineModule.h"
 
 //-------------------------------------------------------------------------
@@ -30,6 +31,7 @@ namespace KRG::Physics
         PhysicsSystem                               m_physicsSystem;
         PhysicsMeshLoader                           m_physicsMeshLoader;
         PhysicsMaterialDatabaseLoader               m_physicsMaterialLoader;
+        RagdollLoader                        m_physicsRagdollLoader;
         TResourcePtr<PhysicsMaterialDatabase>       m_pPhysicMaterialDB;
 
         #if KRG_DEVELOPMENT_TOOLS

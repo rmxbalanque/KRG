@@ -3,6 +3,7 @@
 #include "EditorWorkspace.h"
 #include "Tools/Core/Helpers/GlobalRegistryBase.h"
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
+#include "Engine/Core/ToolsUI/Gizmo.h"
 #include "System/TypeSystem/TypeRegistry.h"
 #include "System/Resource/ResourceSystem.h"
 
@@ -20,10 +21,12 @@ namespace KRG
 
     class KRG_TOOLS_CORE_API GenericResourceWorkspace : public EditorWorkspace
     {
+        friend class ScopedDescriptorModification;
+        friend ResourceDescriptorUndoableAction;
 
     public:
 
-        GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        GenericResourceWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
         ~GenericResourceWorkspace();
 
     protected:
@@ -33,15 +36,30 @@ namespace KRG
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawWorkspaceToolbar( UpdateContext const& context );
-        virtual bool IsDirty() const override { return m_descriptorPropertyGrid.IsDirty(); }
+        virtual bool IsDirty() const override { return m_isDirty; }
         virtual bool Save() override;
+        virtual void OnUndoRedo() override { m_descriptorPropertyGrid.MarkDirty(); }
 
+        // Undo/Redo
         void PreEdit( PropertyEditInfo const& info );
         void PostEdit( PropertyEditInfo const& info );
+        void BeginModification();
+        void EndModification();
+        void MarkDirty() { m_isDirty = true; }
 
         void DrawDescriptorWindow( UpdateContext const& context, ImGuiWindowClass* pWindowClass );
+
+        template<typename T>
+        T* GetDescriptorAs() { return Cast<T>( m_pDescriptor ); }
+
+        virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void EndHotReload() override;
+
+    private:
+
+        void LoadDescriptor();
 
     protected:
 
@@ -53,6 +71,36 @@ namespace KRG
         EventBindingID                          m_preEditEventBindingID;
         EventBindingID                          m_postEditEventBindingID;
         ResourceDescriptorUndoableAction*       m_pActiveUndoableAction = nullptr;
+        int32                                   m_beginModificationCallCount = 0;
+
+        ImGuiX::Gizmo                           m_gizmo;
+        EventBindingID                          m_gizmoStartManipulationEventBindingID;
+        EventBindingID                          m_gizmoEndManipulationEventBindingID;
+
+    private:
+
+        bool                                    m_isDirty = false;
+    };
+
+    class [[nodiscard]] ScopedDescriptorModification
+    {
+    public:
+
+        ScopedDescriptorModification( GenericResourceWorkspace* pGraph )
+            : m_pWorkspace( pGraph )
+        {
+            KRG_ASSERT( pGraph != nullptr );
+            m_pWorkspace->BeginModification();
+        }
+
+        ~ScopedDescriptorModification()
+        {
+            m_pWorkspace->EndModification();
+        }
+
+    private:
+
+        GenericResourceWorkspace*  m_pWorkspace = nullptr;
     };
 
     //-------------------------------------------------------------------------
@@ -68,7 +116,7 @@ namespace KRG
     public:
 
         // Specify whether to initially load the resource, this is not necessary for all editors
-        TResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID, bool shouldLoadResource = true )
+        TResourceWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID, bool shouldLoadResource = true )
             : GenericResourceWorkspace( context, pWorld, resourceID )
             , m_pResource( resourceID )
         {
@@ -76,7 +124,7 @@ namespace KRG
 
             if ( shouldLoadResource )
             {
-                m_editorContext.m_pResourceSystem->LoadResource( m_pResource );
+                LoadResource( &m_pResource );
             }
         }
 
@@ -84,7 +132,7 @@ namespace KRG
         {
             if ( !m_pResource.IsUnloaded() )
             {
-                m_editorContext.m_pResourceSystem->UnloadResource( m_pResource );
+                UnloadResource( &m_pResource );
             }
         }
 
@@ -95,60 +143,14 @@ namespace KRG
         // Resource Status
         inline bool IsLoading() const { return m_pResource.IsLoading(); }
         inline bool IsUnloaded() const { return m_pResource.IsUnloaded(); }
-        inline bool IsLoaded() const { return m_pResource.IsLoaded(); }
-        inline bool IsWaitingForResource() const { return m_isHotReloading || IsLoading() || IsUnloaded() || m_pResource.IsUnloading(); }
+        inline bool IsResourceLoaded() const { return m_pResource.IsLoaded(); }
+        inline bool IsWaitingForResource() const { return IsLoading() || IsUnloaded() || m_pResource.IsUnloading(); }
         inline bool HasLoadingFailed() const { return m_pResource.HasLoadingFailed(); }
-
-        // Hot-reload
-        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override
-        {
-            bool shouldReload = ( m_pResource.IsLoaded() || m_pResource.IsLoading() );
-            if ( !shouldReload )
-            {
-                return;
-            }
-
-            // Check if we are directly referencing the resource being reloaded
-            shouldReload = VectorContains( resourcesToBeReloaded, m_pResource.GetResourceID() );
-
-            // If we aren't directly referencing it, check install dependencies
-            if ( !shouldReload )
-            {
-                for ( ResourceID const& installDependency : m_pResource.GetInstallDependencies() )
-                {
-                    if ( VectorContains( resourcesToBeReloaded, installDependency ) )
-                    {
-                        shouldReload = true;
-                        break;
-                    }
-                }
-            }
-
-            // Should we unload this resource
-            if ( shouldReload )
-            {
-                m_editorContext.m_pResourceSystem->UnloadResource( m_pResource );
-                m_isHotReloading = true;
-            }
-        }
-
-        virtual void EndHotReload() override 
-        {
-            if ( m_isHotReloading )
-            {
-                m_editorContext.m_pResourceSystem->LoadResource( m_pResource );
-                m_isHotReloading = false;
-            }
-        }
 
     protected:
 
         String                              m_title;
         TResourcePtr<T>                     m_pResource;
-
-    private:
-
-        bool                                m_isHotReloading = false;
     };
 
     //-------------------------------------------------------------------------
@@ -163,7 +165,7 @@ namespace KRG
     public:
 
         static bool HasCustomWorkspace( ResourceTypeID const& resourceTypeID );
-        static EditorWorkspace* TryCreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        static EditorWorkspace* TryCreateWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
 
     protected:
 
@@ -171,7 +173,7 @@ namespace KRG
         virtual ResourceTypeID GetSupportedResourceTypeID() const = 0;
 
         // Virtual method that will create a workspace if the resource ID matches the appropriate types
-        virtual EditorWorkspace* CreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID ) const = 0;
+        virtual EditorWorkspace* CreateWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID ) const = 0;
     };
 }
 
@@ -184,7 +186,7 @@ namespace KRG
 class factoryName final : public ResourceWorkspaceFactory\
 {\
     virtual ResourceTypeID GetSupportedResourceTypeID() const override { return resourceClass::GetStaticResourceTypeID(); }\
-    virtual EditorWorkspace* CreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID ) const override\
+    virtual EditorWorkspace* CreateWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID ) const override\
     {\
         KRG_ASSERT( resourceID.GetResourceTypeID() == resourceClass::GetStaticResourceTypeID() );\
         return KRG::New<workspaceClass>( context, pWorld, resourceID );\

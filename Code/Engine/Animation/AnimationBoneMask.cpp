@@ -1,5 +1,5 @@
 #include "AnimationBoneMask.h"
-#include "AnimationSkeleton.h"
+#include "System/Animation/AnimationSkeleton.h"
 
 //-------------------------------------------------------------------------
 

@@ -8,7 +8,9 @@
 
 namespace KRG
 {
-    TEvent<Entity*> Entity::s_entityStateUpdatedEvent;
+    TEvent<Entity*> Entity::s_entityUpdatedEvent;
+    TEvent<Entity*> Entity::s_entityInternalStateUpdatedEvent;
+    TEvent<Entity*> Entity::s_entitySpatialAttachmentStateUpdatedEvent;
 
     //-------------------------------------------------------------------------
 
@@ -393,6 +395,8 @@ namespace KRG
             Threading::ScopeLock lock( pParentEntity->m_internalStateMutex );
             pParentEntity->m_attachedEntities.emplace_back( this );
         }
+
+        s_entitySpatialAttachmentStateUpdatedEvent.Execute( this );
     }
 
     void Entity::ClearSpatialParent()
@@ -408,6 +412,7 @@ namespace KRG
         // Clear attachment data
         m_parentAttachmentSocketID = StringID::InvalidID;
         m_pParentSpatialEntity = nullptr;
+        s_entitySpatialAttachmentStateUpdatedEvent.Execute( this );
     }
 
     void Entity::CreateSpatialAttachment()
@@ -452,11 +457,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         m_isSpatialAttachmentCreated = true;
-
-        //-------------------------------------------------------------------------
-
-        // Send notification that the internal state changed
-        s_entityStateUpdatedEvent.Execute( this );
+        s_entitySpatialAttachmentStateUpdatedEvent.Execute( this );
     }
 
     void Entity::DestroySpatialAttachment()
@@ -484,11 +485,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         m_isSpatialAttachmentCreated = false;
-
-        //-------------------------------------------------------------------------
-
-        // Send notification that the internal state changed
-        s_entityStateUpdatedEvent.Execute( this );
+        s_entitySpatialAttachmentStateUpdatedEvent.Execute( this );
     }
 
     void Entity::RefreshChildSpatialAttachments()
@@ -640,6 +637,61 @@ namespace KRG
         GenerateSystemUpdateList();
     }
 
+    void Entity::CreateSystem( TypeSystem::TypeInfo const* pSystemTypeInfo )
+    {
+        KRG_ASSERT( pSystemTypeInfo != nullptr );
+        KRG_ASSERT( pSystemTypeInfo->IsDerivedFrom( EntitySystem::GetStaticTypeID() ) );
+
+        if ( IsUnloaded() )
+        {
+            CreateSystemImmediate( pSystemTypeInfo );
+            s_entityUpdatedEvent.Execute( this );
+        }
+        else
+        {
+            Threading::ScopeLock lock( m_internalStateMutex );
+            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+            action.m_type = EntityInternalStateAction::Type::CreateSystem;
+            action.m_ptr = pSystemTypeInfo;
+            s_entityInternalStateUpdatedEvent.Execute( this );
+        }
+    }
+
+    void Entity::DestroySystem( TypeSystem::TypeInfo const* pSystemTypeInfo )
+    {
+        KRG_ASSERT( pSystemTypeInfo != nullptr );
+        KRG_ASSERT( pSystemTypeInfo->IsDerivedFrom( EntitySystem::GetStaticTypeID() ) );
+
+        if ( IsUnloaded() )
+        {
+            DestroySystemImmediate( pSystemTypeInfo );
+            s_entityUpdatedEvent.Execute( this );
+        }
+        else
+        {
+            Threading::ScopeLock lock( m_internalStateMutex );
+            auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
+            action.m_type = EntityInternalStateAction::Type::DestroySystem;
+            action.m_ptr = pSystemTypeInfo;
+            s_entityInternalStateUpdatedEvent.Execute( this );
+        }
+    }
+
+    void Entity::DestroySystem( TypeSystem::TypeID systemTypeID )
+    {
+        TypeSystem::TypeInfo const* pSystemTypeInfo = nullptr;
+        for ( auto pSystem : m_systems )
+        {
+            if ( pSystem->GetTypeID() == systemTypeID )
+            {
+                pSystemTypeInfo = pSystem->GetTypeInfo();
+                break;
+            }
+        }
+
+        DestroySystem( pSystemTypeInfo );
+    }
+
     void Entity::DestroySystemImmediate( TypeSystem::TypeInfo const* pSystemTypeInfo )
     {
         KRG_ASSERT( pSystemTypeInfo != nullptr && pSystemTypeInfo->IsDerivedFrom<EntitySystem>() );
@@ -675,6 +727,14 @@ namespace KRG
     
     //-------------------------------------------------------------------------
 
+    void Entity::CreateComponent( TypeSystem::TypeInfo const* pComponentTypeInfo, ComponentID const& parentSpatialComponentID )
+    {
+        KRG_ASSERT( pComponentTypeInfo != nullptr && pComponentTypeInfo->IsDerivedFrom<EntityComponent>() );
+        EntityComponent* pComponent = Cast<EntityComponent>( pComponentTypeInfo->m_pTypeHelper->CreateType() );
+        pComponent->m_name = StringID( pComponentTypeInfo->GetTypeName() );
+        AddComponent( pComponent, parentSpatialComponentID );
+    }
+
     void Entity::AddComponent( EntityComponent* pComponent, ComponentID const& parentSpatialComponentID )
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->GetID().IsValid() );
@@ -693,6 +753,20 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
+        #if KRG_DEVELOPMENT_TOOLS
+        if ( pComponent->IsSingletonComponent() )
+        {
+            // Ensure we have no components that are derived from or are a parent of the component
+            for ( auto pExistingComponent : m_components )
+            {
+                KRG_ASSERT( !pComponent->GetTypeInfo()->IsDerivedFrom( pExistingComponent->GetTypeID() ) );
+                KRG_ASSERT( !pExistingComponent->GetTypeInfo()->IsDerivedFrom( pComponent->GetTypeID() ) );
+            }
+        }
+        #endif
+
+        //-------------------------------------------------------------------------
+
         if ( IsUnloaded() )
         {
             SpatialEntityComponent* pParentComponent = nullptr;
@@ -707,6 +781,7 @@ namespace KRG
             }
 
             AddComponentImmediate( pComponent, pParentComponent );
+            s_entityUpdatedEvent.Execute( this );
         }
         else // Defer the operation to the next loading phase
         {
@@ -716,9 +791,7 @@ namespace KRG
             action.m_type = EntityInternalStateAction::Type::AddComponent;
             action.m_ptr = pComponent;
             action.m_parentComponentID = parentSpatialComponentID;
-
-            // Send notification that the internal state changed
-            s_entityStateUpdatedEvent.Execute( this );
+            s_entityInternalStateUpdatedEvent.Execute( this );
         }
     }
 
@@ -743,6 +816,7 @@ namespace KRG
             }
 
             DestroyComponentImmediate( pComponent );
+            s_entityUpdatedEvent.Execute( this );
         }
         else // Defer the operation to the next loading phase
         {
@@ -752,9 +826,7 @@ namespace KRG
             action.m_type = EntityInternalStateAction::Type::DestroyComponent;
             action.m_ptr = pComponent;
             KRG_ASSERT( action.m_ptr != nullptr );
-
-            // Send notification that the internal state changed
-            s_entityStateUpdatedEvent.Execute( this );
+            s_entityInternalStateUpdatedEvent.Execute( this );
         }
     }
 
@@ -858,6 +930,7 @@ namespace KRG
         //-------------------------------------------------------------------------
         // Note: ORDER OF OPERATIONS MATTERS!
 
+        bool const entityStateChanged = !m_deferredActions.empty();
         for ( int32 i = 0; i < (int32) m_deferredActions.size(); i++ )
         {
             EntityInternalStateAction& action = m_deferredActions[i];
@@ -940,6 +1013,11 @@ namespace KRG
                 }
                 break;
             }
+        }
+
+        if ( entityStateChanged )
+        {
+            s_entityUpdatedEvent.Execute( this );
         }
 
         //-------------------------------------------------------------------------

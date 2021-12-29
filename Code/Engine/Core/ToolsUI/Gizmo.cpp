@@ -35,6 +35,11 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
+    Gizmo::Gizmo()
+    {
+        m_options.SetAllFlags();
+    }
+
     void Gizmo::SwitchToNextMode()
     {
         switch ( m_gizmoMode )
@@ -48,17 +53,43 @@ namespace KRG::ImGuiX
             break;
 
             case GizmoMode::Translation:
-            SwitchMode( GizmoMode::Scale );
+            {
+                if ( m_options.IsFlagSet( Options::AllowScale ) )
+                {
+                    SwitchMode( GizmoMode::Scale );
+                }
+                else
+                {
+                    SwitchMode( GizmoMode::Rotation );
+                }
+            }
             break;
 
             case GizmoMode::Scale:
-            SwitchMode( GizmoMode::Rotation );
+            {
+                KRG_ASSERT( m_options.IsFlagSet( Options::AllowScale ) );
+                SwitchMode( GizmoMode::Rotation );
+            }
             break;
         }
     }
 
     void Gizmo::SwitchMode( GizmoMode newMode )
     {
+        if ( newMode == m_gizmoMode )
+        {
+            return;
+        }
+
+        if ( newMode == GizmoMode::Scale )
+        {
+            if ( !m_options.IsFlagSet( Options::AllowScale ) )
+            {
+                KRG_LOG_WARNING( "Tools", "Trying to switch a gizmo to scale mode but it is disabled!" );
+                return;
+            }
+        }
+
         ResetState();
         m_gizmoMode = newMode;
         m_manipulationMode = ManipulationMode::None;
@@ -71,6 +102,19 @@ namespace KRG::ImGuiX
 
     void Gizmo::SetCoordinateSystemSpace( CoordinateSpace space )
     {
+        if ( !m_options.IsFlagSet( Options::AllowCoordinateSpaceSwitching ) )
+        {
+            KRG_LOG_WARNING( "Tools", "Trying to switch a gizmo's coordinate system, but this is disabled!" );
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_coordinateSpace == space )
+        {
+            return;
+        }
+
         if ( m_gizmoMode == GizmoMode::Scale )
         {
             m_coordinateSpace = CoordinateSpace::Local;
@@ -318,6 +362,11 @@ namespace KRG::ImGuiX
 
     bool Gizmo::DrawPlaneWidget( Vector const& origin, Vector const& axis0, Vector const& axis1, Color color )
     {
+        if ( !m_options.IsFlagSet( Options::DrawManipulationPlanes ) )
+        {
+            return false;
+        }
+
         ImGuiIO& io = ImGui::GetIO();
         auto pDrawList = ImGui::GetWindowDrawList();
         KRG_ASSERT( pDrawList != nullptr );

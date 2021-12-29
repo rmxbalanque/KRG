@@ -10,10 +10,14 @@ namespace KRG
 {
     class OrbitCameraComponent;
 
+    namespace Render
+    {
+        class CharacterMeshComponent;
+    }
+
     namespace Animation
     {
         class AnimationGraphComponent;
-        class CharacterMeshComponent;
     }
 }
 
@@ -42,7 +46,7 @@ namespace KRG::Player
         ActionStateMachine                                      m_actionStateMachine = ActionStateMachine( m_actionContext );
 
         Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
-        Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;
+        Render::CharacterMeshComponent*                         m_pCharacterMeshComponent = nullptr;
         OrbitCameraComponent*                                   m_pCameraComponent = nullptr;
     };
 }

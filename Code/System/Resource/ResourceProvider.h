@@ -8,59 +8,63 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    namespace Resource
+    //-------------------------------------------------------------------------
+    // The resource provider is the system that is responsible for resolving a resource request to raw resource data
+    // It is responsible for loading the request resource from the disk/network as well decompressing it
+    // The raw decompressed data is then provided to the resource system for installation
+    //-------------------------------------------------------------------------
+
+    class ResourceRequest;
+
+    //-------------------------------------------------------------------------
+
+    class KRG_SYSTEM_RESOURCE_API ResourceProvider
     {
-        //-------------------------------------------------------------------------
-        // The resource provider is the system that is responsible for resolving a resource request to raw resource data
-        // It is responsible for loading the request resource from the disk/network as well decompressing it
-        // The raw decompressed data is then provided to the resource system for installation
-        //-------------------------------------------------------------------------
 
-        class ResourceRequest;
+    public:
 
-        //-------------------------------------------------------------------------
+        ResourceProvider() = default;
+        virtual ~ResourceProvider() {}
 
-        class KRG_SYSTEM_RESOURCE_API ResourceProvider
-        {
+        virtual bool IsReady() const = 0;
+        virtual bool Initialize() { return true; }
+        virtual void Shutdown() {}
 
-        public:
+        // The resource provider update function
+        void Update();
 
-            ResourceProvider() = default;
-            virtual ~ResourceProvider() {}
+        // Request a resource to be loaded
+        void RequestRawResource( ResourceRequest* pRequest );
 
-            virtual bool IsReady() const = 0;
-            virtual bool Initialize() { return true; }
-            virtual void Shutdown() {}
+        // Cancel a prior request
+        void CancelRequest( ResourceRequest* pRequest );
 
-            // The resource provider update function, returns true if an error occurs with the resource provider
-            virtual void Update() = 0;
+        // Get any externally updated resource for this update
+        #if KRG_DEVELOPMENT_TOOLS
+        TVector<ResourceID> const& GetExternallyUpdatedResources() const { return m_externallyUpdatedResources; }
+        #endif
 
-            // Request a resource to be loaded
-            void RequestRawResource( ResourceRequest* pRequest );
+    protected:
 
-            // Cancel a prior request
-            void CancelRequest( ResourceRequest* pRequest );
+        virtual void UpdateInternal() = 0;
 
-            // This event is fired when a resource is updated, this is primarily used to support hot-reload
-            inline TEventHandle<ResourceID const&> OnResourceExternallyUpdated() { return m_resourceExternalUpdateEvent; }
+        // Called just before emplacing the request on the request list
+        virtual void RequestResourceInternal( ResourceRequest* pRequest ) {};
 
-        protected:
+        // Called just before removing the request from the request list
+        virtual void CancelRequestInternal( ResourceRequest* pRequest ) {};
 
-            // Called just before emplacing the request on the request list
-            virtual void RequestResourceInternal( ResourceRequest* pRequest ) {};
+        // This function is called once the provider is finished with the request and will remove the request from the requests list
+        void FinalizeRequest( ResourceRequest* pRequest );
 
-            // Called just before removing the request from the request list
-            virtual void CancelRequestInternal( ResourceRequest* pRequest ) {};
+    protected:
 
-            // This function is called once the provider is finished with the request and will remove the request from the requests list
-            void FinalizeRequest( ResourceRequest* pRequest );
+        TVector<ResourceRequest*>          m_requests;
 
-        protected:
-
-            TVector<ResourceRequest*>          m_requests;
-            TEvent<ResourceID const&>          m_resourceExternalUpdateEvent;
-        };
-    }
+        #if KRG_DEVELOPMENT_TOOLS
+        TVector<ResourceID>                m_externallyUpdatedResources;
+        #endif
+    };
 }

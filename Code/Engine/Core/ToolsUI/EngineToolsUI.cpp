@@ -1,4 +1,4 @@
-#include "EngineDevUI.h"
+#include "EngineToolsUI.h"
 #include "OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
 #include "Engine/Core/Entity/EntityWorldDebugger.h"
@@ -18,7 +18,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EngineDevUI::Initialize( UpdateContext const& context )
+    void EngineToolsUI::Initialize( UpdateContext const& context )
     {
         m_pWorldManager = context.GetSystem<EntityWorldManager>();
         for ( auto pWorld : m_pWorldManager->GetWorlds() )
@@ -31,7 +31,7 @@ namespace KRG
         }
     }
 
-    void EngineDevUI::Shutdown( UpdateContext const& context )
+    void EngineToolsUI::Shutdown( UpdateContext const& context )
     {
         KRG::Delete( m_pWorldDebugger );
         m_pWorldManager = nullptr;
@@ -39,7 +39,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EngineDevUI::EndFrame( UpdateContext const& context )
+    void EngineToolsUI::EndFrame( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
@@ -162,7 +162,7 @@ namespace KRG
     // Drawing
     //-------------------------------------------------------------------------
 
-    void EngineDevUI::DrawPopups( UpdateContext const& context )
+    void EngineToolsUI::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -245,13 +245,13 @@ namespace KRG
         }
     }
 
-    void EngineDevUI::DrawMenu( UpdateContext const& context )
+    void EngineToolsUI::DrawMenu( UpdateContext const& context )
     {
         ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_BUG );
         m_pWorldDebugger->DrawMenu( context );
     }
 
-    void EngineDevUI::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
+    void EngineToolsUI::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         m_pWorldDebugger->DrawOverlayElements( context );
 
@@ -262,7 +262,7 @@ namespace KRG
         }
     }
 
-    void EngineDevUI::DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void EngineToolsUI::DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         m_pWorldDebugger->DrawWindows( context, pWindowClass );
 
@@ -277,11 +277,11 @@ namespace KRG
         if ( m_isDebugSettingsWindowOpen )
         {
             ImGui::SetNextWindowBgAlpha( 0.75f );
-            m_isDebugSettingsWindowOpen = m_debugSettingsView.Draw( context );
+            m_isDebugSettingsWindowOpen = SystemDebugView::DrawDebugSettingsView( context );
         }
     }
 
-    void EngineDevUI::DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld )
+    void EngineToolsUI::DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld )
     {
         KRG_ASSERT( pGameWorld != nullptr );
         auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();

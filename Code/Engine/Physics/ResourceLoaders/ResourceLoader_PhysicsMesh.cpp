@@ -61,11 +61,11 @@ namespace KRG::Physics
         {
             if ( pPhysicsMesh->m_isConvexMesh )
             {
-                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics().createConvexMesh( cooked );
+                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics()->createConvexMesh( cooked );
             }
             else
             {
-                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics().createTriangleMesh( cooked );
+                pPhysicsMesh->m_pMesh = m_pPhysicsSystem->GetPxPhysics()->createTriangleMesh( cooked );
             }
         }
 

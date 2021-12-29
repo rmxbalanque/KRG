@@ -1124,9 +1124,9 @@ namespace KRG::Timeline
         //-------------------------------------------------------------------------
 
         ImRect const horizontalScrollBarRect( ImVec2( canvasPos.x + g_trackHeaderWidth, canvasPos.y + canvasSize.y - horizontalScrollBarHeight ), ImVec2( canvasPos.x + canvasSize.x, canvasPos.y + canvasSize.y ) );
-        float const currentViewSize = m_viewRange.GetLength() * m_pixelsPerFrame;
-        float const totalContentSizeNeeded = m_timeRange.GetLength() * m_pixelsPerFrame;
-        float scrollbarPosition = m_viewRange.m_start * m_pixelsPerFrame;
+        int64 const currentViewSize = Math::RoundToInt( m_viewRange.GetLength() * m_pixelsPerFrame );
+        int64 const totalContentSizeNeeded = Math::RoundToInt( m_timeRange.GetLength() * m_pixelsPerFrame );
+        int64 scrollbarPosition = Math::RoundToInt( m_viewRange.m_start * m_pixelsPerFrame );
 
         ImGuiWindow* pWindow = ImGui::GetCurrentWindow();
         ImGuiID const horizontalScrollBarID = pWindow->GetID( "#TimelineScrollbarY" );

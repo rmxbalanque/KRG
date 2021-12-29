@@ -1,10 +1,10 @@
 #pragma once
 
 #include "_Module/API.h"
-#include "AnimationSkeleton.h"
-#include "AnimationFrameTime.h"
 #include "AnimationSyncTrack.h"
 #include "AnimationEvent.h"
+#include "AnimationFrameTime.h"
+#include "System/Animation/AnimationSkeleton.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/Math/NumericRange.h"
 #include "System/Core/Types/Percentage.h"

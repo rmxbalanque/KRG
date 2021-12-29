@@ -711,7 +711,7 @@ namespace KRG::TypeSystem::Reflection
             return false;
         }
 
-        if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `Properties` ( `PropertyID` INTEGER, `OwnerTypeID` INTEGER, `TypeID` INTEGER, `Name` TEXT, `TypeName` TEXT, `TemplateTypeName` TEXT, `PropertyFlags` INTEGER, `ArraySize` INTEGER DEFAULT -1, PRIMARY KEY( PropertyID, OwnerTypeID ) );" ) )
+        if ( !ExecuteSimpleQuery( "CREATE TABLE IF NOT EXISTS `Properties` ( `PropertyID` INTEGER, `LineNumber` INTEGER, `OwnerTypeID` INTEGER, `TypeID` INTEGER, `Name` TEXT, `TypeName` TEXT, `TemplateTypeName` TEXT, `PropertyFlags` INTEGER, `ArraySize` INTEGER DEFAULT -1, PRIMARY KEY( PropertyID, OwnerTypeID ) );" ) )
         {
             return false;
         }
@@ -832,12 +832,13 @@ namespace KRG::TypeSystem::Reflection
             while ( sqlite3_step( pStatement ) == SQLITE_ROW )
             {
                 ReflectedProperty propDesc;
-                propDesc.m_typeID = sqlite3_column_int( pStatement, 2 );
-                propDesc.m_name = (char const*) sqlite3_column_text( pStatement, 3 );
-                propDesc.m_typeName = (char const*) sqlite3_column_text( pStatement, 4 );
-                propDesc.m_templateArgTypeName = (char const*) sqlite3_column_text( pStatement, 5 );
-                propDesc.m_flags.Set( (uint32) sqlite3_column_int( pStatement, 6 ) );
-                propDesc.m_arraySize = sqlite3_column_int( pStatement, 7 );
+                propDesc.m_lineNumber = sqlite3_column_int( pStatement, 1 );
+                propDesc.m_typeID = sqlite3_column_int( pStatement, 3 );
+                propDesc.m_name = (char const*) sqlite3_column_text( pStatement, 4 );
+                propDesc.m_typeName = (char const*) sqlite3_column_text( pStatement, 5 );
+                propDesc.m_templateArgTypeName = (char const*) sqlite3_column_text( pStatement, 6 );
+                propDesc.m_flags.Set( (uint32) sqlite3_column_int( pStatement, 7 ) );
+                propDesc.m_arraySize = sqlite3_column_int( pStatement, 8 );
                 propDesc.m_propertyID = StringID( propDesc.m_name );
                 KRG_ASSERT( propDesc.m_propertyID == (uint32) sqlite3_column_int( pStatement, 0 ) ); // Ensure the property ID matches the recorded one
                 type.m_properties.push_back( propDesc );
@@ -847,6 +848,13 @@ namespace KRG::TypeSystem::Reflection
             {
                 return false;
             }
+
+            //-------------------------------------------------------------------------
+
+            eastl::sort( type.m_properties.begin(), type.m_properties.end(), [] ( ReflectedProperty const& a, ReflectedProperty const& b ) { return a.m_lineNumber < b.m_lineNumber; } );
+
+            //-------------------------------------------------------------------------
+
             pStatement = nullptr;
             return true;
         }
@@ -908,7 +916,7 @@ namespace KRG::TypeSystem::Reflection
         // Update properties
         for ( auto& propertyDesc : type.m_properties )
         {
-            if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `Properties`(`PropertyID`,`OwnerTypeID`,`TypeID`,`Name`,`TypeName`,`TemplateTypeName`,`PropertyFlags`,`ArraySize`) VALUES ( %u, %u, %u, \"%s\", \"%s\", \"%s\", %u, %d );", (uint32) propertyDesc.m_propertyID, (uint32) type.m_ID, (uint32) propertyDesc.m_typeID, propertyDesc.m_name.c_str(), propertyDesc.m_typeName.c_str(), propertyDesc.m_templateArgTypeName.c_str(), (uint32) propertyDesc.m_flags, propertyDesc.m_arraySize ) )
+            if ( !ExecuteSimpleQuery( "INSERT OR REPLACE INTO `Properties`(`PropertyID`, `LineNumber`, `OwnerTypeID`,`TypeID`,`Name`,`TypeName`,`TemplateTypeName`,`PropertyFlags`,`ArraySize`) VALUES ( %u, %d, %u, %u, \"%s\", \"%s\", \"%s\", %u, %d );", (uint32) propertyDesc.m_propertyID, propertyDesc.m_lineNumber, (uint32) type.m_ID, (uint32) propertyDesc.m_typeID, propertyDesc.m_name.c_str(), propertyDesc.m_typeName.c_str(), propertyDesc.m_templateArgTypeName.c_str(), (uint32) propertyDesc.m_flags, propertyDesc.m_arraySize ) )
             {
                 return false;
             }

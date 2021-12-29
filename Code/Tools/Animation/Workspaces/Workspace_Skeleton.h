@@ -1,18 +1,19 @@
 #pragma once
 
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
-#include "Engine/Animation/AnimationSkeleton.h"
+#include "System/Animation/AnimationSkeleton.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
 
+namespace KRG::Render
+{
+    class SkeletalMeshComponent;
+}
+
 namespace KRG::Animation
 {
-    class AnimatedMeshComponent;
-
-    //-------------------------------------------------------------------------
-
-    class SkeletonWorkspace : public TResourceWorkspace<Skeleton>
+    class SkeletonWorkspace final : public TResourceWorkspace<Skeleton>
     {
         struct BoneInfo
         {
@@ -43,9 +44,10 @@ namespace KRG::Animation
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
-        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void EndHotReload() override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
@@ -57,6 +59,8 @@ namespace KRG::Animation
         void DestroySkeletonTree();
         ImRect RenderSkeletonTree( BoneInfo* pBone );
 
+        void CreatePreviewEntity();
+
     private:
 
         String                          m_skeletonTreeWindowName;
@@ -66,7 +70,6 @@ namespace KRG::Animation
         StringID                        m_selectedBoneID;
 
         Entity*                         m_pPreviewEntity = nullptr;
-        AnimatedMeshComponent*          m_pMeshComponent = nullptr;
         bool                            m_poseReset = true;
     };
 }

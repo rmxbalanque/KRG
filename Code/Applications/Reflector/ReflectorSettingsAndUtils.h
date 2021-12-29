@@ -27,6 +27,7 @@ namespace KRG::TypeSystem::Reflection
         RegisterEnum,
         RegisterType,
         RegisterResource,
+        RegisterTypeResource,
         RegisterVirtualResource,
         RegisterEntityComponent,
         RegisterSingletonEntityComponent,

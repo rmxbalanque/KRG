@@ -1,13 +1,15 @@
 #include "Workspace_AnimationClip.h"
 #include "Tools/Animation/Events/AnimationEventEditor.h"
+#include "Tools/Animation/Events/AnimationEventData.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationClip.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
-#include "Engine/Animation/AnimationPose.h"
 #include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
-#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Update/UpdateContext.h"
+#include "System/Animation/AnimationPose.h"
 #include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -18,57 +20,14 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    AnimationClipWorkspace::AnimationClipWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
+    AnimationClipWorkspace::AnimationClipWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
         : TResourceWorkspace<AnimationClip>( context, pWorld, resourceID )
-        , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
+        , m_propertyGrid( *m_pTypeRegistry, *m_pResourceDatabase )
     {}
 
     AnimationClipWorkspace::~AnimationClipWorkspace()
     {
-        if ( m_pEventEditor != nullptr )
-        {
-            KRG::Delete( m_pEventEditor );
-        }
-    }
-
-    void AnimationClipWorkspace::Initialize( UpdateContext const& context )
-    {
-        KRG_ASSERT( m_pPreviewEntity == nullptr );
-
-        TResourceWorkspace<AnimationClip>::Initialize( context );
-
-        m_timelineWindowName.sprintf( "Timeline##%u", GetID() );
-        m_detailsWindowName.sprintf( "Details##%u", GetID() );
-        m_trackDataWindowName.sprintf( "Track Data##%u", GetID() );
-
-        //-------------------------------------------------------------------------
-
-        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        m_pPreviewEntity->CreateSystem<AnimationSystem>();
-
-        m_pAnimationComponent = KRG::New<AnimationClipPlayerComponent>( StringID( "Animation Component" ) );
-        m_pAnimationComponent->SetAnimation( m_pResource.GetResourceID() );
-        m_pPreviewEntity->AddComponent( m_pAnimationComponent );
-
-        // We dont own the entity as soon as we add it to the map
-        m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
-    }
-
-    void AnimationClipWorkspace::Shutdown( UpdateContext const& context )
-    {
-        KRG_ASSERT( m_pPreviewEntity != nullptr );
-
-        m_pPreviewEntity = nullptr;
-        m_pAnimationComponent = nullptr;
-        m_pMeshComponent = nullptr;
-
-        TResourceWorkspace<AnimationClip>::Shutdown( context );
-    }
-
-    void AnimationClipWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
-    {
-        m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
-        m_pMeshComponent = nullptr;
+        KRG_ASSERT( m_pEventEditor == nullptr );
     }
 
     void AnimationClipWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -85,32 +44,119 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), bottomRightDockID );
     }
 
-    void AnimationClipWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    //-------------------------------------------------------------------------
+
+    void AnimationClipWorkspace::Initialize( UpdateContext const& context )
     {
-        if ( IsLoaded() )
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        TResourceWorkspace<AnimationClip>::Initialize( context );
+
+        m_timelineWindowName.sprintf( "Timeline##%u", GetID() );
+        m_detailsWindowName.sprintf( "Details##%u", GetID() );
+        m_trackDataWindowName.sprintf( "Track Data##%u", GetID() );
+
+        CreatePreviewEntity();
+    }
+
+    void AnimationClipWorkspace::Shutdown( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_pPreviewEntity != nullptr );
+
+        if ( m_pEventEditor != nullptr )
         {
-            // Lazy init of the event editor
-            if ( m_pEventEditor == nullptr )
-            {
-                m_pEventEditor = KRG::New<EventEditor>( *m_editorContext.m_pTypeRegistry, m_editorContext.GetRawResourceDirectoryPath(), m_pResource.GetPtr() );
-            }
+            KRG::Delete( m_pEventEditor );
+        }
 
-            // Initialize preview mesh
-            if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
-            {
-                // Load resource descriptor for skeleton to get the preview mesh
-                FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( m_pResource->GetSkeleton()->GetResourcePath() );
-                SkeletonResourceDescriptor resourceDesc;
-                TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
+        m_pPreviewEntity = nullptr;
+        m_pAnimationComponent = nullptr;
+        m_pMeshComponent = nullptr;
 
+        TResourceWorkspace<AnimationClip>::Shutdown( context );
+    }
+
+    void AnimationClipWorkspace::CreatePreviewEntity()
+    {
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        // Load resource descriptor for skeleton to get the preview mesh
+        auto pAnimClipDescriptor = GetDescriptorAs<AnimationClipResourceDescriptor>();
+        if ( pAnimClipDescriptor->m_pSkeleton.IsValid() )
+        {
+            FileSystem::Path const resourceDescPath = GetFileSystemPath( pAnimClipDescriptor->m_pSkeleton.GetResourcePath() );
+            SkeletonResourceDescriptor resourceDesc;
+            if ( TryReadResourceDescriptorFromFile( *m_pTypeRegistry, resourceDescPath, resourceDesc ) && resourceDesc.m_previewMesh.IsValid() )
+            {
                 // Create a preview mesh component
-                m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+                m_pMeshComponent = KRG::New<Render::SkeletalMeshComponent>( StringID( "Mesh Component" ) );
                 m_pMeshComponent->SetSkeleton( m_pResource->GetSkeleton()->GetResourceID() );
                 if ( resourceDesc.m_previewMesh.IsValid() )
                 {
                     m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
                 }
-                m_pPreviewEntity->AddComponent( m_pMeshComponent );
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        // Create animation component
+        m_pAnimationComponent = KRG::New<AnimationClipPlayerComponent>( StringID( "Animation Component" ) );
+        m_pAnimationComponent->SetAnimation( m_pResource.GetResourceID() );
+
+        //-------------------------------------------------------------------------
+
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+        m_pPreviewEntity->CreateSystem<AnimationSystem>();
+        m_pPreviewEntity->AddComponent( m_pAnimationComponent );
+
+        if ( m_pMeshComponent )
+        {
+            m_pPreviewEntity->AddComponent( m_pMeshComponent );
+        }
+
+        AddEntityToWorld( m_pPreviewEntity );
+    }
+
+    void AnimationClipWorkspace::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        TResourceWorkspace<AnimationClip>::BeginHotReload( usersToBeReloaded, resourcesToBeReloaded );
+
+        // If someone messed with this resource outside of this editor - destroy the event editor!
+        if ( VectorContains( resourcesToBeReloaded, m_descriptorID ) )
+        {
+            if ( m_pEventEditor != nullptr )
+            {
+                KRG::Delete( m_pEventEditor );
+            }
+        }
+
+        if ( IsHotReloading() )
+        {
+            m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
+            m_pMeshComponent = nullptr;
+        }
+    }
+
+    void AnimationClipWorkspace::EndHotReload()
+    {
+        TResourceWorkspace<AnimationClip>::EndHotReload();
+
+        if ( m_pPreviewEntity == nullptr )
+        {
+            CreatePreviewEntity();
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void AnimationClipWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    {
+        if ( IsResourceLoaded() )
+        {
+            // Lazy init of the event editor - since we need to wait for the resource to be loaded
+            if ( m_pEventEditor == nullptr )
+            {
+                m_pEventEditor = KRG::New<EventEditor>( *m_pTypeRegistry, m_descriptorPath, m_pResource->GetNumFrames(), m_pResource->GetFPS() );
             }
 
             // Update position
@@ -165,7 +211,7 @@ namespace KRG::Animation
 
     void AnimationClipWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        if ( !IsLoaded() )
+        if ( !IsResourceLoaded() )
         {
             return;
         }
@@ -248,7 +294,7 @@ namespace KRG::Animation
     {
         if ( ImGui::Begin( m_trackDataWindowName.c_str() ) )
         {
-            if ( IsLoaded() )
+            if ( IsResourceLoaded() )
             {
                 // There may be a frame delay between the UI and the entity system creating the pose
                 Pose const* pPose = m_pAnimationComponent->GetPose();

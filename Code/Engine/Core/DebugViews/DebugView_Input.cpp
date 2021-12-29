@@ -1,8 +1,8 @@
 #include "DebugView_Input.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "Engine/Core/Update/UpdateContext.h"
-#include "System/Input/InputSystem.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -231,12 +231,14 @@ namespace KRG::Input
 
     void InputDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
+        EntityWorldDebugView::Initialize( systemRegistry, pWorld );
         m_pInputSystem = systemRegistry.GetSystem<InputSystem>();
     }
 
     void InputDebugView::Shutdown()
     {
         m_pInputSystem = nullptr;
+        EntityWorldDebugView::Shutdown();
     }
 
     void InputDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )

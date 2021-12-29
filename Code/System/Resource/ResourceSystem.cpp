@@ -21,18 +21,10 @@ namespace KRG::Resource
     {
         KRG_ASSERT( pResourceProvider != nullptr && pResourceProvider->IsReady() );
         m_pResourceProvider = pResourceProvider;
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_resourceExternalUpdateEventBinding = m_pResourceProvider->OnResourceExternallyUpdated().Bind( [this] ( ResourceID const& resourceID ) { OnResourceExternallyUpdated( resourceID ); } );
-        #endif
     }
 
     void ResourceSystem::Shutdown()
     {
-        #if KRG_DEVELOPMENT_TOOLS
-        m_pResourceProvider->OnResourceExternallyUpdated().Unbind( m_resourceExternalUpdateEventBinding );
-        #endif
-
         WaitForAllRequestsToComplete();
         m_pResourceProvider = nullptr;
     }
@@ -62,6 +54,7 @@ namespace KRG::Resource
     void ResourceSystem::GetUsersForResource( ResourceRecord const* pResourceRecord, TVector<ResourceRequesterID>& userIDs ) const
     {
         KRG_ASSERT( pResourceRecord != nullptr );
+        Threading::RecursiveScopeLock lock( m_accessLock );
 
         for ( auto const& requesterID : pResourceRecord->m_references )
         {
@@ -206,6 +199,7 @@ namespace KRG::Resource
     ResourceRequest* ResourceSystem::TryFindActiveRequest( ResourceRecord const* pResourceRecord ) const
     {
         KRG_ASSERT( pResourceRecord != nullptr );
+        KRG_ASSERT( !m_isAsyncTaskRunning );
 
         Threading::RecursiveScopeLock lock( m_accessLock );
         auto predicate = [] ( ResourceRequest const* pRequest, ResourceRecord const* pResourceRecord ) { return pRequest->GetResourceRecord() == pResourceRecord; };
@@ -221,6 +215,33 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
+    void ResourceSystem::UpdateResourceProvider()
+    {
+        Threading::RecursiveScopeLock lock( m_accessLock );
+        m_pResourceProvider->Update();
+
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        for ( auto const& updatedResourceID : m_pResourceProvider->GetExternallyUpdatedResources() )
+        {
+            // If the resource is not currently in use then just early-out
+            auto const recordIter = m_resourceRecords.find( updatedResourceID );
+            if ( recordIter == m_resourceRecords.end() )
+            {
+                return;
+            }
+
+            // Generate a list of users for this resource
+            ResourceRecord* pRecord = recordIter->second;
+            GetUsersForResource( pRecord, m_usersThatRequireReload );
+
+            // Add to list of resources to be reloaded
+            m_externallyUpdatedResources.emplace_back( updatedResourceID );
+        }
+        #endif
+    }
+
     void ResourceSystem::Update( bool waitForAsyncTask )
     {
         KRG_PROFILE_FUNCTION_RESOURCE();
@@ -231,7 +252,7 @@ namespace KRG::Resource
         //-------------------------------------------------------------------------
         // This will also update the hot-reload data
 
-        m_pResourceProvider->Update();
+        UpdateResourceProvider();
 
         // Wait for async task to complete
         //-------------------------------------------------------------------------
@@ -270,24 +291,43 @@ namespace KRG::Resource
                             pActiveRequest->SwitchToLoadTask();
                         }
                     }
+                    else if ( pendingRequest.m_pRecord->IsLoaded() ) // Can occur due to multiple requests for the same resource in the same frame
+                    {
+                        // Do Nothing
+                    }
                     else // Create new request
                     {
                         auto loaderIter = m_resourceLoaders.find( pendingRequest.m_pRecord->GetResourceTypeID() );
                         KRG_ASSERT( loaderIter != m_resourceLoaders.end() );
-                        m_activeRequests.emplace_back( KRG::New<ResourceRequest>( pendingRequest.m_requesterID, pendingRequest.m_pRecord, loaderIter->second ) );
+                        m_activeRequests.emplace_back( KRG::New<ResourceRequest>( pendingRequest.m_requesterID, ResourceRequest::Type::Load, pendingRequest.m_pRecord, loaderIter->second ) );
                     }
                 }
                 else // Unload request
                 {
                     if ( pActiveRequest != nullptr )
                     {
-                        pActiveRequest->SwitchToUnloadTask();
+                        if ( pActiveRequest->IsLoadRequest() )
+                        {
+                            pActiveRequest->SwitchToUnloadTask();
+                        }
+                    }
+                    else if ( pendingRequest.m_pRecord->IsUnloaded() ) // Can occur due to multiple requests for the same resource in the same frame
+                    {
+                        if ( !pendingRequest.m_pRecord->HasReferences() )
+                        {
+                            auto recordIter = m_resourceRecords.find( pendingRequest.m_pRecord->m_resourceID );
+                            KRG_ASSERT( recordIter != m_resourceRecords.end() );
+                            KRG_ASSERT( recordIter->second == pendingRequest.m_pRecord );
+
+                            KRG::Delete( pendingRequest.m_pRecord );
+                            m_resourceRecords.erase( recordIter );
+                        }
                     }
                     else // Create new request
                     {
                         auto loaderIter = m_resourceLoaders.find( pendingRequest.m_pRecord->GetResourceTypeID() );
                         KRG_ASSERT( loaderIter != m_resourceLoaders.end() );
-                        m_activeRequests.emplace_back( KRG::New<ResourceRequest>( pendingRequest.m_requesterID, pendingRequest.m_pRecord, loaderIter->second ) );
+                        m_activeRequests.emplace_back( KRG::New<ResourceRequest>( pendingRequest.m_requesterID, ResourceRequest::Type::Unload, pendingRequest.m_pRecord, loaderIter->second ) );
                     }
                 }
             }
@@ -308,15 +348,14 @@ namespace KRG::Resource
 
                 if ( pCompletedRequest->IsUnloadRequest() )
                 {
-                    // Find the resource record and erase it
-                    auto recordIter = m_resourceRecords.find( resourceID );
-                    KRG_ASSERT( recordIter != m_resourceRecords.end() );
-
                     // Check if we can remove the record, we may have had a load request for it in the meantime
-                    auto pRecord = recordIter->second;
-                    if ( !pRecord->HasReferences() )
+                    if ( !pCompletedRequest->GetResourceRecord()->HasReferences() )
                     {
-                        KRG::Delete( pRecord );
+                        auto recordIter = m_resourceRecords.find( resourceID );
+                        KRG_ASSERT( recordIter != m_resourceRecords.end() );
+                        KRG_ASSERT( recordIter->second == pCompletedRequest->GetResourceRecord() );
+
+                        KRG::Delete( recordIter->second );
                         m_resourceRecords.erase( recordIter );
                     }
                 }
@@ -389,27 +428,9 @@ namespace KRG::Resource
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void ResourceSystem::OnResourceExternallyUpdated( ResourceID const& resourceID )
-    {
-        KRG_ASSERT( resourceID.IsValid() );
-
-        // If the resource is not currently in use then just early-out
-        auto const recordIter = m_resourceRecords.find( resourceID );
-        if ( recordIter == m_resourceRecords.end() )
-        {
-            return;
-        }
-
-        // Generate a list of users for this resource
-        ResourceRecord* pRecord = recordIter->second;
-        GetUsersForResource( pRecord, m_usersThatRequireReload );
-
-        // Add to list of resources to be reloaded
-        m_externallyUpdatedResources.emplace_back( resourceID );
-    }
-
     void ResourceSystem::ClearHotReloadRequests()
     {
+        Threading::RecursiveScopeLock lock( m_accessLock );
         m_usersThatRequireReload.clear(); 
         m_externallyUpdatedResources.clear();
     }

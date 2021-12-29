@@ -44,11 +44,12 @@ namespace KRG
     void CurveEditor::InitializeDrawingState()
     {
         m_pDrawList = ImGui::GetWindowDrawList();
+
         m_windowPos = ImGui::GetWindowPos();
         m_canvasStart = m_windowPos + Float2( ImGui::GetCursorPos() );
         m_canvasEnd = m_windowPos + Float2( ImGui::GetWindowContentRegionMax() );
         m_canvasWidth = m_canvasEnd.m_x - m_canvasStart.m_x;
-        m_canvasHeight = m_canvasEnd.m_y - m_canvasEnd.m_y;
+        m_canvasHeight = m_canvasEnd.m_y - m_canvasStart.m_y;
 
         m_curveCanvasStart = m_canvasStart;
         m_curveCanvasEnd = m_canvasEnd - Float2( s_gridLegendWidth, s_gridLegendHeight );
@@ -181,8 +182,6 @@ namespace KRG
 
     void CurveEditor::DrawGrid()
     {
-        m_pDrawList->PushClipRect( m_canvasStart, m_canvasEnd );
-
         InlineString<10> legendString;
         m_pDrawList->AddRectFilled( m_canvasStart, m_canvasEnd, ImGuiX::Style::s_gridBackgroundColor );
 
@@ -219,8 +218,6 @@ namespace KRG
                 m_pDrawList->AddText( ImVec2( lineEnd.m_x, lineEnd.m_y - ( textSize.m_y / 2 ) ), 0xFFFFFFFF, legendString.c_str() );
             }
         }
-
-        m_pDrawList->PopClipRect();
     }
 
     void CurveEditor::DrawCurve()
@@ -624,7 +621,6 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        m_pDrawList->PushClipRect( m_curveCanvasStart, m_curveCanvasEnd );
         if ( ImGui::BeginChild( "CurveView", m_canvasEnd - m_canvasStart, false, ImGuiWindowFlags_NoScrollbar ) )
         {
             DrawGrid();
@@ -661,7 +657,6 @@ namespace KRG
             DrawContextMenus();
         }
         ImGui::EndChild();
-        m_pDrawList->PopClipRect();
 
         //-------------------------------------------------------------------------
 

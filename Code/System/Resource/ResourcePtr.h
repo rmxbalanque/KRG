@@ -68,7 +68,7 @@ namespace KRG
 
             inline TInlineVector<ResourceID, 4> const& GetInstallDependencies() const
             {
-                KRG_ASSERT( m_pResource != nullptr && m_pResource->IsLoaded() );
+                KRG_ASSERT( m_pResource != nullptr && ( m_pResource->IsLoaded() || m_pResource->IsLoading() ) );
                 return m_pResource->GetInstallDependencies(); 
             }
 

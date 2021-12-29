@@ -28,7 +28,6 @@ namespace KRG::Render
 
     SkeletalMeshWorkspace::~SkeletalMeshWorkspace()
     {
-        DestroySkeletonTree();
         KRG_ASSERT( m_pSkeletonTreeRoot == nullptr );
     }
 
@@ -44,20 +43,18 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        // We dont own the entity as soon as we add it to the map
-        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
-
         m_pMeshComponent = KRG::New<SkeletalMeshComponent>( StringID( "Skeletal Mesh Component" ) );
         m_pMeshComponent->SetMesh( m_pResource.GetResourceID() );
+
+        // We dont own the entity as soon as we add it to the map
+        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
         m_pPreviewEntity->AddComponent( m_pMeshComponent );
+        AddEntityToWorld( m_pPreviewEntity );
     }
 
     void SkeletalMeshWorkspace::Shutdown( UpdateContext const& context )
     {
-        m_pPreviewEntity = nullptr;
-        m_pMeshComponent = nullptr;
-
+        DestroySkeletonTree();
         TResourceWorkspace<SkeletalMesh>::Shutdown( context );
     }
 
@@ -78,7 +75,7 @@ namespace KRG::Render
 
     void SkeletalMeshWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
-        if ( !IsLoaded() )
+        if ( !IsResourceLoaded() )
         {
             return;
         }
@@ -86,7 +83,7 @@ namespace KRG::Render
         //-------------------------------------------------------------------------
 
         ImGui::SetNextItemWidth( 46 );
-        if ( ImGui::BeginCombo( "##AnimOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
+        if ( ImGui::BeginCombo( "##MeshOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
         {
             ImGui::MenuItem( "Show Normals", nullptr, &m_showNormals );
             ImGui::MenuItem( "Show Vertices", nullptr, &m_showVertices );
@@ -97,9 +94,9 @@ namespace KRG::Render
         }
     }
 
-    void SkeletalMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
-        if ( IsLoaded() )
+        if ( IsResourceLoaded() )
         {
             auto drawingCtx = GetDrawingContext();
 
@@ -261,7 +258,7 @@ namespace KRG::Render
     {
         if ( ImGui::Begin( m_skeletonTreeWindowName.c_str() ) )
         {
-            if ( IsLoaded() )
+            if ( IsResourceLoaded() )
             {
                 if ( m_pSkeletonTreeRoot == nullptr )
                 {
@@ -280,7 +277,7 @@ namespace KRG::Render
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 8 ) );
         if ( ImGui::Begin( m_detailsWindowName.c_str() ) )
         {
-            if ( IsLoaded() )
+            if ( IsResourceLoaded() )
             {
                 if ( m_selectedBoneID.IsValid() )
                 {

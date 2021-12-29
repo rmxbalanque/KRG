@@ -146,4 +146,15 @@ namespace KRG::Math
         Vector const nv = v.GetNormalized3();
         return GetPitchAngleBetweenNormalizedVectors( nr, nv );
     }
+
+    // Misc Helpers
+    //-------------------------------------------------------------------------
+
+    inline float CalculateCapsuleVolume( float radius, float height )
+    {
+        constexpr float const fourThirds = 4.0f / 3.0f;
+        float const radiusSq = radius * radius;
+        float const v =  Math::Pi * radiusSq * ( ( fourThirds * radius ) + height );
+        return v;
+    }
 }

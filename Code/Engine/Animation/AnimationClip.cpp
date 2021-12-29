@@ -1,5 +1,5 @@
 #include "AnimationClip.h"
-#include "AnimationPose.h"
+#include "System/Animation/AnimationPose.h"
 #include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------

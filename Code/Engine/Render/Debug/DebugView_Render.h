@@ -8,7 +8,7 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Render
 {
-    class WorldRendererSystem;
+    class RendererWorldSystem;
     class LightComponent;
 
     //-------------------------------------------------------------------------
@@ -19,7 +19,7 @@ namespace KRG::Render
 
     public:
 
-        static void DrawRenderVisualizationModesMenu( WorldRendererSystem* pWorldRendererSystem );
+        static void DrawRenderVisualizationModesMenu( EntityWorld const* pWorld );
 
     public:
 
@@ -36,7 +36,7 @@ namespace KRG::Render
 
     private:
 
-        WorldRendererSystem*            m_pWorldRendererSystem = nullptr;
+        RendererWorldSystem*            m_pWorldRendererSystem = nullptr;
     };
 }
 #endif

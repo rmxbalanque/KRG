@@ -1543,23 +1543,19 @@ namespace KRG::TypeSystem
 
         virtual bool InternalUpdateAndDraw() override
         {
-            float const cellContentWidth = ImGui::GetContentRegionAvail().x;
-            float const childWindowWidth = 80;
-            float const textAreaWidth = cellContentWidth - childWindowWidth - ImGui::GetStyle().ItemSpacing.x;
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SetNextItemWidth( childWindowWidth );
-            ImGui::PushStyleColor( ImGuiCol_Text, Colors::LightGreen.ToUInt32_ABGR() );
-            ImGui::InputText( "##IDString", m_IDString.data(), m_IDString.length(), ImGuiInputTextFlags_ReadOnly);
-            ImGui::PopStyleColor();
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SetNextItemWidth( textAreaWidth );
-            ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - 60 );
             ImGui::InputText( "##StringInput", m_buffer_imgui, s_bufferSize );
-            return ImGui::IsItemDeactivatedAfterEdit();
+            bool const itemEdited = ImGui::IsItemDeactivatedAfterEdit();
+
+            ImGui::SameLine();
+
+            ImGui::SetNextItemWidth( -1 );
+            {
+                ImGuiX::ScopedFont const sf( ImGuiX::Font::TinyBold );
+                ImGui::TextColored( Colors::LightGreen.ToFloat4(), m_IDString.data() );
+            }
+
+            return itemEdited;
         }
 
         virtual void UpdateInstanceValue() override
@@ -1847,12 +1843,13 @@ namespace KRG::TypeSystem
             float const previewWidth = ImGui::GetContentRegionAvail().x - g_iconButtonWidth - ImGui::GetStyle().ItemSpacing.x;
 
             bool valueChanged = false;
-
             if ( ImGui::BeginChild( "##Preview", ImVec2( previewWidth, 140 ) ) )
             {
                 valueChanged = m_editor.UpdateAndDraw();
             }
             ImGui::EndChild();
+
+            //-------------------------------------------------------------------------
 
             ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
             if ( ImGui::Button( KRG_ICON_PENCIL "##OpenCurveEditor" ) )

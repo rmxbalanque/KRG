@@ -28,8 +28,12 @@ namespace KRG::Render
 
     public:
 
+        inline bool HasSkyboxTexture() const { return m_skyboxTexture.IsLoaded(); }
         inline CubemapTexture const* GetSkyboxTexture() const { return m_skyboxTexture.GetPtr(); }
+
+        inline bool HasSkyboxRadianceTexture() const { return m_skyboxRadianceTexture.IsLoaded(); }
         inline CubemapTexture const* GetSkyboxRadianceTexture() const { return m_skyboxRadianceTexture.GetPtr(); }
+
         inline float GetSkyboxIntensity() const { return m_skyboxIntensity; }
 
         //TODO: lighting hack

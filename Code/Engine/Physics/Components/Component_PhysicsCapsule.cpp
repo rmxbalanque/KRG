@@ -8,7 +8,7 @@ namespace KRG::Physics
     CapsuleComponent::CapsuleComponent()
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
-        m_physicsMaterialID = defaultMaterialID;
+        m_materialID = defaultMaterialID;
 
         static Transform const rotatedUpright( Quaternion( Vector::UnitY, Radians( Math::PiDivTwo ) ) );
         SetLocalTransform( rotatedUpright );
@@ -22,7 +22,7 @@ namespace KRG::Physics
             return false;
         }
 
-        if ( !m_physicsMaterialID.IsValid() )
+        if ( !m_materialID.IsValid() )
         {
             KRG_LOG_ERROR( "Physics", "Invalid physical material setup on Physics Component: %s (%u)", GetName().c_str() );
             return false;

@@ -371,6 +371,7 @@ namespace KRG
             {
                 ScopedChangeNotifier cn( this, &propertyInfo, PropertyEditInfo::Action::AddArrayElement );
                 typeInfo.m_pTypeHelper->AddArrayElement( pTypeInstance, propertyInfo.m_ID );
+                ImGui::GetStateStorage()->SetInt( ImGui::GetID( propertyInfo.m_ID.c_str() ), 1 );
             }
         }
 

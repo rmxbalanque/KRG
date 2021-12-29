@@ -13,8 +13,11 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
-    void CameraDebugView::DrawDebugCameraOptions( PlayerManager* pPlayerManager )
+    void CameraDebugView::DrawDebugCameraOptions( EntityWorld const* pWorld )
     {
+        KRG_ASSERT( pWorld != nullptr );
+        auto pPlayerManager = pWorld->GetWorldSystem<PlayerManager>();
+
         ImGui::AlignTextToFramePadding();
         ImGui::Text( "Speed:" );
 
@@ -42,14 +45,14 @@ namespace KRG
 
     void CameraDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
-        m_pWorld = pWorld;
+        EntityWorldDebugView::Initialize( systemRegistry, pWorld );
         m_pPlayerManager = pWorld->GetWorldSystem<PlayerManager>();
     }
 
     void CameraDebugView::Shutdown()
     {
         m_pPlayerManager = nullptr;
-        m_pWorld = nullptr;
+        EntityWorldDebugView::Shutdown();
     }
 
     void CameraDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )

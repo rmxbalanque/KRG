@@ -60,8 +60,10 @@ namespace KRG
         // Path info
         //-------------------------------------------------------------------------
 
+        // returns the filename with all the 'extensions' removed (i.e. file.final.png -> file )
         String GetFileNameWithoutExtension() const;
 
+        // Get the containing directory path for this path
         String GetParentDirectory() const;
 
         // Get the directory depth for this path e.g. D:\Foo\Bar\Moo.txt = 2

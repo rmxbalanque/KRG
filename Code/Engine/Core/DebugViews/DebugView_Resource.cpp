@@ -15,12 +15,14 @@ namespace KRG::Resource
 
     void ResourceDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
+        EntityWorldDebugView::Initialize( systemRegistry, pWorld );
         m_pResourceSystem = systemRegistry.GetSystem<ResourceSystem>();
     }
 
     void ResourceDebugView::Shutdown()
     {
         m_pResourceSystem = nullptr;
+        EntityWorldDebugView::Shutdown();
     }
 
     void ResourceDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
@@ -59,10 +61,11 @@ namespace KRG::Resource
 
         if ( ImGui::Begin( "Resource Reference Tracker", pIsOpen ) )
         {
-            if ( ImGui::BeginTable( "Resource Reference Tracker Table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            if ( ImGui::BeginTable( "Resource Reference Tracker Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
             {
                 ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 30 );
                 ImGui::TableSetupColumn( "Refs", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 24 );
+                ImGui::TableSetupColumn( "Status", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
                 ImGui::TableSetupColumn( "ID", ImGuiTableColumnFlags_WidthStretch );
 
                 //-------------------------------------------------------------------------
@@ -90,6 +93,43 @@ namespace KRG::Resource
                     //-------------------------------------------------------------------------
 
                     ImGui::TableSetColumnIndex( 2 );
+
+                    switch ( pRecord->m_loadingStatus )
+                    {
+                        case LoadingStatus::Unloaded:
+                        {
+                            ImGui::Text( "Unloaded" );
+                        }
+                        break;
+
+                        case LoadingStatus::Loading:
+                        {
+                            ImGui::TextColored( Colors::Yellow.ToFloat4(), "Loaded" );
+                        }
+                        break;
+
+                        case LoadingStatus::Loaded:
+                        {
+                            ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Loaded" );
+                        }
+                        break;
+
+                        case LoadingStatus::Unloading:
+                        {
+                            ImGui::Text( "Unloading" );
+                        }
+                        break;
+
+                        case LoadingStatus::Failed :
+                        {
+                            ImGui::TextColored( Colors::Red.ToFloat4(), "Loaded" );
+                        }
+                        break;
+                    }
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 3 );
                     if ( ImGui::TreeNode( recordTuple.second->GetResourceID().c_str() ) )
                     {
                         for ( auto const& requesterID : pRecord->m_references )

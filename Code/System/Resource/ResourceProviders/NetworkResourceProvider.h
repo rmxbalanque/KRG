@@ -31,7 +31,7 @@ namespace KRG::Resource
 
         virtual bool Initialize() override final;
         virtual void Shutdown() override final;
-        virtual void Update() override final;
+        virtual void UpdateInternal() override final;
 
         virtual void RequestResourceInternal( ResourceRequest* pRequest ) override final;
         virtual void CancelRequestInternal( ResourceRequest* pRequest ) override final;

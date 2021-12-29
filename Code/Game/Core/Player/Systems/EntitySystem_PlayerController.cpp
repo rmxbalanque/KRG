@@ -63,7 +63,7 @@ namespace KRG::Player
             m_actionContext.m_pPlayerComponent = pPlayerComponent;
         }
 
-        else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
+        else if ( auto pCharacterMeshComponent = TryCast<Render::CharacterMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( m_pCharacterMeshComponent == nullptr );
             m_pCharacterMeshComponent = pCharacterMeshComponent;
@@ -109,7 +109,7 @@ namespace KRG::Player
             m_actionContext.m_pPlayerComponent = nullptr;
         }
 
-        else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
+        else if ( auto pCharacterMeshComponent = TryCast<Render::CharacterMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( m_pCharacterMeshComponent != nullptr );
             m_pCharacterMeshComponent = nullptr;

@@ -5,6 +5,34 @@
 
 namespace KRG
 {
+    int32 SpatialEntityComponent::GetSpatialHierarchyDepth( bool limitToCurrentEntity ) const
+    {
+        int32 hierarchyDepth = 0;
+
+        if ( limitToCurrentEntity && IsRootComponent() )
+        {
+            return hierarchyDepth;
+        }
+
+        //-------------------------------------------------------------------------
+
+        SpatialEntityComponent const* pComponent = this;
+        while ( pComponent->HasSpatialParent() )
+        {
+            if ( limitToCurrentEntity && pComponent->GetEntityID() != GetEntityID() )
+            {
+                break;
+            }
+
+            //-------------------------------------------------------------------------
+
+            hierarchyDepth++;
+            pComponent = pComponent->m_pSpatialParent;
+        }
+
+        return hierarchyDepth;
+    }
+
     Transform SpatialEntityComponent::GetAttachmentSocketTransform( StringID socketID ) const
     {
         Transform socketTransform;

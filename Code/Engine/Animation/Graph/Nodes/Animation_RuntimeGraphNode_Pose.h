@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Animation/AnimationPose.h"
+#include "System/Animation/AnimationPose.h"
 #include "Engine/Animation/Graph/Animation_RuntimeGraph_Node.h"
 #include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
 

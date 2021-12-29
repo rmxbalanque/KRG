@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <filesystem>
 
 //-------------------------------------------------------------------------
 
@@ -125,7 +126,7 @@ namespace KRG
                     return LogError( "Could not open solution: %s", slnPath.c_str() );
                 }
 
-                m_solution.m_path = FileSystem::Path( slnPath ).GetParentDirectory();
+                m_solution.m_path = slnPath.GetParentDirectory();
                 m_reflectionDataPath = FileSystem::Path( FileSystem::GetCurrentProcessPath() + Settings::g_temporaryDirectoryPath );
 
                 TVector<FileSystem::Path> projectFiles;
@@ -300,6 +301,8 @@ namespace KRG
 
                         FileSystem::Path const headerFileFullPath = prj.m_path + headerFilePath;
 
+                        std::filesystem::path s( headerFileFullPath.c_str() );
+
                         auto const result = ProcessHeaderFile( headerFileFullPath, prj.m_exportMacro );
                         switch ( result )
                         {
@@ -430,6 +433,11 @@ namespace KRG
 
                             if ( macroExists && uncommentedMacro )
                             {
+                                if ( macro == ReflectionMacro::RegisterTypeResource )
+                                {
+                                    KRG_HALT();
+                                }
+
                                 hdrFile.close();
 
                                 // We should never have registration macros and the export definition in the same file

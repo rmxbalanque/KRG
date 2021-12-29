@@ -2,6 +2,11 @@
 
 #include "Component_RenderMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
+#include "System/Animation/AnimationSkeleton.h"
+
+//-------------------------------------------------------------------------
+
+namespace KRG::Animation { class Pose; }
 
 //-------------------------------------------------------------------------
 
@@ -53,6 +58,17 @@ namespace KRG::Render
         // Get the skinning transforms for this mesh - these are the global transforms relative to the bind pose
         inline TVector<Matrix> const& GetSkinningTransforms() const { return m_skinningTransforms; }
 
+        // Animation Pose
+        //-------------------------------------------------------------------------
+
+        inline bool HasSkeletonResourceSet() const { return m_pSkeleton.IsValid(); }
+        inline Animation::Skeleton const* GetSkeleton() const { return m_pSkeleton.GetPtr(); }
+        void SetSkeleton( ResourceID skeletonResourceID );
+
+        void SetPose( Animation::Pose const* pPose );
+
+        void ResetPose();
+
         // Debug
         //-------------------------------------------------------------------------
 
@@ -66,6 +82,7 @@ namespace KRG::Render
 
         void UpdateBounds();
         void UpdateSkinningTransforms();
+        void GenerateAnimationBoneMap();
 
         virtual void Initialize() override;
         virtual void Shutdown() override;
@@ -75,8 +92,21 @@ namespace KRG::Render
 
     protected:
 
-        KRG_EXPOSE TResourcePtr<SkeletalMesh>       m_pMesh;
-        TVector<Transform>                          m_boneTransforms;
-        TVector<Matrix>                             m_skinningTransforms;
+        KRG_EXPOSE TResourcePtr<SkeletalMesh>           m_pMesh;
+        KRG_EXPOSE TResourcePtr<Animation::Skeleton>    m_pSkeleton = nullptr;
+        TVector<int32>                                  m_animToMeshBoneMap;
+        TVector<Transform>                              m_boneTransforms;
+        TVector<Matrix>                                 m_skinningTransforms;
+    };
+
+    //-------------------------------------------------------------------------
+
+    // We often have the need to find the specific mesh component that is the main character mesh.
+    // This class makes it explicit, no need for name or tag matching!
+    class KRG_ENGINE_RENDER_API CharacterMeshComponent final : public SkeletalMeshComponent
+    {
+        KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( CharacterMeshComponent );
+
+        using SkeletalMeshComponent::SkeletalMeshComponent;
     };
 }

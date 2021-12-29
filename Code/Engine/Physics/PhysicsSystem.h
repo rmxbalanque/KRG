@@ -21,7 +21,6 @@ namespace KRG::Physics
     {
         friend class ScopeLock;
         friend class PhysicsDebugView;
-        friend class PhysicsMaterialDatabaseDebugView;
 
     public:
 
@@ -39,7 +38,7 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         // Get the created physx context
-        inline physx::PxPhysics& GetPxPhysics() const { return *m_pPhysics; }
+        inline physx::PxPhysics* GetPxPhysics() const { return m_pPhysics; }
 
         // Scene factory method - transfers ownership of the scene to the calling code
         physx::PxScene* CreateScene();

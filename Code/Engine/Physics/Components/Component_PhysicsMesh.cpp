@@ -31,9 +31,9 @@ namespace KRG::Physics
         uint16 const numMaterialsNeeded = m_pPhysicsMesh->GetNumMaterialsNeeded();
         for ( int32 i = 0; i < numMaterialsNeeded; i++ )
         {
-            if ( i < m_physicsMaterialOverrideIDs.size() && m_physicsMaterialOverrideIDs[i].IsValid() )
+            if ( i < m_materialOverrideIDs.size() && m_materialOverrideIDs[i].IsValid() )
             {
-                materials[i] = m_physicsMaterialOverrideIDs[i];
+                materials[i] = m_materialOverrideIDs[i];
             }
         }
 

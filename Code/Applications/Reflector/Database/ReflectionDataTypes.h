@@ -16,15 +16,17 @@ namespace KRG::TypeSystem::Reflection
 
         ReflectedProperty() = default;
 
-        ReflectedProperty( String const& name )
+        ReflectedProperty( String const& name, int32 lineNumber )
             : m_propertyID( name )
             , m_name( name )
+            , m_lineNumber( lineNumber )
         {}
 
-        ReflectedProperty( String const& name, String const& typeName )
+        ReflectedProperty( String const& name, String const& typeName, int32 lineNumber )
             : m_propertyID( name )
             , m_name( name )
             , m_typeName( typeName )
+            , m_lineNumber( lineNumber )
         {}
 
         inline bool IsStructureProperty() const { return m_flags.IsFlagSet( PropertyInfo::Flags::IsStructure ); }
@@ -37,14 +39,11 @@ namespace KRG::TypeSystem::Reflection
 
         inline bool operator==( ReflectedProperty const& RHS ) const { return m_propertyID == RHS.m_propertyID; }
         inline bool operator!=( ReflectedProperty const& RHS ) const { return m_propertyID != RHS.m_propertyID; }
-        inline bool operator<( ReflectedProperty const& RHS ) const { return (uint32) m_propertyID < (uint32) RHS.m_propertyID; }
-        inline bool operator<=( ReflectedProperty const& RHS ) const { return (uint32) m_propertyID <= (uint32) RHS.m_propertyID; }
-        inline bool operator>( ReflectedProperty const& RHS ) const { return (uint32) m_propertyID > (uint32) RHS.m_propertyID; }
-        inline bool operator>=( ReflectedProperty const& RHS ) const { return (uint32) m_propertyID >= (uint32) RHS.m_propertyID; }
 
     public:
 
         StringID                                m_propertyID;
+        int32                                   m_lineNumber = -1;
         TypeID                                  m_typeID;
         String                                  m_name;
         String                                  m_typeName;
@@ -109,7 +108,7 @@ namespace KRG::TypeSystem::Reflection
         TVector<ReflectedProperty>                      m_properties;
 
         // Enums
-        CoreTypeID                                       m_underlyingType = CoreTypeID::Uint8;
+        CoreTypeID                                      m_underlyingType = CoreTypeID::Uint8;
         THashMap<StringID, ReflectedEnumConstant>       m_enumConstants;
     };
 

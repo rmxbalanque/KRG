@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Animation/AnimationSkeleton.h"
+#include "System/Animation/AnimationSkeleton.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
 #include "System/Core/Types/StringID.h"

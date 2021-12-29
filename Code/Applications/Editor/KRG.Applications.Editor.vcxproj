@@ -90,6 +90,9 @@
     <ProjectReference Include="..\..\Game\Core\KRG.Game.Core.vcxproj">
       <Project>{20c5d09a-3da8-4cea-9269-65dc6e6cd460}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\Animation\KRG.System.Animation.vcxproj">
+      <Project>{b976ae91-669b-4ed6-beb6-6b2a459e60f9}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>
@@ -125,9 +128,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EditorDevUI.cpp" />
+    <ClCompile Include="EditorUI.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
-    <ClCompile Include="Editor_Model.cpp" />
+    <ClCompile Include="EditorContext.cpp" />
     <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
     <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.cpp" />
@@ -138,9 +141,9 @@
     <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EditorDevUI.h" />
+    <ClInclude Include="EditorUI.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
-    <ClInclude Include="Editor_Model.h" />
+    <ClInclude Include="EditorContext.h" />
     <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
     <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.h" />

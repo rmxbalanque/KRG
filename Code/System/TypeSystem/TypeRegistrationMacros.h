@@ -23,6 +23,8 @@ namespace KRG
     // Interface to enforce virtual destructors and type-info overrides
     class KRG_SYSTEM_TYPESYSTEM_API IRegisteredType
     {
+        KRG_SERIALIZE_NONE();
+
     public:
 
         static KRG::TypeSystem::TypeInfo const* s_pTypeInfo;
@@ -43,6 +45,10 @@ namespace KRG
         static KRG::TypeSystem::TypeID GetStaticTypeID() { KRG_ASSERT( s_pTypeInfo != nullptr ); return s_pTypeInfo->m_ID; }\
         virtual KRG::TypeSystem::TypeInfo const* GetTypeInfo() const override { KRG_ASSERT( TypeName::s_pTypeInfo != nullptr ); return TypeName::s_pTypeInfo; }\
         virtual KRG::TypeSystem::TypeID GetTypeID() const override  { KRG_ASSERT( TypeName::s_pTypeInfo != nullptr ); return TypeName::s_pTypeInfo->m_ID; }
+
+#define KRG_REGISTER_TYPE_RESOURCE( ResourceTypeFourCC, ResourceFriendlyName, TypeName ) \
+        KRG_REGISTER_RESOURCE( ResourceTypeFourCC, ResourceFriendlyName )\
+        KRG_REGISTER_TYPE( TypeName )
 
 //-------------------------------------------------------------------------
 // Property Registration

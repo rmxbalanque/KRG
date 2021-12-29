@@ -8,32 +8,39 @@
 
 namespace KRG::Resource
 {
-    ResourceRequest::ResourceRequest( ResourceRequesterID const& requesterID, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
+    ResourceRequest::ResourceRequest( ResourceRequesterID const& requesterID, Type type, ResourceRecord* pRecord, ResourceLoader* pResourceLoader )
         : m_requesterID( requesterID )
         , m_pResourceRecord( pRecord )
         , m_pResourceLoader( pResourceLoader )
+        , m_type( type )
     {
         KRG_ASSERT( Threading::IsMainThread() );
         KRG_ASSERT( m_pResourceRecord != nullptr && m_pResourceRecord->IsValid() );
-        KRG_ASSERT( m_pResourceRecord->IsLoaded() || m_pResourceRecord->IsUnloaded() || m_pResourceRecord->HasLoadingFailed() );
-        KRG_ASSERT( pResourceLoader != nullptr );
+        KRG_ASSERT( m_pResourceLoader != nullptr );
+        KRG_ASSERT( m_type != Type::Invalid );
+        KRG_ASSERT( !m_pResourceRecord->IsLoading() && !m_pResourceRecord->IsUnloading() );
 
-        if ( m_pResourceRecord->HasLoadingFailed() )
+        if ( m_type == Type::Load )
         {
-            m_type = Type::Unload;
-            m_stage = Stage::UnloadFailedResource;
-        }
-        else if ( m_pResourceRecord->IsLoaded() )
-        {
-            m_type = Type::Unload;
-            m_stage = Stage::UninstallResource;
-            m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloading );
-        }
-        else if ( m_pResourceRecord->IsUnloaded() )
-        {
-            m_type = Type::Load;
+            KRG_ASSERT( m_pResourceRecord->IsUnloaded() );
             m_stage = Stage::RequestRawResource;
             m_pResourceRecord->SetLoadingStatus( LoadingStatus::Loading );
+        }
+        else // Unload
+        {
+            if ( m_pResourceRecord->HasLoadingFailed() )
+            {
+                m_stage = Stage::UnloadFailedResource;
+            }
+            else if ( m_pResourceRecord->IsLoaded() )
+            {
+                m_stage = Stage::UninstallResource;
+                m_pResourceRecord->SetLoadingStatus( LoadingStatus::Unloading );
+            }
+            else // Why are you unloading an already unloaded resource?!
+            {
+                KRG_UNREACHABLE_CODE();
+            }
         }
     }
 

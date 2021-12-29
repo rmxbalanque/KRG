@@ -22,11 +22,11 @@ namespace KRG::Physics
     private:
 
         virtual bool HasValidPhysicsSetup() const override final;
-        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final { return { m_physicsMaterialID }; }
+        virtual TInlineVector<StringID, 4> GetPhysicsMaterialIDs() const override final { return { m_materialID }; }
 
     protected:
 
-        KRG_EXPOSE StringID                                 m_physicsMaterialID;
+        KRG_EXPOSE StringID                                 m_materialID;
         KRG_EXPOSE Float3                                   m_boxExtents = Float3( 1.0f );
     };
 }

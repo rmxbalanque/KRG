@@ -51,11 +51,20 @@ namespace KRG::TypeSystem
         // Return all types matching specified type metadata
         TVector<TypeInfo const*> GetAllTypesWithMatchingMetadata( TBitFlags<ETypeInfoMetaData> metadataFlags ) const;
 
+        // Return all known types
+        TVector<TypeInfo const*> GetAllTypes( bool includeAbstractTypes = true ) const;
+
         // Return all types that derived from a specified type
         TVector<TypeInfo const*> GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults = false, bool includeAbstractTypes = true ) const;
 
         // Get all the types that this type is allowed to be cast to
         TInlineVector<TypeID, 5> GetAllCastableTypes( IRegisteredType const* pType ) const;
+
+        // Are these two types in the same derivation chain (i.e. does either derive from the other )
+        bool AreTypesInTheSameHierarchy( TypeID typeA, TypeID typeB ) const;
+
+        // Are these two types in the same derivation chain (i.e. does either derive from the other )
+        bool AreTypesInTheSameHierarchy( TypeInfo const* pTypeInfoA, TypeInfo const* pTypeInfoB ) const;
 
         //-------------------------------------------------------------------------
         // Enums

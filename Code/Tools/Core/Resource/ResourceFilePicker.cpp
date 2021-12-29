@@ -98,13 +98,14 @@ namespace KRG::Resource
         //-------------------------------------------------------------------------
 
         float const contentRegionAvailable = ImGui::GetContentRegionAvail().x;
-        constexpr float const resourceTypeWindowWidth = 36;
+        constexpr float const resourceTypeWindowWidth = 28;
 
         ImGui::PushID( pResourceID );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8, 2 ) );
-        ImGui::BeginChild( "IDLabel", ImVec2( resourceTypeWindowWidth, 18 ), true, ImGuiWindowFlags_None | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 2, 2 ) );
+        ImGui::BeginChild( "IDLabel", ImVec2( resourceTypeWindowWidth, 18 ), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
         {
+            ImGuiX::ScopedFont const sf( ImGuiX::Font::TinyBold );
             if ( pResourceID->IsValid() )
             {
                 ImVec2 const textSize = ImGui::CalcTextSize( pResourceID->GetResourceTypeID().ToString().c_str());
@@ -257,6 +258,7 @@ namespace KRG::Resource
 
                 ImGui::EndTable();
             }
+            ImGui::PopStyleColor();
 
             ImGui::EndPopup();
         }

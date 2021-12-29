@@ -12,21 +12,21 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class EditorModel final
+    class EditorContext final
     {
     public:
 
-        ~EditorModel();
+        ~EditorContext();
 
         void Initialize( UpdateContext const& context );
         void Shutdown( UpdateContext const& context );
         void Update( UpdateContext const& context );
 
-        inline FileSystem::Path const& GetRawResourceDirectory() const { return m_editorContext.GetRawResourceDirectoryPath(); }
-        inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_editorContext.GetCompiledResourceDirectoryPath(); }
-        inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_editorContext.m_pTypeRegistry; }
-        inline Resource::ResourceDatabase const* GetResourceDatabase() const { return m_editorContext.m_pResourceDatabase; }
-        inline Resource::ResourceSystem* GetResourceSystem() const { return m_editorContext.m_pResourceSystem; }
+        inline FileSystem::Path const& GetRawResourceDirectory() const { return m_resourceDB.GetRawResourceDirectoryPath(); }
+        inline FileSystem::Path const& GetCompiledResourceDirectory() const { return m_resourceDB.GetCompiledResourceDirectoryPath(); }
+        inline TypeSystem::TypeRegistry const* GetTypeRegistry() const { return m_workspaceInitContext.m_pTypeRegistry; }
+        inline Resource::ResourceDatabase const* GetResourceDatabase() const { return m_workspaceInitContext.m_pResourceDatabase; }
+        inline Resource::ResourceSystem* GetResourceSystem() const { return m_workspaceInitContext.m_pResourceSystem; }
         inline Render::RenderingSystem* GetRenderingSystem() const { return m_pRenderingSystem; }
 
         bool HasDescriptorForResourceType( ResourceTypeID resourceTypeID ) const;
@@ -82,7 +82,7 @@ namespace KRG
         EntityWorldManager*                 m_pWorldManager = nullptr;
         Render::RenderingSystem*            m_pRenderingSystem = nullptr;
         Resource::ResourceDatabase          m_resourceDB;
-        EditorContext                       m_editorContext;
+        WorkspaceInitializationContext      m_workspaceInitContext;
         TVector<EditorWorkspace*>           m_workspaces;
         TVector<ResourceID>                 m_workspaceCreationRequests;
         TVector<EditorWorkspace*>           m_workspaceDestructionRequests;

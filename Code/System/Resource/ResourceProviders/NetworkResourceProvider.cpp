@@ -36,7 +36,7 @@ namespace KRG::Resource
         Network::NetworkSystem::StopClientConnection( &m_networkClient );
     }
 
-    void NetworkResourceProvider::Update()
+    void NetworkResourceProvider::UpdateInternal()
     {
         KRG_PROFILE_FUNCTION_RESOURCE();
 
@@ -73,8 +73,10 @@ namespace KRG::Resource
 
                 case NetworkMessageID::ResourceUpdated:
                 {
+                    #if KRG_DEVELOPMENT_TOOLS
                     NetworkResourceResponse response = message.GetData<NetworkResourceResponse>();
-                    m_resourceExternalUpdateEvent.Execute( response.m_resourceID );
+                    m_externallyUpdatedResources.emplace_back( response.m_resourceID );
+                    #endif
                 }
                 break;
             };

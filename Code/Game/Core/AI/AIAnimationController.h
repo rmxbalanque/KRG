@@ -10,7 +10,7 @@ namespace KRG::AI
     {
     public:
 
-        AIAnimationController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
+        AIAnimationController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent );
 
         #if KRG_DEVELOPMENT_TOOLS
         virtual char const* GetName() const { return "AI Graph Controller"; }

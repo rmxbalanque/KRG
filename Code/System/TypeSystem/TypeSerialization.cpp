@@ -10,9 +10,9 @@ namespace KRG::TypeSystem::Serialization
     // Type descriptor reader needs to support both nested and unnested formats as it needs to read the outputs from both descriptor serialization and type model serialization
     struct TypeDescriptorReader
     {
-        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, RapidJsonValue const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
+        static bool ReadArrayDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pRootTypeInfo, PropertyInfo const* pArrayPropertyInfo, RapidJsonValue const& arrayValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix )
         {
-            KRG_ASSERT( pTypeInfo != nullptr && arrayValue.IsArray() );
+            KRG_ASSERT( pArrayPropertyInfo != nullptr && arrayValue.IsArray() );
 
             int32 const numElements = (int32) arrayValue.Size();
             for ( int32 i = 0; i < numElements; i++ )
@@ -25,16 +25,35 @@ namespace KRG::TypeSystem::Serialization
                 }
                 else if ( arrayValue[i].IsObject() )
                 {
+                    if ( CoreTypeRegistry::IsCoreType( pArrayPropertyInfo->m_typeID ) )
+                    {
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, object declared for core type property: %s", pArrayPropertyInfo->m_ID.c_str() );
+                        return false;
+                    }
+
+                    auto pArrayPropertyTypeInfo = typeRegistry.GetTypeInfo( pArrayPropertyInfo->m_typeID );
                     String const newPrefix = String( String::CtorSprintf(), "%s%d/", propertyPathPrefix.c_str(), i );
-                    if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, arrayValue[i], outPropertyValues, newPrefix ) )
+                    if ( !ReadTypeDescriptor( typeRegistry, pRootTypeInfo, pArrayPropertyTypeInfo, arrayValue[i], outPropertyValues, newPrefix ) )
                     {
                         return false;
                     }
                 }
                 else // Add regular property value
                 {
+                    if ( !CoreTypeRegistry::IsCoreType( pArrayPropertyInfo->m_typeID ) )
+                    {
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, only core type properties are allowed to be directly declared: %s", pArrayPropertyInfo->m_ID.c_str() );
+                        return false;
+                    }
+
+                    if ( !arrayValue[i].IsString() )
+                    {
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, Core type values must be strings, property (%s) has invalid value: %s", pArrayPropertyInfo->m_ID.c_str(), arrayValue[i].GetString() );
+                        return false;
+                    }
+
                     auto const propertyPath = PropertyPath( String( String::CtorSprintf(), "%s%d", propertyPathPrefix.c_str(), i ) );
-                    auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pTypeInfo, propertyPath );
+                    auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pRootTypeInfo, propertyPath );
                     if ( pPropertyInfo != nullptr )
                     {
                         outPropertyValues.push_back( PropertyDescriptor( typeRegistry, propertyPath, *pPropertyInfo, arrayValue[i].GetString() ) );
@@ -45,7 +64,7 @@ namespace KRG::TypeSystem::Serialization
             return true;
         }
 
-        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pTypeInfo, RapidJsonValue const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
+        static bool ReadTypeDescriptor( TypeRegistry const& typeRegistry, TypeInfo const* pRootTypeInfo, TypeInfo const* pTypeInfo, RapidJsonValue const& typeObjectValue, TInlineVector<PropertyDescriptor, 6>& outPropertyValues, String const& propertyPathPrefix = String() )
         {
             // Read properties
             //-------------------------------------------------------------------------
@@ -53,7 +72,8 @@ namespace KRG::TypeSystem::Serialization
             for ( auto itr = typeObjectValue.MemberBegin(); itr != typeObjectValue.MemberEnd(); ++itr )
             {
                 StringID const propertyID( itr->name.GetString() );
-                if ( !pTypeInfo->GetPropertyInfo( propertyID ) )
+                PropertyInfo const* pPropertyInfo = pTypeInfo->GetPropertyInfo( propertyID );
+                if ( pPropertyInfo == nullptr )
                 {
                     continue;
                 }
@@ -61,30 +81,43 @@ namespace KRG::TypeSystem::Serialization
                 if ( itr->value.IsArray() )
                 {
                     String const newPrefix = String( String::CtorSprintf(), "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
-                    ReadArrayDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix );
+                    ReadArrayDescriptor( typeRegistry, pRootTypeInfo, pPropertyInfo, itr->value, outPropertyValues, newPrefix );
                 }
                 else if ( itr->value.IsObject() )
                 {
+                    if ( CoreTypeRegistry::IsCoreType( pPropertyInfo->m_typeID ) )
+                    {
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, object declared for core type property: %s", itr->name.GetString() );
+                        return false;
+                    }
+                    
+                    auto pPropertyTypeInfo = typeRegistry.GetTypeInfo( pPropertyInfo->m_typeID );
                     String const newPrefix = String( String::CtorSprintf(), "%s%s/", propertyPathPrefix.c_str(), itr->name.GetString() );
-                    if ( !ReadTypeDescriptor( typeRegistry, pTypeInfo, itr->value, outPropertyValues, newPrefix ) )
+                    if ( !ReadTypeDescriptor( typeRegistry, pRootTypeInfo, pPropertyTypeInfo, itr->value, outPropertyValues, newPrefix ) )
                     {
                         return false;
                     }
                 }
                 else // Regular core type property
                 {
+                    if ( !CoreTypeRegistry::IsCoreType( pPropertyInfo->m_typeID ) && !pPropertyInfo->IsEnumProperty() )
+                    {
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, only core type properties are allowed to be directly declared: %s", itr->name.GetString() );
+                        return false;
+                    }
+
                     if ( !itr->value.IsString() )
                     {
-                        KRG_LOG_ERROR( "TypeSystem", "Core type values must be strings, invalid value detected: %s", itr->name.GetString() );
+                        KRG_LOG_ERROR( "TypeSystem", "Malformed json detected, Core type values must be strings, invalid value detected: %s", itr->name.GetString() );
                         return false;
                     }
 
                     PropertyPath const propertyPath( String( String::CtorSprintf(), "%s%s", propertyPathPrefix.c_str(), itr->name.GetString() ) );
 
-                    auto pPropertyInfo = typeRegistry.ResolvePropertyPath( pTypeInfo, propertyPath );
-                    if ( pPropertyInfo != nullptr )
+                    auto pResolvedPropertyInfo = typeRegistry.ResolvePropertyPath( pRootTypeInfo, propertyPath );
+                    if ( pResolvedPropertyInfo != nullptr )
                     {
-                        outPropertyValues.push_back( PropertyDescriptor( typeRegistry, propertyPath, *pPropertyInfo, itr->value.GetString() ) );
+                        outPropertyValues.push_back( PropertyDescriptor( typeRegistry, propertyPath, *pResolvedPropertyInfo, itr->value.GetString() ) );
                     }
                 }
             }
@@ -123,7 +156,7 @@ namespace KRG::TypeSystem::Serialization
         //-------------------------------------------------------------------------
 
         outDesc.m_typeID = TypeID( typeIDIter->value.GetString() );
-        return TypeDescriptorReader::ReadTypeDescriptor( typeRegistry, pTypeInfo, typeObjectValue, outDesc.m_properties );
+        return TypeDescriptorReader::ReadTypeDescriptor( typeRegistry, pTypeInfo, pTypeInfo, typeObjectValue, outDesc.m_properties );
     }
 
     //-------------------------------------------------------------------------

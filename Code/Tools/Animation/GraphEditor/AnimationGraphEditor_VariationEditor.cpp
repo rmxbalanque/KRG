@@ -2,7 +2,6 @@
 #include "EditorGraph/Animation_EditorGraph_Variations.h"
 #include "EditorGraph/Animation_EditorGraph_Definition.h"
 #include "Tools/Core/Resource/ResourceFilePicker.h"
-#include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Engine/Animation/Graph/Animation_RuntimeGraph_Resources.h"
 #include "System/Render/Imgui/ImguiX.h"
 
@@ -10,10 +9,9 @@
 
 namespace KRG::Animation::Graph
 {
-    GraphVariationEditor::GraphVariationEditor( EditorContext const& editorContext, AnimationGraphEditorDefinition* pGraphDefinition )
-        : m_editorContext( editorContext )
-        , m_pGraphDefinition( pGraphDefinition )
-        , m_resourcePicker( *editorContext.m_pResourceDatabase )
+    GraphVariationEditor::GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, AnimationGraphEditorDefinition* pGraphDefinition )
+        : m_pGraphDefinition( pGraphDefinition )
+        , m_resourcePicker( *pResourceDatabase )
     {
         KRG_ASSERT( m_pGraphDefinition != nullptr );
 

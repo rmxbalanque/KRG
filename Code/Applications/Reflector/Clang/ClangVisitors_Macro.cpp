@@ -33,6 +33,10 @@ namespace KRG
                 {
                     pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterType, cr, range ) );
                 }
+                else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterTypeResource ) )
+                {
+                    pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterTypeResource, cr, range ) );
+                }
                 else if ( cursorName == GetReflectionMacroText( ReflectionMacro::RegisterEntityComponent ) )
                 {
                     pContext->AddFoundTypeRegistrationMacro( TypeRegistrationMacro( ReflectionMacro::RegisterEntityComponent, cr, range ) );

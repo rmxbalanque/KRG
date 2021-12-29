@@ -23,15 +23,15 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_RENDER_API WorldRendererSystem final : public IWorldEntitySystem
+    class KRG_ENGINE_RENDER_API RendererWorldSystem final : public IWorldEntitySystem
     {
         friend class WorldRenderer;
         friend class RenderDebugView;
 
     public:
 
-        KRG_REGISTER_TYPE( WorldRendererSystem );
-        KRG_ENTITY_WORLD_SYSTEM( WorldRendererSystem, RequiresUpdate( UpdateStage::FrameEnd ) );
+        KRG_REGISTER_TYPE( RendererWorldSystem );
+        KRG_ENTITY_WORLD_SYSTEM( RendererWorldSystem, RequiresUpdate( UpdateStage::FrameEnd ) );
 
         #if KRG_DEVELOPMENT_TOOLS
         enum class VisualizationMode : int8

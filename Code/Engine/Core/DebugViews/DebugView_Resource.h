@@ -31,7 +31,6 @@ namespace KRG::Resource
         virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawResourceMenu( EntityUpdateContext const& context );
-        void DrawHistoryWindow( EntityUpdateContext const& context );
 
     private:
 

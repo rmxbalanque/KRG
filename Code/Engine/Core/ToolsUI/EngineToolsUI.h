@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IDevUI.h"
+#include "IToolsUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Settings/DebugSettings.h"
@@ -24,7 +24,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class KRG_ENGINE_CORE_API EngineDevUI final : public ImGuiX::IDevUI
+    class KRG_ENGINE_CORE_API EngineToolsUI final : public ImGuiX::IToolsUI
     {
         friend class GamePreviewer;
 
@@ -53,7 +53,7 @@ namespace KRG
         void DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass = nullptr );
         void DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld );
 
-        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override {}
+        virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload, TVector<ResourceID> const& resourcesToBeReloaded ) override {}
         virtual void EndHotReload() {}
 
     protected:
@@ -70,8 +70,6 @@ namespace KRG
 
         SystemLogView                                       m_systemLogView;
         bool                                                m_isLogWindowOpen = false;
-
-        DebugSettingsView                                   m_debugSettingsView;
         bool                                                m_isDebugSettingsWindowOpen = false;
     };
 }

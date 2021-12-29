@@ -1,7 +1,7 @@
 #include "EntitySystem_Animation.h"
 #include "Engine/Animation/Components/Component_Animation.h"
-#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
-#include "Engine/Animation/AnimationPose.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
+#include "System/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Logging/Log.h"
@@ -19,7 +19,7 @@ namespace KRG::Animation
 
     void AnimationSystem::RegisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pMeshComponent = TryCast<AnimatedMeshComponent>( pComponent ) )
+        if ( auto pMeshComponent = TryCast<Render::SkeletalMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.push_back( pMeshComponent );
@@ -39,7 +39,7 @@ namespace KRG::Animation
 
     void AnimationSystem::UnregisterComponent( EntityComponent* pComponent )
     {
-        if ( auto pMeshComponent = TryCast<AnimatedMeshComponent>( pComponent ) )
+        if ( auto pMeshComponent = TryCast<Render::SkeletalMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.erase_first( pMeshComponent );

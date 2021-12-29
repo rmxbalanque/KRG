@@ -6,7 +6,7 @@
 
 namespace KRG::Player
 {
-    AnimationController::AnimationController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent )
+    AnimationController::AnimationController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent )
         : Animation::GraphController( pGraphComponent, pMeshComponent )
     {
         m_subGraphControllers.emplace_back( KRG::New<LocomotionGraphController>( pGraphComponent, pMeshComponent ) );

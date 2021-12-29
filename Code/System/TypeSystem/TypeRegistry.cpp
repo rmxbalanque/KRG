@@ -117,6 +117,24 @@ namespace KRG::TypeSystem
         return matchingTypes;
     }
 
+
+    TVector<TypeInfo const*> TypeRegistry::GetAllTypes( bool includeAbstractTypes ) const
+    {
+        TVector<TypeInfo const*> types;
+
+        for ( auto const& typeInfoPair : m_registeredTypes )
+        {
+            if ( !includeAbstractTypes && typeInfoPair.second->IsAbstractType() )
+            {
+                continue;
+            }
+
+            types.emplace_back( typeInfoPair.second );
+        }
+
+        return types;
+    }
+
     TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults, bool includeAbstractTypes ) const
     {
         TVector<TypeInfo const*> matchingTypes;
@@ -163,6 +181,28 @@ namespace KRG::TypeSystem
         TInlineVector<KRG::TypeSystem::TypeID, 5> parentTypeIDs;
         Helper::RecursivelyFindAllParents( pType->GetTypeInfo(), parentTypeIDs );
         return parentTypeIDs;
+    }
+
+    bool TypeRegistry::AreTypesInTheSameHierarchy( TypeID typeA, TypeID typeB ) const 
+    {
+        auto pTypeInfoA = GetTypeInfo( typeA );
+        auto pTypeInfoB = GetTypeInfo( typeB );
+        return AreTypesInTheSameHierarchy( pTypeInfoA, pTypeInfoB );
+    }
+
+    bool TypeRegistry::AreTypesInTheSameHierarchy( TypeInfo const* pTypeInfoA, TypeInfo const* pTypeInfoB ) const
+    {
+        if ( pTypeInfoA->IsDerivedFrom( pTypeInfoB->m_ID ) )
+        {
+            return true;
+        }
+
+        if ( pTypeInfoB->IsDerivedFrom( pTypeInfoA->m_ID ) )
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //-------------------------------------------------------------------------

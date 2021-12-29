@@ -1,8 +1,8 @@
 #include "Workspace_Skeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Core/Widgets/InterfaceHelpers.h"
-#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
-#include "Engine/Animation/AnimationPose.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
+#include "System/Animation/AnimationPose.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
@@ -17,47 +17,7 @@ namespace KRG::Animation
 
     SkeletonWorkspace::~SkeletonWorkspace()
     {
-        DestroySkeletonTree();
         KRG_ASSERT( m_pSkeletonTreeRoot == nullptr );
-    }
-
-    void SkeletonWorkspace::Initialize( UpdateContext const& context )
-    {
-        KRG_ASSERT( m_pPreviewEntity == nullptr );
-
-        TResourceWorkspace<Skeleton>::Initialize( context );
-
-        m_skeletonTreeWindowName.sprintf( "Skeleton##%u", GetID() );
-        m_detailsWindowName.sprintf( "Details##%u", GetID() );
-
-        //-------------------------------------------------------------------------
-
-        // We dont own the entity as soon as we add it to the map
-        m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
-
-        //-------------------------------------------------------------------------
-
-        m_selectedBoneID = StringID();
-    }
-
-    void SkeletonWorkspace::Shutdown( UpdateContext const& context )
-    {
-        m_selectedBoneID = StringID();
-
-        //-------------------------------------------------------------------------
-
-        KRG_ASSERT( m_pPreviewEntity != nullptr );
-        m_pPreviewEntity = nullptr;
-        m_pMeshComponent = nullptr;
-
-        TResourceWorkspace<Skeleton>::Shutdown( context );
-    }
-
-    void SkeletonWorkspace::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
-    {
-        m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
-        m_pMeshComponent = nullptr;
     }
 
     void SkeletonWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -75,12 +35,70 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( m_detailsWindowName.c_str(), bottomDockID );
     }
 
-    void SkeletonWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    //-------------------------------------------------------------------------
+
+    void SkeletonWorkspace::Initialize( UpdateContext const& context )
+    {
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        TResourceWorkspace<Skeleton>::Initialize( context );
+
+        m_skeletonTreeWindowName.sprintf( "Skeleton##%u", GetID() );
+        m_detailsWindowName.sprintf( "Details##%u", GetID() );
+
+        CreatePreviewEntity();
+    }
+
+    void SkeletonWorkspace::Shutdown( UpdateContext const& context )
+    {
+        DestroySkeletonTree();
+        TResourceWorkspace<Skeleton>::Shutdown( context );
+    }
+
+    void SkeletonWorkspace::CreatePreviewEntity()
+    {
+        KRG_ASSERT( m_pPreviewEntity == nullptr );
+
+        auto pSkeletonDescriptor = GetDescriptorAs<SkeletonResourceDescriptor>();
+        if ( pSkeletonDescriptor->m_previewMesh.IsValid() )
+        {
+            auto pMeshComponent = KRG::New<Render::SkeletalMeshComponent>( StringID( "Mesh Component" ) );
+            pMeshComponent->SetSkeleton( m_descriptorID );
+            pMeshComponent->SetMesh( pSkeletonDescriptor->m_previewMesh.GetResourceID() );
+
+            m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
+            m_pPreviewEntity->AddComponent( pMeshComponent );
+            AddEntityToWorld( m_pPreviewEntity );
+        }
+    }
+
+    void SkeletonWorkspace::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        TResourceWorkspace<Skeleton>::BeginHotReload( usersToBeReloaded, resourcesToBeReloaded );
+        if ( m_pDescriptor == nullptr || IsHotReloading() )
+        {
+            DestroyEntityInWorld( m_pPreviewEntity );
+        }
+    }
+
+    void SkeletonWorkspace::EndHotReload()
+    {
+        TResourceWorkspace<Skeleton>::EndHotReload();
+
+        if ( m_pPreviewEntity == nullptr )
+        {
+            CreatePreviewEntity();
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void SkeletonWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         // Debug drawing in Viewport
         //-------------------------------------------------------------------------
 
-        if ( IsLoaded() )
+        if ( IsResourceLoaded() )
         {
             auto drawingCtx = GetDrawingContext();
 
@@ -100,30 +118,6 @@ namespace KRG::Animation
                     Vector const textLineLocation = textLocation - Vector( 0, 0, 0.01f );
                     drawingCtx.DrawText3D( textLocation, m_selectedBoneID.c_str(), Colors::Yellow );
                 }
-            }
-        }
-
-        // Preview Mesh
-        //-------------------------------------------------------------------------
-
-        if ( IsLoaded() )
-        {
-            // Initialize preview mesh
-            if ( m_pMeshComponent == nullptr && m_pPreviewEntity->IsActivated() )
-            {
-                // Load resource descriptor for skeleton to get the preview mesh
-                FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( m_pResource->GetResourcePath() );
-                SkeletonResourceDescriptor resourceDesc;
-                TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc );
-
-                // Create a preview mesh component
-                m_pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
-                m_pMeshComponent->SetSkeleton( m_pResource->GetResourceID() );
-                if ( resourceDesc.m_previewMesh.IsValid() )
-                {
-                    m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
-                }
-                m_pPreviewEntity->AddComponent( m_pMeshComponent );
             }
         }
 
@@ -177,7 +171,7 @@ namespace KRG::Animation
     {
         if ( ImGui::Begin( m_skeletonTreeWindowName.c_str() ) )
         {
-            if ( IsLoaded() )
+            if ( IsResourceLoaded() )
             {
                 if ( m_pSkeletonTreeRoot == nullptr )
                 {

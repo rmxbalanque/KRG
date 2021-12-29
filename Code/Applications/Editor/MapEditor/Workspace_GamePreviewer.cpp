@@ -5,7 +5,7 @@
 
 namespace KRG
 {
-    GamePreviewer::GamePreviewer( EditorContext const& context, EntityWorld* pWorld )
+    GamePreviewer::GamePreviewer( WorkspaceInitializationContext const& context, EntityWorld* pWorld )
         : EditorWorkspace( context, pWorld )
     {}
 
@@ -22,15 +22,15 @@ namespace KRG
             // Load map
             m_loadedMap = mapResourceID;
             m_pWorld->LoadMap( m_loadedMap );
-            SetDisplayName( m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() ).GetFileNameWithoutExtension() );
+            SetDisplayName( m_loadedMap.GetResourcePath().GetFileNameWithoutExtension() );
         }
     }
 
     void GamePreviewer::Initialize( UpdateContext const& context )
     {
         EditorWorkspace::Initialize( context );
-        m_engineDevUI.Initialize( context );
-        m_engineDevUI.LockToWindow( GetViewportWindowID() );
+        m_engineToolsUI.Initialize( context );
+        m_engineToolsUI.LockToWindow( GetViewportWindowID() );
     }
 
     void GamePreviewer::Shutdown( UpdateContext const& context )
@@ -38,7 +38,7 @@ namespace KRG
         KRG_ASSERT( m_loadedMap.IsValid() );
         m_pWorld->UnloadMap( m_loadedMap );
 
-        m_engineDevUI.Shutdown( context );
+        m_engineToolsUI.Shutdown( context );
         EditorWorkspace::Shutdown( context );
     }
 
@@ -55,21 +55,21 @@ namespace KRG
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), topDockID );
     }
 
-    void GamePreviewer::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void GamePreviewer::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
-        m_engineDevUI.DrawWindows( context, pWindowClass );
+        m_engineToolsUI.DrawWindows( context, pWindowClass );
     }
 
     void GamePreviewer::DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
-        m_engineDevUI.DrawOverlayElements( context, pViewport );
+        m_engineToolsUI.DrawOverlayElements( context, pViewport );
     }
 
     void GamePreviewer::DrawWorkspaceToolbar( UpdateContext const& context )
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
-        m_engineDevUI.DrawMenu( context );
+        m_engineToolsUI.DrawMenu( context );
     }
 }

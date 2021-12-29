@@ -4,9 +4,26 @@
 
 namespace KRG
 {
-    ImVec4 TreeListViewItem::GetDisplayColor( bool isActive ) const
+    ImVec4 TreeListViewItem::GetDisplayColor( ItemState state ) const
     {
-        return isActive ? Colors::GreenYellow.ToFloat4() : (ImVec4) ImGuiX::Style::s_textColor;
+        ImVec4 color = (ImVec4) ImGuiX::Style::s_textColor;
+
+        switch ( state )
+        {
+            case ItemState::Selected:
+            {
+                color = Colors::GreenYellow.ToFloat4();
+            }
+            break;
+
+            case ItemState::Active:
+            {
+                color = Colors::Yellow.ToFloat4();
+            }
+            break;
+        }
+
+        return color;
     }
 
     void TreeListViewItem::DestroyChildren()
@@ -64,7 +81,7 @@ namespace KRG
     {
         if ( HasChildren() )
         {
-            // Always update child visibility before our own - this allows clients to affect our visibility based on our childrens' visibility
+            // Always update child visibility before our own - this allows clients to affect our visibility based on our children's visibility
             bool hasVisibleChild = false;
             for ( auto& pChild : m_children )
             {
@@ -95,18 +112,87 @@ namespace KRG
 
     TreeListView::~TreeListView()
     {
-        if ( m_pRoot != nullptr )
+        m_rootItem.DestroyChildren();
+    }
+
+    void TreeListView::RebuildTree( bool maintainExpansionAndSelection )
+    {
+        // Record current state
+        //-------------------------------------------------------------------------
+
+        uint64 activeItemID = 0;
+        uint64 selectedItemID = 0;
+        TVector<uint64> originalExpandedItems;
+
+        if ( maintainExpansionAndSelection )
         {
-            m_pRoot->DestroyChildren();
-            KRG::Delete( m_pRoot );
+            if( m_pActiveItem != nullptr )
+            {
+                activeItemID = m_pActiveItem->GetUniqueID();
+            }
+
+            if ( m_pSelectedItem != nullptr )
+            {
+                selectedItemID = m_pSelectedItem->GetUniqueID();
+            }
+
+            originalExpandedItems.reserve( GetNumItems() );
+
+            auto RecordItemState = [&originalExpandedItems] ( TreeListViewItem const* pItem )
+            {
+                if ( pItem->IsExpanded() )
+                {
+                    originalExpandedItems.emplace_back( pItem->GetUniqueID() );
+                }
+            };
+
+            ForEachItemConst( RecordItemState );
         }
+
+        // Reset tree state
+        //-------------------------------------------------------------------------
+
+        m_pActiveItem = nullptr;
+        m_pSelectedItem = nullptr;
+        m_rootItem.DestroyChildren();
+        m_rootItem.SetExpanded( true );
+
+        // Rebuild Tree
+        //-------------------------------------------------------------------------
+
+        RebuildTreeInternal();
+
+        // Restore original state
+        //-------------------------------------------------------------------------
+
+        if ( maintainExpansionAndSelection )
+        {
+            auto RestoreItemState = [&originalExpandedItems] ( TreeListViewItem* pItem )
+            {
+                if ( VectorContains( originalExpandedItems, pItem->GetUniqueID() ) )
+                {
+                    pItem->SetExpanded( true );
+                }
+            };
+
+            ForEachItem( RestoreItemState );
+
+            auto FindActiveItem = [activeItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == activeItemID; };
+            m_pActiveItem = m_rootItem.SearchChildren( FindActiveItem );
+
+            auto FindSelectedItem = [selectedItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == selectedItemID; };
+            m_pSelectedItem = m_rootItem.SearchChildren( FindSelectedItem );
+        }
+
+        RefreshVisualState();
     }
 
     //-------------------------------------------------------------------------
 
-    void TreeListView::TryAddItemToVisualTree( TreeListViewItem* pItem )
+    void TreeListView::TryAddItemToVisualTree( TreeListViewItem* pItem, int32 hierarchyLevel )
     {
         KRG_ASSERT( pItem != nullptr );
+        KRG_ASSERT( hierarchyLevel >= 0 );
 
         //-------------------------------------------------------------------------
 
@@ -115,7 +201,7 @@ namespace KRG
             return;
         }
 
-        m_visualTree.emplace_back( pItem );
+        m_visualTree.emplace_back( pItem, hierarchyLevel );
 
         //-------------------------------------------------------------------------
 
@@ -126,7 +212,7 @@ namespace KRG
             {
                 if ( pChildItem->HasChildren() )
                 {
-                    TryAddItemToVisualTree( pChildItem );
+                    TryAddItemToVisualTree( pChildItem, hierarchyLevel + 1 );
                 }
             }
 
@@ -135,36 +221,35 @@ namespace KRG
             {
                 if ( !pChildItem->HasChildren() )
                 {
-                    TryAddItemToVisualTree( pChildItem );
+                    TryAddItemToVisualTree( pChildItem, hierarchyLevel + 1 );
                 }
             }
         }
     }
 
-    void TreeListView::UpdateVisualTree()
+    void TreeListView::RebuildVisualTree()
     {
         KRG_ASSERT( m_visualTreeState != VisualTreeState::UpToDate );
-        KRG_ASSERT( m_pRoot != nullptr && m_pRoot->GetUniqueID() != 0 );
 
         //-------------------------------------------------------------------------
 
         m_visualTree.clear();
 
         // Always add branch items first
-        for ( auto& pChildItem : m_pRoot->m_children )
+        for ( auto& pChildItem : m_rootItem.m_children )
         {
             if ( pChildItem->HasChildren() )
             {
-                TryAddItemToVisualTree( pChildItem );
+                TryAddItemToVisualTree( pChildItem, 0 );
             }
         }
 
         // Add leaf items last
-        for ( auto& pChildItem : m_pRoot->m_children )
+        for ( auto& pChildItem : m_rootItem.m_children )
         {
             if ( !pChildItem->HasChildren() )
             {
-                TryAddItemToVisualTree( pChildItem );
+                TryAddItemToVisualTree( pChildItem, 0 );
             }
         }
 
@@ -192,12 +277,10 @@ namespace KRG
         // Activation
         //-------------------------------------------------------------------------
 
-        if ( !pItem->IsActivatable() )
+        if ( !pItem->IsActivatable() || !m_activateOnDoubleClick )
         {
             return;
         }
-
-        //-------------------------------------------------------------------------
 
         if ( m_pActiveItem == pItem )
         {
@@ -208,15 +291,17 @@ namespace KRG
             m_pActiveItem = pItem;
         }
 
-        //-------------------------------------------------------------------------
-
-        m_onActiveItemChanged.Execute( m_pActiveItem );
+        m_onActiveItemChanged.Execute();
     }
 
     //-------------------------------------------------------------------------
 
-    void TreeListView::DrawVisualItem( TreeListViewItem* pItem )
+    void TreeListView::DrawVisualItem( VisualTreeItem& visualTreeItem )
     {
+        KRG_ASSERT( visualTreeItem.m_pItem != nullptr && visualTreeItem.m_hierarchyLevel >= 0 );
+
+        TreeListViewItem* const pItem = visualTreeItem.m_pItem;
+
         ImGui::PushID( pItem );
         ImGui::TableNextRow();
 
@@ -226,7 +311,7 @@ namespace KRG
         ImGui::TableSetColumnIndex( 0 );
 
         // Set tree indent level
-        float const indentLevel = pItem->m_hierarchyLevel * ImGui::GetStyle().IndentSpacing;
+        float const indentLevel = visualTreeItem.m_hierarchyLevel * ImGui::GetStyle().IndentSpacing;
         bool const requiresIndent = indentLevel > 0;
         if ( requiresIndent )
         {
@@ -235,6 +320,12 @@ namespace KRG
 
         // Set node flags
         uint32 treeNodeflags = ImGuiTreeNodeFlags_SpanFullWidth;
+
+        if ( m_expandItemsOnlyViaArrow )
+        {
+            treeNodeflags |= ImGuiTreeNodeFlags_OpenOnArrow;
+        }
+
         if ( m_pSelectedItem == pItem )
         {
             treeNodeflags |= ImGuiTreeNodeFlags_Selected;
@@ -254,7 +345,9 @@ namespace KRG
         bool newExpansionState = false;
         {
             bool const isActiveItem = pItem == m_pActiveItem;
-            ImGuiX::ScopedFont font( isActiveItem ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, pItem->GetDisplayColor( isActiveItem ) );
+            bool const isSelectedItem = m_pSelectedItem == pItem;
+            TreeListViewItem::ItemState const state = isActiveItem ? TreeListViewItem::Active : isSelectedItem ? TreeListViewItem::Selected : TreeListViewItem::None;
+            ImGuiX::ScopedFont font( isActiveItem ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, pItem->GetDisplayColor( state ) );
             newExpansionState = ImGui::TreeNodeEx( pItem->GetDisplayName(), treeNodeflags );
         }
 
@@ -277,6 +370,21 @@ namespace KRG
             {
                 m_pSelectedItem = pItem;
                 m_onSelectionChanged.Execute();
+
+                // Activation
+                if ( !m_activateOnDoubleClick )
+                {
+                    if ( pItem->IsActivatable() && m_pActiveItem != pItem )
+                    {
+                        m_pActiveItem = pItem;
+                        m_onActiveItemChanged.Execute();
+                    }
+                    else if ( !pItem->IsActivatable() && m_pActiveItem != nullptr )
+                    {
+                        m_pActiveItem = nullptr;
+                        m_onActiveItemChanged.Execute();
+                    }
+                }
             }
         }
 
@@ -324,16 +432,9 @@ namespace KRG
 
     void TreeListView::Draw()
     {
-        if ( m_pRoot == nullptr )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
         if ( m_visualTreeState != VisualTreeState::UpToDate )
         {
-            UpdateVisualTree();
+            RebuildVisualTree();
         }
 
         if ( m_visualTree.empty() )
@@ -345,7 +446,7 @@ namespace KRG
 
         ImGui::PushID( this );
         ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( ImGui::GetStyle().ItemSpacing.x, 0 ) ); // Ensure table border and scrollbar align
-        ImGui::BeginChild( "TreeViewChild", ImVec2( 0, 0 ), false, ImGuiWindowFlags_AlwaysVerticalScrollbar );
+        ImGui::BeginChild( "TreeViewChild", ImVec2( 0, 0 ), false, 0 );
         {
             float const totalVerticalSpaceAvailable = ImGui::GetContentRegionAvail().y;
             float const maxVerticalScrollPosition = ImGui::GetScrollMaxY();
@@ -436,10 +537,11 @@ namespace KRG
         }
         ImGui::EndChild();
         ImGui::PopStyleVar();
-        ImGui::PopID();
 
         //-------------------------------------------------------------------------
 
         DrawAdditionalUI();
+
+        ImGui::PopID();
     }
 }

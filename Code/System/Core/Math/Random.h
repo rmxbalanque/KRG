@@ -22,7 +22,7 @@ namespace KRG
             RNG(); // Non-deterministic RNG
             RNG( uint32 seed ); // Deterministic RNG
 
-            inline uint32 GetInt( uint32 min = 0, uint32 max = 0xFFFFFFFF ) const
+            inline uint32 GetUInt( uint32 min = 0, uint32 max = 0xFFFFFFFF ) const
             {
                 KRG_ASSERT( max > min );
                 uint32 range = Min( 0xFFFFFFFE, max - min );
@@ -47,7 +47,7 @@ namespace KRG
         KRG_SYSTEM_CORE_API bool GetRandomBool();
 
         // Get a random unsigned integer value between [min, max]
-        KRG_SYSTEM_CORE_API uint32 GetRandomInt( uint32 min = 0, uint32 max = 0xFFFFFFFF );
+        KRG_SYSTEM_CORE_API uint32 GetRandomUInt( uint32 min = 0, uint32 max = 0xFFFFFFFF );
 
         // Get a random float value between [min, max]
         KRG_SYSTEM_CORE_API float GetRandomFloat( float min = 0, float max = 1.0f );

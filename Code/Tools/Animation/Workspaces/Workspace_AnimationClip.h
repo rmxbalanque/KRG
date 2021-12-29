@@ -6,10 +6,14 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG::Render
+{
+    class SkeletalMeshComponent;
+}
+
 namespace KRG::Animation
 {
     class AnimationClipPlayerComponent;
-    class AnimatedMeshComponent;
     class EventEditor;
 
     //-------------------------------------------------------------------------
@@ -18,16 +22,17 @@ namespace KRG::Animation
     {
     public:
 
-        AnimationClipWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        AnimationClipWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
         virtual ~AnimationClipWorkspace();
 
     private:
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
-        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void EndHotReload() override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
@@ -38,6 +43,8 @@ namespace KRG::Animation
         void DrawTimelineWindow( UpdateContext const& context );
         void DrawTrackDataWindow( UpdateContext const& context );
 
+        void CreatePreviewEntity();
+
     private:
 
         String                          m_timelineWindowName;
@@ -46,7 +53,7 @@ namespace KRG::Animation
 
         Entity*                         m_pPreviewEntity = nullptr;
         AnimationClipPlayerComponent*   m_pAnimationComponent = nullptr;
-        AnimatedMeshComponent*          m_pMeshComponent = nullptr;
+        Render::SkeletalMeshComponent*  m_pMeshComponent = nullptr;
         EventEditor*                    m_pEventEditor = nullptr;
         PropertyGrid                    m_propertyGrid;
 

@@ -10,7 +10,7 @@ namespace KRG {}
 
 namespace KRG
 {
-    class EditorModel;
+    class EditorContext;
     namespace Resource { struct ResourceDescriptor; }
 
     //-------------------------------------------------------------------------
@@ -21,7 +21,7 @@ namespace KRG
 
     public:
 
-        ResourceDescriptorCreator( EditorModel* pModel, TypeSystem::TypeID const descriptorTypeID, FileSystem::Path const& startingDir );
+        ResourceDescriptorCreator( EditorContext* pModel, TypeSystem::TypeID const descriptorTypeID, FileSystem::Path const& startingDir );
         virtual ~ResourceDescriptorCreator();
 
         bool Draw();
@@ -32,7 +32,7 @@ namespace KRG
 
     protected:
 
-        EditorModel*                                m_pModel = nullptr;
+        EditorContext*                                m_pModel = nullptr;
         Resource::ResourceDescriptor*               m_pDescriptor = nullptr;
         PropertyGrid                                m_propertyGrid;
         FileSystem::Path                            m_startingPath;

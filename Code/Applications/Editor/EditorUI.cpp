@@ -1,10 +1,10 @@
-#include "EditorDevUI.h"
+#include "EditorUI.h"
 #include "MapEditor/Workspace_MapEditor.h"
 #include "MapEditor/Workspace_GamePreviewer.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Physics/Debug/DebugView_Physics.h"
-#include "Engine/Core/DevUI/OrientationGuide.h"
+#include "Engine/Core/ToolsUI/OrientationGuide.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DebugViews/DebugView_Resource.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
@@ -14,39 +14,39 @@
 
 namespace KRG
 {
-    EditorDevUI::~EditorDevUI()
+    EditorUI::~EditorUI()
     {
         KRG_ASSERT( m_pResourceBrowser == nullptr );
     }
 
-    void EditorDevUI::Initialize( UpdateContext const& context )
+    void EditorUI::Initialize( UpdateContext const& context )
     {
-        m_model.Initialize( context );
-        m_pResourceBrowser = KRG::New<ResourceBrowser>( m_model );
+        m_context.Initialize( context );
+        m_pResourceBrowser = KRG::New<ResourceBrowser>( m_context );
 
-        m_resourceDatabaseUpdateEventBindingID = m_model.GetResourceDatabase()->OnDatabaseUpdated().Bind( [this] () { m_pResourceBrowser->RebuildBrowserTree(); } );
+        m_resourceDatabaseUpdateEventBindingID = m_context.GetResourceDatabase()->OnDatabaseUpdated().Bind( [this] () { m_pResourceBrowser->RebuildBrowserTree(); } );
     }
 
-    void EditorDevUI::Shutdown( UpdateContext const& context )
+    void EditorUI::Shutdown( UpdateContext const& context )
     {
         if ( m_resourceDatabaseUpdateEventBindingID.IsValid() )
         {
-            m_model.GetResourceDatabase()->OnDatabaseUpdated().Unbind( m_resourceDatabaseUpdateEventBindingID );
+            m_context.GetResourceDatabase()->OnDatabaseUpdated().Unbind( m_resourceDatabaseUpdateEventBindingID );
         }
 
         KRG::Delete( m_pResourceBrowser );
-        m_model.Shutdown( context );
+        m_context.Shutdown( context );
     }
 
     //-------------------------------------------------------------------------
 
-    void EditorDevUI::StartFrame( UpdateContext const& context )
+    void EditorUI::StartFrame( UpdateContext const& context )
     {
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameStart );
 
         // Update the model - this process all workspace lifetime requests
-        m_model.Update( context );
+        m_context.Update( context );
 
         //-------------------------------------------------------------------------
         // Main Menu
@@ -89,7 +89,7 @@ namespace KRG
                 ImGui::DockBuilderFinish( dockspaceID );
 
                 ImGui::DockBuilderDockWindow( m_pResourceBrowser->GetWindowName(), leftDockID );
-                ImGui::DockBuilderDockWindow( m_model.GetMapEditorWindowName(), rightDockID );
+                ImGui::DockBuilderDockWindow( m_context.GetMapEditorWindowName(), rightDockID );
             }
 
             // Create the actual dock space
@@ -112,13 +112,13 @@ namespace KRG
         if ( m_isResourceLogWindowOpen )
         {
             ImGui::SetNextWindowClass( &m_editorWindowClass );
-            Resource::ResourceDebugView::DrawResourceLogWindow( m_model.GetResourceSystem(), &m_isResourceLogWindowOpen );
+            Resource::ResourceDebugView::DrawResourceLogWindow( m_context.GetResourceSystem(), &m_isResourceLogWindowOpen );
         }
 
         if ( m_isResourceReferenceTrackerWindowOpen )
         {
             ImGui::SetNextWindowClass( &m_editorWindowClass );
-            Resource::ResourceDebugView::DrawReferenceTrackerWindow( m_model.GetResourceSystem(), &m_isResourceReferenceTrackerWindowOpen );
+            Resource::ResourceDebugView::DrawReferenceTrackerWindow( m_context.GetResourceSystem(), &m_isResourceReferenceTrackerWindowOpen );
         }
 
         if ( m_isSystemLogWindowOpen )
@@ -128,12 +128,12 @@ namespace KRG
 
         if ( m_isDebugSettingsWindowOpen )
         {
-            m_isDebugSettingsWindowOpen = m_debugSettingsView.Draw( context );
+            m_isDebugSettingsWindowOpen = SystemDebugView::DrawDebugSettingsView( context );
         }
 
         if ( m_isPhysicsMaterialDatabaseWindowOpen )
         {
-            m_isPhysicsMaterialDatabaseWindowOpen = Physics::PhysicsMaterialDatabaseDebugView::Draw( context );
+            m_isPhysicsMaterialDatabaseWindowOpen = Physics::PhysicsDebugView::DrawMaterialDatabaseView( context );
         }
 
         if ( m_isImguiDemoWindowOpen )
@@ -149,9 +149,9 @@ namespace KRG
         EditorWorkspace* pWorkspaceToClose = nullptr;
 
         // Draw all workspaces
-        for ( auto pWorkspace : m_model.GetWorkspaces() )
+        for ( auto pWorkspace : m_context.GetWorkspaces() )
         {
-            if ( m_model.IsGamePreviewWorkspace( pWorkspace ) )
+            if ( m_context.IsGamePreviewWorkspace( pWorkspace ) )
             {
                 continue;
             }
@@ -167,7 +167,7 @@ namespace KRG
         if ( pWorkspaceToClose != nullptr )
         {
             // We need to defer this to the start of the update since we may have references resources that we might unload (i.e. textures)
-            m_model.QueueDestroyWorkspace( pWorkspaceToClose );
+            m_context.QueueDestroyWorkspace( pWorkspaceToClose );
         }
 
         //-------------------------------------------------------------------------
@@ -177,32 +177,40 @@ namespace KRG
         DrawPopups( context );
     }
 
-    void EditorDevUI::EndFrame( UpdateContext const& context )
+    void EditorUI::EndFrame( UpdateContext const& context )
     {
         // Game previewer needs to be drawn at the end of the frames since then all the game simulation data will be correct and all the debug tools will be accurate
-        if ( m_model.IsGamePreviewRunning() )
+        if ( m_context.IsGamePreviewRunning() )
         {
-            GamePreviewer* pGamePreviewer = m_model.GetGamePreviewWorkspace();
+            GamePreviewer* pGamePreviewer = m_context.GetGamePreviewWorkspace();
             if ( !DrawWorkspaceWindow( context, pGamePreviewer ) )
             {
-                m_model.QueueDestroyWorkspace( pGamePreviewer );
+                m_context.QueueDestroyWorkspace( pGamePreviewer );
             }
+        }
+    }
+
+    void EditorUI::Update( UpdateContext const& context )
+    {
+        for ( auto pWorkspace : m_context.GetWorkspaces() )
+        {
+            pWorkspace->Update( context );
         }
     }
 
     //-------------------------------------------------------------------------
 
-    void EditorDevUI::BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded )
+    void EditorUI::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded )
     {
-        for ( auto pWorkspace : m_model.GetWorkspaces() )
+        for ( auto pWorkspace : m_context.GetWorkspaces() )
         {
-            pWorkspace->BeginHotReload( resourcesToBeReloaded );
+            pWorkspace->BeginHotReload( usersToBeReloaded, resourcesToBeReloaded );
         }
     }
 
-    void EditorDevUI::EndHotReload()
+    void EditorUI::EndHotReload()
     {
-        for ( auto pWorkspace : m_model.GetWorkspaces() )
+        for ( auto pWorkspace : m_context.GetWorkspaces() )
         {
             pWorkspace->EndHotReload();
         }
@@ -210,7 +218,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void EditorDevUI::DrawMainMenu( UpdateContext const& context )
+    void EditorUI::DrawMainMenu( UpdateContext const& context )
     {
         ImVec2 const menuDimensions = ImGui::GetContentRegionMax();
 
@@ -248,14 +256,14 @@ namespace KRG
         // Game Preview
         //-------------------------------------------------------------------------
 
-        ImGui::BeginDisabled( !m_model.IsGamePreviewAllowed() );
-        if ( m_model.IsGamePreviewRunning() )
+        ImGui::BeginDisabled( !m_context.IsGamePreviewAllowed() );
+        if ( m_context.IsGamePreviewRunning() )
         {
             char const * const stopPreviewStr = KRG_ICON_STOP" Stop Game Preview";
             ImGui::SameLine( menuDimensions.x / 2 - ImGui::CalcTextSize( stopPreviewStr ).x / 2 );
             if ( ImGui::MenuItem( stopPreviewStr ) )
             {
-                m_model.StopGamePreview( context );
+                m_context.StopGamePreview( context );
             }
         }
         else
@@ -264,7 +272,7 @@ namespace KRG
             ImGui::SameLine( menuDimensions.x / 2 - ImGui::CalcTextSize( startPreviewStr ).x / 2 );
             if ( ImGui::MenuItem( startPreviewStr ) )
             {
-                m_model.StartGamePreview( context );
+                m_context.StartGamePreview( context );
             }
         }
         ImGui::EndDisabled();
@@ -281,7 +289,7 @@ namespace KRG
         ImGui::Text( perfStats.c_str() );
     }
 
-    void EditorDevUI::DrawPopups( UpdateContext const& context )
+    void EditorUI::DrawPopups( UpdateContext const& context )
     {
         // Get any new warnings/errors and create pop-ups for them
         //-------------------------------------------------------------------------
@@ -368,7 +376,7 @@ namespace KRG
         }
     }
 
-    bool EditorDevUI::DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace )
+    bool EditorUI::DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace )
     {
         KRG_ASSERT( pWorkspace != nullptr );
 
@@ -378,7 +386,7 @@ namespace KRG
         // This is an empty window that just contains the dockspace for the workspace
 
         bool isTabOpen = true;
-        bool* pIsTabOpen = m_model.IsMapEditorWorkspace( pWorkspace ) ? nullptr : &isTabOpen;
+        bool* pIsTabOpen = m_context.IsMapEditorWorkspace( pWorkspace ) ? nullptr : &isTabOpen;
 
         ImGuiWindowFlags windowFlags = 0;
 
@@ -442,7 +450,7 @@ namespace KRG
 
         if ( shouldDrawWindowContents )
         {
-            if ( !m_model.IsMapEditorWorkspace( pWorkspace ) || !m_model.IsGamePreviewRunning() )
+            if ( !m_context.IsMapEditorWorkspace( pWorkspace ) || !m_context.IsGamePreviewRunning() )
             {
                 pWorld->ResumeUpdates();
             }
@@ -450,12 +458,12 @@ namespace KRG
             if ( pWorkspace->HasViewportWindow() )
             {
                 EditorWorkspace::ViewportInfo viewportInfo;
-                viewportInfo.m_pViewportRenderTargetTexture = m_model.GetViewportTextureForWorkspace( pWorkspace );
-                viewportInfo.m_retrievePickingID = [this, pWorkspace] ( Int2 const& pixelCoords ) { return m_model.GetViewportPickingID( pWorkspace, pixelCoords ); };
+                viewportInfo.m_pViewportRenderTargetTexture = m_context.GetViewportTextureForWorkspace( pWorkspace );
+                viewportInfo.m_retrievePickingID = [this, pWorkspace] ( Int2 const& pixelCoords ) { return m_context.GetViewportPickingID( pWorkspace, pixelCoords ); };
                 enableInputForWorld = pWorkspace->DrawViewport( context, viewportInfo, &workspaceWindowClass );
             }
 
-            pWorkspace->UpdateAndDrawWindows( context, &workspaceWindowClass );
+            pWorkspace->DrawUI( context, &workspaceWindowClass );
         }
         else // If the workspace window is hidden suspend world updates
         {

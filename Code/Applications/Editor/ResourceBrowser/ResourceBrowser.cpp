@@ -21,8 +21,9 @@ namespace KRG
 
     public:
 
-        ResourceBrowserTreeItem( char const* pName, int32 hierarchyLevel, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID = ResourceTypeID() )
-            : TreeListViewItem( pName, hierarchyLevel )
+        ResourceBrowserTreeItem( char const* pName, FileSystem::Path const& path, ResourcePath const& resourcePath, ResourceTypeID resourceTypeID = ResourceTypeID() )
+            : TreeListViewItem()
+            , m_nameID( pName )
             , m_path( path )
             , m_resourcePath( resourcePath )
             , m_resourceTypeID( resourceTypeID )
@@ -38,7 +39,8 @@ namespace KRG
             }
         }
 
-        virtual uint32 GetUniqueID() const override { return m_resourcePath.GetID(); }
+        virtual StringID GetNameID() const { return m_nameID; }
+        virtual uint64 GetUniqueID() const override { return m_resourcePath.GetID(); }
         virtual bool HasContextMenu() const override { return true; }
         virtual bool IsActivatable() const override { return false; }
 
@@ -67,6 +69,7 @@ namespace KRG
 
     protected:
 
+        StringID                                m_nameID;
         FileSystem::Path                        m_path;
         ResourcePath                            m_resourcePath;
         ResourceTypeID                          m_resourceTypeID;
@@ -78,17 +81,12 @@ namespace KRG
 
 namespace KRG
 {
-    ResourceBrowser::ResourceBrowser( EditorModel& model )
+    ResourceBrowser::ResourceBrowser( EditorContext& model )
         : m_model( model )
         , m_dataDirectoryPathDepth( m_model.GetRawResourceDirectory().GetPathDepth() )
     {
         Memory::MemsetZero( m_nameFilterBuffer, 256 * sizeof( char ) );
         m_onDoubleClickEventID = OnItemDoubleClicked().Bind( [this] ( TreeListViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
-
-        // Create root node
-        KRG_ASSERT( m_pRoot == nullptr );
-        m_pRoot = KRG::New<ResourceBrowserTreeItem>( "Data", -1, m_model.GetRawResourceDirectory(), ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), m_model.GetRawResourceDirectory() ) );
-        m_pRoot->SetExpanded( true );
 
         // Refresh visual state
         RebuildBrowserTree();
@@ -138,37 +136,8 @@ namespace KRG
         return isOpen;
     }
 
-    void ResourceBrowser::RebuildBrowserTree()
+    void ResourceBrowser::RebuildTreeInternal()
     {
-        KRG_ASSERT( m_pRoot != nullptr );
-
-         // Record current state
-         //-------------------------------------------------------------------------
-
-        TVector<uint32> originalExpandedItems;
-        originalExpandedItems.reserve( GetNumItems() );
-
-        auto RecordItemState = [&originalExpandedItems] ( TreeListViewItem const* pItem )
-        {
-            if ( pItem->IsExpanded() )
-            {
-                originalExpandedItems.emplace_back( pItem->GetUniqueID() );
-            }
-        };
-
-        ForEachItemConst( RecordItemState );
-
-        uint32 const activeItemID = m_pActiveItem != nullptr ? m_pActiveItem->GetUniqueID() : 0;
-        uint32 const selectedItemID = m_pSelectedItem != nullptr ? m_pSelectedItem->GetUniqueID() : 0;
-
-        // Rebuild Tree
-        //-------------------------------------------------------------------------
-
-        m_pActiveItem = nullptr;
-        m_pSelectedItem = nullptr;
-        m_pRoot->DestroyChildren();
-        m_pRoot->SetExpanded( true );
-
         if ( !FileSystem::GetDirectoryContents( m_model.GetRawResourceDirectory(), m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand) )
         {
             KRG_HALT();
@@ -193,27 +162,8 @@ namespace KRG
             }
 
             // Create file item
-            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), parentItem.GetHierarchyLevel() + 1, path, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), path ), resourceTypeID );
+            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), path, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), path ), resourceTypeID );
         }
-
-        // Restore original state
-        //-------------------------------------------------------------------------
-
-        auto RestoreItemState = [&originalExpandedItems] ( TreeListViewItem* pItem )
-        {
-            if ( VectorContains( originalExpandedItems, pItem->GetUniqueID() ) )
-            {
-                pItem->SetExpanded( true );
-            }
-        };
-
-        ForEachItem( RestoreItemState );
-
-        auto FindActiveItem = [activeItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == activeItemID; };
-        m_pActiveItem = m_pRoot->SearchChildren( FindActiveItem );
-
-        auto FindSelectedItem = [selectedItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == selectedItemID; };
-        m_pSelectedItem = m_pRoot->SearchChildren( FindSelectedItem );
 
         UpdateVisibility();
     }
@@ -390,7 +340,7 @@ namespace KRG
     {
         KRG_ASSERT( path.IsFile() );
 
-        TreeListViewItem* pCurrentItem = m_pRoot;
+        TreeListViewItem* pCurrentItem = &m_rootItem;
         FileSystem::Path directoryPath = m_model.GetRawResourceDirectory();
         TInlineVector<String, 10> splitPath = path.Split();
 
@@ -407,7 +357,7 @@ namespace KRG
             auto pFoundChildItem = pCurrentItem->FindChild( searchPredicate );
             if ( pFoundChildItem == nullptr )
             {
-                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), pCurrentItem->GetHierarchyLevel() + 1, directoryPath, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), directoryPath ) );
+                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), directoryPath, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), directoryPath ) );
                 pCurrentItem = pItem;
             }
             else
@@ -461,18 +411,29 @@ namespace KRG
 
             if ( ImGui::MenuItem( KRG_ICON_EXCLAMATION_TRIANGLE" Delete" ) )
             {
-                ImGui::OpenPopup( "Del" );
+                m_showDeleteConfirmationDialog = true;
             }
+        }
+    }
+
+    void ResourceBrowser::DrawAdditionalUI()
+    {
+        if ( m_showDeleteConfirmationDialog )
+        {
+            ImGui::OpenPopup( "Delete Resource" );
+            m_showDeleteConfirmationDialog = false;
         }
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::BeginPopupModal( "Del" ) )
+        if ( ImGui::BeginPopupModal( "Delete Resource" ) )
         {
+            ImGui::BeginDisabled( true );
             if ( ImGui::Button( "Ok", ImVec2( 120, 0 ) ) )
             {
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::EndDisabled();
 
             ImGui::SameLine();
 

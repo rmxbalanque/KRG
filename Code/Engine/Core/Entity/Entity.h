@@ -60,8 +60,14 @@ namespace KRG
             Type                                m_type = Type::Unknown;     // Type of action
         };
 
+        // Event that's fired whenever a component/system is actually added or removed
+        static TEvent<Entity*>                  s_entityUpdatedEvent;
+
         // Event that's fired whenever a component/system is added or removed
-        static TEvent<Entity*>                  s_entityStateUpdatedEvent;
+        static TEvent<Entity*>                  s_entityInternalStateUpdatedEvent;
+
+        // Event that's fired whenever the spatial attachment state changes
+        static TEvent<Entity*>                  s_entitySpatialAttachmentStateUpdatedEvent;
 
         // Registration state
         enum class RegistrationStatus : uint8
@@ -81,8 +87,14 @@ namespace KRG
             Activated,
         };
 
-        // Event that's fired whenever a component/system is added or removed
-        static TEventHandle<Entity*> OnEntityStateUpdated() { return s_entityStateUpdatedEvent; }
+        // Event that's fired whenever a component/system is actually added or removed
+        static TEventHandle<Entity*> OnEntityUpdated() { return s_entityUpdatedEvent; }
+
+        // Event that's fired whenever an entities internal state changes and it requires an state update
+        static TEventHandle<Entity*> OnEntityInternalStateUpdated() { return s_entityInternalStateUpdatedEvent; }
+
+        // Event that's fired whenever the spatial attachment state changes
+        static TEventHandle<Entity*> OnEntitySpatialAttachmentStateUpdated() { return s_entitySpatialAttachmentStateUpdatedEvent; }
 
     public:
 
@@ -123,6 +135,7 @@ namespace KRG
         inline bool HasRequestedComponentLoad() const { return m_status != Status::Unloaded; }
         inline bool IsLoaded() const { return m_status == Status::Loaded; }
         inline bool IsUnloaded() const { return m_status == Status::Unloaded; }
+        inline bool HasStateChangeActionsPending() const { return !m_deferredActions.empty(); }
 
         // Components
         //-------------------------------------------------------------------------
@@ -135,6 +148,9 @@ namespace KRG
             auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, ComponentID const& ID ) { return pComponent->GetID() == ID; } );
             return ( foundIter != m_components.end() ) ? *foundIter : nullptr;
         }
+
+        // Create a new component of the specified type
+        void CreateComponent( TypeSystem::TypeInfo const* pComponentTypeInfo, ComponentID const& parentSpatialComponentID = ComponentID() );
 
         // Add a new component. For spatial component, you can optionally specify a component to attach to. 
         // If this is unset, the component will be attached to the root component (or will become the root component if one doesnt exist)
@@ -164,50 +180,25 @@ namespace KRG
             return nullptr;
         }
 
+        void CreateSystem( TypeSystem::TypeInfo const* pSystemTypeInfo );
+
         template<typename T> 
-        inline void CreateSystem() 
+        inline void CreateSystem()
         {
             static_assert( std::is_base_of<KRG::EntitySystem, T>::value, "Invalid system type detected" );
             KRG_ASSERT( !VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( EntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
-
-            if ( IsUnloaded() )
-            {
-                CreateSystemImmediate( T::s_pTypeInfo );
-            }
-            else
-            {
-                Threading::ScopeLock lock( m_internalStateMutex );
-
-                auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-                action.m_type = EntityInternalStateAction::Type::CreateSystem;
-                action.m_ptr = T::s_pTypeInfo;
-
-                // Send notification that the internal state changed
-                s_entityStateUpdatedEvent.Execute( this );
-            }
+            CreateSystem( T::s_pTypeInfo );
         }
+
+        void DestroySystem( TypeSystem::TypeID systemTypeID );
+        void DestroySystem( TypeSystem::TypeInfo const* pSystemTypeInfo );
 
         template<typename T>
         inline void DestroySystem()
         {
             static_assert( std::is_base_of<KRG::EntitySystem, T>::value, "Invalid system type detected" );
             KRG_ASSERT( VectorContains( m_systems, T::s_pTypeInfo->m_ID, [] ( EntitySystem* pSystem, TypeSystem::TypeID systemTypeID ) { return pSystem->GetTypeInfo()->m_ID == systemTypeID; } ) );
-
-            if ( IsUnloaded() )
-            {
-                DestroySystemImmediate( T::s_pTypeInfo );
-            }
-            else
-            {
-                Threading::ScopeLock lock( m_internalStateMutex );
-
-                auto& action = m_deferredActions.emplace_back( EntityInternalStateAction() );
-                action.m_type = EntityInternalStateAction::Type::DestroySystem;
-                action.m_ptr = T::s_pTypeInfo;
-
-                // Send notification that the internal state changed
-                s_entityStateUpdatedEvent.Execute( this );
-            }
+            DestroySystem( T::s_pTypeInfo );
         }
 
     private:

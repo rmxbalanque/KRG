@@ -21,7 +21,7 @@ namespace KRG::Player
 
     public:
 
-        AnimationController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
+        AnimationController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent );
 
         void SetCharacterState( CharacterAnimationState state );
 

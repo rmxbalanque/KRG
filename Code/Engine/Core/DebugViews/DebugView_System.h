@@ -12,9 +12,13 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    class SystemDebugView final : public EntityWorldDebugView
+    class KRG_ENGINE_CORE_API SystemDebugView final : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( SystemDebugView );
+
+    public:
+
+        static bool DrawDebugSettingsView( UpdateContext const& context );
 
     public:
 
@@ -44,15 +48,6 @@ namespace KRG
     private:
 
         InlineString<255>                                   m_logFilter;
-    };
-
-    //-------------------------------------------------------------------------
-
-    class KRG_ENGINE_CORE_API DebugSettingsView
-    {
-    public:
-
-        bool Draw( UpdateContext const& context );
     };
 }
 #endif

@@ -13,7 +13,7 @@ namespace KRG::Player
 
     public:
 
-        AbilityGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent );
+        AbilityGraphController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent );
 
         void StartJump();
         void StartDash();

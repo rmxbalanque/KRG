@@ -4,7 +4,7 @@
 
 namespace KRG::Player
 {
-    LocomotionGraphController::LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent )
+    LocomotionGraphController::LocomotionGraphController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent )
         : Animation::SubGraphController( pGraphComponent, pMeshComponent )
     {
         m_speedParam.TryBind( this );

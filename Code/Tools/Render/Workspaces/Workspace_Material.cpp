@@ -29,7 +29,7 @@ namespace KRG::Render
         // We dont own the entity as soon as we add it to the map
         auto pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
         pPreviewEntity->AddComponent( m_pPreviewComponent );
-        m_pWorld->GetPersistentMap()->AddEntity( pPreviewEntity );
+        AddEntityToWorld( pPreviewEntity );
     }
 
     void MaterialWorkspace::Shutdown( UpdateContext const& context )
@@ -49,7 +49,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_materialDetailsWindowName.c_str(), bottomDockID );
     }
 
-    void MaterialWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void MaterialWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_materialDetailsWindowName.c_str() ) )

@@ -56,6 +56,9 @@ namespace KRG
         PropertyGrid( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDatabase );
         ~PropertyGrid();
 
+        // Get the current edited type
+        IRegisteredType const* GetEditedType() const { return m_pTypeInstance; }
+
         // Set the type instance to edit, will reset dirty status
         void SetTypeToEdit( IRegisteredType* pTypeInstance );
 
@@ -70,6 +73,9 @@ namespace KRG
 
         // Clear the modified flag i.e. when changes have been committed/saved
         void ClearDirty() { m_isDirty = false; }
+
+        // Manually flag the grid as dirty
+        void MarkDirty() { m_isDirty = true; }
 
         //-------------------------------------------------------------------------
 

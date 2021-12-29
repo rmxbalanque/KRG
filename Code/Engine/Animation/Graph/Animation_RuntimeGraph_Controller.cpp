@@ -7,7 +7,7 @@ namespace KRG::Animation
 {
     namespace Internal
     {
-        GraphControllerBase::GraphControllerBase( AnimationGraphComponent* pGraphComponent, AnimatedMeshComponent* pMeshComponent )
+        GraphControllerBase::GraphControllerBase( AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent )
             : m_pGraphComponent( pGraphComponent )
             , m_pAnimatedMeshComponent( pMeshComponent )
         {

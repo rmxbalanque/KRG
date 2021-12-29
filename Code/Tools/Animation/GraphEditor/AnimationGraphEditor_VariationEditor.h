@@ -5,7 +5,8 @@
 //-------------------------------------------------------------------------
 
 struct ImGuiWindowClass;
-namespace KRG { struct EditorContext; class UpdateContext; }
+namespace KRG { class UpdateContext; }
+namespace KRG::Resource { class ResourceDatabase; }
 
 //-------------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphVariationEditor( EditorContext const& editorContext, AnimationGraphEditorDefinition* pGraphDefinition );
+        GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, AnimationGraphEditorDefinition* pGraphDefinition );
 
         void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
@@ -45,8 +46,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        EditorContext const&                m_editorContext;
-        AnimationGraphEditorDefinition*      m_pGraphDefinition = nullptr;
+        AnimationGraphEditorDefinition*     m_pGraphDefinition = nullptr;
         StringID                            m_activeOperationVariationID;
         char                                m_buffer[255];
         Resource::ResourceFilePicker        m_resourcePicker;

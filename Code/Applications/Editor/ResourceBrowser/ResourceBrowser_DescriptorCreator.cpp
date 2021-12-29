@@ -1,5 +1,5 @@
 #include "ResourceBrowser_DescriptorCreator.h"
-#include "Applications/Editor/Editor_Model.h"
+#include "Applications/Editor/EditorContext.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    ResourceDescriptorCreator::ResourceDescriptorCreator( EditorModel* pModel, TypeSystem::TypeID const descriptorTypeID, FileSystem::Path const& startingDir )
+    ResourceDescriptorCreator::ResourceDescriptorCreator( EditorContext* pModel, TypeSystem::TypeID const descriptorTypeID, FileSystem::Path const& startingDir )
         : m_pModel( pModel )
         , m_propertyGrid( *pModel->GetTypeRegistry(), *pModel->GetResourceDatabase() )
         , m_startingPath( startingDir )

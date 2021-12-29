@@ -11,11 +11,20 @@
 
 //-------------------------------------------------------------------------
 
+namespace physx
+{
+    class PxPhysics;
+}
+
+//-------------------------------------------------------------------------
+
 namespace KRG::Physics
 {
     class PhysicsSystem;
     class PhysicsShapeComponent;
     class CharacterComponent;
+    struct RagdollDefinition;
+    class Ragdoll;
 
     //-------------------------------------------------------------------------
 
@@ -46,36 +55,41 @@ namespace KRG::Physics
         PhysicsWorldSystem() = default;
         PhysicsWorldSystem( PhysicsSystem& physicsSystem );
 
+        // Get the physx SDK
+        physx::PxPhysics* GetPxPhysics();
+
         // Locks
         //-------------------------------------------------------------------------
 
         inline void AcquireReadLock()
         {
-            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->lockRead();
             KRG_DEVELOPMENT_TOOLS_ONLY( ++m_readLockCount );
         }
 
         inline void ReleaseReadLock()
         {
-            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->unlockRead();
             KRG_DEVELOPMENT_TOOLS_ONLY( --m_readLockCount );
         }
 
         inline void AcquireWriteLock()
         {
-            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->lockWrite();
             KRG_DEVELOPMENT_TOOLS_ONLY( m_writeLockAcquired = true );
         }
 
         inline void ReleaseWriteLock()
         {
-            //KRG_DEVELOPMENT_TOOLS_ONLY( Threading::ScopeLock sl( m_devMutex ) );
             m_pScene->unlockWrite();
             KRG_DEVELOPMENT_TOOLS_ONLY( m_writeLockAcquired = false );
         }
+
+        // Ragdolls
+        //-------------------------------------------------------------------------
+
+        void AddRagdollToWorld( Ragdoll* pRagdoll );
+        void RemoveRagdollFromWorld( Ragdoll* pRagdoll );
 
         // Queries
         //-------------------------------------------------------------------------

@@ -104,6 +104,9 @@
     <ProjectReference Include="..\..\Scripts\Prebuild\KRG.Scripts.Prebuild.vcxproj">
       <Project>{f3d9d4ba-4d04-402b-b8d8-9a4a9400bfb6}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\System\Animation\KRG.System.Animation.vcxproj">
+      <Project>{b976ae91-669b-4ed6-beb6-6b2a459e60f9}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\Core\KRG.System.Core.vcxproj">
       <Project>{07414ba8-87a7-449b-8ab7-551254b57fb3}</Project>
     </ProjectReference>

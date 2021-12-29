@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Editor_Model.h"
+#include "EditorContext.h"
 #include "ResourceBrowser/ResourceBrowser.h"
-#include "Engine/Core/DevUI/IDevUI.h"
+#include "Engine/Core/ToolsUI/IToolsUI.h"
 #include "Engine/Core/DebugViews/DebugView_System.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 
@@ -10,7 +10,7 @@
 
 namespace KRG
 {
-    class EditorDevUI final : public ImGuiX::IDevUI
+    class EditorUI final : public ImGuiX::IToolsUI
     {
         struct ModalPopupMessage
         {
@@ -23,12 +23,10 @@ namespace KRG
 
     public:
 
-        ~EditorDevUI();
+        ~EditorUI();
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
-        virtual void StartFrame( UpdateContext const& context ) override final;
-        virtual void EndFrame( UpdateContext const& context ) override final;
 
     private:
 
@@ -36,13 +34,17 @@ namespace KRG
         void DrawPopups( UpdateContext const& context );
         bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
 
+        virtual void StartFrame( UpdateContext const& context ) override final;
+        virtual void EndFrame( UpdateContext const& context ) override final;
+        virtual void Update( UpdateContext const& context ) override final;
+
         // Hot Reload
-        virtual void BeginHotReload( TVector<ResourceID> const& resourcesToBeReloaded ) override;
+        virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded ) override;
         virtual void EndHotReload() override;
 
     private:
 
-        EditorModel                         m_model;
+        EditorContext                       m_context;
         ImGuiWindowClass                    m_editorWindowClass;
         TVector<ModalPopupMessage>          m_modalPopups;
 
@@ -52,8 +54,6 @@ namespace KRG
 
         SystemLogView                       m_systemLogView;
         bool                                m_isSystemLogWindowOpen = false;
-
-        DebugSettingsView                   m_debugSettingsView;
         bool                                m_isDebugSettingsWindowOpen = false;
 
         bool                                m_isResourceBrowserWindowOpen = true;

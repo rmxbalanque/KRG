@@ -7,7 +7,7 @@
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Engine/Render/Mesh/StaticMesh.h"
 #include "Engine/Render/Mesh/SkeletalMesh.h"
-#include "Engine/Animation/AnimationSkeleton.h"
+#include "System/Animation/AnimationSkeleton.h"
 #include "Engine/Animation/AnimationClip.h"
 #include "Engine/Physics/PhysicsMesh.h"
 #include "System/Render/Imgui/ImguiX.h"

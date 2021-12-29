@@ -18,6 +18,81 @@ using namespace physx;
 
 namespace KRG::Physics
 {
+    bool PhysicsDebugView::DrawMaterialDatabaseView( UpdateContext const& context )
+    {
+        auto pPhysicsSystem = context.GetSystem<PhysicsSystem>();
+
+        //-------------------------------------------------------------------------
+
+        bool isMaterialDatabaseWindowOpen = true;
+
+        ImGui::SetNextWindowBgAlpha( 0.75f );
+        if ( ImGui::Begin( "Physics Material Database", &isMaterialDatabaseWindowOpen ) )
+        {
+            if ( ImGui::BeginTable( "Resource Request History Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            {
+                ImGui::TableSetupColumn( "Material ID", ImGuiTableColumnFlags_WidthStretch );
+                ImGui::TableSetupColumn( "Static Friction", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
+                ImGui::TableSetupColumn( "Dynamic Friction", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
+                ImGui::TableSetupColumn( "Restitution", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
+                ImGui::TableSetupColumn( "Friction Combine", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 128 );
+                ImGui::TableSetupColumn( "Restitution Combine", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 128 );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                //-------------------------------------------------------------------------
+
+                for ( auto const& materialPair : pPhysicsSystem->m_materials )
+                {
+                    PxMaterial const* pMaterial = materialPair.second.m_pMaterial;
+
+                    ImGui::TableNextRow();
+
+                    //-------------------------------------------------------------------------
+
+                    static char const* const combineText[] = { "Average", "Min", "Multiply", "Max" };
+                    auto GetCombineText = [] ( PxCombineMode::Enum combineMode )
+                    {
+                        return combineText[(uint8) combineMode];
+                    };
+
+                    //-------------------------------------------------------------------------
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( materialPair.second.m_ID.c_str() );
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    ImGui::Text( "%.3f", pMaterial->getStaticFriction() );
+
+                    ImGui::TableSetColumnIndex( 2 );
+                    ImGui::Text( "%.3f", pMaterial->getDynamicFriction() );
+
+                    ImGui::TableSetColumnIndex( 3 );
+                    ImGui::Text( "%.3f", pMaterial->getRestitution() );
+
+                    ImGui::TableSetColumnIndex( 4 );
+                    ImGui::Text( GetCombineText( pMaterial->getFrictionCombineMode() ) );
+
+                    ImGui::TableSetColumnIndex( 5 );
+                    ImGui::Text( GetCombineText( pMaterial->getRestitutionCombineMode() ) );
+                }
+
+                //-------------------------------------------------------------------------
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        return isMaterialDatabaseWindowOpen;
+    }
+
+    //-------------------------------------------------------------------------
+
     PhysicsDebugView::PhysicsDebugView()
     {
         m_menus.emplace_back( DebugMenu( "Physics", [this] ( EntityUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
@@ -228,83 +303,8 @@ namespace KRG::Physics
     {
         if ( m_isMaterialDatabaseWindowOpen )
         {
-            m_isMaterialDatabaseWindowOpen = PhysicsMaterialDatabaseDebugView::Draw( context );
+            m_isMaterialDatabaseWindowOpen = DrawMaterialDatabaseView( context );
         }
-    }
-
-    //-------------------------------------------------------------------------
-
-    bool PhysicsMaterialDatabaseDebugView::Draw( UpdateContext const& context )
-    {
-        auto pPhysicsSystem = context.GetSystem<PhysicsSystem>();
-
-        //-------------------------------------------------------------------------
-
-        bool isMaterialDatabaseWindowOpen = true;
-
-        ImGui::SetNextWindowBgAlpha( 0.75f );
-        if ( ImGui::Begin( "Physics Material Database", &isMaterialDatabaseWindowOpen ) )
-        {
-            if ( ImGui::BeginTable( "Resource Request History Table", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
-            {
-                ImGui::TableSetupColumn( "Material ID", ImGuiTableColumnFlags_WidthStretch );
-                ImGui::TableSetupColumn( "Static Friction", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
-                ImGui::TableSetupColumn( "Dynamic Friction", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
-                ImGui::TableSetupColumn( "Restitution", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 96 );
-                ImGui::TableSetupColumn( "Friction Combine", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 128 );
-                ImGui::TableSetupColumn( "Restitution Combine", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 128 );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableHeadersRow();
-
-                //-------------------------------------------------------------------------
-
-                for ( auto const& materialPair : pPhysicsSystem->m_materials )
-                {
-                    PxMaterial const* pMaterial = materialPair.second.m_pMaterial;
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    static char const* const combineText[] = { "Average", "Min", "Multiply", "Max" };
-                    auto GetCombineText = [] ( PxCombineMode::Enum combineMode )
-                    {
-                        return combineText[(uint8) combineMode];
-                    };
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( materialPair.second.m_ID.c_str() );
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    ImGui::Text( "%.3f", pMaterial->getStaticFriction() );
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( "%.3f", pMaterial->getDynamicFriction() );
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( "%.3f", pMaterial->getRestitution() );
-
-                    ImGui::TableSetColumnIndex( 4 );
-                    ImGui::Text( GetCombineText( pMaterial->getFrictionCombineMode() ) );
-
-                    ImGui::TableSetColumnIndex( 5 );
-                    ImGui::Text( GetCombineText( pMaterial->getRestitutionCombineMode() ) );
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
-
-        //-------------------------------------------------------------------------
-
-        return isMaterialDatabaseWindowOpen;
     }
 }
 #endif

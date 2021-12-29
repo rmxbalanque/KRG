@@ -8,7 +8,7 @@ namespace KRG::Physics
     BoxComponent::BoxComponent()
     {
         static StringID const defaultMaterialID( PhysicsMaterial::DefaultID );
-        m_physicsMaterialID = defaultMaterialID;
+        m_materialID = defaultMaterialID;
     }
 
     bool BoxComponent::HasValidPhysicsSetup() const
@@ -19,7 +19,7 @@ namespace KRG::Physics
             return false;
         }
 
-        if ( !m_physicsMaterialID.IsValid() )
+        if ( !m_materialID.IsValid() )
         {
             KRG_LOG_ERROR( "Physics", "Invalid physical material setup on Physics Component: %s (%u)", GetName().c_str(), GetID() );
             return false;

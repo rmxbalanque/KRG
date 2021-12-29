@@ -10,6 +10,116 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG
 {
+    static void DrawDebugSetting( DebugSetting* pDebugSetting )
+    {
+        KRG_ASSERT( pDebugSetting != nullptr );
+
+        //-------------------------------------------------------------------------
+
+        switch ( pDebugSetting->GetType() )
+        {
+            case DebugSetting::Type::Bool:
+            {
+                auto pSetting = static_cast<DebugSettingBool*>( pDebugSetting );
+                bool value = *pSetting;
+                if ( ImGui::Checkbox( pDebugSetting->GetName(), &value ) )
+                {
+                    *pSetting = value;
+                }
+            }
+            break;
+
+            case DebugSetting::Type::Int:
+            {
+                auto pSetting = static_cast<DebugSettingInt*>( pDebugSetting );
+                int32 value = *pSetting;
+
+                if ( pSetting->HasLimits() )
+                {
+                    if ( ImGui::SliderInt( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+                else
+                {
+                    if ( ImGui::InputInt( pDebugSetting->GetName(), &value ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+            }
+            break;
+
+            case DebugSetting::Type::Float:
+            {
+                auto pSetting = static_cast<DebugSettingFloat*>( pDebugSetting );
+                float value = *pSetting;
+
+                if ( pSetting->HasLimits() )
+                {
+                    if ( ImGui::SliderFloat( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+                else
+                {
+                    if ( ImGui::InputFloat( pDebugSetting->GetName(), &value, 0.1f, 1.0f ) )
+                    {
+                        *pSetting = value;
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    bool SystemDebugView::DrawDebugSettingsView( UpdateContext const& context )
+    {
+        auto pSettingsRegistry = context.GetSystem<SettingsRegistry>();
+        auto const& debugSettings = pSettingsRegistry->GetAllDebugSettings();
+
+        //-------------------------------------------------------------------------
+
+        bool isDebugSettingsWindowOpen = true;
+
+        if ( ImGui::Begin( "Debug Settings", &isDebugSettingsWindowOpen ) )
+        {
+            if ( ImGui::BeginTable( "Settings Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            {
+                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 200 );
+                ImGui::TableSetupColumn( "Setting", ImGuiTableColumnFlags_WidthStretch );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                //-------------------------------------------------------------------------
+
+                for ( auto const& settingPair : debugSettings )
+                {
+                    ImGui::TableNextRow();
+
+                    ImGui::TableSetColumnIndex( 0 );
+                    ImGui::Text( settingPair.second->GetCategory() );
+
+                    ImGui::TableSetColumnIndex( 1 );
+                    DrawDebugSetting( settingPair.second );
+                }
+
+                ImGui::EndTable();
+            }
+        }
+        ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        return isDebugSettingsWindowOpen;
+    }
+
+    //-------------------------------------------------------------------------
+
     SystemDebugView::SystemDebugView()
     {
         m_menus.emplace_back( DebugMenu( "System", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
@@ -143,116 +253,6 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         return isLogWindowOpen;
-    }
-
-    //-------------------------------------------------------------------------
-
-    static void DrawDebugSetting( DebugSetting* pDebugSetting )
-    {
-        KRG_ASSERT( pDebugSetting != nullptr );
-
-        //-------------------------------------------------------------------------
-
-        switch ( pDebugSetting->GetType() )
-        {
-            case DebugSetting::Type::Bool:
-            {
-                auto pSetting = static_cast<DebugSettingBool*>( pDebugSetting );
-                bool value = *pSetting;
-                if ( ImGui::Checkbox( pDebugSetting->GetName(), &value ) )
-                {
-                    *pSetting = value;
-                }
-            }
-            break;
-
-            case DebugSetting::Type::Int:
-            {
-                auto pSetting = static_cast<DebugSettingInt*>( pDebugSetting );
-                int32 value = *pSetting;
-
-                if ( pSetting->HasLimits() )
-                {
-                    if ( ImGui::SliderInt( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-                else
-                {
-                    if ( ImGui::InputInt( pDebugSetting->GetName(), &value ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-            }
-            break;
-
-            case DebugSetting::Type::Float:
-            {
-                auto pSetting = static_cast<DebugSettingFloat*>( pDebugSetting );
-                float value = *pSetting;
-
-                if ( pSetting->HasLimits() )
-                {
-                    if ( ImGui::SliderFloat( pDebugSetting->GetName(), &value, pSetting->GetMin(), pSetting->GetMax() ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-                else
-                {
-                    if ( ImGui::InputFloat( pDebugSetting->GetName(), &value, 0.1f, 1.0f ) )
-                    {
-                        *pSetting = value;
-                    }
-                }
-            }
-            break;
-        }
-    }
-
-    bool DebugSettingsView::Draw( UpdateContext const& context )
-    {
-        auto pSettingsRegistry = context.GetSystem<SettingsRegistry>();
-        auto const& debugSettings = pSettingsRegistry->GetAllDebugSettings();
-
-        //-------------------------------------------------------------------------
-        
-        bool isDebugSettingsWindowOpen = true;
-
-        if ( ImGui::Begin( "Debug Settings", &isDebugSettingsWindowOpen ) )
-        {
-            if ( ImGui::BeginTable( "Settings Table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
-            {
-                ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 200 );
-                ImGui::TableSetupColumn( "Setting", ImGuiTableColumnFlags_WidthStretch );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableHeadersRow();
-
-                //-------------------------------------------------------------------------
-
-                for ( auto const& settingPair : debugSettings )
-                {
-                    ImGui::TableNextRow();
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( settingPair.second->GetCategory() );
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    DrawDebugSetting( settingPair.second );
-                }
-
-                ImGui::EndTable();
-            }
-        }
-        ImGui::End();
-
-        //-------------------------------------------------------------------------
-
-        return isDebugSettingsWindowOpen;
     }
 }
 #endif

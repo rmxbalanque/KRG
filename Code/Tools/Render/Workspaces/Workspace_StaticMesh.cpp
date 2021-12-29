@@ -23,17 +23,12 @@ namespace KRG::Render
 
         // We dont own the entity as soon as we add it to the map
         m_pPreviewEntity = KRG::New<Entity>( StringID( "Preview" ) );
-        m_pWorld->GetPersistentMap()->AddEntity( m_pPreviewEntity );
 
         auto pStaticMeshComponent = KRG::New<StaticMeshComponent>( StringID( "Static Mesh Component" ) );
         pStaticMeshComponent->SetMesh( m_pResource.GetResourceID() );
         m_pPreviewEntity->AddComponent( pStaticMeshComponent );
-    }
 
-    void StaticMeshWorkspace::Shutdown( UpdateContext const& context )
-    {
-        m_pPreviewEntity = nullptr;
-        TResourceWorkspace<StaticMesh>::Shutdown( context );
+        AddEntityToWorld( m_pPreviewEntity );
     }
 
     void StaticMeshWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
@@ -59,7 +54,7 @@ namespace KRG::Render
         }
     }
 
-    void StaticMeshWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void StaticMeshWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto DrawWindowContents = [this] ()
         {
@@ -148,7 +143,7 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        if ( IsLoaded() && ( m_showVertices || m_showNormals ) )
+        if ( IsResourceLoaded() && ( m_showVertices || m_showNormals ) )
         {
             auto drawingContext = GetDrawingContext();
             auto pVertex = reinterpret_cast<StaticMeshVertex const*>( m_pResource->GetVertexData().data() );

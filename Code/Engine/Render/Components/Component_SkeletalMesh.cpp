@@ -1,4 +1,5 @@
 #include "Component_SkeletalMesh.h"
+#include "System/Animation/AnimationPose.h"
 #include "System/Core/Drawing/DebugDrawing.h"
 #include "System/Core/Profiling/Profiling.h"
 
@@ -15,8 +16,20 @@ namespace KRG::Render
             KRG_ASSERT( m_pMesh.IsLoaded() );
             SetLocalBounds( m_pMesh->GetBounds() );
 
-            // Initialize to the mesh bind pose
-            m_boneTransforms = m_pMesh->GetBindPose();
+            if ( HasSkeletonResourceSet() )
+            {
+                GenerateAnimationBoneMap();
+            }
+
+            // Set mesh to reference pose
+            //-------------------------------------------------------------------------
+
+            m_boneTransforms.resize( m_pMesh->GetNumBones() );
+            ResetPose();
+
+            //-------------------------------------------------------------------------
+
+            // Allocate skinning transforms and calculate initial values
             m_skinningTransforms.resize( m_boneTransforms.size() );
             FinalizePose();
         }
@@ -26,6 +39,7 @@ namespace KRG::Render
     {
         m_boneTransforms.clear();
         m_skinningTransforms.clear();
+        m_animToMeshBoneMap.clear();
         MeshComponent::Shutdown();
     }
 
@@ -77,6 +91,49 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
+    void SkeletalMeshComponent::SetSkeleton( ResourceID skeletonResourceID )
+    {
+        KRG_ASSERT( IsUnloaded() );
+        KRG_ASSERT( skeletonResourceID.IsValid() );
+        m_pSkeleton = skeletonResourceID;
+    }
+
+    void SkeletalMeshComponent::SetPose( Animation::Pose const* pPose )
+    {
+        KRG_PROFILE_FUNCTION_ANIMATION();
+        KRG_ASSERT( IsInitialized() );
+        KRG_ASSERT( HasMeshResourceSet() && HasSkeletonResourceSet() );
+        KRG_ASSERT( !m_animToMeshBoneMap.empty() );
+        KRG_ASSERT( pPose != nullptr && pPose->HasGlobalTransforms() );
+
+        int32 const numAnimBones = pPose->GetNumBones();
+        for ( auto animBoneIdx = 0; animBoneIdx < numAnimBones; animBoneIdx++ )
+        {
+            int32 const meshBoneIdx = m_animToMeshBoneMap[animBoneIdx];
+            if ( meshBoneIdx != InvalidIndex )
+            {
+                Transform const boneTransform = pPose->GetGlobalTransform( animBoneIdx );
+                m_boneTransforms[meshBoneIdx] = boneTransform;
+            }
+        }
+    }
+
+    void SkeletalMeshComponent::ResetPose()
+    {
+        KRG_ASSERT( IsInitialized() );
+
+        if ( HasSkeletonResourceSet() )
+        {
+            Animation::Pose referencePose( m_pSkeleton.GetPtr() );
+            referencePose.CalculateGlobalTransforms();
+            SetPose( &referencePose );
+        }
+        else
+        {
+            m_boneTransforms = m_pMesh->GetBindPose();
+        }
+    }
+
     void SkeletalMeshComponent::FinalizePose()
     {
         KRG_PROFILE_FUNCTION_RENDER();
@@ -114,6 +171,22 @@ namespace KRG::Render
         {
             Transform const skinningTransform = inverseBindPose[i] * m_boneTransforms[i];
             m_skinningTransforms[i] = ( skinningTransform ).ToMatrix();
+        }
+    }
+
+    void SkeletalMeshComponent::GenerateAnimationBoneMap()
+    {
+        KRG_ASSERT( m_pMesh != nullptr && m_pSkeleton != nullptr );
+
+        auto const pMesh = GetMesh();
+
+        auto const numBones = m_pSkeleton->GetNumBones();
+        m_animToMeshBoneMap.resize( numBones, InvalidIndex );
+
+        for ( auto boneIdx = 0; boneIdx < numBones; boneIdx++ )
+        {
+            auto const& boneID = m_pSkeleton->GetBoneID( boneIdx );
+            m_animToMeshBoneMap[boneIdx] = pMesh->GetBoneIndex( boneID );
         }
     }
 

@@ -1,10 +1,9 @@
 #include "EditorWorkspace.h"
-#include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Render/Debug/DebugView_Render.h"
 #include "Engine/Core/DebugViews/DebugView_Camera.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/DevUI/OrientationGuide.h"
-#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
+#include "Engine/Core/ToolsUI/OrientationGuide.h"
+#include "System/Resource/ResourceSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -17,12 +16,21 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    EditorWorkspace::EditorWorkspace( EditorContext const& context, EntityWorld* pWorld, String const& displayName )
-        : m_editorContext( context )
+    EditorWorkspace::EditorWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, String const& displayName )
+        : m_pTypeRegistry( context.m_pTypeRegistry )
+        , m_pResourceDatabase( context.m_pResourceDatabase )
+        , m_pResourceSystem( context.m_pResourceSystem )
         , m_pWorld( pWorld )
         , m_displayName( displayName )
     {
         KRG_ASSERT( m_pWorld != nullptr );
+        KRG_ASSERT( m_pTypeRegistry != nullptr && m_pResourceDatabase != nullptr && m_pResourceSystem != nullptr );
+    }
+
+    EditorWorkspace::~EditorWorkspace()
+    {
+        KRG_ASSERT( m_requestedResources.empty() );
+        KRG_ASSERT( m_reloadingResources.empty() );
     }
 
     void EditorWorkspace::Initialize( UpdateContext const& context )
@@ -74,9 +82,7 @@ namespace KRG
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
         if ( ImGui::BeginCombo( "##RenderingOptions", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
         {
-            auto pRenderWorldSystem = GetWorld()->GetWorldSystem<Render::WorldRendererSystem>();
-            Render::RenderDebugView::DrawRenderVisualizationModesMenu( pRenderWorldSystem );
-
+            Render::RenderDebugView::DrawRenderVisualizationModesMenu( GetWorld() );
             ImGui::EndCombo();
         }
         ImGui::PopStyleVar();
@@ -88,8 +94,7 @@ namespace KRG
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
         if ( ImGui::BeginCombo( "##CameraOptions", KRG_ICON_CAMERA, ImGuiComboFlags_HeightLarge ) )
         {
-            auto pPlayerManagerSystem = GetWorld()->GetWorldSystem<PlayerManager>();
-            CameraDebugView::DrawDebugCameraOptions( pPlayerManagerSystem );
+            CameraDebugView::DrawDebugCameraOptions( GetWorld() );
 
             ImGui::EndCombo();
         }
@@ -101,6 +106,10 @@ namespace KRG
     {
         ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Style::s_backgroundColorSemiLight.Value );
         ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorLight.Value );
+        ImGui::PushStyleColor( ImGuiCol_FrameBg, ImGuiX::Style::s_itemColorDark.Value );
+        ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImGuiX::Style::s_backgroundColorMedium.Value );
+        ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImGuiX::Style::s_backgroundColorMedium.Value );
+
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 4.0f );
 
@@ -117,7 +126,7 @@ namespace KRG
     {
         ImGui::EndChild();
         ImGui::PopStyleVar( 2 );
-        ImGui::PopStyleColor( 2 );
+        ImGui::PopStyleColor( 5 );
     }
 
     //-------------------------------------------------------------------------
@@ -226,5 +235,91 @@ namespace KRG
         ImGui::PopStyleVar();
 
         return isViewportFocused;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EditorWorkspace::LoadResource( Resource::ResourcePtr* pResourcePtr )
+    {
+        KRG_ASSERT( pResourcePtr != nullptr && pResourcePtr->IsUnloaded() );
+        KRG_ASSERT( !VectorContains( m_requestedResources, pResourcePtr ) );
+        m_requestedResources.emplace_back( pResourcePtr );
+        m_pResourceSystem->LoadResource( *pResourcePtr );
+    }
+
+    void EditorWorkspace::UnloadResource( Resource::ResourcePtr* pResourcePtr )
+    {
+        KRG_ASSERT( !pResourcePtr->IsUnloaded() );
+        KRG_ASSERT( VectorContains( m_requestedResources, pResourcePtr ) );
+        m_pResourceSystem->UnloadResource( *pResourcePtr );
+        m_requestedResources.erase_first_unsorted( pResourcePtr );
+    }
+
+    void EditorWorkspace::AddEntityToWorld( Entity* pEntity )
+    {
+        KRG_ASSERT( pEntity != nullptr && !pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( !VectorContains( m_addedEntities, pEntity ) );
+        m_addedEntities.emplace_back( pEntity );
+        m_pWorld->GetPersistentMap()->AddEntity( pEntity );
+    }
+
+    void EditorWorkspace::RemoveEntityFromWorld( Entity* pEntity )
+    {
+        KRG_ASSERT( pEntity != nullptr && pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( VectorContains( m_addedEntities, pEntity ) );
+        m_pWorld->GetPersistentMap()->RemoveEntity( pEntity );
+        m_addedEntities.erase_first_unsorted( pEntity );
+    }
+
+    void EditorWorkspace::DestroyEntityInWorld( Entity*& pEntity )
+    {
+        KRG_ASSERT( pEntity != nullptr && pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( VectorContains( m_addedEntities, pEntity ) );
+        m_pWorld->GetPersistentMap()->DestroyEntity( pEntity );
+        m_addedEntities.erase_first_unsorted( pEntity );
+        pEntity = nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EditorWorkspace::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        for ( auto& pLoadedResource : m_requestedResources )
+        {
+            if ( pLoadedResource->IsUnloaded() || pLoadedResource->HasLoadingFailed() )
+            {
+                continue;
+            }
+
+            // Check resource and install dependencies to see if we need to unload it
+            bool shouldUnload = VectorContains( resourcesToBeReloaded, pLoadedResource->GetResourceID() );
+            if ( !shouldUnload )
+            {
+                for ( ResourceID const& installDependency : pLoadedResource->GetInstallDependencies() )
+                {
+                    if ( VectorContains( resourcesToBeReloaded, installDependency ) )
+                    {
+                        shouldUnload = true;
+                        break;
+                    }
+                }
+            }
+
+            // Request unload and track the resource we need to reload
+            if ( shouldUnload )
+            {
+                m_pResourceSystem->UnloadResource( *pLoadedResource );
+                m_reloadingResources.emplace_back( pLoadedResource );
+            }
+        }
+    }
+
+    void EditorWorkspace::EndHotReload()
+    {
+        for( auto& pReloadedResource : m_reloadingResources )
+        {
+            m_pResourceSystem->LoadResource( *pReloadedResource );
+        }
+        m_reloadingResources.clear();
     }
 }

@@ -17,34 +17,47 @@ namespace KRG
 
     public:
 
+        enum ItemState
+        {
+            None,
+            Selected,
+            Active
+        };
+
+    public:
+
         TreeListViewItem() = default;
-
-        explicit TreeListViewItem( String const& label, int32 hierarchyLevel )
-            : m_nameID( label )
-            , m_hierarchyLevel( hierarchyLevel )
-        {}
-
-        explicit TreeListViewItem( char const* pLabel, int32 hierarchyLevel )
-            : m_nameID( pLabel )
-            , m_hierarchyLevel( hierarchyLevel )
-        {}
 
         virtual ~TreeListViewItem() = default;
 
         //-------------------------------------------------------------------------
 
-        virtual uint32 GetUniqueID() const = 0;
-        inline StringID GetNameID() const { return m_nameID; }
-        virtual char const* GetDisplayName() const { return m_nameID.c_str(); }
-        virtual ImVec4 GetDisplayColor( bool isActive = false ) const;
-        inline int32 GetHierarchyLevel() const { return m_hierarchyLevel; }
+        // The unique ID is need to be able to ID, record and restore tree state
+        virtual uint64 GetUniqueID() const = 0;
+
+        // The name ID is the name of the item relative to its parent. This is not guaranteed to be unique per item
+        virtual StringID GetNameID() const = 0;
+
+        // The friendly display name printed in the UI (generally the same as the nameID)
+        virtual char const* GetDisplayName() const 
+        {
+            StringID const nameID = GetNameID();
+            return nameID.IsValid() ? nameID.c_str() : "!!! Invalid Name !!!";
+        }
+        
+        // The color that the display name should be printed in
+        virtual ImVec4 GetDisplayColor( ItemState state ) const;
+
+        // Does this item have a context menu?
         virtual bool HasContextMenu() const { return false; }
-        virtual bool IsActivatable() const { return true; }
+
+        // Can this item be set as the active item (note: this is different from the selected item)
+        virtual bool IsActivatable() const { return false; }
 
         // Expansion
         //-------------------------------------------------------------------------
 
-        inline void SetExpanded( bool isExpanded ) { m_isExpanded = isExpanded && HasChildren(); }
+        inline void SetExpanded( bool isExpanded ) { m_isExpanded = isExpanded; }
         inline bool IsExpanded() const { return m_isExpanded; }
 
         // Visibility
@@ -110,9 +123,7 @@ namespace KRG
 
     protected:
 
-        StringID                                m_nameID;
         TVector<TreeListViewItem*>              m_children;
-        int32                                   m_hierarchyLevel = -1;
         bool                                    m_isVisible = true;
         bool                                    m_isExpanded = false;
     };
@@ -131,6 +142,42 @@ namespace KRG
             NeedsRebuildAndViewReset
         };
 
+        struct VisualTreeItem
+        {
+            VisualTreeItem() = default;
+
+            VisualTreeItem( TreeListViewItem* pItem, int32 hierarchyLevel )
+                : m_pItem( pItem )
+                , m_hierarchyLevel( hierarchyLevel )
+            {
+                KRG_ASSERT( pItem != nullptr && hierarchyLevel >= 0 );
+            }
+
+        public:
+
+            TreeListViewItem*   m_pItem = nullptr;
+            int32               m_hierarchyLevel = -1;
+        };
+
+    protected:
+
+        class TreeRootItem final : public TreeListViewItem
+        {
+        public:
+
+            TreeRootItem()
+            {
+                m_isExpanded = true;
+            }
+
+            virtual StringID GetNameID() const { return m_ID; }
+            virtual uint64 GetUniqueID() const { return 0; }
+
+        private:
+
+            StringID m_ID = StringID( "Root" );
+        };
+
     public:
 
         TreeListView() = default;
@@ -145,6 +192,8 @@ namespace KRG
         // Selection, Activation and Events
         //-------------------------------------------------------------------------
 
+        inline void ClearSelection() { m_pSelectedItem = nullptr; m_onSelectionChanged.Execute(); }
+
         inline TreeListViewItem* GetSelectedItem() const { return m_pSelectedItem; }
 
         template<typename T>
@@ -153,8 +202,13 @@ namespace KRG
         // Fire whenever the selection changes
         inline TEventHandle<> OnSelectedChanged() { return m_onSelectionChanged; }
 
+        // Clear active item
+        inline void ClearActiveItem() { m_pActiveItem = nullptr; m_onActiveItemChanged.Execute(); }
+
+        inline TreeListViewItem* GetActiveItem() const { return m_pActiveItem; }
+
         // Fires whenever the active item changes, parameter is the new active item (can be null)
-        inline TEventHandle<TreeListViewItem*> OnActiveItemChanged() { return m_onActiveItemChanged; }
+        inline TEventHandle<> OnActiveItemChanged() { return m_onActiveItemChanged; }
 
         // Fires whenever an item is double clicked, parameter is the item that was double clicked (cant be null)
         inline TEventHandle<TreeListViewItem*> OnItemDoubleClicked() { return m_onItemDoubleClicked; }
@@ -164,32 +218,23 @@ namespace KRG
 
         void ForEachItem( TFunction<void( TreeListViewItem* pItem )> const& function, bool refreshVisualState = true )
         {
-            if ( m_pRoot != nullptr )
-            {
-                m_pRoot->ForEachChild( function );
+            m_rootItem.ForEachChild( function );
 
-                if ( refreshVisualState )
-                {
-                    RefreshVisualState();
-                }
+            if ( refreshVisualState )
+            {
+                RefreshVisualState();
             }
         }
 
         void ForEachItemConst( TFunction<void( TreeListViewItem const* pItem )> const& function ) const
         {
-            if ( m_pRoot != nullptr )
-            {
-                m_pRoot->ForEachChildConst( function );
-            }
+            m_rootItem.ForEachChildConst( function );
         }
 
         void UpdateItemVisibility( TFunction<bool( TreeListViewItem const* pItem )> const& isVisibleFunction, bool showParentItemsWithNoVisibleChildren = false )
         {
-            if ( m_pRoot != nullptr )
-            {
-                m_pRoot->UpdateVisibility( isVisibleFunction, showParentItemsWithNoVisibleChildren );
-                RefreshVisualState();
-            }
+            m_rootItem.UpdateVisibility( isVisibleFunction, showParentItemsWithNoVisibleChildren );
+            RefreshVisualState();
         }
 
     protected:
@@ -206,25 +251,33 @@ namespace KRG
         virtual void SetupExtraColumnHeaders() const {}
 
         // Draw any custom item controls you might need
-        virtual void DrawItemExtraColumns( TreeListViewItem* pItem, int32 extraColumnIdx ) {}
+        virtual void DrawItemExtraColumns( TreeListViewItem* pBaseItem, int32 extraColumnIdx ) {}
 
         // Draw any custom item context menus you might need
-        virtual void DrawItemContextMenu( TreeListViewItem* pItem ) {}
+        virtual void DrawItemContextMenu( TreeListViewItem* pBaseItem ) {}
+
+        // Call this function to rebuild the tree contents - This will in turn call the user supplied "RebuildTreeInternal" function
+        void RebuildTree( bool maintainExpansionAndSelection = true );
+
+        // Implement this to rebuild the tree, the root item will have already been destroyed at this point!
+        // DO NOT CALL THIS DIRECTLY!
+        virtual void RebuildTreeInternal() = 0;
 
     private:
 
-        void DrawVisualItem( TreeListViewItem* pItem );
-        void TryAddItemToVisualTree( TreeListViewItem* pItem );
-        void UpdateVisualTree();
+        void DrawVisualItem( VisualTreeItem& visualTreeItem );
+        void TryAddItemToVisualTree( TreeListViewItem* pItem, int32 hierarchyLevel );
 
+        void RebuildVisualTree();
         void OnItemDoubleClickedInternal( TreeListViewItem* pItem );
 
     protected:
 
-        TreeListViewItem*                                       m_pRoot = nullptr;
+        // The root of the tree - fill this with your items
+        TreeRootItem                                            m_rootItem;
 
         TEvent<>                                                m_onSelectionChanged;
-        TEvent<TreeListViewItem*>                               m_onActiveItemChanged;
+        TEvent<>                                                m_onActiveItemChanged;
         TEvent<TreeListViewItem*>                               m_onItemDoubleClicked;
 
         // The active item is an item that is activated (and deactivated) via a double click
@@ -233,9 +286,13 @@ namespace KRG
         // The currently selected item (changes frequently due to clicks/focus/etc...)
         TreeListViewItem*                                       m_pSelectedItem = nullptr;
 
+        // Control tree view behavior
+        bool                                                    m_activateOnDoubleClick = true;
+        bool                                                    m_expandItemsOnlyViaArrow = false;
+
     private:
 
-        TVector<TreeListViewItem*>                              m_visualTree;
+        TVector<VisualTreeItem>                                 m_visualTree;
         VisualTreeState                                         m_visualTreeState = VisualTreeState::None;
         float                                                   m_estimatedRowHeight = -1.0f;
         float                                                   m_estimatedTreeHeight = -1.0f;

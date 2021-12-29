@@ -47,8 +47,10 @@ namespace KRG
 
         inline bool IsValid() const { return m_path.IsValid(); }
         inline uint32 GetID() const { return m_path.GetID(); }
+
         inline ResourcePath const& GetResourcePath() const { return m_path; }
         inline ResourceTypeID GetResourceTypeID() const { return m_type; }
+        inline String GetFileNameWithoutExtension() const { KRG_ASSERT( m_path.IsValid() ); return m_path.GetFileNameWithoutExtension(); }
 
         inline void Clear() { m_path.Clear(); m_type.Clear(); }
 

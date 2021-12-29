@@ -17,16 +17,6 @@ namespace KRG
         m_menus.emplace_back( DebugMenu( "World", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
-    void EntityDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
-    {
-        m_pWorld = const_cast<EntityWorld*>( pWorld );
-    }
-
-    void EntityDebugView::Shutdown()
-    {
-        m_pWorld = nullptr;
-    }
-
     void EntityDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( m_pWorld != nullptr );
@@ -85,7 +75,7 @@ namespace KRG
                     tempStr.sprintf( "Unload Map: %s", maps[i].first.c_str() );
                     if ( ImGui::Button( tempStr.c_str() ) )
                     {
-                        m_pWorld->UnloadMap( maps[i].second );
+                        const_cast<EntityWorld*>( m_pWorld )->UnloadMap( maps[i].second );
                     }
                 }
                 else
@@ -93,7 +83,7 @@ namespace KRG
                     tempStr.sprintf( "Load Map: %s", maps[i].first.c_str() );
                     if ( ImGui::Button( tempStr.c_str() ) )
                     {
-                        m_pWorld->LoadMap( maps[i].second );
+                        const_cast<EntityWorld*>( m_pWorld )->LoadMap( maps[i].second );
                     }
                 }
             }

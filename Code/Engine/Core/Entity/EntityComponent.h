@@ -30,7 +30,7 @@ namespace KRG
 
     public:
 
-        enum class Status
+        enum class Status : uint8
         {
             Unloaded = 0,
             Loading,
@@ -83,7 +83,7 @@ namespace KRG
 
         ComponentID                 m_ID = ComponentID( this );;                    // The unique ID for this component
         EntityID                    m_entityID;                                     // The ID of the entity that contains this component
-        StringID                    m_name;                                         // The name of the component
+        KRG_EXPOSE StringID         m_name;                                         // The name of the component
         Status                      m_status = Status::Unloaded;                    // Component status
         bool                        m_isRegisteredWithEntity = false;               // Registered with its parent entity's local systems
         bool                        m_isRegisteredWithWorld = false;                // Registered with the global systems in it's parent world

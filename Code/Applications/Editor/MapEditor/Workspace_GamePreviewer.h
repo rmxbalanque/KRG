@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
-#include "Engine/Core/DevUI/EngineDevUI.h"
+#include "Engine/Core/ToolsUI/EngineToolsUI.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace KRG
     {
     public:
 
-        GamePreviewer( EditorContext const& context, EntityWorld* pWorld );
+        GamePreviewer( WorkspaceInitializationContext const& context, EntityWorld* pWorld );
 
         void LoadMapToPreview( ResourceID mapResourceID );
 
@@ -27,12 +27,12 @@ namespace KRG
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
 
         virtual void DrawWorkspaceToolbar( UpdateContext const& context ) override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
 
     private:
 
         ResourceID                      m_loadedMap;
-        EngineDevUI                     m_engineDevUI;
+        EngineToolsUI                     m_engineToolsUI;
     };
 }

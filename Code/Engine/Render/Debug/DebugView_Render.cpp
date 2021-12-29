@@ -10,21 +10,24 @@
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Render
 {
-    void RenderDebugView::DrawRenderVisualizationModesMenu( WorldRendererSystem* pWorldRendererSystem )
+    void RenderDebugView::DrawRenderVisualizationModesMenu( EntityWorld const* pWorld )
     {
+        KRG_ASSERT( pWorld != nullptr );
+        auto pWorldRendererSystem = pWorld->GetWorldSystem<Render::RendererWorldSystem>();
+
         int32 debugMode = (int32) pWorldRendererSystem->GetVisualizationMode();
 
         bool stateUpdated = false;
-        stateUpdated |= ImGui::RadioButton( "Render Lighting", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Lighting );
-        stateUpdated |= ImGui::RadioButton( "Render Albedo", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Albedo );
-        stateUpdated |= ImGui::RadioButton( "Render Normals", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Normals );
-        stateUpdated |= ImGui::RadioButton( "Render Metalness", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Metalness );
-        stateUpdated |= ImGui::RadioButton( "Render Roughness", &debugMode, (int32) WorldRendererSystem::VisualizationMode::Roughness );
-        stateUpdated |= ImGui::RadioButton( "Render Ambient Occlusion", &debugMode, (int32) WorldRendererSystem::VisualizationMode::AmbientOcclusion );
+        stateUpdated |= ImGui::RadioButton( "Render Lighting", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Lighting );
+        stateUpdated |= ImGui::RadioButton( "Render Albedo", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Albedo );
+        stateUpdated |= ImGui::RadioButton( "Render Normals", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Normals );
+        stateUpdated |= ImGui::RadioButton( "Render Metalness", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Metalness );
+        stateUpdated |= ImGui::RadioButton( "Render Roughness", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Roughness );
+        stateUpdated |= ImGui::RadioButton( "Render Ambient Occlusion", &debugMode, (int32) RendererWorldSystem::VisualizationMode::AmbientOcclusion );
 
         if ( stateUpdated )
         {
-            pWorldRendererSystem->SetVisualizationMode( (WorldRendererSystem::VisualizationMode) debugMode );
+            pWorldRendererSystem->SetVisualizationMode( (RendererWorldSystem::VisualizationMode) debugMode );
         }
     }
 
@@ -37,17 +40,19 @@ namespace KRG::Render
 
     void RenderDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
     {
-        m_pWorldRendererSystem = pWorld->GetWorldSystem<WorldRendererSystem>();
+        EntityWorldDebugView::Initialize( systemRegistry, pWorld );
+        m_pWorldRendererSystem = pWorld->GetWorldSystem<RendererWorldSystem>();
     }
 
     void RenderDebugView::Shutdown()
     {
         m_pWorldRendererSystem = nullptr;
+        EntityWorldDebugView::Shutdown();
     }
 
     void RenderDebugView::DrawRenderMenu( EntityUpdateContext const& context )
     {
-        DrawRenderVisualizationModesMenu( m_pWorldRendererSystem );
+        DrawRenderVisualizationModesMenu( m_pWorld );
     }
 
     void RenderDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )

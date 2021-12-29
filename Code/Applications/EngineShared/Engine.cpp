@@ -233,11 +233,11 @@ namespace KRG
         m_renderingSystem.Initialize( m_pRenderDevice, Float2( windowDimensions ), m_module_engine_render.GetRendererRegistry(), m_pEntityWorldManager );
         m_pSystemRegistry->RegisterSystem( &m_renderingSystem );
 
-        // Create development tools
+        // Create tools UI
         #if KRG_DEVELOPMENT_TOOLS
-        CreateDevelopmentToolsUI();
-        KRG_ASSERT( m_pDevToolsUI != nullptr );
-        m_pDevToolsUI->Initialize( m_updateContext );
+        CreateToolsUI();
+        KRG_ASSERT( m_pToolsUI != nullptr );
+        m_pToolsUI->Initialize( m_updateContext );
         #endif
 
         m_initialized = true;
@@ -261,10 +261,10 @@ namespace KRG
         {
             // Destroy development tools
             #if KRG_DEVELOPMENT_TOOLS
-            KRG_ASSERT( m_pDevToolsUI != nullptr );
-            m_pDevToolsUI->Shutdown( m_updateContext );
-            DestroyDevelopmentToolsUI();
-            KRG_ASSERT( m_pDevToolsUI == nullptr );
+            KRG_ASSERT( m_pToolsUI != nullptr );
+            m_pToolsUI->Shutdown( m_updateContext );
+            DestroyToolsUI();
+            KRG_ASSERT( m_pToolsUI == nullptr );
             #endif
 
             // Shutdown rendering system
@@ -396,7 +396,7 @@ namespace KRG
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pImguiSystem->StartFrame( m_updateContext.GetDeltaTime() );
-                m_pDevToolsUI->StartFrame( m_updateContext );
+                m_pToolsUI->StartFrame( m_updateContext );
                 #endif
 
                 //-------------------------------------------------------------------------
@@ -409,8 +409,8 @@ namespace KRG
                     #if KRG_DEVELOPMENT_TOOLS
                     if ( m_pResourceSystem->RequiresHotReloading() )
                     {
+                        m_pToolsUI->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded(), m_pResourceSystem->GetResourcesToBeReloaded() );
                         m_pEntityWorldManager->BeginHotReload( m_pResourceSystem->GetUsersToBeReloaded() );
-                        m_pDevToolsUI->BeginHotReload( m_pResourceSystem->GetResourcesToBeReloaded() );
                         m_pResourceSystem->ClearHotReloadRequests();
 
                         // Ensure that all resource requests (both load/unload are completed before continuing with the hot-reload)
@@ -421,7 +421,7 @@ namespace KRG
                         }
 
                         m_pEntityWorldManager->EndHotReload();
-                        m_pDevToolsUI->EndHotReload();
+                        m_pToolsUI->EndHotReload();
                     }
                     #endif
 
@@ -431,6 +431,11 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 m_pInputSystem->Update();
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -439,6 +444,11 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Pre-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PrePhysics;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -447,6 +457,11 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Physics Update" );
                 m_updateContext.m_stage = UpdateStage::Physics;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 // Any global non-simulation updates needed (i.e. PVD)
@@ -459,6 +474,11 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Post-Physics Update" );
                 m_updateContext.m_stage = UpdateStage::PostPhysics;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -468,6 +488,11 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Paused Update" );
                 m_updateContext.m_stage = UpdateStage::Paused;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
             }
 
@@ -476,12 +501,17 @@ namespace KRG
             {
                 KRG_PROFILE_SCOPE_SCENE( "Frame End" );
                 m_updateContext.m_stage = UpdateStage::FrameEnd;
+
+                #if KRG_DEVELOPMENT_TOOLS
+                m_pToolsUI->Update( m_updateContext );
+                #endif
+
                 m_pEntityWorldManager->UpdateWorlds( m_updateContext );
 
                 //-------------------------------------------------------------------------
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_pDevToolsUI->EndFrame( m_updateContext );
+                m_pToolsUI->EndFrame( m_updateContext );
                 m_pImguiSystem->EndFrame();
                 #endif
 

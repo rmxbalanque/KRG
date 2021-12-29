@@ -12,4 +12,7 @@
     <LocalDebuggerCommandArguments>-map data://maps/br_full.map</LocalDebuggerCommandArguments>
     <RemoteDebuggerCommandArguments>-map data://maps/br_full.map</RemoteDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
 </Project>

@@ -72,7 +72,7 @@ namespace KRG::FileSystem
         }
     }
 
-     Path::Path( String const& path )
+    Path::Path( String const& path )
          : m_fullpath( GetFullPathString( path.c_str() ) )
          , m_hashCode( Hash::GetHash32( m_fullpath ) )
      {
@@ -232,7 +232,13 @@ namespace KRG::FileSystem
 
     bool Path::IsUnderDirectory( Path const& parentDirectory ) const
     {
-        return m_fullpath.find( parentDirectory.m_fullpath ) == 0;
+        if ( m_fullpath.length() < parentDirectory.m_fullpath.length() )
+        {
+            return false;
+        }
+
+        int32 const result = String::comparei( m_fullpath.begin(), m_fullpath.begin() + parentDirectory.m_fullpath.length(), parentDirectory.m_fullpath.begin(), parentDirectory.m_fullpath.end() );
+        return result == 0;
     }
 
     void Path::MakeDirectory()

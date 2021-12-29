@@ -19,6 +19,9 @@ namespace KRG::Physics
         m_physicsMaterialLoader.SetPhysics( &m_physicsSystem );
         context.RegisterResourceLoader( &m_physicsMaterialLoader );
 
+        m_physicsRagdollLoader.SetPhysics( &m_physicsSystem );
+        context.RegisterResourceLoader( &m_physicsRagdollLoader );
+
         //-------------------------------------------------------------------------
 
         context.RegisterSystem( m_physicsSystem );
@@ -53,6 +56,9 @@ namespace KRG::Physics
         context.UnregisterSystem( m_physicsSystem );
 
         //-------------------------------------------------------------------------
+
+        context.UnregisterResourceLoader( &m_physicsRagdollLoader );
+        m_physicsRagdollLoader.ClearPhysics();
 
         context.UnregisterResourceLoader( &m_physicsMaterialLoader );
         m_physicsMaterialLoader.ClearPhysics();

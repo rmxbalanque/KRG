@@ -48,7 +48,7 @@ namespace KRG::AI
             m_behaviorContext.m_pAIComponent = pAIComponent;
         }
 
-        else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
+        else if ( auto pCharacterMeshComponent = TryCast<Render::CharacterMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( m_pCharacterMeshComponent == nullptr );
             m_pCharacterMeshComponent = pCharacterMeshComponent;
@@ -86,7 +86,7 @@ namespace KRG::AI
             m_behaviorContext.m_pAIComponent = nullptr;
         }
 
-        else if ( auto pCharacterMeshComponent = TryCast<Animation::CharacterMeshComponent>( pComponent ) )
+        else if ( auto pCharacterMeshComponent = TryCast<Render::CharacterMeshComponent>( pComponent ) )
         {
             KRG_ASSERT( m_pCharacterMeshComponent != nullptr );
             m_pCharacterMeshComponent = nullptr;

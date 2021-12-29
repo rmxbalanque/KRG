@@ -14,7 +14,7 @@ namespace KRG
 {
     class KRG_ENGINE_CORE_API UpdateContext
     {
-        friend class EngineDevUI;
+        friend class EngineToolsUI;
 
     public:
 

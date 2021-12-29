@@ -25,6 +25,7 @@ namespace KRG
             KRG_FORCE_INLINE bool IsValid() const { return m_ID.IsValid(); }
 
             KRG_FORCE_INLINE operator uint32() const { return m_ID.GetID(); }
+            KRG_FORCE_INLINE uint32 GetID() const { return m_ID.GetID(); }
             KRG_FORCE_INLINE StringID ToStringID() const { return m_ID; }
             KRG_FORCE_INLINE char const* c_str() const { return m_ID.c_str(); }
 
@@ -44,7 +45,7 @@ namespace eastl
     {
         eastl_size_t operator()( KRG::TypeSystem::TypeID const& ID ) const 
         {
-            return (KRG::uint32) ID; 
+            return ID.GetID();
         }
     };
 }

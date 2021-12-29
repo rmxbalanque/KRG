@@ -8,38 +8,8 @@
 namespace KRG::CPP
 {
     //-------------------------------------------------------------------------
-        // Factory/Serialization Methods
-        //-------------------------------------------------------------------------
-
-    static void GenerateSerializeFunction( std::stringstream& file, ReflectedType const& type, String const& exportMacro, TVector<ReflectedType> const& parentDescs )
-    {
-        file << "    template<class Archive>\n";
-        file << "    " << exportMacro.c_str();
-        if ( !exportMacro.empty() ) file << " ";
-        file << "void serialize( Archive& archive, " << type.m_namespace.c_str() << type.m_name.c_str() << "& type )\n";
-        file << "    {\n";
-
-        if ( !type.m_properties.empty() || !type.m_parents.empty() )
-        {
-            file << "        archive( ";
-            String serializationList;
-
-            for ( auto& parent : parentDescs )
-            {
-                serializationList = serializationList + "cereal::base_class<" + parent.m_namespace.c_str() + parent.m_name.c_str() + ">( &type ), ";
-            }
-
-            for ( auto& prop : type.m_properties )
-            {
-                serializationList = serializationList + "KRG_NVP( " + prop.m_name.c_str() + " ), ";
-            }
-
-            file.write( serializationList.c_str(), serializationList.size() - 2 );
-            file << " );\n";
-        }
-
-        file << "    }\n";
-    }
+    // Factory/Serialization Methods
+    //-------------------------------------------------------------------------
 
     static void GenerateCreationMethod( std::stringstream& file, ReflectedType const& type )
     {
@@ -1014,14 +984,9 @@ namespace KRG::CPP
         file << "//-------------------------------------------------------------------------\n";
         file << "// TypeHelper: " << type.m_namespace.c_str() << type.m_name.c_str() << "\n";
         file << "//-------------------------------------------------------------------------\n\n";
+
         file << "namespace KRG\n";
         file << "{\n";
-
-        GenerateSerializeFunction( file, type, exportMacro, parentDescs );
-
-        file << "\n";
-        file << "    //-------------------------------------------------------------------------\n\n";
-
         file << "    namespace TypeSystem\n";
         file << "    {\n";
 

@@ -121,7 +121,7 @@ namespace KRG::Render
 
         cbuffers.clear();
 
-        // World transform const buffer
+        // Transform constant buffer
         buffer.m_byteSize = sizeof( Matrix );
         buffer.m_byteStride = sizeof( Matrix ); // Vector4 aligned
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
@@ -592,10 +592,10 @@ namespace KRG::Render
         // Set primary render state and clear the render buffer
         //-------------------------------------------------------------------------
 
-        PipelineState* pPipelineState = renderTarget.HasPickingRT() ? &m_pipelineStateStaticPicking : &m_pipelineStateStatic;
+        PipelineState* pPipelineState = renderTarget.HasPickingRT() ? &m_pipelineStateSkeletalPicking : &m_pipelineStateSkeletal;
         SetupRenderStates( viewport, pPipelineState->m_pPixelShader, data );
 
-        renderContext.SetPipelineState( m_pipelineStateSkeletal );
+        renderContext.SetPipelineState( *pPipelineState );
         renderContext.SetShaderInputBinding( m_inputBindingSkeletal );
         renderContext.SetPrimitiveTopology( Topology::TriangleList );
 
@@ -670,11 +670,13 @@ namespace KRG::Render
         auto const& renderContext = m_pRenderDevice->GetImmediateContext();
         if ( data.m_pSkyboxTexture )
         {
+            Matrix const skyboxTransform = Matrix( Quaternion::Identity, viewport.GetViewPosition() ) * data.m_transforms.m_viewprojTransform;
+
             renderContext.SetViewport( Float2( viewport.GetDimensions() ), Float2( viewport.GetTopLeftPosition() ), Float2( 1, 1 )/*TODO: fix for inv z*/ );
             renderContext.SetPipelineState( m_pipelineSkybox );
             renderContext.SetShaderInputBinding( ShaderInputBindingHandle() );
             renderContext.SetPrimitiveTopology( Topology::TriangleStrip );
-            renderContext.WriteToBuffer( m_vertexShaderSkybox.GetConstBuffer( 0 ), &data.m_transforms.m_viewprojTransform, sizeof( data.m_transforms.m_viewprojTransform ) );
+            renderContext.WriteToBuffer( m_vertexShaderSkybox.GetConstBuffer( 0 ), &skyboxTransform, sizeof( Matrix ) );
             renderContext.WriteToBuffer( m_pixelShaderSkybox.GetConstBuffer( 0 ), &data.m_lightData, sizeof( data.m_lightData ) );
             renderContext.SetShaderResource( PipelineStage::Pixel, 0, data.m_pSkyboxTexture->GetShaderResourceView() );
             renderContext.Draw( 14, 0 );
@@ -779,7 +781,7 @@ namespace KRG::Render
 
         //-------------------------------------------------------------------------
 
-        auto pWorldSystem = pWorld->GetWorldSystem<WorldRendererSystem>();
+        auto pWorldSystem = pWorld->GetWorldSystem<RendererWorldSystem>();
         KRG_ASSERT( pWorldSystem != nullptr );
 
         //-------------------------------------------------------------------------
@@ -817,12 +819,15 @@ namespace KRG::Render
         if ( !pWorldSystem->m_registeredGlobalEnvironmentMaps.empty() )
         {
             GlobalEnvironmentMapComponent* pGlobalEnvironmentMapComponent = pWorldSystem->m_registeredGlobalEnvironmentMaps[0];
-            lightingFlags |= LIGHTING_ENABLE_SKYLIGHT;
-            renderData.m_pSkyboxRadianceTexture = pGlobalEnvironmentMapComponent->GetSkyboxRadianceTexture();
-            renderData.m_pSkyboxTexture = pGlobalEnvironmentMapComponent->GetSkyboxTexture();
-            renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = std::max( floor( log2f( (float) renderData.m_pSkyboxRadianceTexture->GetDimensions().m_x ) ) - 1.0f, 0.0f );
-            renderData.m_lightData.m_SunDirIndirectIntensity.m_w = pGlobalEnvironmentMapComponent->GetSkyboxIntensity();
-            renderData.m_lightData.m_manualExposure = pGlobalEnvironmentMapComponent->GetExposure();
+            if ( pGlobalEnvironmentMapComponent->HasSkyboxRadianceTexture() && pGlobalEnvironmentMapComponent->HasSkyboxTexture() )
+            {
+                lightingFlags |= LIGHTING_ENABLE_SKYLIGHT;
+                renderData.m_pSkyboxRadianceTexture = pGlobalEnvironmentMapComponent->GetSkyboxRadianceTexture();
+                renderData.m_pSkyboxTexture = pGlobalEnvironmentMapComponent->GetSkyboxTexture();
+                renderData.m_lightData.m_SunColorRoughnessOneLevel.m_w = std::max( floor( log2f( (float) renderData.m_pSkyboxRadianceTexture->GetDimensions().m_x ) ) - 1.0f, 0.0f );
+                renderData.m_lightData.m_SunDirIndirectIntensity.m_w = pGlobalEnvironmentMapComponent->GetSkyboxIntensity();
+                renderData.m_lightData.m_manualExposure = pGlobalEnvironmentMapComponent->GetExposure();
+            }
         }
 
         int32 const numPointLights = Math::Min( pWorldSystem->m_registeredPointLightComponents.size(), (int32) MAX_PUNCTUAL_LIGHTS );
@@ -866,7 +871,7 @@ namespace KRG::Render
         renderData.m_lightData.m_lightingFlags = lightingFlags;
 
         #if KRG_DEVELOPMENT_TOOLS
-        renderData.m_lightData.m_lightingFlags = renderData.m_lightData.m_lightingFlags | ( (int32) pWorldSystem->GetVisualizationMode() << (int32) WorldRendererSystem::VisualizationMode::BitShift );
+        renderData.m_lightData.m_lightingFlags = renderData.m_lightData.m_lightingFlags | ( (int32) pWorldSystem->GetVisualizationMode() << (int32) RendererWorldSystem::VisualizationMode::BitShift );
         #endif
 
         //-------------------------------------------------------------------------

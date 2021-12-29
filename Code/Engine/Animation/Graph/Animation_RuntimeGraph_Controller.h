@@ -1,8 +1,8 @@
 #pragma once
 #include "Engine/Animation/_Module/API.h"
 #include "Engine/Animation/Components/Component_AnimationGraph.h"
-#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/Graph/Animation_RuntimeGraph_Common.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "System/Core/Algorithm/Hash.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Logging/Log.h"
@@ -78,7 +78,7 @@ namespace KRG::Animation
 
         protected:
 
-            GraphControllerBase( AnimationGraphComponent* pGraphComponent, AnimatedMeshComponent* pMeshComponent );
+            GraphControllerBase( AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent );
             virtual ~GraphControllerBase() = default;
 
             // Optional update that runs before the graph evaluation allowing you to set more parameters, etc...
@@ -109,7 +109,7 @@ namespace KRG::Animation
         private:
 
             AnimationGraphComponent*        m_pGraphComponent = nullptr;
-            AnimatedMeshComponent*          m_pAnimatedMeshComponent = nullptr;
+            Render::SkeletalMeshComponent*          m_pAnimatedMeshComponent = nullptr;
         };
     }
 

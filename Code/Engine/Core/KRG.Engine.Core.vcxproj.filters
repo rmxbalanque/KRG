@@ -102,15 +102,15 @@
     <ClCompile Include="Entity\EntityUpdateContext.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
-    <ClCompile Include="DevUI\OrientationGuide.cpp">
+    <ClCompile Include="ToolsUI\OrientationGuide.cpp">
       <Filter>Imgui</Filter>
     </ClCompile>
     <ClCompile Include="Entity\EntityWorldManager.cpp">
       <Filter>Entity</Filter>
     </ClCompile>
-    <ClCompile Include="DevUI\IDevUI.cpp" />
-    <ClCompile Include="DevUI\Gizmo.cpp" />
-    <ClCompile Include="DevUI\EngineDevUI.cpp" />
+    <ClCompile Include="ToolsUI\IToolsUI.cpp" />
+    <ClCompile Include="ToolsUI\Gizmo.cpp" />
+    <ClCompile Include="ToolsUI\EngineToolsUI.cpp" />
     <ClCompile Include="Systems\WorldSystem_PlayerManager.cpp" />
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
@@ -192,12 +192,12 @@
     <ClInclude Include="Entity\EntityWorldManager.h">
       <Filter>Entity</Filter>
     </ClInclude>
-    <ClInclude Include="DevUI\OrientationGuide.h">
+    <ClInclude Include="ToolsUI\OrientationGuide.h">
       <Filter>Imgui</Filter>
     </ClInclude>
-    <ClInclude Include="DevUI\IDevUI.h" />
-    <ClInclude Include="DevUI\Gizmo.h" />
-    <ClInclude Include="DevUI\EngineDevUI.h" />
+    <ClInclude Include="ToolsUI\IToolsUI.h" />
+    <ClInclude Include="ToolsUI\Gizmo.h" />
+    <ClInclude Include="ToolsUI\EngineToolsUI.h" />
     <ClInclude Include="Entity\EntityLoadingContext.h" />
     <ClInclude Include="Entity\EntityActivationContext.h" />
     <ClInclude Include="Systems\WorldSystem_PlayerManager.h" />

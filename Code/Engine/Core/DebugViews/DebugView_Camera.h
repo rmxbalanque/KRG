@@ -17,7 +17,7 @@ namespace KRG
 
     public:
 
-        static void DrawDebugCameraOptions( PlayerManager* pPlayerManager );
+        static void DrawDebugCameraOptions( EntityWorld const* pWorld );
 
     public:
 
@@ -34,7 +34,6 @@ namespace KRG
 
     private:
 
-        EntityWorld const*              m_pWorld = nullptr;
         PlayerManager const*            m_pPlayerManager = nullptr;
         bool                            m_isCameraDebugWindowOpen = false;
     };

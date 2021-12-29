@@ -72,7 +72,7 @@ namespace KRG
     bool EditorApplication::ApplicationLoop()
     {
         // Uncomment for live editing of ImguiTheme
-        //ImGuiX::Theme::ApplyTheme();
+        ImGuiX::Style::Apply();
         return m_editorEngine.Update();
     }
 

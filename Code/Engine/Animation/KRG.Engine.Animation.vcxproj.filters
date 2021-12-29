@@ -57,16 +57,9 @@
     <ClCompile Include="Events\AnimationEvent_Foot.cpp">
       <Filter>Events</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationBoneMask.cpp" />
-    <ClCompile Include="AnimationClip.cpp" />
-    <ClCompile Include="AnimationFrameTime.cpp" />
-    <ClCompile Include="AnimationPose.cpp" />
-    <ClCompile Include="AnimationSkeleton.cpp" />
     <ClCompile Include="AnimationSyncTrack.cpp" />
     <ClCompile Include="AnimationEvent.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
-    <ClCompile Include="AnimationBlender.cpp" />
-    <ClCompile Include="Components\Component_AnimatedMeshes.cpp" />
     <ClCompile Include="Components\Component_AnimationGraph.cpp" />
     <ClCompile Include="Components\Component_AnimationClipPlayer.cpp" />
     <ClCompile Include="DebugViews\DebugView_Animation.cpp" />
@@ -107,6 +100,10 @@
     <ClCompile Include="Graph\Animation_RuntimeGraph_Task.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_TaskPosePool.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_TaskSystem.cpp" />
+    <ClCompile Include="AnimationClip.cpp" />
+    <ClCompile Include="AnimationFrameTime.cpp" />
+    <ClCompile Include="AnimationBoneMask.cpp" />
+    <ClCompile Include="AnimationBlender.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -133,17 +130,10 @@
     <ClInclude Include="Events\AnimationEvent_Foot.h">
       <Filter>Events</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationBoneMask.h" />
-    <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationEvent.h" />
-    <ClInclude Include="AnimationFrameTime.h" />
-    <ClInclude Include="AnimationPose.h" />
-    <ClInclude Include="AnimationSkeleton.h" />
     <ClInclude Include="AnimationSyncTrack.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
-    <ClInclude Include="AnimationBlender.h" />
-    <ClInclude Include="Components\Component_AnimatedMeshes.h" />
     <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
@@ -185,5 +175,9 @@
     <ClInclude Include="Graph\Animation_RuntimeGraph_Task.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_TaskPosePool.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_TaskSystem.h" />
+    <ClInclude Include="AnimationClip.h" />
+    <ClInclude Include="AnimationFrameTime.h" />
+    <ClInclude Include="AnimationBoneMask.h" />
+    <ClInclude Include="AnimationBlender.h" />
   </ItemGroup>
 </Project>

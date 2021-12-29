@@ -1,7 +1,7 @@
 #pragma once
 #include "Animation_RuntimeGraph_Node.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "Engine/Animation/AnimationSkeleton.h"
+#include "System/Animation/AnimationSkeleton.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------

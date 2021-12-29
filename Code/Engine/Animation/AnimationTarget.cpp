@@ -1,5 +1,5 @@
 #include "AnimationTarget.h"
-#include "AnimationPose.h"
+#include "System/Animation/AnimationPose.h"
 
 //-------------------------------------------------------------------------
 

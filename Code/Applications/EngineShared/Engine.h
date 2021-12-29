@@ -2,7 +2,7 @@
 
 #include "RenderingSystem.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
-#include "Engine/Core/DevUI/IDevUI.h"
+#include "Engine/Core/ToolsUI/IToolsUI.h"
 #include "Engine/Physics/PhysicsSettings.h"
 #include "System/Render/RenderSettings.h"
 #include "System/Resource/ResourceSettings.h"
@@ -49,8 +49,8 @@ namespace KRG
         virtual void UnregisterTypes();
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentToolsUI() = 0;
-        void DestroyDevelopmentToolsUI() { KRG::Delete( m_pDevToolsUI ); }
+        virtual void CreateToolsUI() = 0;
+        void DestroyToolsUI() { KRG::Delete( m_pToolsUI ); }
         #endif
 
         //-------------------------------------------------------------------------
@@ -106,7 +106,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         ImGuiX::ImguiSystem*                            m_pImguiSystem = nullptr;
-        ImGuiX::IDevUI*                                 m_pDevToolsUI = nullptr;
+        ImGuiX::IToolsUI*                                 m_pToolsUI = nullptr;
         #endif
 
         // Application data

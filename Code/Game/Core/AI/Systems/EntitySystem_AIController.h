@@ -9,6 +9,10 @@
 namespace KRG::Animation
 {
     class AnimationGraphComponent;
+}
+
+namespace KRG::Render
+{
     class CharacterMeshComponent;
 }
 
@@ -37,6 +41,6 @@ namespace KRG::AI
         BehaviorSelector                                        m_behaviorSelector = BehaviorSelector( m_behaviorContext );
 
         Animation::AnimationGraphComponent*                     m_pAnimGraphComponent = nullptr;
-        Animation::CharacterMeshComponent*                      m_pCharacterMeshComponent = nullptr;
+        Render::CharacterMeshComponent*                         m_pCharacterMeshComponent = nullptr;
     };
 }

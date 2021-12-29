@@ -103,6 +103,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6. Property Sheets", "6. Pr
 		Code\PropertySheets\SuperLuminal.props = Code\PropertySheets\SuperLuminal.props
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KRG.System.Animation", "Code\System\Animation\KRG.System.Animation.vcxproj", "{B976AE91-669B-4ED6-BEB6-6B2A459E60F9}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Code\Applications\Shared\KRG.Applications.Shared.vcxitems*{15e4867a-f174-4f2a-a7c1-99cc6376d8d2}*SharedItemsImports = 4
@@ -223,6 +225,10 @@ Global
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Debug|x64.Build.0 = Debug|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.ActiveCfg = Release|x64
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}.Release|x64.Build.0 = Release|x64
+		{B976AE91-669B-4ED6-BEB6-6B2A459E60F9}.Debug|x64.ActiveCfg = Debug|x64
+		{B976AE91-669B-4ED6-BEB6-6B2A459E60F9}.Debug|x64.Build.0 = Debug|x64
+		{B976AE91-669B-4ED6-BEB6-6B2A459E60F9}.Release|x64.ActiveCfg = Release|x64
+		{B976AE91-669B-4ED6-BEB6-6B2A459E60F9}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -256,6 +262,7 @@ Global
 		{15E4867A-F174-4F2A-A7C1-99CC6376D8D2} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
 		{22D8D0D3-3D46-43AC-BAE5-FA588D2CAC0E} = {9205228C-CCFA-4E90-AF60-D157062720B9}
 		{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5} = {ACE70B8D-C374-4BBC-9B51-34A81287AA05}
+		{B976AE91-669B-4ED6-BEB6-6B2A459E60F9} = {9D6C7A6E-449A-4D52-AA7F-7F6DA3B418D4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B3C65B2-09F5-4AAD-909C-407AB4B18705}

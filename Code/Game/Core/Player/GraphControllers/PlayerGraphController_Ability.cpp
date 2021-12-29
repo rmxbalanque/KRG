@@ -4,7 +4,7 @@
 
 namespace KRG::Player
 {
-    AbilityGraphController::AbilityGraphController( Animation::AnimationGraphComponent* pGraphComponent, Animation::AnimatedMeshComponent* pMeshComponent )
+    AbilityGraphController::AbilityGraphController( Animation::AnimationGraphComponent* pGraphComponent, Render::SkeletalMeshComponent* pMeshComponent )
         : Animation::SubGraphController( pGraphComponent, pMeshComponent )
     {
         m_abilityID.TryBind( this );

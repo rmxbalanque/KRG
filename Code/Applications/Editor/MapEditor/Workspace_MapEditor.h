@@ -3,7 +3,7 @@
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Tools/Core/PropertyGrid/PropertyGrid.h"
 #include "Engine/Core/Entity/EntityMapDescriptor.h"
-#include "Engine/Core/DevUI/Gizmo.h"
+#include "Engine/Core/ToolsUI/Gizmo.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,6 +11,7 @@ namespace KRG
 {
     class EntityComponent;
     class SpatialEntityComponent; 
+    class TreeListView;
 }
 
 //-------------------------------------------------------------------------
@@ -18,14 +19,19 @@ namespace KRG
 namespace KRG::EntityModel
 {
     class EntityMap;
+    class EntityInspectorTreeView;
+    class TypeSelector;
 
     //-------------------------------------------------------------------------
 
     class EntityMapEditor final : public EditorWorkspace
     {
+        constexpr static const char* const s_addSystemDialogTitle = "Add System";
+        constexpr static const char* const s_addComponentDialogTitle = "Add Component";
+
     public:
 
-        EntityMapEditor( EditorContext const& context, EntityWorld* pWorld );
+        EntityMapEditor( WorkspaceInitializationContext const& context, EntityWorld* pWorld );
         ~EntityMapEditor();
 
         virtual void Initialize( UpdateContext const& context ) override;
@@ -49,7 +55,7 @@ namespace KRG::EntityModel
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
         virtual void DrawWorkspaceToolbar( UpdateContext const& context ) override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual void DrawViewportOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport ) override;
         virtual bool IsDirty() const override{ return false; } // TODO
@@ -63,15 +69,20 @@ namespace KRG::EntityModel
         void SelectComponent( EntityComponent* pComponent );
         void ClearSelection();
 
+        // Map outliner
         void DrawMapOutliner( UpdateContext const& context );
-        void DrawEntityEditor( UpdateContext const& context );
+
+        // Property Grid
         void DrawPropertyGrid( UpdateContext const& context );
-
-        void DrawComponentEntry( EntityComponent* pComponent );
-        void DrawSpatialComponentTree( SpatialEntityComponent* pComponent );
-
         void PreEdit( PropertyEditInfo const& eventInfo );
         void PostEdit( PropertyEditInfo const& eventInfo );
+
+        // Entity Inspector
+        void DrawEntityInspector( UpdateContext const& context );
+        void DrawAddSystemDialog();
+        void DrawAddComponentDialog();
+        void OnEntityStateChanged( Entity* pEntityChanged );
+        void OnInspectorSelectionChanged();
 
     private:
 
@@ -79,8 +90,11 @@ namespace KRG::EntityModel
         String                          m_entityViewWindowName;
         String                          m_propertyGridWindowName;
 
-        PropertyGrid                    m_propertyGrid;
         ResourceID                      m_loadedMap;
+
+        EntityInspectorTreeView*        m_pEntityInspectorTreeView = nullptr;
+        TypeSelector*                   m_pTypeSelector = nullptr;
+        PropertyGrid                    m_propertyGrid;
 
         Entity*                         m_pSelectedEntity = nullptr;
         EntityComponent*                m_pSelectedComponent = nullptr;
@@ -90,6 +104,8 @@ namespace KRG::EntityModel
 
         EventBindingID                  m_preEditBindingID;
         EventBindingID                  m_postEditBindingID;
+        EventBindingID                  m_entityStateChangedBindingID;
+        EventBindingID                  m_inspectorSelectionChangedBindingID;
 
         bool                            m_isGamePreviewRunning = false;
     };

@@ -2,25 +2,516 @@
 #include "Tools/Entity/Serialization/EntityCollectionDescriptorWriter.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Tools/Core/Helpers/CommonDialogs.h"
+#include "Tools/Core/Widgets/TreeListView.h"
 #include "Game/Core/AI/Components/Component_AISpawn.h"
 #include "Engine/Render/Components/Component_Lights.h"
 #include "Engine/Core/Components/Component_PlayerSpawn.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
+#include "System/Core/Math/Random.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    EntityMapEditor::EntityMapEditor( EditorContext const& context, EntityWorld* pWorld )
+    using namespace TypeSystem;
+
+    //-------------------------------------------------------------------------
+
+    class TypeSelector final
+    {
+    public:
+
+        enum Mode
+        {
+            SystemSelector,
+            ComponentSelector
+        };
+
+    public:
+
+        TypeSelector( TypeRegistry const& typeRegistry )
+            : m_typeRegistry( typeRegistry )
+            , m_allSystemTypes( typeRegistry.GetAllDerivedTypes( EntitySystem::GetStaticTypeID(), false, false ) )
+            , m_allComponentTypes( typeRegistry.GetAllDerivedTypes( EntityComponent::GetStaticTypeID(), false, false ) )
+        {
+            Memory::MemsetZero( m_filterBuffer, 256 * sizeof( char ) );
+        }
+
+        void Initialize( Entity* pEntity )
+        {
+            KRG_ASSERT( pEntity != nullptr );
+
+            m_systemOptions.clear();
+            for ( auto pSystemTypeInfo : m_allSystemTypes )
+            {
+                bool isValidOption = true;
+                for ( auto pExistingSystem : pEntity->GetSystems() )
+                {
+                    if ( m_typeRegistry.AreTypesInTheSameHierarchy( pExistingSystem->GetTypeInfo(), pSystemTypeInfo ) )
+                    {
+                        isValidOption = false;
+                        break;
+                    }
+                }
+
+                if ( isValidOption )
+                {
+                    m_systemOptions.emplace_back( pSystemTypeInfo );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            m_componentOptions.clear();
+            for ( auto pComponentTypeInfo : m_allComponentTypes )
+            {
+                bool isValidOption = true;
+                for ( auto pExistingComponent : pEntity->GetComponents() )
+                {
+                    if ( pExistingComponent->IsSingletonComponent() )
+                    {
+                        if ( m_typeRegistry.AreTypesInTheSameHierarchy( pExistingComponent->GetTypeInfo(), pComponentTypeInfo ) )
+                        {
+                            isValidOption = false;
+                            break;
+                        }
+                    }
+                }
+
+                if ( isValidOption )
+                {
+                    m_componentOptions.emplace_back( pComponentTypeInfo );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            m_initializeFocus = true;
+        }
+
+        // Draws the selector - returns true if the value is changed
+        bool DrawPicker( Mode mode )
+        {
+            ImVec2 const contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+            // Draw Filter
+            //-------------------------------------------------------------------------
+
+            bool filterUpdated = false;
+
+            ImGui::SetNextItemWidth( contentRegionAvailable.x - ImGui::GetStyle().WindowPadding.x - 22 );
+            InlineString<256> filterCopy( m_filterBuffer );
+
+            if ( m_initializeFocus )
+            {
+                ImGui::SetKeyboardFocusHere();
+                m_initializeFocus = false;
+                filterUpdated = true;
+            }
+
+            if ( ImGui::InputText( "##Filter", filterCopy.data(), 256 ) )
+            {
+                if ( strcmp( filterCopy.data(), m_filterBuffer ) != 0 )
+                {
+                    strcpy_s( m_filterBuffer, 256, filterCopy.data() );
+
+                    // Convert buffer to lower case
+                    int32 i = 0;
+                    while ( i < 256 && m_filterBuffer[i] != 0 )
+                    {
+                        m_filterBuffer[i] = eastl::CharToLower( m_filterBuffer[i] );
+                        i++;
+                    }
+
+                    filterUpdated = true;
+                }
+            }
+
+            ImGui::SameLine();
+            if ( ImGui::Button( KRG_ICON_TIMES_CIRCLE "##Clear Filter", ImVec2( 22, 0 ) ) )
+            {
+                m_filterBuffer[0] = 0;
+                filterUpdated = true;
+            }
+
+            // Update filter options
+            //-------------------------------------------------------------------------
+
+            if ( filterUpdated )
+            {
+                RefreshFilteredOptions( mode );
+            }
+
+            // Draw results
+            //-------------------------------------------------------------------------
+
+            bool selectionMade = false;
+            float const tableHeight = contentRegionAvailable.y - ImGui::GetFrameHeightWithSpacing() - ImGui::GetStyle().ItemSpacing.y;
+            ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorMedium.Value );
+            if ( ImGui::BeginTable( "Resource List", 1, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, ImVec2( contentRegionAvailable.x, tableHeight ) ) )
+            {
+                ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthStretch, 1.0f );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableHeadersRow();
+
+                ImGuiListClipper clipper;
+                clipper.Begin( (int32) m_filteredOptions.size() );
+                while ( clipper.Step() )
+                {
+                    for ( int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++ )
+                    {
+                        ImGui::TableNextRow();
+
+                        ImGui::TableNextColumn();
+                        bool isSelected = ( m_pSelectedType == m_filteredOptions[i] );
+                        if ( ImGui::Selectable( m_filteredOptions[i]->GetTypeName(), &isSelected, ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_SpanAllColumns ) )
+                        {
+                            m_pSelectedType = m_filteredOptions[i];
+
+                            if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
+                            {
+                                selectionMade = true;
+                            }
+                        }
+                    }
+                }
+
+                ImGui::EndTable();
+            }
+
+            //-------------------------------------------------------------------------
+
+            return selectionMade;
+        }
+
+        // Get the selected type - Only use if DrawPicker returns true
+        inline TypeInfo const* GetSelectedType() const { return m_pSelectedType; }
+
+    private:
+
+        void RefreshFilteredOptions( Mode mode )
+        {
+            auto& allOptions = ( mode == ComponentSelector ) ? m_componentOptions : m_systemOptions;
+
+            if ( m_filterBuffer[0] == 0 )
+            {
+                m_filteredOptions = allOptions;
+            }
+            else
+            {
+                m_filteredOptions.clear();
+                for ( auto const& pTypeInfo : allOptions )
+                {
+                    String lowercasePath( pTypeInfo->GetTypeName() );
+                    lowercasePath.make_lower();
+
+                    bool passesFilter = true;
+                    char* token = strtok( m_filterBuffer, " " );
+                    while ( token )
+                    {
+                        if ( lowercasePath.find( token ) == String::npos )
+                        {
+                            passesFilter = false;
+                            break;
+                        }
+
+                        token = strtok( NULL, " " );
+                    }
+
+                    if ( passesFilter )
+                    {
+                        m_filteredOptions.emplace_back( pTypeInfo );
+                    }
+                }
+            }
+        }
+
+    private:
+
+        TypeRegistry const&                 m_typeRegistry;
+        char                                m_filterBuffer[256];
+
+        TVector<TypeInfo const*> const      m_allSystemTypes;
+        TVector<TypeInfo const*> const      m_allComponentTypes;
+        TVector<TypeInfo const*>            m_systemOptions;
+        TVector<TypeInfo const*>            m_componentOptions;
+        TVector<TypeInfo const*>            m_filteredOptions;
+
+        TypeInfo const*                     m_pSelectedType = nullptr;
+        TInlineVector<TypeID, 10>           m_excludedTypes;
+        bool                                m_initializeFocus = false;
+    };
+}
+
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
+{
+    class EntityInternalItem final : public TreeListViewItem
+    {
+
+    public:
+
+        EntityInternalItem( char const* pLabel )
+            : TreeListViewItem()
+            , m_nameID( pLabel )
+        {}
+
+        EntityInternalItem( IRegisteredType* pTypeInstance )
+            : TreeListViewItem()
+            , m_pInstance( pTypeInstance )
+        {}
+
+        inline IRegisteredType* GetTypeInstance() { return m_pInstance; }
+
+        virtual StringID GetNameID() const override
+        {
+            if ( IsCategoryLabel() )
+            {
+                return m_nameID;
+            }
+            else if ( IsEntity() )
+            {
+                return Cast<Entity>( m_pInstance )->GetName();
+            }
+            else if ( IsComponent() )
+            {
+                return Cast<EntityComponent>( m_pInstance )->GetName();
+            }
+            else
+            {
+                return Cast<EntitySystem>( m_pInstance )->GetTypeID().ToStringID();
+            }
+        }
+
+        virtual uint64 GetUniqueID() const override
+        {
+            if ( IsCategoryLabel() )
+            {
+                return m_nameID.GetID();
+            }
+            else if ( IsEntity() )
+            {
+                return Cast<Entity>( m_pInstance )->GetID().ToUint64();
+            }
+            else if ( IsComponent() )
+            {
+                return Cast<EntityComponent>( m_pInstance )->GetID().ToUint64();
+            }
+            else
+            {
+                return Cast<EntitySystem>( m_pInstance )->GetTypeID().ToStringID().GetID();
+            }
+        }
+
+        virtual bool HasContextMenu() const override { return !IsCategoryLabel(); }
+
+        inline bool IsCategoryLabel() const { return m_pInstance == nullptr; }
+        inline bool IsEntity() const { return m_pInstance != nullptr && IsOfType<Entity>( m_pInstance ); }
+        inline bool IsSystem() const { return m_pInstance != nullptr && IsOfType<EntitySystem>( m_pInstance ); }
+        inline bool IsComponent() const { return m_pInstance != nullptr && IsOfType<EntityComponent>( m_pInstance ); }
+        inline bool IsSpatialComponent() const { return m_pInstance != nullptr && IsOfType<SpatialEntityComponent>( m_pInstance ); }
+
+    private:
+
+        IRegisteredType*    m_pInstance = nullptr;
+        StringID            m_nameID;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class EntityInspectorTreeView final : public TreeListView
+    {
+    public:
+
+        enum Command
+        {
+            None,
+            AddSystem,
+            AddComponent,
+            Delete
+        };
+
+    public:
+
+        EntityInspectorTreeView()
+        {
+            m_expandItemsOnlyViaArrow = true;
+        }
+
+        void SetEntityToInspect( Entity* pEntity )
+        {
+            m_pEntity = pEntity;
+            RebuildTree( false );
+        }
+
+        inline Command PopRequestedCommand()
+        {
+            Command poppedCommand = m_requestedCommand;
+            m_requestedCommand = Command::None;
+            return poppedCommand;
+        }
+
+        void Refresh() { RebuildTree( false ); }
+
+    private:
+
+        virtual void RebuildTreeInternal() override
+        {
+            if ( m_pEntity == nullptr )
+            {
+                return;
+            }
+
+            // Entity
+            //-------------------------------------------------------------------------
+
+            auto pEntityRoot = m_rootItem.CreateChild<EntityInternalItem>( m_pEntity );
+            pEntityRoot->SetExpanded( true );
+
+            // Systems
+            //-------------------------------------------------------------------------
+
+            if ( !m_pEntity->GetSystems().empty() )
+            {
+                auto pSystemsRoot = pEntityRoot->CreateChild<EntityInternalItem>( "Systems" );
+                pSystemsRoot->SetExpanded( true );
+                for ( auto pSystem : m_pEntity->GetSystems() )
+                {
+                    pSystemsRoot->CreateChild<EntityInternalItem>( pSystem );
+                }
+            }
+
+            // Components
+            //-------------------------------------------------------------------------
+
+            TInlineVector<EntityComponent*, 10> components;
+            TInlineVector<SpatialEntityComponent*, 10> spatialComponents;
+
+            for ( auto pComponent : m_pEntity->GetComponents() )
+            {
+                if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
+                {
+                    spatialComponents.emplace_back( pSpatialComponent );
+                }
+                else
+                {
+                    components.emplace_back( pComponent );
+                }
+            }
+
+            if ( !components.empty() )
+            {
+                auto pComponentsRoot = pEntityRoot->CreateChild<EntityInternalItem>( "Components" );
+                pComponentsRoot->SetExpanded( true );
+                for ( auto pComponent : components )
+                {
+                    pComponentsRoot->CreateChild<EntityInternalItem>( pComponent );
+                }
+            }
+
+            if ( !spatialComponents.empty() )
+            {
+                auto pComponentsRoot = pEntityRoot->CreateChild<EntityInternalItem>( "Spatial Components" );
+                pComponentsRoot->SetExpanded( true );
+                for ( auto pComponent : spatialComponents )
+                {
+                    pComponentsRoot->CreateChild<EntityInternalItem>( pComponent );
+                }
+            }
+        }
+
+        virtual uint32 GetNumExtraColumns() const override
+        { 
+            return 1;
+        }
+
+        virtual void SetupExtraColumnHeaders() const override
+        {
+            ImGui::TableSetupColumn( "Details", ImGuiTableColumnFlags_WidthFixed, 200 );
+        }
+
+        virtual void DrawItemExtraColumns( TreeListViewItem* pBaseItem, int32 extraColumnIdx ) override
+        {
+            KRG_ASSERT( extraColumnIdx == 0 );
+
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+            auto pItem = static_cast<EntityInternalItem*>( pBaseItem );
+            if ( pItem->IsComponent() )
+            {
+                InlineString<100> typeName( pItem->GetTypeInstance()->GetTypeInfo()->GetTypeName() + 5 );
+                ImGui::Text( typeName.c_str() );
+            }
+        }
+
+        virtual void DrawItemContextMenu( TreeListViewItem* pBaseItem )
+        {
+            auto pItem = static_cast<EntityInternalItem*>( pBaseItem );
+            KRG_ASSERT( !pItem->IsCategoryLabel() );
+
+            //-------------------------------------------------------------------------
+
+            if ( pItem->IsEntity() )
+            {
+                if ( ImGui::MenuItem( "Add System" ) )
+                {
+                    m_requestedCommand = AddSystem;
+                }
+
+                if ( ImGui::MenuItem( "Add Component" ) )
+                {
+                    m_requestedCommand = AddComponent;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( pItem->IsSpatialComponent() )
+            {
+                if ( ImGui::MenuItem( "Add Child Component" ) )
+                {
+                    m_requestedCommand = AddComponent;
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( pItem->IsSystem() || pItem->IsComponent() )
+            {
+                if ( ImGui::MenuItem( "Delete" ) )
+                {
+                    m_requestedCommand = Delete;
+                }
+            }
+        }
+
+    private:
+
+        Entity*                         m_pEntity = nullptr;
+        Command                         m_requestedCommand = Command::None;
+    };
+}
+
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
+{
+    EntityMapEditor::EntityMapEditor( WorkspaceInitializationContext const& context, EntityWorld* pWorld )
         : EditorWorkspace( context, pWorld )
+        , m_pEntityInspectorTreeView( KRG::New<EntityInspectorTreeView>() )
+        , m_pTypeSelector( KRG::New<TypeSelector>( *context.m_pTypeRegistry ) )
         , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
         m_gizmo.SetTargetTransform( &m_editedTransform );
 
+        m_entityStateChangedBindingID = Entity::OnEntityUpdated().Bind( [this] ( Entity* pEntityChanged ) { OnEntityStateChanged( pEntityChanged ); } );
         m_preEditBindingID = m_propertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PreEdit( eventInfo ); } );
         m_postEditBindingID = m_propertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& eventInfo ) { PostEdit( eventInfo ); } );
+        m_inspectorSelectionChangedBindingID = m_pEntityInspectorTreeView->OnSelectedChanged().Bind( [this] () { OnInspectorSelectionChanged(); } );
 
         SetDisplayName( "Map Editor" );
     }
@@ -29,6 +520,12 @@ namespace KRG::EntityModel
     {
         m_propertyGrid.OnPreEdit().Unbind( m_preEditBindingID );
         m_propertyGrid.OnPostEdit().Unbind( m_postEditBindingID );
+        Entity::OnEntityUpdated().Unbind( m_entityStateChangedBindingID );
+
+        m_pEntityInspectorTreeView->OnSelectedChanged().Unbind( m_inspectorSelectionChangedBindingID );
+        KRG::Delete( m_pEntityInspectorTreeView );
+
+        KRG::Delete( m_pTypeSelector );
     }
 
     void EntityMapEditor::Initialize( UpdateContext const& context )
@@ -42,30 +539,12 @@ namespace KRG::EntityModel
 
     //-------------------------------------------------------------------------
 
-    void EntityMapEditor::PreEdit( PropertyEditInfo const& eventInfo )
-    {
-        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
-        {
-            m_pWorld->PrepareComponentForEditing( m_loadedMap, pComponent->GetEntityID(), pComponent->GetID() );
-        }
-    }
-
-    void EntityMapEditor::PostEdit( PropertyEditInfo const& eventInfo )
-    {
-        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
-        {
-
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
     void EntityMapEditor::CreateNewMap()
     {
         // Should we save the current map before unloading?
         if ( IsDirty() )
         {
-            pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+            pfd::message saveChangesMsg( m_loadedMap.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
             if ( saveChangesMsg.result() == pfd::button::yes )
             {
                 Save();
@@ -75,7 +554,7 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        auto const mapFilename = pfd::save_file( "Create New Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" } ).result();
+        auto const mapFilename = pfd::save_file( "Create New Map", m_pResourceDatabase->GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" } ).result();
         if ( mapFilename.empty() )
         {
             return;
@@ -90,7 +569,7 @@ namespace KRG::EntityModel
             }
         }
 
-        ResourceID const mapResourceID = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
+        ResourceID const mapResourceID = GetResourcePath( mapFilePath );
         if ( mapResourceID == m_loadedMap )
         {
             pfd::message( "Error", "Cant override currently loaded map!", pfd::choice::ok, pfd::icon::error ).result();
@@ -108,7 +587,7 @@ namespace KRG::EntityModel
 
         EntityCollectionDescriptorWriter writer;
         EntityCollectionDescriptor emptyMap;
-        if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, emptyMap ) )
+        if ( writer.WriteCollection( *m_pTypeRegistry, mapFilePath, emptyMap ) )
         {
             LoadMap( mapResourceID );
         }
@@ -120,14 +599,14 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::SelectAndLoadMap()
     {
-        auto const selectedMap = pfd::open_file( "Load Map", m_editorContext.GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
+        auto const selectedMap = pfd::open_file( "Load Map", m_pResourceDatabase->GetRawResourceDirectoryPath().c_str(), { "Map Files", "*.map" }, pfd::opt::none ).result();
         if ( selectedMap.empty() )
         {
             return;
         }
 
         FileSystem::Path const mapFilePath( selectedMap[0].c_str() );
-        ResourceID const mapToLoad = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
+        ResourceID const mapToLoad = GetResourcePath( mapFilePath );
         LoadMap( mapToLoad );
     }
 
@@ -140,7 +619,7 @@ namespace KRG::EntityModel
             // Should we save the current map before unloading?
             if ( IsDirty() )
             {
-                pfd::message saveChangesMsg( m_editorContext.GetRawResourceDirectoryPath().c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no );
+                pfd::message saveChangesMsg( m_loadedMap.c_str(), "You have unsaved changes! Do you want to save map?", pfd::choice::yes_no);
                 if ( saveChangesMsg.result() == pfd::button::yes )
                 {
                     Save();
@@ -156,7 +635,7 @@ namespace KRG::EntityModel
             // Load map
             m_loadedMap = mapToLoad.GetResourceID();
             m_pWorld->LoadMap( m_loadedMap );
-            SetDisplayName( m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() ).GetFileNameWithoutExtension() );
+            SetDisplayName( m_loadedMap.GetResourcePath().GetFileNameWithoutExtension() );
         }
     }
 
@@ -176,7 +655,7 @@ namespace KRG::EntityModel
         // Get new map filename
         //-------------------------------------------------------------------------
 
-        FileSystem::Path const mapFilePath = SaveDialog( "MAp", m_editorContext.GetRawResourceDirectoryPath().c_str(), "Map File" );
+        FileSystem::Path const mapFilePath = SaveDialog( "Map", GetFileSystemPath( m_loadedMap ).GetParentDirectory().c_str(), "Map File");
         if ( !mapFilePath.IsValid() )
         {
             return;
@@ -186,9 +665,9 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         EntityCollectionDescriptorWriter writer;
-        if ( writer.WriteCollection( *m_editorContext.m_pTypeRegistry, mapFilePath, *pEditedMap ) )
+        if ( writer.WriteCollection( *m_pTypeRegistry, mapFilePath, *pEditedMap ) )
         {
-            ResourceID const mapResourcePath = ResourceID::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), mapFilePath );
+            ResourceID const mapResourcePath = GetResourcePath( mapFilePath );
             LoadMap( mapResourcePath );
         }
         else
@@ -205,9 +684,9 @@ namespace KRG::EntityModel
             return false;
         }
 
-        FileSystem::Path const filePath = m_editorContext.ToFileSystemPath( m_loadedMap.GetResourcePath() );
+        FileSystem::Path const filePath = GetFileSystemPath( m_loadedMap );
         EntityCollectionDescriptorWriter writer;
-        return writer.WriteCollection( *m_editorContext.m_pTypeRegistry, filePath, *pEditedMap );
+        return writer.WriteCollection( *m_pTypeRegistry, filePath, *pEditedMap );
     }
 
     //-------------------------------------------------------------------------
@@ -241,18 +720,25 @@ namespace KRG::EntityModel
     void EntityMapEditor::SelectEntity( Entity* pEntity )
     {
         KRG_ASSERT( pEntity != nullptr );
-        m_pSelectedEntity = pEntity;
-        m_pSelectedComponent = nullptr;
-        m_propertyGrid.SetTypeToEdit( pEntity );
-        m_syncOutlinerToSelectedItem = true;
+        if ( m_pSelectedEntity != pEntity )
+        {
+            m_pSelectedEntity = pEntity;
+            m_pSelectedComponent = nullptr;
+            m_pEntityInspectorTreeView->SetEntityToInspect( pEntity );
+            m_propertyGrid.SetTypeToEdit( pEntity );
+            m_syncOutlinerToSelectedItem = true;
+        }
     }
 
     void EntityMapEditor::SelectComponent( EntityComponent* pComponent )
     {
         KRG_ASSERT( m_pSelectedEntity != nullptr && pComponent != nullptr );
         KRG_ASSERT( m_pSelectedEntity->GetID() == pComponent->GetEntityID() );
-        m_pSelectedComponent = pComponent;
-        m_propertyGrid.SetTypeToEdit( pComponent );
+        if ( m_pSelectedComponent != pComponent )
+        {
+            m_pSelectedComponent = pComponent;
+            m_propertyGrid.SetTypeToEdit( pComponent );
+        }
     }
 
     void EntityMapEditor::ClearSelection()
@@ -260,6 +746,7 @@ namespace KRG::EntityModel
         m_pSelectedEntity = nullptr;
         m_pSelectedComponent = nullptr;
         m_propertyGrid.SetTypeToEdit( nullptr );
+        m_pEntityInspectorTreeView->SetEntityToInspect( nullptr );
     }
 
     //-------------------------------------------------------------------------
@@ -284,7 +771,7 @@ namespace KRG::EntityModel
 
     void EntityMapEditor::DrawWorkspaceToolbar( UpdateContext const& context )
     {
-        if ( ImGui::BeginMenu( "File" ) )
+        if ( ImGui::BeginMenu( KRG_ICON_GLOBE" Map" ) )
         {
             if ( ImGui::MenuItem( "Create New Map" ) )
             {
@@ -294,11 +781,6 @@ namespace KRG::EntityModel
             if ( ImGui::MenuItem( "Load Map" ) )
             {
                 SelectAndLoadMap();
-            }
-
-            if ( ImGui::MenuItem( "Save Map" ) )
-            {
-                SaveMap();
             }
 
             if ( ImGui::MenuItem( "Save Map As" ) )
@@ -312,7 +794,7 @@ namespace KRG::EntityModel
         DrawDefaultToolbarItems();
     }
 
-    void EntityMapEditor::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void EntityMapEditor::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         HandleInput( context );
 
@@ -322,7 +804,7 @@ namespace KRG::EntityModel
         DrawMapOutliner( context );
 
         ImGui::SetNextWindowClass( pWindowClass );
-        DrawEntityEditor( context );
+        DrawEntityInspector( context );
 
         ImGui::SetNextWindowClass( pWindowClass );
         DrawPropertyGrid( context );
@@ -537,15 +1019,6 @@ namespace KRG::EntityModel
         }
     }
 
-    void EntityMapEditor::DrawPropertyGrid( UpdateContext const& context )
-    {
-        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
-        {
-            m_propertyGrid.DrawGrid();
-        }
-        ImGui::End();
-    }
-
     //-------------------------------------------------------------------------
 
     void EntityMapEditor::HandleInput( UpdateContext const& context )
@@ -575,12 +1048,26 @@ namespace KRG::EntityModel
 
             {
                 ImGuiX::ScopedFont const sf( ImGuiX::Font::SmallBold );
+                ImGui::BeginDisabled( !HasLoadedMap() );
                 if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, "CREATE ENTITY", ImVec2( -1, 0 ) ) )
                 {
-                    Entity* pEntity = KRG::New<Entity>( StringID( "New Entity" ) );
+                    InlineString<128> entityName( "New Entity" );
+                    StringID entityNameID( entityName.c_str() );
+                    for ( auto pEntity : m_pWorld->GetMap( m_loadedMap )->GetEntities() )
+                    {
+                        if ( pEntity->GetName() == entityNameID )
+                        {
+                            entityName.sprintf( "New Entity %u", (uint32) Math::GetRandomUInt() );
+                            entityNameID = StringID( entityName.c_str() );
+                            break;
+                        }
+                    }
+
+                    Entity* pEntity = KRG::New<Entity>( entityNameID );
                     m_pWorld->GetMap( m_loadedMap )->AddEntity( pEntity );
                     SelectEntity( pEntity );
                 }
+                ImGui::EndDisabled();
             }
 
             //-------------------------------------------------------------------------
@@ -637,17 +1124,52 @@ namespace KRG::EntityModel
 }
 
 //-------------------------------------------------------------------------
+// PropertyGrid
+//-------------------------------------------------------------------------
+
+namespace KRG::EntityModel
+{
+    void EntityMapEditor::DrawPropertyGrid( UpdateContext const& context )
+    {
+        if ( ImGui::Begin( m_propertyGridWindowName.c_str() ) )
+        {
+            m_propertyGrid.DrawGrid();
+        }
+        ImGui::End();
+    }
+
+    void EntityMapEditor::PreEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+            m_pWorld->PrepareComponentForEditing( m_loadedMap, pComponent->GetEntityID(), pComponent->GetID() );
+        }
+    }
+
+    void EntityMapEditor::PostEdit( PropertyEditInfo const& eventInfo )
+    {
+        if ( auto pComponent = TryCast<EntityComponent>( eventInfo.m_pEditedTypeInstance ) )
+        {
+
+        }
+    }
+}
+
+//-------------------------------------------------------------------------
 // Entity Inspector
 //-------------------------------------------------------------------------
 
 namespace KRG::EntityModel
 {
-    void EntityMapEditor::DrawEntityEditor( UpdateContext const& context )
+    void EntityMapEditor::DrawEntityInspector( UpdateContext const& context )
     {
         if ( ImGui::Begin( m_entityViewWindowName.c_str() ) )
         {
             if ( m_pSelectedEntity != nullptr )
             {
+                // Entity Details
+                //-------------------------------------------------------------------------
+
                 {
                     ImGuiX::ScopedFont sf( ImGuiX::Font::Large );
                     ImGui::AlignTextToFramePadding();
@@ -663,132 +1185,145 @@ namespace KRG::EntityModel
 
                 if ( m_pSelectedEntity->IsSpatialEntity() )
                 {
-                    ImGuiX::DisplayTransform( m_pSelectedEntity->GetWorldTransform(), ImGui::GetContentRegionAvail().x );
+                    constexpr static float const padding = 20;
+                    ImGui::NewLine();
+                    ImGui::SameLine( padding, 0 );
+                    ImGuiX::DisplayTransform( m_pSelectedEntity->GetWorldTransform(), ImGui::GetContentRegionAvail().x - padding );
                 }
 
                 //-------------------------------------------------------------------------
 
-                if ( !m_pSelectedEntity->GetSystems().empty() )
+                m_pEntityInspectorTreeView->Draw();
+                auto requestedCommand = m_pEntityInspectorTreeView->PopRequestedCommand();
+
+                switch ( requestedCommand )
                 {
-                    if ( ImGui::CollapsingHeader( "Systems", ImGuiTreeNodeFlags_DefaultOpen ) )
+                    case EntityInspectorTreeView::AddComponent:
                     {
+                        TInlineVector<TypeSystem::TypeID, 10> restrictions;
+                        for ( auto pComponent : m_pSelectedEntity->GetComponents() )
+                        {
+                            if ( pComponent->IsSingletonComponent() )
+                            {
+                                restrictions.emplace_back( pComponent->GetTypeID() );
+                            }
+                        }
+
+                        m_pTypeSelector->Initialize( m_pSelectedEntity );
+                        ImGui::OpenPopup( s_addComponentDialogTitle );
+                    }
+                    break;
+
+                    case EntityInspectorTreeView::AddSystem:
+                    {
+                        TInlineVector<TypeSystem::TypeID, 10> restrictions;
                         for ( auto pSystem : m_pSelectedEntity->GetSystems() )
                         {
-                            ImGui::Text( pSystem->GetName() );
+                            restrictions.emplace_back( pSystem->GetTypeID() );
                         }
+
+                        m_pTypeSelector->Initialize( m_pSelectedEntity );
+                        ImGui::OpenPopup( s_addSystemDialogTitle );
                     }
-                }
+                    break;
 
-                //-------------------------------------------------------------------------
-
-                TInlineVector<EntityComponent*, 10> components;
-                for ( auto pComponent : m_pSelectedEntity->GetComponents() )
-                {
-                    if ( auto pSpatialComponent = TryCast<SpatialEntityComponent>( pComponent ) )
+                    case EntityInspectorTreeView::Delete:
                     {
-                        continue;
-                    }
-
-                    components.emplace_back( pComponent );
-                }
-
-                if ( !components.empty() )
-                {
-                    if ( ImGui::CollapsingHeader( "Components", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        for ( auto pComponent : components )
+                        auto pItem = static_cast<EntityInternalItem*>( m_pEntityInspectorTreeView->GetSelectedItem() );
+                        if ( pItem->IsSystem() )
                         {
-                            DrawComponentEntry( pComponent );
+                            m_pSelectedEntity->DestroySystem( pItem->GetTypeInstance()->GetTypeID() );
                         }
+                        else if ( pItem->IsComponent() )
+                        {
+                            m_pSelectedEntity->DestroyComponent( Cast<EntityComponent>( pItem->GetTypeInstance() )->GetID() );
+                        }
+
+                        m_pEntityInspectorTreeView->ClearSelection();
+                        m_pEntityInspectorTreeView->ClearActiveItem();
                     }
+                    break;
                 }
 
                 //-------------------------------------------------------------------------
 
-                if ( m_pSelectedEntity->m_pRootSpatialComponent != nullptr )
-                {
-                    if ( ImGui::CollapsingHeader( "Spatial Components", ImGuiTreeNodeFlags_DefaultOpen ) )
-                    {
-                        DrawSpatialComponentTree( m_pSelectedEntity->m_pRootSpatialComponent );
-                    }
-                }
+                DrawAddComponentDialog();
+                DrawAddSystemDialog();
             }
         }
         ImGui::End();
     }
 
-    void EntityMapEditor::DrawComponentEntry( EntityComponent* pComponent )
+    void EntityMapEditor::OnInspectorSelectionChanged()
     {
-        KRG_ASSERT( pComponent != nullptr );
-
-        if ( ImGui::Button( pComponent->GetName().c_str() ) )
+        auto pItem = static_cast<EntityInternalItem*>( m_pEntityInspectorTreeView->GetSelectedItem() );
+        if ( pItem == nullptr || pItem->IsCategoryLabel() || pItem->IsEntity() )
         {
-            SelectComponent( pComponent );
+            SelectEntity( m_pSelectedEntity );
         }
-        ImGui::SameLine();
-
-        EntityComponent::Status const componentStatus = pComponent->GetStatus();
-
-        switch ( componentStatus )
+        else if ( pItem->IsComponent() )
         {
-            case EntityComponent::Status::LoadingFailed:
-            {
-                ImGui::PushStyleColor( ImGuiCol_Text, 0xFF0000FF );
-                ImGui::Text( "Load Failed" );
-                ImGui::PopStyleColor( 1 );
-            }
-            break;
-
-            case EntityComponent::Status::Unloaded:
-            {
-                ImGui::PushStyleColor( ImGuiCol_Text, 0xFF666666 );
-                ImGui::Text( "Unloaded" );
-                ImGui::PopStyleColor( 1 );
-            }
-            break;
-
-            case EntityComponent::Status::Loading:
-            {
-                ImGui::PushStyleColor( ImGuiCol_Text, 0xFFAAAAAA );
-                ImGui::Text( "Loading" );
-                ImGui::PopStyleColor( 1 );
-            }
-            break;
-
-            case EntityComponent::Status::Loaded:
-            {
-                ImGui::PushStyleColor( ImGuiCol_Text, 0xFF00FFFF );
-                ImGui::Text( "Loaded" );
-                ImGui::PopStyleColor( 1 );
-            }
-            break;
-
-            case EntityComponent::Status::Initialized:
-            {
-                ImGui::PushStyleColor( ImGuiCol_Text, 0xFF00FFFF );
-                ImGui::Text( "Initialized" );
-                ImGui::PopStyleColor( 1 );
-            }
-            break;
+            SelectComponent( Cast<EntityComponent>( pItem->GetTypeInstance() ) );
         }
     }
 
-    void EntityMapEditor::DrawSpatialComponentTree( SpatialEntityComponent* pComponent )
+    void EntityMapEditor::OnEntityStateChanged( Entity* pEntityChanged )
     {
-        KRG_ASSERT( pComponent != nullptr );
-
-        bool const IsNodeExpanded = ImGui::TreeNodeEx( pComponent, ImGuiTreeNodeFlags_DefaultOpen, "" );
-        ImGui::SameLine();
-        DrawComponentEntry( pComponent );
-
-        if ( IsNodeExpanded )
+        if ( pEntityChanged == m_pSelectedEntity )
         {
-            for ( auto pChildComponent : pComponent->m_spatialChildren )
-            {
-                DrawSpatialComponentTree( pChildComponent );
-            }
+            m_pEntityInspectorTreeView->Refresh();
+        }
+    }
 
-            ImGui::TreePop();
+    void EntityMapEditor::DrawAddSystemDialog()
+    {
+        TypeSystem::TypeInfo const* pSystemTypeInfo = nullptr;
+        bool isOpen = true;
+
+        ImGui::SetNextWindowSize( ImVec2( 1000, 400 ), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowSizeConstraints( ImVec2( 400, 400 ), ImVec2( FLT_MAX, FLT_MAX ) );
+        if ( ImGui::BeginPopupModal( s_addSystemDialogTitle, &isOpen ) )
+        {
+            if ( m_pTypeSelector->DrawPicker( TypeSelector::SystemSelector ) )
+            {
+                pSystemTypeInfo = m_pTypeSelector->GetSelectedType();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( pSystemTypeInfo != nullptr )
+        {
+            m_pSelectedEntity->CreateSystem( pSystemTypeInfo );
+        }
+    }
+
+    void EntityMapEditor::DrawAddComponentDialog()
+    {
+        TypeSystem::TypeInfo const* pComponentTypeInfo = nullptr;
+        bool isOpen = true;
+
+        ImGui::SetNextWindowSize( ImVec2( 1000, 400 ), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowSizeConstraints( ImVec2( 400, 400 ), ImVec2( FLT_MAX, FLT_MAX ) );
+        if ( ImGui::BeginPopupModal( s_addComponentDialogTitle, &isOpen ) )
+        {
+            if ( m_pTypeSelector->DrawPicker( TypeSelector::ComponentSelector ) )
+            {
+                pComponentTypeInfo = m_pTypeSelector->GetSelectedType();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( pComponentTypeInfo != nullptr )
+        {
+            auto pParentSpatialComponent = TryCast<SpatialEntityComponent>( m_pSelectedComponent );
+            ComponentID parentComponentID = ( pParentSpatialComponent != nullptr ) ? pParentSpatialComponent->GetID() : ComponentID();
+            m_pSelectedEntity->CreateComponent( pComponentTypeInfo, parentComponentID );
         }
     }
 }

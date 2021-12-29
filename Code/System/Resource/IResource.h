@@ -52,6 +52,7 @@ namespace KRG::Resource
         static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( typeFourCC ); } \
         virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( typeFourCC ); } \
         virtual bool IsVirtualResourceType() const override { return false; }\
+        KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( constexpr static char const* const s_friendlyName = #friendlyName; )\
         KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( virtual char const* GetFriendlyName() const override { return friendlyName; } )\
     private:
 
@@ -61,5 +62,6 @@ namespace KRG::Resource
         static ResourceTypeID GetStaticResourceTypeID() { return ResourceTypeID( typeFourCC ); } \
         virtual ResourceTypeID GetResourceType() const override { return ResourceTypeID( typeFourCC ); } \
         virtual bool IsVirtualResourceType() const override { return true; }\
+        KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( constexpr static char const* const s_friendlyName = #friendlyName; )\
         KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO( virtual char const* GetFriendlyName() const override { return friendlyName; } )\
     private:

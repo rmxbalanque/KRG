@@ -24,8 +24,6 @@ namespace KRG
 
     private:
 
-        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
-        virtual void Shutdown() override;
         virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         void DrawMenu( EntityUpdateContext const& context );
@@ -37,7 +35,6 @@ namespace KRG
 
     private:
 
-        EntityWorld*            m_pWorld = nullptr;
         bool                    m_isWorldBrowserOpen = false;
         bool                    m_isMapLoaderOpen = false;
 

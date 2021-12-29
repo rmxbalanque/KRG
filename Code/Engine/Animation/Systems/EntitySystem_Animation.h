@@ -5,10 +5,16 @@
 
 //-------------------------------------------------------------------------
 
+namespace KRG::Render
+{
+    class SkeletalMeshComponent;
+}
+
+//-------------------------------------------------------------------------
+
 namespace KRG::Animation
 {
     class AnimationComponent;
-    class AnimatedMeshComponent;
 
     //-------------------------------------------------------------------------
 
@@ -28,7 +34,7 @@ namespace KRG::Animation
 
     private:
 
-        AnimationComponent*                     m_pAnimComponent = nullptr;
-        TVector<AnimatedMeshComponent*>         m_meshComponents;
+        AnimationComponent*                         m_pAnimComponent = nullptr;
+        TVector<Render::SkeletalMeshComponent*>     m_meshComponents;
     };
 }

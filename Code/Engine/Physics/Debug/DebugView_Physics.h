@@ -25,6 +25,10 @@ namespace KRG::Physics
 
     public:
 
+        static bool DrawMaterialDatabaseView( UpdateContext const& context );
+
+    public:
+
         PhysicsDebugView();
 
     private:
@@ -48,15 +52,6 @@ namespace KRG::Physics
         float                   m_recordingTimeSeconds = 0.5f;
         bool                    m_isComponentWindowOpen = false;
         bool                    m_isMaterialDatabaseWindowOpen = false;
-    };
-
-    //-------------------------------------------------------------------------
-
-    class KRG_ENGINE_PHYSICS_API PhysicsMaterialDatabaseDebugView
-    {
-    public:
-
-        static bool Draw( UpdateContext const& context );
     };
 }
 #endif

@@ -114,6 +114,8 @@ namespace KRG::Resource
 
     private:
 
+        void UpdateResourceProvider();
+
         // Non-copyable
         ResourceSystem( const ResourceSystem& ) = delete;
         ResourceSystem( const ResourceSystem&& ) = delete;
@@ -132,11 +134,6 @@ namespace KRG::Resource
         // Process all queued resource requests
         void ProcessResourceRequests();
 
-        #if KRG_DEVELOPMENT_TOOLS
-        // Called whenever a resource is changed externally and requires reloading
-        void OnResourceExternallyUpdated( ResourceID const& resourceID );
-        #endif
-
     private:
 
         TaskSystem&                                             m_taskSystem;
@@ -152,14 +149,11 @@ namespace KRG::Resource
 
         // ASync
         AsyncTask                                               m_asyncProcessingTask;
-        bool                                                    m_isAsyncTaskRunning = false;
+        std::atomic<bool>                                       m_isAsyncTaskRunning = false;
 
         #if KRG_DEVELOPMENT_TOOLS
-        // Hot reload
         TVector<ResourceRequesterID>                            m_usersThatRequireReload;
         TVector<ResourceID>                                     m_externallyUpdatedResources;
-        EventBindingID                                          m_resourceExternalUpdateEventBinding;
-
         TVector<CompletedRequestLog>                            m_history;
         #endif
     };

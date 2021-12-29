@@ -4,7 +4,7 @@
 #include <windows.h>
 #include "Win32/Application_Win32.h"
 #include "Applications/EngineShared/Engine.h"
-#include "Engine/Core/DevUI/EngineDevUI.h"
+#include "Engine/Core/ToolsUI/EngineToolsUI.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ namespace KRG
         using Engine::Engine;
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual void CreateDevelopmentToolsUI() { m_pDevToolsUI = KRG::New<EngineDevUI>(); }
+        virtual void CreateToolsUI() { m_pToolsUI = KRG::New<EngineToolsUI>(); }
         #endif
     };
 

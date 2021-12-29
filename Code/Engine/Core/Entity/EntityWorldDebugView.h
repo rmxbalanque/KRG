@@ -62,10 +62,10 @@ namespace KRG
 
     public:
 
-        virtual ~EntityWorldDebugView() {}
+        virtual ~EntityWorldDebugView() { KRG_ASSERT( m_pWorld == nullptr ); }
 
-        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) {};
-        virtual void Shutdown() {};
+        virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) { m_pWorld = pWorld; }
+        virtual void Shutdown() { m_pWorld = nullptr; }
 
     protected:
 
@@ -77,6 +77,7 @@ namespace KRG
 
     protected:
 
+        EntityWorld const*      m_pWorld = nullptr;
         TVector<DebugMenu>      m_menus;
     };
 }

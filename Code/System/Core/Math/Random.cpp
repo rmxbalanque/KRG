@@ -28,13 +28,13 @@ namespace KRG::Math
     bool GetRandomBool()
     {
         Threading::ScopeLock lock( g_globalRandomMutex );
-        return g_rng.GetInt( 0, 1 ) == 1;
+        return g_rng.GetUInt( 0, 1 ) == 1;
     }
 
-    uint32 GetRandomInt( uint32 min, uint32 max )
+    uint32 GetRandomUInt( uint32 min, uint32 max )
     {
         Threading::ScopeLock lock( g_globalRandomMutex );
-        return g_rng.GetInt( min, max );
+        return g_rng.GetUInt( min, max );
     }
 
     float GetRandomFloat( float min, float max )

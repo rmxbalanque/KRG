@@ -1,14 +1,14 @@
 #pragma once
 
-#include "AnimationEventData.h"
+#include "Tools/Animation/_Module/API.h"
 #include "Tools/Core/TimelineEditor/TimelineEditor.h"
-#include "Engine/Animation/AnimationEvent.h"
-#include "Engine/Animation/AnimationClip.h"
-#include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/FileSystem/FileSystemPath.h"
+
 
 //-------------------------------------------------------------------------
 
 namespace KRG { class UpdateContext; }
+namespace KRG::TypeSystem { class TypeRegistry; }
 namespace KRG::Animation { class AnimationClipPlayerComponent; }
 
 //-------------------------------------------------------------------------
@@ -19,9 +19,7 @@ namespace KRG::Animation
     {
     public:
 
-        EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataDirectory, AnimationClip const* pAnimation );
-
-        inline ResourceID const& GetAnimationID() const { return m_animationID; }
+        EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& descriptorPath, uint32 numFrames, float FPS );
 
         void UpdateAndDraw( UpdateContext const& context, AnimationClipPlayerComponent* pPreviewAnimationComponent );
 
@@ -36,9 +34,8 @@ namespace KRG::Animation
     private:
 
         TypeSystem::TypeRegistry const&             m_typeRegistry;
-        FileSystem::Path const                      m_sourceDataDirectory;
+        FileSystem::Path const                      m_descriptorPath;
+        float                                       m_FPS = 0.0f;
         TVector<TypeSystem::TypeInfo const*>        m_eventTypes;
-        ResourceID                                  m_animationID; // This is tracked independently since the animation ptr can be invalidated externally
-        AnimationClip const*                        m_pAnimation = nullptr;
     };
 }

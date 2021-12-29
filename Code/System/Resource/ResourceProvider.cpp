@@ -3,54 +3,60 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Resource
 {
-    namespace Resource
+    class InternalResourceRequest : public ResourceRequest
     {
-        class InternalResourceRequest : public ResourceRequest
-        {
-            friend class ResourceProvider;
-        };
+        friend class ResourceProvider;
+    };
 
-        static_assert( sizeof( InternalResourceRequest ) == sizeof( ResourceRequest ), "Sizes need to match exactly!" );
+    static_assert( sizeof( InternalResourceRequest ) == sizeof( ResourceRequest ), "Sizes need to match exactly!" );
+
+    //-------------------------------------------------------------------------
+
+    void ResourceProvider::Update()
+    {
+        #if KRG_DEVELOPMENT_TOOLS
+        m_externallyUpdatedResources.clear();
+        #endif
+
+        UpdateInternal();
+    }
+
+    void ResourceProvider::RequestRawResource( ResourceRequest* pRequest )
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() && pRequest->GetLoadingStatus() == LoadingStatus::Loading );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        auto predicate = [] ( ResourceRequest* pRequest, ResourceID const& resourceID ) { return pRequest->GetResourceID() == resourceID; };
+        auto foundIter = VectorFind( m_requests, pRequest->GetResourceID(), predicate );
+        KRG_ASSERT( foundIter == m_requests.end() );
+        #endif
 
         //-------------------------------------------------------------------------
 
-        void ResourceProvider::RequestRawResource( ResourceRequest* pRequest )
-        {
-            KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() && pRequest->GetLoadingStatus() == LoadingStatus::Loading );
+        RequestResourceInternal( pRequest );
+        m_requests.emplace_back( pRequest );
+    }
 
-            #if KRG_DEVELOPMENT_TOOLS
-            auto predicate = [] ( ResourceRequest* pRequest, ResourceID const& resourceID ) { return pRequest->GetResourceID() == resourceID; };
-            auto foundIter = VectorFind( m_requests, pRequest->GetResourceID(), predicate );
-            KRG_ASSERT( foundIter == m_requests.end() );
-            #endif
+    void ResourceProvider::CancelRequest( ResourceRequest* pRequest )
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() );
 
-            //-------------------------------------------------------------------------
+        auto foundIter = VectorFind( m_requests, pRequest );
+        KRG_ASSERT( foundIter != m_requests.end() );
 
-            RequestResourceInternal( pRequest );
-            m_requests.emplace_back( pRequest );
-        }
+        CancelRequestInternal( *foundIter );
+        m_requests.erase_unsorted( foundIter );
+    }
 
-        void ResourceProvider::CancelRequest( ResourceRequest* pRequest )
-        {
-            KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() );
+    void ResourceProvider::FinalizeRequest( ResourceRequest* pRequest )
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() );
 
-            auto foundIter = VectorFind( m_requests, pRequest );
-            KRG_ASSERT( foundIter != m_requests.end() );
-
-            CancelRequestInternal( *foundIter );
-            m_requests.erase_unsorted( foundIter );
-        }
-
-        void ResourceProvider::FinalizeRequest( ResourceRequest* pRequest )
-        {
-            KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() );
-
-            // Remove from request list
-            auto foundIter = VectorFind( m_requests, pRequest );
-            KRG_ASSERT( foundIter != m_requests.end() );
-            m_requests.erase_unsorted( foundIter );
-        }
+        // Remove from request list
+        auto foundIter = VectorFind( m_requests, pRequest );
+        KRG_ASSERT( foundIter != m_requests.end() );
+        m_requests.erase_unsorted( foundIter );
     }
 }

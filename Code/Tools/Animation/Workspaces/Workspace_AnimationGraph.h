@@ -26,14 +26,14 @@ namespace KRG::Animation::Graph
     {
     public:
 
-        AnimationGraphWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
+        AnimationGraphWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
         ~AnimationGraphWorkspace();
 
     private:
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;

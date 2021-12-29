@@ -4,8 +4,8 @@
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationSkeleton.h"
 #include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
-#include "Engine/Animation/Components/Component_AnimatedMeshes.h"
 #include "Engine/Animation/Components/Component_AnimationGraph.h"
+#include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 
 //-------------------------------------------------------------------------
@@ -79,14 +79,14 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    AnimationGraphWorkspace::AnimationGraphWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
+    AnimationGraphWorkspace::AnimationGraphWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
         : TResourceWorkspace<AnimationGraphDefinition>( context, pWorld, resourceID, false )
         , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
         // Load graph from descriptor
         //-------------------------------------------------------------------------
 
-        m_graphFilePath = m_editorContext.ToFileSystemPath( resourceID.GetResourcePath() );
+        m_graphFilePath = GetFileSystemPath( resourceID.GetResourcePath() );
         if ( m_graphFilePath.IsValid() )
         {
             bool graphLoadFailed = false;
@@ -100,7 +100,7 @@ namespace KRG::Animation::Graph
 
             // Try to load the graph from the file
             m_pGraphDefinition = KRG::New<AnimationGraphEditorDefinition>();
-            graphLoadFailed = !m_pGraphDefinition->LoadFromJson( *m_editorContext.m_pTypeRegistry, reader.GetDocument() );
+            graphLoadFailed = !m_pGraphDefinition->LoadFromJson( *m_pTypeRegistry, reader.GetDocument() );
 
             // Load failed, so clean up and create a new graph
             if ( graphLoadFailed )
@@ -118,8 +118,8 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         m_pControlParameterEditor = KRG::New<GraphControlParameterEditor>( m_pGraphDefinition );
-        m_pVariationEditor = KRG::New<GraphVariationEditor>( m_editorContext, m_pGraphDefinition );
-        m_pGraphEditor = KRG::New<GraphEditor>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
+        m_pVariationEditor = KRG::New<GraphVariationEditor>( m_pResourceDatabase, m_pGraphDefinition );
+        m_pGraphEditor = KRG::New<GraphEditor>( *m_pTypeRegistry, m_pGraphDefinition );
 
         // Bind events
         //-------------------------------------------------------------------------
@@ -130,7 +130,7 @@ namespace KRG::Animation::Graph
             {
                 KRG_ASSERT( m_pActiveUndoableAction == nullptr );
 
-                m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pGraphDefinition );
+                m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( *m_pTypeRegistry, m_pGraphDefinition );
                 m_pActiveUndoableAction->SerializeBeforeState();
             }
         };
@@ -203,7 +203,7 @@ namespace KRG::Animation::Graph
         ImGui::DockBuilderDockWindow( m_variationEditorWindowName.c_str(), centerDockID );
     }
 
-    void AnimationGraphWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void AnimationGraphWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         DebugContext* pDebugContext = nullptr;
         if ( m_isPreviewing && m_pGraphComponent->IsInitialized() )
@@ -268,13 +268,13 @@ namespace KRG::Animation::Graph
         for ( auto const& variation : variations.GetAllVariations() )
         {
             AnimationGraphVariationResourceDescriptor resourceDesc;
-            resourceDesc.m_graphPath = ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), m_graphFilePath );
+            resourceDesc.m_graphPath = GetResourcePath( m_graphFilePath );
             resourceDesc.m_variationID = variation.m_ID;
 
             InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, variation.m_ID );
             FileSystem::Path const variationPath( variationPathStr.c_str() );
 
-            WriteResourceDescriptorToFile( *m_editorContext.m_pTypeRegistry, variationPath, &resourceDesc );
+            WriteResourceDescriptorToFile( *m_pTypeRegistry, variationPath, &resourceDesc );
         }
     }
 
@@ -282,7 +282,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( m_graphFilePath.IsValid() );
         JsonWriter writer;
-        m_pGraphDefinition->SaveToJson( *m_editorContext.m_pTypeRegistry, *writer.GetWriter() );
+        m_pGraphDefinition->SaveToJson( *m_pTypeRegistry, *writer.GetWriter() );
         if ( writer.WriteToFile( m_graphFilePath ) )
         {
             GenerateAnimGraphVariationDescriptors();
@@ -307,8 +307,6 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphWorkspace::StartPreview()
     {
-        KRG_ASSERT( m_pWorld != nullptr );
-
         // Try to compile the graph
         //-------------------------------------------------------------------------
 
@@ -348,7 +346,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, m_selectedVariationID );
-        ResourceID const graphVariationResourceID( ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectoryPath(), variationPathStr.c_str() ) );
+        ResourceID const graphVariationResourceID( GetResourcePath( variationPathStr.c_str()) );
 
         m_pGraphComponent = KRG::New<AnimationGraphComponent>( StringID( "Animation Component" ) );
         m_pGraphComponent->SetGraphVariation( graphVariationResourceID );
@@ -364,12 +362,12 @@ namespace KRG::Animation::Graph
         if ( pVariation->m_pSkeleton.IsValid() )
         {
             // Load resource descriptor for skeleton to get the preview mesh
-            FileSystem::Path const resourceDescPath = m_editorContext.ToFileSystemPath( pVariation->m_pSkeleton.GetResourcePath() );
+            FileSystem::Path const resourceDescPath = GetFileSystemPath( pVariation->m_pSkeleton.GetResourcePath() );
             SkeletonResourceDescriptor resourceDesc;
-            if ( TryReadResourceDescriptorFromFile( *m_editorContext.m_pTypeRegistry, resourceDescPath, resourceDesc ) )
+            if ( TryReadResourceDescriptorFromFile( *m_pTypeRegistry, resourceDescPath, resourceDesc ) )
             {
                 // Create a preview mesh component
-                auto pMeshComponent = KRG::New<AnimatedMeshComponent>( StringID( "Mesh Component" ) );
+                auto pMeshComponent = KRG::New<Render::SkeletalMeshComponent>( StringID( "Mesh Component" ) );
                 pMeshComponent->SetSkeleton( pVariation->m_pSkeleton.GetResourceID() );
                 pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
                 m_pPreviewEntity->AddComponent( pMeshComponent );
@@ -383,20 +381,15 @@ namespace KRG::Animation::Graph
 
         // Add the entity
         //-------------------------------------------------------------------------
-        // We dont own the entity as soon as we add it to the map
-
-        auto pPersistentMap = m_pWorld->GetPersistentMap();
-        pPersistentMap->AddEntity( m_pPreviewEntity );
+        
+        AddEntityToWorld( m_pPreviewEntity );
         m_isPreviewing = true;
     }
 
     void AnimationGraphWorkspace::StopPreview()
     {
-        KRG_ASSERT( m_pWorld != nullptr );
         KRG_ASSERT( m_pPreviewEntity != nullptr );
-
-        auto pPersistentMap = m_pWorld->GetPersistentMap();
-        pPersistentMap->DestroyEntity( m_pPreviewEntity->GetID() );
+        DestroyEntityInWorld( m_pPreviewEntity );
 
         m_pPreviewEntity = nullptr;
         m_pGraphComponent = nullptr;

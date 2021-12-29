@@ -14,53 +14,59 @@ namespace KRG
     {
     public:
 
-        ResourceDescriptorUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, IRegisteredType* pTypeInstance )
+        ResourceDescriptorUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, GenericResourceWorkspace* pWorkspace )
             : m_typeRegistry( typeRegistry )
-            , m_pEditedType( pTypeInstance )
+            , m_pWorkspace( pWorkspace )
         {
-            KRG_ASSERT( m_pEditedType != nullptr );
+            KRG_ASSERT( m_pWorkspace != nullptr );
+            KRG_ASSERT( m_pWorkspace->m_pDescriptor != nullptr );
         }
 
         virtual void Undo() override
         {
-            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueBefore, m_pEditedType );
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueBefore, m_pWorkspace->m_pDescriptor );
+            m_pWorkspace->m_isDirty = true;
         }
 
         virtual void Redo() override
         {
-            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueAfter, m_pEditedType );
+            TypeSystem::Serialization::ReadNativeTypeFromString( m_typeRegistry, m_valueAfter, m_pWorkspace->m_pDescriptor );
+            m_pWorkspace->m_isDirty = true;
         }
 
         void SerializeBeforeState()
         {
-            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pEditedType, m_valueBefore );
+            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pWorkspace->m_pDescriptor, m_valueBefore );
         }
 
         void SerializeAfterState()
         {
-            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pEditedType, m_valueAfter );
+            TypeSystem::Serialization::WriteNativeTypeToString( m_typeRegistry, m_pWorkspace->m_pDescriptor, m_valueAfter );
+            m_pWorkspace->m_isDirty = true;
         }
 
     private:
 
         TypeSystem::TypeRegistry const&     m_typeRegistry;
-        IRegisteredType*                    m_pEditedType = nullptr;
+        GenericResourceWorkspace*           m_pWorkspace = nullptr;
         String                              m_valueBefore;
         String                              m_valueAfter;
     };
 
     //-------------------------------------------------------------------------
 
-    GenericResourceWorkspace::GenericResourceWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
-        : EditorWorkspace( context, pWorld, context.ToFileSystemPath( resourceID.GetResourcePath() ).GetFileNameWithoutExtension() )
+    GenericResourceWorkspace::GenericResourceWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
+        : EditorWorkspace( context, pWorld, resourceID.GetFileNameWithoutExtension() )
         , m_descriptorID( resourceID )
-        , m_descriptorPath( resourceID.GetResourcePath().ToFileSystemPath( context.GetRawResourceDirectoryPath() ) )
+        , m_descriptorPath( GetFileSystemPath( resourceID ) )
         , m_descriptorPropertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
         KRG_ASSERT( resourceID.IsValid() );
-
         m_preEditEventBindingID = m_descriptorPropertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { PreEdit( info ); } );
         m_postEditEventBindingID = m_descriptorPropertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { PostEdit( info ); } );
+
+        m_gizmoStartManipulationEventBindingID = m_gizmo.OnManipulationStarted().Bind( [this] () { BeginModification(); } );
+        m_gizmoEndManipulationEventBindingID = m_gizmo.OnManipulationEnded().Bind( [this] () { EndModification(); } );
     }
 
     GenericResourceWorkspace::~GenericResourceWorkspace()
@@ -70,24 +76,16 @@ namespace KRG
 
         m_descriptorPropertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
         m_descriptorPropertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
+
+        m_gizmo.OnManipulationStarted().Unbind( m_gizmoStartManipulationEventBindingID );
+        m_gizmo.OnManipulationEnded().Unbind( m_gizmoEndManipulationEventBindingID );
     }
 
     void GenericResourceWorkspace::Initialize( UpdateContext const& context )
     {
         EditorWorkspace::Initialize( context );
-
         m_descriptorWindowName.sprintf( "Descriptor##%u", GetID() );
-
-        TypeSystem::Serialization::TypeReader typeReader( *m_editorContext.m_pTypeRegistry );
-        if ( typeReader.ReadFromFile( m_descriptorPath ) )
-        {
-            TypeSystem::TypeDescriptor typeDesc;
-            if ( typeReader.ReadType( typeDesc ) )
-            {
-                m_pDescriptor = typeDesc.CreateTypeInstance<Resource::ResourceDescriptor>( *m_editorContext.m_pTypeRegistry );
-                m_descriptorPropertyGrid.SetTypeToEdit( m_pDescriptor );
-            }
-        }
+        LoadDescriptor();
     }
 
     void GenericResourceWorkspace::Shutdown( UpdateContext const& context )
@@ -96,12 +94,49 @@ namespace KRG
         EditorWorkspace::Shutdown( context );
     }
 
+    void GenericResourceWorkspace::BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded )
+    {
+        // Destroy descriptor if the resource we are operating on was modified
+        if ( VectorContains( resourcesToBeReloaded, m_descriptorID ) )
+        {
+            KRG::Delete( m_pDescriptor );
+        }
+
+        EditorWorkspace::BeginHotReload( usersToBeReloaded, resourcesToBeReloaded );
+    }
+
+    void GenericResourceWorkspace::EndHotReload()
+    {
+        EditorWorkspace::EndHotReload();
+
+        // Reload the descriptor if needed
+        if ( m_pDescriptor == nullptr )
+        {
+            LoadDescriptor();
+        }
+    }
+
+    void GenericResourceWorkspace::LoadDescriptor()
+    {
+        KRG_ASSERT( m_pDescriptor == nullptr );
+        TypeSystem::Serialization::TypeReader typeReader( *m_pTypeRegistry );
+        if ( typeReader.ReadFromFile( m_descriptorPath ) )
+        {
+            TypeSystem::TypeDescriptor typeDesc;
+            if ( typeReader.ReadType( typeDesc ) )
+            {
+                m_pDescriptor = typeDesc.CreateTypeInstance<Resource::ResourceDescriptor>( *m_pTypeRegistry );
+                m_descriptorPropertyGrid.SetTypeToEdit( m_pDescriptor );
+            }
+        }
+    }
+
     void GenericResourceWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), dockspaceID );
     }
 
-    void GenericResourceWorkspace::UpdateAndDrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void GenericResourceWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_descriptorWindowName.c_str() ) )
@@ -169,9 +204,10 @@ namespace KRG
         KRG_ASSERT( m_descriptorID.IsValid() && m_descriptorPath.IsFile() );
         KRG_ASSERT( m_pDescriptor != nullptr );
         
-        if ( WriteResourceDescriptorToFile( *m_editorContext.m_pTypeRegistry, m_descriptorPath, m_pDescriptor ) )
+        if ( WriteResourceDescriptorToFile( *m_pTypeRegistry, m_descriptorPath, m_pDescriptor ) )
         {
             m_descriptorPropertyGrid.ClearDirty();
+            m_isDirty = false;
             return true;
         }
 
@@ -181,18 +217,41 @@ namespace KRG
     void GenericResourceWorkspace::PreEdit( PropertyEditInfo const& info )
     {
         KRG_ASSERT( m_pActiveUndoableAction == nullptr );
-        auto pUndoableAction = KRG::New<ResourceDescriptorUndoableAction>( *m_editorContext.m_pTypeRegistry, m_pDescriptor );
-        pUndoableAction->SerializeBeforeState();
-        m_pActiveUndoableAction = pUndoableAction;
+        BeginModification();
     }
 
     void GenericResourceWorkspace::PostEdit( PropertyEditInfo const& info )
     {
         KRG_ASSERT( m_pActiveUndoableAction != nullptr );
-        auto pUndoableAction = static_cast<ResourceDescriptorUndoableAction*>( m_pActiveUndoableAction );
-        pUndoableAction->SerializeAfterState();
-        m_undoStack.RegisterAction( pUndoableAction );
-        m_pActiveUndoableAction = nullptr;
+        EndModification();
+    }
+
+    void GenericResourceWorkspace::BeginModification()
+    {
+        if ( m_beginModificationCallCount == 0 )
+        {
+            auto pUndoableAction = KRG::New<ResourceDescriptorUndoableAction>( *m_pTypeRegistry, this );
+            pUndoableAction->SerializeBeforeState();
+            m_pActiveUndoableAction = pUndoableAction;
+        }
+        m_beginModificationCallCount++;
+    }
+
+    void GenericResourceWorkspace::EndModification()
+    {
+        KRG_ASSERT( m_beginModificationCallCount > 0 );
+        KRG_ASSERT( m_pActiveUndoableAction != nullptr );
+
+        m_beginModificationCallCount--;
+
+        if ( m_beginModificationCallCount == 0 )
+        {
+            auto pUndoableAction = static_cast<ResourceDescriptorUndoableAction*>( m_pActiveUndoableAction );
+            pUndoableAction->SerializeAfterState();
+            m_undoStack.RegisterAction( pUndoableAction );
+            m_pActiveUndoableAction = nullptr;
+            m_isDirty = true;
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -213,7 +272,7 @@ namespace KRG
         return false;
     }
 
-    EditorWorkspace* ResourceWorkspaceFactory::TryCreateWorkspace( EditorContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
+    EditorWorkspace* ResourceWorkspaceFactory::TryCreateWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
     {
         KRG_ASSERT( resourceID.IsValid() );
         auto resourceTypeID = resourceID.GetResourceTypeID();

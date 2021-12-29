@@ -1,20 +1,22 @@
 #include "AnimationEventEditor.h"
+#include "AnimationEventData.h"
 #include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
+#include "Engine/Animation/AnimationEvent.h"
+#include "System/TypeSystem/TypeRegistry.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
-    EventEditor::EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& sourceDataDirectory, AnimationClip const* pAnimation )
-        : TimelineEditor( IntRange( 0, pAnimation->GetNumFrames() ) )
+    EventEditor::EventEditor( TypeSystem::TypeRegistry const& typeRegistry, FileSystem::Path const& descriptorPath, uint32 numFrames, float FPS )
+        : TimelineEditor( IntRange( 0, numFrames ) )
         , m_typeRegistry( typeRegistry )
-        , m_sourceDataDirectory( sourceDataDirectory )
+        , m_descriptorPath( descriptorPath )
+        , m_FPS( FPS )
         , m_eventTypes( typeRegistry.GetAllDerivedTypes( Event::GetStaticTypeID() ) )
-        , m_animationID( pAnimation->GetResourceID() )
-        , m_pAnimation( pAnimation )
     {
-        KRG_ASSERT( m_pAnimation != nullptr );
+        KRG_ASSERT( m_FPS > 0.0f );
         LoadEventData();
     }
 
@@ -94,7 +96,7 @@ namespace KRG::Animation
                     if ( ImGui::MenuItem( menuItemName.c_str() ) )
                     {
                         auto pCreatedTrack = m_trackContainer.CreateTrack<EventTrack>();
-                        pCreatedTrack->m_animFrameRate = m_pAnimation->GetFPS();
+                        pCreatedTrack->m_animFrameRate = m_FPS;
                         pCreatedTrack->m_eventTypeID = pTypeInfo->m_ID;
                         pCreatedTrack->m_pEventTypeInfo = pTypeInfo;
                         pCreatedTrack->m_eventType = type;
@@ -132,11 +134,10 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        auto const resourceDescriptorPath = m_pAnimation->GetResourcePath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader typeReader;
-        if ( !typeReader.ReadFromFile( resourceDescriptorPath ) )
+        if ( !typeReader.ReadFromFile( m_descriptorPath ) )
         {
-            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", resourceDescriptorPath.c_str() );
+            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", m_descriptorPath.c_str() );
             return;
         }
 
@@ -157,7 +158,7 @@ namespace KRG::Animation
 
         if ( !m_trackContainer.Load( m_typeRegistry, eventDataValueObject ) )
         {
-            KRG_LOG_ERROR( "AnimationTools", "Malformed event track file: %s", resourceDescriptorPath.c_str() );
+            KRG_LOG_ERROR( "AnimationTools", "Malformed event track file: %s", m_descriptorPath.c_str() );
             return;
         }
 
@@ -167,12 +168,12 @@ namespace KRG::Animation
         for ( auto pTrack : m_trackContainer.m_tracks )
         {
             auto pEventTrack = reinterpret_cast<EventTrack*>( pTrack );
-            pEventTrack->m_animFrameRate = m_pAnimation->GetFPS();
+            pEventTrack->m_animFrameRate = m_FPS;
 
             for ( auto pItem : pEventTrack->m_items )
             {
                 auto pEventItem = Cast<EventItem>( pItem );
-                pEventItem->m_animFrameRate = m_pAnimation->GetFPS();
+                pEventItem->m_animFrameRate = m_FPS;
             }
 
             if ( pEventTrack->m_isSyncTrack )
@@ -190,11 +191,10 @@ namespace KRG::Animation
 
     bool EventEditor::RequestSave()
     {
-        auto const resourceDescriptorPath = m_pAnimation->GetResourcePath().ToFileSystemPath( m_sourceDataDirectory );
         JsonReader jsonReader;
-        if ( !jsonReader.ReadFromFile( resourceDescriptorPath ) )
+        if ( !jsonReader.ReadFromFile( m_descriptorPath ) )
         {
-            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", resourceDescriptorPath.c_str() );
+            KRG_LOG_ERROR( "AnimationTools", "Failed to read resource descriptor file: %s", m_descriptorPath.c_str() );
             return false;
         }
 
@@ -227,7 +227,7 @@ namespace KRG::Animation
         pWriter->EndObject();
 
         // Save descriptor
-        eventDataWriter.WriteToFile( resourceDescriptorPath );
+        eventDataWriter.WriteToFile( m_descriptorPath );
         return true;
     }
 }
