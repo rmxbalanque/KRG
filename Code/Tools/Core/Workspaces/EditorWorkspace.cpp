@@ -1,5 +1,6 @@
 #include "EditorWorkspace.h"
 #include "Engine/Render/Debug/DebugView_Render.h"
+#include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
 #include "Engine/Core/DebugViews/DebugView_Camera.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/ToolsUI/OrientationGuide.h"
@@ -100,17 +101,77 @@ namespace KRG
         }
         ImGui::PopStyleVar();
         ImGui::SameLine();
+
+        //-------------------------------------------------------------------------
+
+        if ( m_allowWorldTimeControl )
+        {
+            if ( BeginViewportToolbarGroup( "TimeControls", ImVec2( 164, 0 ), ImVec2( 2, 1 ) ) )
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+
+                // Play/Pause
+                if ( m_pWorld->IsPaused() )
+                {
+                    if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld" ) )
+                    {
+                        m_pWorld->SetTimeScale( m_worldTimeScale );
+                    }
+                    ImGuiX::ItemTooltip( "Pause" );
+                }
+                else
+                {
+                    if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld" ) )
+                    {
+                        m_worldTimeScale = m_pWorld->GetTimeScale();
+                        m_pWorld->SetTimeScale( -1.0f );
+                    }
+                    ImGuiX::ItemTooltip( "Pause" );
+                }
+
+                // Step
+                ImGui::SameLine( 0, 0 );
+                ImGui::BeginDisabled( !m_pWorld->IsPaused() );
+                if ( ImGui::Button( KRG_ICON_STEP_FORWARD"##StepFrame" ) )
+                {
+                    m_pWorld->RequestTimeStep();
+                }
+                ImGuiX::ItemTooltip( "Step Frame" );
+                ImGui::EndDisabled();
+
+                // Slider
+                ImGui::SameLine( 0, 0 );
+                ImGui::SetNextItemWidth( 100 );
+                if ( ImGui::SliderFloat( "##TimeScale", &m_worldTimeScale, 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput ) )
+                {
+                    m_pWorld->SetTimeScale( m_worldTimeScale );
+                }
+                ImGuiX::ItemTooltip( "Time Scale" );
+
+                // Reset
+                ImGui::SameLine( 0, 0 );
+                if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
+                {
+                    m_worldTimeScale = 1.0f;
+                    m_pWorld->SetTimeScale( 1.0f );
+                }
+                ImGuiX::ItemTooltip( "Reset TimeScale" );
+            }
+            EndViewportToolbarGroup();
+        }
     }
 
-    bool EditorWorkspace::BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize )
+    bool EditorWorkspace::BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize, ImVec2 const& padding )
     {
+        ImGui::SameLine();
+
         ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Style::s_backgroundColorSemiLight.Value );
         ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorLight.Value );
         ImGui::PushStyleColor( ImGuiCol_FrameBg, ImGuiX::Style::s_itemColorDark.Value );
         ImGui::PushStyleColor( ImGuiCol_FrameBgActive, ImGuiX::Style::s_backgroundColorMedium.Value );
         ImGui::PushStyleColor( ImGuiCol_FrameBgHovered, ImGuiX::Style::s_backgroundColorMedium.Value );
 
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, padding );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 4.0f );
 
         // Adjust "use available" height to default toolbar height
@@ -127,6 +188,8 @@ namespace KRG
         ImGui::EndChild();
         ImGui::PopStyleVar( 2 );
         ImGui::PopStyleColor( 5 );
+
+        ImGui::SameLine();
     }
 
     //-------------------------------------------------------------------------
@@ -235,6 +298,22 @@ namespace KRG
         ImGui::PopStyleVar();
 
         return isViewportFocused;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EditorWorkspace::SetViewportCameraSpeed( float cameraSpeed )
+    {
+        KRG_ASSERT( m_pWorld != nullptr );
+        auto pPlayerManager = m_pWorld->GetWorldSystem<PlayerManager>();
+        pPlayerManager->SetDebugCameraSpeed( cameraSpeed );
+    }
+
+    void EditorWorkspace::SetViewportCameraPosition( Transform const& cameraTransform )
+    {
+        KRG_ASSERT( m_pWorld != nullptr );
+        auto pPlayerManager = m_pWorld->GetWorldSystem<PlayerManager>();
+        pPlayerManager->SetDebugCameraView( cameraTransform );
     }
 
     //-------------------------------------------------------------------------

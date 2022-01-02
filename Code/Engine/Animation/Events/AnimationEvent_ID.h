@@ -18,7 +18,8 @@ namespace KRG::Animation
         #if KRG_DEVELOPMENT_TOOLS
         virtual char const* GetEventName() const override { return "ID"; }
         virtual bool AllowMultipleTracks() const override { return true; }
-        virtual InlineString<100> GetDisplayText() const override { return m_ID.c_str(); }
+        virtual InlineString GetDisplayText() const override { return m_ID.IsValid() ? m_ID.c_str() : "Invalid ID"; }
+        virtual InlineString GetDebugText() const override { return GetDisplayText(); }
         virtual EventType GetEventType() const override { return EventType::Both; }
         #endif
 

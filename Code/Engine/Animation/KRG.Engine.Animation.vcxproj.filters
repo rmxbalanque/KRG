@@ -85,11 +85,6 @@
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_BoneMaskPool.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Common.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Contexts.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Controller.cpp" />
@@ -97,13 +92,19 @@
     <ClCompile Include="Graph\Animation_RuntimeGraph_Instance.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Node.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Resources.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_Task.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskPosePool.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskSystem.cpp" />
+    <ClCompile Include="TaskSystem\Animation_Task.cpp" />
+    <ClCompile Include="TaskSystem\Animation_TaskPosePool.cpp" />
+    <ClCompile Include="TaskSystem\Animation_TaskSystem.cpp" />
     <ClCompile Include="AnimationClip.cpp" />
     <ClCompile Include="AnimationFrameTime.cpp" />
     <ClCompile Include="AnimationBoneMask.cpp" />
     <ClCompile Include="AnimationBlender.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Blend.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_CachedPose.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_DefaultPose.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Ragdoll.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Sample.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -160,11 +161,6 @@
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_BoneMaskPool.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Common.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Contexts.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Controller.h" />
@@ -172,12 +168,18 @@
     <ClInclude Include="Graph\Animation_RuntimeGraph_Instance.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Node.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Resources.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_Task.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskPosePool.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskSystem.h" />
+    <ClInclude Include="TaskSystem\Animation_Task.h" />
+    <ClInclude Include="TaskSystem\Animation_TaskPosePool.h" />
+    <ClInclude Include="TaskSystem\Animation_TaskSystem.h" />
     <ClInclude Include="AnimationClip.h" />
     <ClInclude Include="AnimationFrameTime.h" />
     <ClInclude Include="AnimationBoneMask.h" />
     <ClInclude Include="AnimationBlender.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Blend.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_CachedPose.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_DefaultPose.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Ragdoll.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Sample.h" />
   </ItemGroup>
 </Project>

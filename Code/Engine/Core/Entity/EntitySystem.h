@@ -9,7 +9,7 @@
 namespace KRG
 {
     class SystemRegistry;
-    class EntityUpdateContext;
+    class EntityWorldUpdateContext;
     class EntityComponent;
     template<typename T> struct TEntityToolAccessor;
 
@@ -48,7 +48,7 @@ namespace KRG
         virtual void UnregisterComponent( EntityComponent* pComponent ) = 0;
 
         // System Update
-        virtual void Update( EntityUpdateContext const& ctx ) = 0;
+        virtual void Update( EntityWorldUpdateContext const& ctx ) = 0;
     };
 }
 

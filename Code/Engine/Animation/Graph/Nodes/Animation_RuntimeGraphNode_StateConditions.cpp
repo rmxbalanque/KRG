@@ -3,9 +3,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void StateCompletedConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void StateCompletedConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<StateCompletedConditionNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -64,7 +64,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void TimeConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void TimeConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<TimeConditionNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );

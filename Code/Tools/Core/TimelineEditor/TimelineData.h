@@ -35,7 +35,7 @@ namespace KRG::Timeline
         // Basic Info
         //-------------------------------------------------------------------------
 
-        virtual InlineString<100> GetLabel() const { return "Item"; }
+        virtual InlineString GetLabel() const { return "Item"; }
         virtual Color GetColor() const { return Color( 0xFF801080 ); }
 
         // Time manipulation

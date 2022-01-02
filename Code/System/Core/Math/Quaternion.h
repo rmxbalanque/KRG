@@ -46,7 +46,7 @@ namespace KRG
     public:
 
         inline Quaternion() = default;
-        inline explicit Quaternion( IdentityInit ) : m_data( Vector::UnitW.m_data ) {}
+        inline explicit Quaternion( IdentityInit_t ) : m_data( Vector::UnitW.m_data ) {}
         inline explicit Quaternion( Vector const& v ) : m_data( v.m_data ) {}
         inline explicit Quaternion( float ix, float iy, float iz, float iw ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }
         inline explicit Quaternion( Float4 const& v ) : Quaternion( v.m_x, v.m_y, v.m_z, v.m_w ) {}

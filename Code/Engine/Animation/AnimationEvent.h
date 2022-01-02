@@ -50,7 +50,8 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        virtual InlineString<100> GetDisplayText() const = 0;
+        virtual InlineString GetDisplayText() const = 0;
+        virtual InlineString GetDebugText() const { return GetStaticTypeID().c_str(); }
         virtual char const* GetEventName() const = 0;
         virtual bool AllowMultipleTracks() const { return false; }
         virtual int32 GetMaxEventsAllowedPerTrack() const { return -1; }

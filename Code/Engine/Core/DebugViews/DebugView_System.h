@@ -26,8 +26,8 @@ namespace KRG
 
     private:
 
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override {};
-        void DrawMenu( EntityUpdateContext const& context );
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override {};
+        void DrawMenu( EntityWorldUpdateContext const& context );
     };
 
     //-------------------------------------------------------------------------
@@ -47,7 +47,7 @@ namespace KRG
 
     private:
 
-        InlineString<255>                                   m_logFilter;
+        InlineString                                   m_logFilter;
     };
 }
 #endif

@@ -14,7 +14,7 @@
 namespace KRG
 {
     class SystemRegistry;
-    class EntityUpdateContext;
+    class EntityWorldUpdateContext;
     class Entity;
     class EntityComponent;
 
@@ -42,7 +42,7 @@ namespace KRG
         virtual void ShutdownSystem() {};
 
         // System Update - using explicit "EntitySystem" name to allow for a standalone update functions
-        virtual void UpdateSystem( EntityUpdateContext const& ctx ) {};
+        virtual void UpdateSystem( EntityWorldUpdateContext const& ctx ) {};
 
         // Called whenever a new component is activated (i.e. added to the world)
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) = 0;

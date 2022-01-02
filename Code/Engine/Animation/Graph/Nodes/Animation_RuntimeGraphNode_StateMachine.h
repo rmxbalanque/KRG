@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API StateMachineNode final : public PoseNode
     {
@@ -18,16 +18,16 @@ namespace KRG::Animation::Graph
             KRG_SERIALIZE_MEMBERS( m_targetStateIdx, m_transitionNodeIdx, m_conditionNodeIdx );
 
             StateIndex                                              m_targetStateIdx = InvalidIndex;
-            NodeIndex                                               m_conditionNodeIdx = InvalidIndex;
-            NodeIndex                                               m_transitionNodeIdx = InvalidIndex;
+            GraphNodeIndex                                               m_conditionNodeIdx = InvalidIndex;
+            GraphNodeIndex                                               m_transitionNodeIdx = InvalidIndex;
         };
 
         struct StateSettings
         {
             KRG_SERIALIZE_MEMBERS( m_stateNodeIdx, m_entryConditionNodeIdx, m_transitionSettings );
 
-            NodeIndex                                               m_stateNodeIdx = InvalidIndex;
-            NodeIndex                                               m_entryConditionNodeIdx = InvalidIndex;
+            GraphNodeIndex                                               m_stateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                               m_entryConditionNodeIdx = InvalidIndex;
             TInlineVector<TransitionSettings,5>                     m_transitionSettings;
         };
 
@@ -40,7 +40,7 @@ namespace KRG::Animation::Graph
 
         public:
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
@@ -74,8 +74,8 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         StateIndex SelectDefaultState( GraphContext& context ) const;
@@ -83,7 +83,7 @@ namespace KRG::Animation::Graph
         void InitializeTransitionConditions( GraphContext& context );
         void ShutdownTransitionConditions( GraphContext& context );
 
-        void EvaluateTransitions( GraphContext& context, PoseNodeResult& NodeResult );
+        void EvaluateTransitions( GraphContext& context, GraphPoseNodeResult& NodeResult );
         void UpdateTransitionStack( GraphContext& context );
 
     private:

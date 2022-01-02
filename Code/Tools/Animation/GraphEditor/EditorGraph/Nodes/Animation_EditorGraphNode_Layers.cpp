@@ -5,14 +5,14 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void LayerSettingsEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
 
-        CreateOutputPin( "Layer", ValueType::Unknown );
-        CreateInputPin( "State Machine", ValueType::Pose );
+        CreateOutputPin( "Layer", GraphValueType::Unknown );
+        CreateInputPin( "State Machine", GraphValueType::Pose );
     }
 
     bool LayerSettingsEditorNode::IsValidConnection( UUID const& inputPinID, Node const* pOutputPinNode, UUID const& outputPinID ) const
@@ -26,9 +26,9 @@ namespace KRG::Animation::Graph
     {
         EditorGraphNode::Initialize( pParent );
 
-        CreateOutputPin( "Pose", ValueType::Pose );
-        CreateInputPin( "Base Node", ValueType::Pose );
-        CreateInputPin( "Layer 0", ValueType::Unknown );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
+        CreateInputPin( "Base Node", GraphValueType::Pose );
+        CreateInputPin( "Layer 0", GraphValueType::Unknown );
     }
 
     bool LayerEditorNode::IsValidConnection( UUID const& inputPinID, Node const* pOutputPinNode, UUID const& outputPinID ) const
@@ -42,10 +42,10 @@ namespace KRG::Animation::Graph
         return EditorGraphNode::IsValidConnection( inputPinID, pOutputPinNode, outputPinID );
     }
 
-    InlineString<100> LayerEditorNode::GetNewDynamicInputPinName() const
+    TInlineString<100> LayerEditorNode::GetNewDynamicInputPinName() const
     {
         int32 const numOptions = GetNumInputPins();
-        InlineString<100> pinName;
+        TInlineString<100> pinName;
         pinName.sprintf( "Layer %d", numOptions - 2 );
         return pinName;
     }
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
                 continue;
             }
 
-            InlineString<100> newPinName;
+            TInlineString<100> newPinName;
             newPinName.sprintf( "Layer %d", newPinIdx );
 
             GetInputPin( i )->m_name = newPinName;
@@ -76,7 +76,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    NodeIndex LayerEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex LayerEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         LayerBlendNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<LayerBlendNode>( this, pSettings );

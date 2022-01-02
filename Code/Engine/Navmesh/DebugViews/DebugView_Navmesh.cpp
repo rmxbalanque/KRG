@@ -1,7 +1,7 @@
 #include "DebugView_Navmesh.h"
 #include "Engine/Navmesh/Systems/WorldSystem_Navmesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 #include "bfxMoverSpace.h"
@@ -13,7 +13,7 @@ namespace KRG::Navmesh
 {
     NavmeshDebugView::NavmeshDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Navmesh", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Navmesh", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
     void NavmeshDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -28,7 +28,7 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    void NavmeshDebugView::DrawMenu( EntityUpdateContext const& context )
+    void NavmeshDebugView::DrawMenu( EntityWorldUpdateContext const& context )
     {
         auto CreatePlannerCheckboxForFlag = [this] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
@@ -120,7 +120,7 @@ namespace KRG::Navmesh
         }
     }
 
-    void NavmeshDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void NavmeshDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {}
 }
 #endif

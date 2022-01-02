@@ -24,7 +24,7 @@ namespace KRG
 
             SkeletonLoader                  m_skeletonLoader;
             AnimationClipLoader             m_animationClipLoader;
-            AnimationGraphLoader            m_graphLoader;
+            GraphLoader            m_graphLoader;
             bool                            m_initialized = false;
         };
     }

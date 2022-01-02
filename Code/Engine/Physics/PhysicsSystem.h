@@ -11,6 +11,8 @@
 namespace KRG::Physics
 {
     class PhysicsMaterialDatabase;
+    class SimulationFilter;
+    class Scene;
 
     //-------------------------------------------------------------------------
     // Physics System
@@ -41,7 +43,7 @@ namespace KRG::Physics
         inline physx::PxPhysics* GetPxPhysics() const { return m_pPhysics; }
 
         // Scene factory method - transfers ownership of the scene to the calling code
-        physx::PxScene* CreateScene();
+        Scene* CreateScene();
 
         // Physic Materials
         //-------------------------------------------------------------------------
@@ -75,6 +77,7 @@ namespace KRG::Physics
         physx::PxAllocatorCallback*                     m_pAllocatorCallback = nullptr;
         physx::PxErrorCallback*                         m_pErrorCallback = nullptr;
         physx::PxSimulationEventCallback*               m_pEventCallbackHandler = nullptr;
+        SimulationFilter*                               m_pSimulationFilterCallback = nullptr;
 
         THashMap<StringID, PhysicsMaterial>             m_materials;
         physx::PxMaterial*                              m_pDefaultMaterial = nullptr;

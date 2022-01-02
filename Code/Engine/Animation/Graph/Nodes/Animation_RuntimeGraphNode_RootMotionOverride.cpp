@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void RootMotionOverrideNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void RootMotionOverrideNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<RootMotionOverrideNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_desiredHeadingVelocityNodeIdx, pNode->m_pDesiredHeadingVelocityNode );
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
         PassthroughNode::ShutdownInternal( context );
     }
 
-    void RootMotionOverrideNode::ModifyDisplacement( GraphContext& context, PoseNodeResult& NodeResult ) const
+    void RootMotionOverrideNode::ModifyDisplacement( GraphContext& context, GraphPoseNodeResult& NodeResult ) const
     {
         auto pSettings = GetSettings<RootMotionOverrideNode>();
         KRG_ASSERT( context.IsValid() && pSettings != nullptr );
@@ -160,16 +160,16 @@ namespace KRG::Animation::Graph
         #endif
     }
 
-    PoseNodeResult RootMotionOverrideNode::Update( GraphContext& context )
+    GraphPoseNodeResult RootMotionOverrideNode::Update( GraphContext& context )
     {
-        PoseNodeResult Result = PassthroughNode::Update( context );
+        GraphPoseNodeResult Result = PassthroughNode::Update( context );
         ModifyDisplacement( context, Result );
         return Result;
     }
 
-    PoseNodeResult RootMotionOverrideNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult RootMotionOverrideNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
-        PoseNodeResult Result = PassthroughNode::Update( context, updateRange );
+        GraphPoseNodeResult Result = PassthroughNode::Update( context, updateRange );
         ModifyDisplacement( context, Result );
         return Result;
     }

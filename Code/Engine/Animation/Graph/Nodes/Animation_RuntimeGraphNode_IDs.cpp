@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void IDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void IDComparisonNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<IDComparisonNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -56,7 +56,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void IDToFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void IDToFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<IDToFloatNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );

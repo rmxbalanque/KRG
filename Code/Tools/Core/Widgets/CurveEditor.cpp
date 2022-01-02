@@ -182,7 +182,7 @@ namespace KRG
 
     void CurveEditor::DrawGrid()
     {
-        InlineString<10> legendString;
+        TInlineString<10> legendString;
         m_pDrawList->AddRectFilled( m_canvasStart, m_canvasEnd, ImGuiX::Style::s_gridBackgroundColor );
 
         int32 const numVerticalLines = Math::FloorToInt( m_curveCanvasWidth / s_pixelsPerGridBlock );
@@ -260,7 +260,7 @@ namespace KRG
         m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveInTangentHandleColor );
 
         // Draw handle button
-        InlineString<50> tangentHandleID;
+        TInlineString<50> tangentHandleID;
         tangentHandleID.sprintf( "in_%u", point.m_ID );
         ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
         ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
@@ -325,7 +325,7 @@ namespace KRG
         m_pDrawList->AddCircleFilled( tangentHandleCenter, s_handleRadius, s_curveOutTangentHandleColor );
 
         // Draw handle button
-        InlineString<50> tangentHandleID;
+        TInlineString<50> tangentHandleID;
         tangentHandleID.sprintf( "out_%u", point.m_ID );
         ImGui::SetCursorScreenPos( tangentHandleCenter - Float2( s_handleRadius, s_handleRadius ) );
         ImGui::InvisibleButton( tangentHandleID.c_str(), ImVec2( 2 * s_handleRadius, 2 * s_handleRadius ) );
@@ -382,7 +382,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        InlineString<50> pointHandleID;
+        TInlineString<50> pointHandleID;
         pointHandleID.sprintf( "point_%u", point.m_ID );
 
         ImGui::SetCursorScreenPos( pointCenter - Float2( s_handleRadius, s_handleRadius ) );

@@ -8,6 +8,7 @@
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/DebugViews/DebugView_Resource.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Render/Debug/DebugView_Render.h"
 
 //-------------------------------------------------------------------------
@@ -194,7 +195,8 @@ namespace KRG
     {
         for ( auto pWorkspace : m_context.GetWorkspaces() )
         {
-            pWorkspace->Update( context );
+            EntityWorldUpdateContext updateContext( context, pWorkspace->GetWorld() );
+            pWorkspace->Update( updateContext );
         }
     }
 
@@ -284,7 +286,7 @@ namespace KRG
         float const currentFPS = 1.0f / context.GetDeltaTime();
         float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
 
-        InlineString<100> const perfStats( InlineString<100>::CtorSprintf(), "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
+        TInlineString<100> const perfStats( TInlineString<100>::CtorSprintf(), "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
         ImGui::SameLine( menuDimensions.x - 8 - ImGui::CalcTextSize( perfStats.c_str() ).x );
         ImGui::Text( perfStats.c_str() );
     }

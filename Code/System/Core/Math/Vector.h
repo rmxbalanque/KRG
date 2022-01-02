@@ -44,7 +44,6 @@ namespace KRG
         static Vector const PiDivTwo;
         static Vector const TwoPi;
         static Vector const OneDivTwoPi;
-        static Vector const NoScale;
 
         static Vector const Select0000;
         static Vector const Select0001;
@@ -125,7 +124,7 @@ namespace KRG
 
         KRG_FORCE_INLINE Vector() {}
         KRG_FORCE_INLINE explicit Vector( Axis axis );
-        KRG_FORCE_INLINE explicit Vector( ZeroInit ) { memset( this, 0, sizeof( Vector ) ); }
+        KRG_FORCE_INLINE explicit Vector( ZeroInit_t ) { memset( this, 0, sizeof( Vector ) ); }
         KRG_FORCE_INLINE explicit Vector( float v ) { m_data = _mm_shuffle_ps( _mm_load_ss( &v ), _mm_load_ss( &v ), _MM_SHUFFLE( 0, 0, 0, 0 ) ); }
         KRG_FORCE_INLINE Vector( __m128 v ) : m_data( v ) {}
         KRG_FORCE_INLINE Vector( float ix, float iy, float iz, float iw = 1.0f ) { m_data = _mm_set_ps( iw, iz, iy, ix ); }

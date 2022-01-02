@@ -1,11 +1,11 @@
-#include "Animation_RuntimeGraphTask_Blend.h"
+#include "Animation_Task_Blend.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
-    BlendTask::BlendTask( NodeIndex sourceNodeIdx, TaskIndex sourceTaskIdx, TaskIndex targetTaskIdx, float const blendWeight, TBitFlags<PoseBlendOptions> blendOptions, BoneMask const* pBoneMask )
-        : Task( sourceNodeIdx, UpdateStage::Any, { sourceTaskIdx, targetTaskIdx } )
+    BlendTask::BlendTask( TaskSourceID sourceID, TaskIndex sourceTaskIdx, TaskIndex targetTaskIdx, float const blendWeight, TBitFlags<PoseBlendOptions> blendOptions, BoneMask const* pBoneMask )
+        : Task( sourceID, TaskUpdateStage::Any, { sourceTaskIdx, targetTaskIdx } )
         , m_blendWeight( blendWeight )
         , m_pBoneMask( pBoneMask )
         , m_blendOptions( blendOptions )

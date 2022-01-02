@@ -7,7 +7,7 @@
 namespace KRG
 {
     class OrbitCameraComponent;
-    class EntityUpdateContext;
+    class EntityWorldUpdateContext;
 }
 
 //-------------------------------------------------------------------------
@@ -20,7 +20,7 @@ namespace KRG::Player
 
         CameraController( OrbitCameraComponent* pCamera );
 
-        void UpdateCamera( EntityUpdateContext const& ctx );
+        void UpdateCamera( EntityWorldUpdateContext const& ctx );
         void FinalizeCamera();
 
         Vector const& GetCameraPosition() const;

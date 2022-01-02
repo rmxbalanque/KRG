@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Animation/_Module/API.h"
+#include "Engine/Animation/TaskSystem/Animation_TaskSystem.h"
 #include "Engine/Core/Entity/EntityWorldDebugView.h"
 #include "Engine/Core/Entity/EntityIDs.h"
 
@@ -11,12 +12,39 @@ namespace KRG::Animation
 {
     class AnimationWorldSystem;
     class AnimationGraphComponent;
+    class TaskSystem;
+    class RootMotionActionRecorder;
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API AnimationDebugView : public EntityWorldDebugView
     {
         KRG_REGISTER_TYPE( AnimationDebugView );
+
+        struct ComponentDebugSettings
+        {
+            ComponentDebugSettings( ComponentID ID )
+                : m_ID( ID )
+            {}
+
+            ComponentID             m_ID;
+            bool                    m_drawRoot = false;
+            bool                    m_drawRecordedRootMotion = false;
+            bool                    m_drawControlParameters = false;
+            bool                    m_drawActiveTasks = false;
+            bool                    m_drawSampledEvents = false;
+        };
+
+    public:
+
+        static void DrawGraphControlParameters( AnimationGraphComponent* pGraphComponent );
+        static void DrawGraphActiveTasksDebugView( AnimationGraphComponent* pGraphComponent );
+        static void DrawGraphSampledEventsView( AnimationGraphComponent* pGraphComponent );
+
+    private:
+
+        static void DrawTaskTreeRow( AnimationGraphComponent* pGraphComponent, TaskSystem* pTaskSystem, TaskIndex currentTaskIdx );
+        static void DrawRootMotionRow( AnimationGraphComponent* pGraphComponent, RootMotionActionRecorder* pRootMotionRecorder, int16 currentActionIdx );
 
     public:
 
@@ -26,17 +54,19 @@ namespace KRG::Animation
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawOverlayElements( EntityWorldUpdateContext const& context ) override;
 
-        void DrawMenu( EntityUpdateContext const& context );
+        ComponentDebugSettings* GetDebugSettings( ComponentID ID );
+        void DestroyDebugSettings( ComponentID ID );
 
-        bool DrawControlParameters( AnimationGraphComponent* pGraphComponent );
+        void DrawMenu( EntityWorldUpdateContext const& context );
 
     private:
 
         EntityWorld const*                      m_pWorld = nullptr;
         AnimationWorldSystem*                   m_pAnimationWorldSystem = nullptr;
-        TVector<ComponentID>                    m_activeControlParameterDebuggers;
+        TVector<ComponentDebugSettings>         m_componentDebugSettings;
     };
 }
 #endif

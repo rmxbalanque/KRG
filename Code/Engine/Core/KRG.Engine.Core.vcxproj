@@ -75,7 +75,7 @@
     <ClInclude Include="ToolsUI\IToolsUI.h" />
     <ClInclude Include="Entity\EntityActivationContext.h" />
     <ClInclude Include="Entity\EntityLoadingContext.h" />
-    <ClInclude Include="Entity\EntityUpdateContext.h" />
+    <ClInclude Include="Entity\EntityWorldUpdateContext.h" />
     <ClInclude Include="Entity\EntityCollection.h" />
     <ClInclude Include="Entity\EntityCollectionDescriptor.h" />
     <ClInclude Include="DebugViews\DebugView_EntityWorld.h" />
@@ -118,7 +118,7 @@
     <ClCompile Include="Entity\EntityComponent.cpp" />
     <ClCompile Include="Entity\EntityDescriptors.cpp" />
     <ClCompile Include="Entity\EntitySpatialComponent.cpp" />
-    <ClCompile Include="Entity\EntityUpdateContext.cpp" />
+    <ClCompile Include="Entity\EntityWorldUpdateContext.cpp" />
     <ClCompile Include="Entity\EntityWorld.cpp" />
     <ClCompile Include="Entity\EntityWorldManager.cpp" />
     <ClCompile Include="Entity\EntityWorldSystem.cpp" />

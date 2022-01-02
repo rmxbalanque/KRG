@@ -7,9 +7,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    GraphVariationEditor::GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, AnimationGraphEditorDefinition* pGraphDefinition )
+    GraphVariationEditor::GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, EditorGraphDefinition* pGraphDefinition )
         : m_pGraphDefinition( pGraphDefinition )
         , m_resourcePicker( *pResourceDatabase )
     {
@@ -82,7 +82,7 @@ namespace KRG::Animation::Graph
                 StartCreate( variationID );
             }
 
-            if ( variationID != AnimationGraphVariation::DefaultVariationID )
+            if ( variationID != GraphVariation::DefaultVariationID )
             {
                 ImGui::Separator();
 
@@ -119,7 +119,7 @@ namespace KRG::Animation::Graph
 
     void GraphVariationEditor::DrawVariationTree()
     {
-        DrawVariationTreeNode( m_pGraphDefinition->GetVariationHierarchy(), AnimationGraphVariation::DefaultVariationID );
+        DrawVariationTreeNode( m_pGraphDefinition->GetVariationHierarchy(), GraphVariation::DefaultVariationID );
     }
 
     void GraphVariationEditor::DrawOverridesTable()
@@ -175,6 +175,7 @@ namespace KRG::Animation::Graph
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
+                ImGui::AlignTextToFramePadding();
                 if ( !isDefaultVariationSelected && hasOverrideForVariation )
                 {
                     ImGui::TextColored( ImVec4( 0, 1, 0, 1 ), pDataSlotNode->GetDisplayName() );
@@ -193,7 +194,7 @@ namespace KRG::Animation::Graph
                 if ( isDefaultVariationSelected )
                 {
                     ResourceID* pResourceID = pDataSlotNode->GetOverrideValueForVariation( currentVariationID );
-                    if ( m_resourcePicker.DrawPicker( AnimationClip::GetStaticResourceTypeID(), pResourceID ) )
+                    if ( m_resourcePicker.DrawPicker( pDataSlotNode->GetSlotResourceTypeID(), pResourceID) )
                     {
                         VisualGraph::ScopedGraphModification sgm( m_pGraphDefinition->GetRootGraph() );
                         *pResourceID = m_resourcePicker.GetSelectedResourceID();
@@ -396,7 +397,7 @@ namespace KRG::Animation::Graph
 
                 if ( ImGui::Button( "Yes", ImVec2( 30, 0 ) ) )
                 {
-                    KRG_ASSERT( m_activeOperationVariationID != AnimationGraphVariation::DefaultVariationID );
+                    KRG_ASSERT( m_activeOperationVariationID != GraphVariation::DefaultVariationID );
 
                     // Update selection
                     auto const pVariation = m_pGraphDefinition->GetVariation( m_activeOperationVariationID );

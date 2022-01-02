@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API VectorInfoNode final : public FloatValueNode
     {
@@ -32,9 +32,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_inputValueNodeIdx, m_desiredInfo );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
             Info                        m_desiredInfo = Info::X;
         };
 
@@ -61,9 +61,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( VectorValueNode::Settings, m_inputValueNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
         };
 
     private:

@@ -49,6 +49,28 @@ namespace KRG::Math
             return verticalFOV;
         }
 
+        // Set of world space corners for the view volume
+        // Order: Near BL, Near TL, Near TR, Near BR, Far BL, Far TL, Far TR, Far BR
+        union VolumeCorners
+        {
+            #if KRG_DEVELOPMENT_TOOLS
+            void DrawDebug( Drawing::DrawContext& drawingContext ) const;
+            #endif
+
+            struct
+            {
+                Vector m_nearBL;
+                Vector m_nearTL;
+                Vector m_nearTR;
+                Vector m_nearBR;
+                Vector m_farBL;
+                Vector m_farTL;
+                Vector m_farTR;
+                Vector m_farBR;
+            };
+            Vector m_points[8] = {};
+        };
+
     public:
 
         ViewVolume() {} // Warning: Leaves most members uninitialized!
@@ -95,16 +117,15 @@ namespace KRG::Math
 
         inline Plane const& GetViewPlane( PlaneID p ) const { return GetViewPlane( (uint32) p ); }
         inline Plane const& GetViewPlane( uint32 p ) const { KRG_ASSERT( p < 6 ); return m_viewPlanes[p]; }
-        inline void GetCorners( Vector corners[8] ) const; // The first 4 points are the near plane corners, the last 4 are the far plane corners
+        inline VolumeCorners GetCorners() const; // The first 4 points are the near plane corners, the last 4 are the far plane corners
 
         // Bounds and Intersection tests
         //-------------------------------------------------------------------------
 
         inline AABB GetAABB() const
         {
-            Vector corners[8];
-            GetCorners( corners );
-            return AABB( corners, 8 );
+            VolumeCorners const corners = GetCorners();
+            return AABB( corners.m_points, 8 );
         }
 
         OBB GetOBB() const;
@@ -142,4 +163,12 @@ namespace KRG::Math
         FloatRange              m_depthRange = FloatRange( 0 );         // The distance from the volume origin of the near/far planes ( X = near plane, Y = far plane )
         ProjectionType          m_type = ProjectionType::Perspective;   // The projection type
     };
+
+    //-------------------------------------------------------------------------
+
+    // Creates a right-handed perspective projection matrix
+    KRG_SYSTEM_CORE_API Matrix CreatePerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlaneZ, float farPlaneZ );
+
+    // Creates a right handed orthographic projection matrix
+    KRG_SYSTEM_CORE_API Matrix CreateOrthographicProjectionMatrix( float width, float height, float nearPlaneZ, float farPlaneZ );
 }

@@ -65,7 +65,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        InlineString<5> extension = resourceTypeID.ToString();
+        TInlineString<5> extension = resourceTypeID.ToString();
         extension.make_lower();
 
         FileSystem::Path newDescriptorPath = m_filePath;
@@ -73,7 +73,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        InlineString<10> const filter( InlineString<10>::CtorSprintf(), "*.%s", extension.c_str() );
+        TInlineString<10> const filter( TInlineString<10>::CtorSprintf(), "*.%s", extension.c_str() );
         pfd::save_file saveDialog( "Save Resource Descriptor", newDescriptorPath.c_str(), { "Descriptor", filter.c_str() } );
         newDescriptorPath = saveDialog.result().c_str();
 

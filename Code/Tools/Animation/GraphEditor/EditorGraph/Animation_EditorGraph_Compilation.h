@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     enum NodeCompilationState
     {
@@ -15,10 +15,10 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    class EditorGraphCompilationContext : public AnimationGraphDefinition
+    class EditorGraphCompilationContext : public GraphDefinition
     {
         friend class AnimationGraphCompiler;
-        friend class AnimationGraphEditorDefinition;
+        friend class EditorGraphDefinition;
 
     public:
 
@@ -42,8 +42,7 @@ namespace KRG::Animation::Graph
 
         inline TVector<LogEntry> const& GetLog() const { return m_log; }
 
-
-        inline THashMap<UUID, NodeIndex> GetIDToIndexMap() const { return m_nodeToIndexMap; }
+        inline THashMap<UUID, GraphNodeIndex> GetIDToIndexMap() const { return m_nodeToIndexMap; }
 
         void LogMessage( VisualGraph::BaseNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Message, pNode->GetID(), message ) ); }
         void LogWarning( VisualGraph::BaseNode const* pNode, String const& message ) { m_log.emplace_back( LogEntry( Log::Severity::Warning, pNode->GetID(), message ) ); }
@@ -68,13 +67,14 @@ namespace KRG::Animation::Graph
             KRG_ASSERT( m_nodeSettings.size() < 0xFFFF );
             pOutSettings = KRG::New<T::Settings>();
             m_nodeSettings.emplace_back( pOutSettings );
-            pOutSettings->m_nodeIdx = NodeIndex( m_nodeSettings.size() - 1 );
+            m_compiledNodePaths.emplace_back( pNode->GetPathFromRoot() );
+            pOutSettings->m_nodeIdx = GraphNodeIndex( m_nodeSettings.size() - 1 );
 
             // Add to map
-            m_nodeToIndexMap.insert( TPair<UUID, NodeIndex>( pNode->GetID(), pOutSettings->m_nodeIdx ) );
+            m_nodeToIndexMap.insert( TPair<UUID, GraphNodeIndex>( pNode->GetID(), pOutSettings->m_nodeIdx ) );
 
             // Add to persistent nodes list
-            auto pFlowNode = TryCast<EditorGraphNode>( pNode );
+            auto pFlowNode = TryCast<GraphNodes::EditorGraphNode>( pNode );
             if ( pFlowNode != nullptr && pFlowNode->IsPersistentNode() )
             {
                 m_persistentNodeIndices.emplace_back( pOutSettings->m_nodeIdx );
@@ -103,7 +103,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         // Start compilation of a transition conduit
-        inline void BeginConduitCompilation( NodeIndex sourceStateNodeIdx )
+        inline void BeginConduitCompilation( GraphNodeIndex sourceStateNodeIdx )
         {
             KRG_ASSERT( m_conduitSourceStateCompiledNodeIdx == InvalidIndex );
             KRG_ASSERT( sourceStateNodeIdx != InvalidIndex );
@@ -118,19 +118,19 @@ namespace KRG::Animation::Graph
         }
 
         // Some nodes optionally need the conduit index so we need to have a way to know what mode we are in
-        inline NodeIndex IsCompilingConduit() const
+        inline GraphNodeIndex IsCompilingConduit() const
         {
             return m_conduitSourceStateCompiledNodeIdx != InvalidIndex;
         }
 
-        inline NodeIndex GetConduitSourceStateIndex() const 
+        inline GraphNodeIndex GetConduitSourceStateIndex() const 
         {
             KRG_ASSERT( m_conduitSourceStateCompiledNodeIdx != InvalidIndex );
             return m_conduitSourceStateCompiledNodeIdx; 
         }
 
         // Start compilation of a transition conduit
-        inline void BeginTransitionConditionsCompilation( Seconds transitionDuration, NodeIndex transitionDurationOverrideIdx )
+        inline void BeginTransitionConditionsCompilation( Seconds transitionDuration, GraphNodeIndex transitionDurationOverrideIdx )
         {
             KRG_ASSERT( m_conduitSourceStateCompiledNodeIdx != InvalidIndex );
             m_transitionDuration = transitionDuration;
@@ -145,7 +145,7 @@ namespace KRG::Animation::Graph
             m_transitionDurationOverrideIdx = InvalidIndex;
         }
 
-        inline NodeIndex GetCompiledTransitionDurationOverrideIdx() const
+        inline GraphNodeIndex GetCompiledTransitionDurationOverrideIdx() const
         {
             KRG_ASSERT( m_conduitSourceStateCompiledNodeIdx != InvalidIndex );
             return m_transitionDurationOverrideIdx;
@@ -164,12 +164,13 @@ namespace KRG::Animation::Graph
 
     private:
 
-        THashMap<UUID, NodeIndex>               m_nodeToIndexMap;
+        THashMap<UUID, GraphNodeIndex>          m_nodeToIndexMap;
+        TVector<String>                         m_compiledNodePaths;
         uint32                                  m_currentNodeMemoryOffset = 0;
         TVector<LogEntry>                       m_log;
         TVector<UUID>                           m_registeredDataSlots;
-        NodeIndex                               m_conduitSourceStateCompiledNodeIdx = InvalidIndex;
+        GraphNodeIndex                          m_conduitSourceStateCompiledNodeIdx = InvalidIndex;
         Seconds                                 m_transitionDuration = 0;
-        NodeIndex                               m_transitionDurationOverrideIdx = InvalidIndex;
+        GraphNodeIndex                          m_transitionDurationOverrideIdx = InvalidIndex;
     };
 }

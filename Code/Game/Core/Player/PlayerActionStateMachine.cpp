@@ -100,8 +100,8 @@ namespace KRG::Player
                 if ( m_baseActions[transition.m_targetStateID]->TryStart( m_actionContext ) )
                 {
                     #if KRG_DEVELOPMENT_TOOLS
-                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), ( activeStateStatus == Action::Status::Completed ) ? LoggedStatus::ActionCompleted : LoggedStatus::ActionInterrupted );
-                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[transition.m_targetStateID]->GetName(), LoggedStatus::ActionStarted );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), ( activeStateStatus == Action::Status::Completed ) ? LoggedStatus::ActionCompleted : LoggedStatus::ActionInterrupted );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[transition.m_targetStateID]->GetName(), LoggedStatus::ActionStarted );
                     #endif
 
                     // Stop the currently active state
@@ -170,7 +170,7 @@ namespace KRG::Player
             KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
             #if KRG_DEVELOPMENT_TOOLS
-            m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );
+            m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );
             #endif
         }
 
@@ -188,7 +188,7 @@ namespace KRG::Player
                     pOverlayAction->Stop( m_actionContext, Action::StopReason::Completed );
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionCompleted, false );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionCompleted, false );
                     #endif
                 }
             }
@@ -199,7 +199,7 @@ namespace KRG::Player
                 KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
                 #if KRG_DEVELOPMENT_TOOLS
-                m_actionLog.emplace_back( m_actionContext.m_pEntityUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionStarted, false );
+                m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionStarted, false );
                 #endif
             }
         }

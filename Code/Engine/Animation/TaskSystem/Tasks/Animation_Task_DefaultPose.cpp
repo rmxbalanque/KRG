@@ -1,11 +1,11 @@
-#include "Animation_RuntimeGraphTask_DefaultPose.h"
+#include "Animation_Task_DefaultPose.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
-    DefaultPoseTask::DefaultPoseTask( NodeIndex sourceNodeIdx, Pose::InitialState type )
-        : Task( sourceNodeIdx )
+    DefaultPoseTask::DefaultPoseTask( TaskSourceID sourceID, Pose::InitialState type )
+        : Task( sourceID )
         , m_type( type )
     {}
 

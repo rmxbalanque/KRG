@@ -155,7 +155,7 @@ namespace KRG::Render
         inline Byte const* GetAtlasData() const { return m_atlasData.data(); }
 
         // Get a list of glyphs indices that correspond to the supplied string
-        void GetGlyphsForString( uint32 fontIdx, InlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const;
+        void GetGlyphsForString( uint32 fontIdx, TInlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const;
 
         // Get a list of glyphs indices that correspond to the supplied string
         void GetGlyphsForString( uint32 fontIdx, char const* pStr, TInlineVector<int32, 100>& outGlyphIndices ) const;

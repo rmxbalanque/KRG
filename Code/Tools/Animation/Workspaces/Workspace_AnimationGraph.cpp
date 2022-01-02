@@ -7,21 +7,22 @@
 #include "Engine/Animation/Components/Component_AnimationGraph.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    KRG_RESOURCE_WORKSPACE_FACTORY( AnimationGraphEditorFactory, AnimationGraphDefinition, AnimationGraphWorkspace );
+    KRG_RESOURCE_WORKSPACE_FACTORY( AnimationGraphEditorFactory, GraphDefinition, AnimationGraphWorkspace );
 
     //-------------------------------------------------------------------------
 
-    static InlineString<255> GenerateFilePathForVariation( FileSystem::Path const& graphPath, StringID variationID )
+    static InlineString GenerateFilePathForVariation( FileSystem::Path const& graphPath, StringID variationID )
     {
         FileSystem::Path const parentDirectory = graphPath.GetParentDirectory();
         String const filenameNoExtension = graphPath.GetFileNameWithoutExtension();
 
-        InlineString<255> variationPathStr;
+        InlineString variationPathStr;
         variationPathStr.sprintf( "%s%s_%s.agv", parentDirectory.c_str(), filenameNoExtension.c_str(), variationID.c_str() );
         return variationPathStr;
     }
@@ -32,7 +33,7 @@ namespace KRG::Animation::Graph
     {
     public:
 
-        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphEditorDefinition* pEditorGraph )
+        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pEditorGraph )
             : m_typeRegistry( typeRegistry )
             , m_pGraphDefinition( pEditorGraph )
         {
@@ -72,7 +73,7 @@ namespace KRG::Animation::Graph
     private:
 
         TypeSystem::TypeRegistry const&     m_typeRegistry;
-        AnimationGraphEditorDefinition*      m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*              m_pGraphDefinition = nullptr;
         String                              m_valueBefore;
         String                              m_valueAfter;
     };
@@ -80,9 +81,12 @@ namespace KRG::Animation::Graph
     //-------------------------------------------------------------------------
 
     AnimationGraphWorkspace::AnimationGraphWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID )
-        : TResourceWorkspace<AnimationGraphDefinition>( context, pWorld, resourceID, false )
+        : TResourceWorkspace<GraphDefinition>( context, pWorld, resourceID, false )
         , m_propertyGrid( *context.m_pTypeRegistry, *context.m_pResourceDatabase )
     {
+        SetViewportCameraSpeed( 10.0f );
+        SetWorldTimeControlsEnabled( true );
+
         // Load graph from descriptor
         //-------------------------------------------------------------------------
 
@@ -99,7 +103,7 @@ namespace KRG::Animation::Graph
             }
 
             // Try to load the graph from the file
-            m_pGraphDefinition = KRG::New<AnimationGraphEditorDefinition>();
+            m_pGraphDefinition = KRG::New<EditorGraphDefinition>();
             graphLoadFailed = !m_pGraphDefinition->LoadFromJson( *m_pTypeRegistry, reader.GetDocument() );
 
             // Load failed, so clean up and create a new graph
@@ -107,7 +111,7 @@ namespace KRG::Animation::Graph
             {
                 KRG_LOG_ERROR( "Animation", "Failed to load graph definition: %s", m_graphFilePath.c_str() );
                 KRG::Delete( m_pGraphDefinition );
-                m_pGraphDefinition = KRG::New<AnimationGraphEditorDefinition>();
+                m_pGraphDefinition = KRG::New<EditorGraphDefinition>();
                 m_pGraphDefinition->CreateNew();
             }
         }
@@ -179,7 +183,7 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphWorkspace::Initialize( UpdateContext const& context )
     {
-        TResourceWorkspace<AnimationGraphDefinition>::Initialize( context );
+        TResourceWorkspace<GraphDefinition>::Initialize( context );
 
         m_controlParametersWindowName.sprintf( "Control Parameters##%u", GetID() );
         m_graphViewWindowName.sprintf( "Graph View##%u", GetID() );
@@ -242,16 +246,39 @@ namespace KRG::Animation::Graph
 
     void AnimationGraphWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
     {
+        ImGui::SetNextItemWidth( 46 );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
+        if ( ImGui::BeginCombo( "##RagdollOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
+        {
+            ImGui::MenuItem( "Apply Root Motion", nullptr, &m_applyRootMotion );
+
+            ImGuiX::TextSeparator( "Visualization" );
+            ImGui::MenuItem( "Draw Root", nullptr, &m_drawRoot );
+            ImGui::MenuItem( "Draw Recorded Root Motion", nullptr, &m_drawRecordedRootMotion );
+
+            ImGuiX::TextSeparator( "Pose Debug" );
+            //stateUpdated |= ImGui::RadioButton( "None", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Lighting );
+            //stateUpdated |= ImGui::RadioButton( "Final Pose", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Albedo );
+            //stateUpdated |= ImGui::RadioButton( "Pose Tree", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Normals );
+
+            ImGui::EndCombo();
+        }
+        ImGui::PopStyleVar();
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SameLine();
+
         if ( IsPreviewing() )
         {
-            if ( ImGui::Button( "Stop Preview" ) )
+            if ( ImGui::Button( KRG_ICON_STOP"Stop Preview" ) )
             {
                 StopPreview();
             }
         }
         else
         {
-            if ( ImGui::Button( "Start Preview" ) )
+            if ( ImGui::Button( KRG_ICON_PLAY"Start Preview" ) )
             {
                 StartPreview();
             }
@@ -267,11 +294,11 @@ namespace KRG::Animation::Graph
         auto const& variations = m_pGraphDefinition->GetVariationHierarchy();
         for ( auto const& variation : variations.GetAllVariations() )
         {
-            AnimationGraphVariationResourceDescriptor resourceDesc;
+            GraphVariationResourceDescriptor resourceDesc;
             resourceDesc.m_graphPath = GetResourcePath( m_graphFilePath );
             resourceDesc.m_variationID = variation.m_ID;
 
-            InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, variation.m_ID );
+            InlineString const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, variation.m_ID );
             FileSystem::Path const variationPath( variationPathStr.c_str() );
 
             WriteResourceDescriptorToFile( *m_pTypeRegistry, variationPath, &resourceDesc );
@@ -345,7 +372,7 @@ namespace KRG::Animation::Graph
         // Graph Component
         //-------------------------------------------------------------------------
 
-        InlineString<255> const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, m_selectedVariationID );
+        InlineString const variationPathStr = GenerateFilePathForVariation( m_graphFilePath, m_selectedVariationID );
         ResourceID const graphVariationResourceID( GetResourcePath( variationPathStr.c_str()) );
 
         m_pGraphComponent = KRG::New<AnimationGraphComponent>( StringID( "Animation Component" ) );
@@ -398,5 +425,26 @@ namespace KRG::Animation::Graph
         m_debugContext.m_nodeIDtoIndexMap.clear();
 
         m_isPreviewing = false;
+    }
+
+    void AnimationGraphWorkspace::Update( EntityWorldUpdateContext const& updateContext )
+    {
+        bool const isWorldPaused = updateContext.GetDeltaTime() <= 0.0f;
+        if ( !m_isPreviewing || isWorldPaused )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( updateContext.GetUpdateStage() == UpdateStage::FrameEnd )
+        {
+            if ( m_applyRootMotion )
+            {
+                Transform const& WT = m_pPreviewEntity->GetWorldTransform();
+                Transform const& RMD = m_pGraphComponent->GetRootMotionDelta();
+                m_pPreviewEntity->SetWorldTransform( RMD * WT );
+            }
+        }
     }
 }

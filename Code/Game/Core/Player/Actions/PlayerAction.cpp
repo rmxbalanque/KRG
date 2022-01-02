@@ -10,7 +10,7 @@ namespace KRG::Player
 {
     ActionContext::~ActionContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsWorld == nullptr && m_pCharacterController == nullptr );
+        KRG_ASSERT( m_pEntityWorldUpdateContext == nullptr && m_pInputSystem == nullptr && m_pPhysicsScene == nullptr && m_pCharacterController == nullptr );
         KRG_ASSERT( m_pCharacterComponent == nullptr && m_pCharacterController == nullptr );
         KRG_ASSERT( m_pPlayerComponent == nullptr && m_pAnimationController == nullptr && m_pCameraController == nullptr );
     }
@@ -32,6 +32,6 @@ namespace KRG::Player
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pCameraController != nullptr && m_pInputSystem != nullptr && m_pPhysicsWorld != nullptr && m_pCharacterController != nullptr;
+        return m_pEntityWorldUpdateContext != nullptr && m_pCameraController != nullptr && m_pInputSystem != nullptr && m_pPhysicsScene != nullptr && m_pCharacterController != nullptr;
     }
 }

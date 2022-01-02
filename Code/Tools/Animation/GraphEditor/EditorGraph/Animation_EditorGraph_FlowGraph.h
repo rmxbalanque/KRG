@@ -5,216 +5,225 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class EditorGraphCompilationContext;
+    class EditorGraphDefinition;
     class VariationHierarchy;
 
     //-------------------------------------------------------------------------
     // CORE EDITOR NODES
     //-------------------------------------------------------------------------
 
-    class EditorGraphNode : public VisualGraph::Flow::Node
+    namespace GraphNodes
     {
-        KRG_REGISTER_TYPE( EditorGraphNode );
-
-    public:
-
-        using VisualGraph::Flow::Node::Node;
-
-        // Get the type of node this is, this is either the output type for the nodes with output or the first input for nodes with no outputs
-        KRG_FORCE_INLINE ValueType GetValueType() const
+        class EditorGraphNode : public VisualGraph::Flow::Node
         {
-            if ( GetNumOutputPins() > 0 )
+            KRG_REGISTER_TYPE( EditorGraphNode );
+
+        public:
+
+            using VisualGraph::Flow::Node::Node;
+
+            // Get the type of node this is, this is either the output type for the nodes with output or the first input for nodes with no outputs
+            KRG_FORCE_INLINE GraphValueType GetValueType() const
             {
-                return ValueType( GetOutputPin( 0 )->m_type );
+                if ( GetNumOutputPins() > 0 )
+                {
+                    return GraphValueType( GetOutputPin( 0 )->m_type );
+                }
+                else if ( GetNumInputPins() > 0 )
+                {
+                    return GraphValueType( GetInputPin( 0 )->m_type );
+                }
+                else
+                {
+                    return GraphValueType::Unknown;
+                }
             }
-            else if ( GetNumInputPins() > 0 )
-            {
-                return ValueType( GetInputPin( 0 )->m_type );
-            }
-            else
-            {
-                return ValueType::Unknown;
-            }
-        }
 
-        virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( GetColorForValueType( GetValueType() ) ); }
+            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( GetColorForValueType( GetValueType() ) ); }
 
-        virtual ImColor GetPinColor( VisualGraph::Flow::Pin const& pin ) const override { return ImGuiX::ConvertColor( GetColorForValueType( (ValueType) pin.m_type ) ); }
+            virtual ImColor GetPinColor( VisualGraph::Flow::Pin const& pin ) const override { return ImGuiX::ConvertColor( GetColorForValueType( (GraphValueType) pin.m_type ) ); }
 
-        // Get the types of graphs that this node is allowed to be placed in
-        virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const = 0;
+            // Get the types of graphs that this node is allowed to be placed in
+            virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const = 0;
 
-        // Is this node a persistent node i.e. is it always initialized 
-        virtual bool IsPersistentNode() const { return false; }
+            // Is this node a persistent node i.e. is it always initialized 
+            virtual bool IsPersistentNode() const { return false; }
 
-        // Compile this node into its runtime representation. Returns the node index of the compiled node.
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const { return InvalidIndex; }
+            // Compile this node into its runtime representation. Returns the node index of the compiled node.
+            virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const { return InvalidIndex; }
 
-    protected:
+        protected:
 
-        KRG_FORCE_INLINE void CreateInputPin( char const* pPinName, ValueType pinType ) { VisualGraph::Flow::Node::CreateInputPin( pPinName, (uint32) pinType ); }
-        KRG_FORCE_INLINE void CreateOutputPin( char const* pPinName, ValueType pinType, bool allowMultipleOutputConnections = false ) { VisualGraph::Flow::Node::CreateOutputPin( pPinName, (uint32) pinType, allowMultipleOutputConnections ); }
+            KRG_FORCE_INLINE void CreateInputPin( char const* pPinName, GraphValueType pinType ) { VisualGraph::Flow::Node::CreateInputPin( pPinName, (uint32) pinType ); }
+            KRG_FORCE_INLINE void CreateOutputPin( char const* pPinName, GraphValueType pinType, bool allowMultipleOutputConnections = false ) { VisualGraph::Flow::Node::CreateOutputPin( pPinName, (uint32) pinType, allowMultipleOutputConnections ); }
 
-        virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
+            virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
-        // Draw any extra information about the node
-        virtual void DrawInfoText( VisualGraph::DrawContext const& ctx ) {}
-    };
-
-    class DataSlotEditorNode : public EditorGraphNode
-    {
-        KRG_REGISTER_TYPE( DataSlotEditorNode );
-
-    public:
-
-        struct OverrideValue : public IRegisteredType
-        {
-            KRG_REGISTER_TYPE( OverrideValue );
-
-            KRG_REGISTER StringID               m_variationID;
-            KRG_REGISTER ResourceID             m_resourceID;
+            // Draw any extra information about the node
+            virtual void DrawInfoText( VisualGraph::DrawContext const& ctx ) {}
         };
 
-    public:
+        class DataSlotEditorNode : public EditorGraphNode
+        {
+            KRG_REGISTER_TYPE( DataSlotEditorNode );
 
-        bool AreSlotValuesValid() const;
-        virtual ResourceTypeID GetSlotResourceType() const { return ResourceTypeID(); }
+        public:
 
-        // This will return the final resolved resource value for this slot
-        ResourceID GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const;
+            struct OverrideValue : public IRegisteredType
+            {
+                KRG_REGISTER_TYPE( OverrideValue );
 
-        // Variation override management
-        //-------------------------------------------------------------------------
+                KRG_REGISTER StringID               m_variationID;
+                KRG_REGISTER ResourceID             m_resourceID;
+            };
 
-        bool HasOverrideForVariation( StringID variationID ) const { return GetOverrideValueForVariation( variationID ) != nullptr; }
-        ResourceID* GetOverrideValueForVariation( StringID variationID );
-        ResourceID const* GetOverrideValueForVariation( StringID variationID ) const { return const_cast<DataSlotEditorNode*>( this )->GetOverrideValueForVariation( variationID ); }
+        public:
 
-        void CreateOverride( StringID variationID );
-        void RenameOverride( StringID oldVariationID, StringID newVariationID );
-        void RemoveOverride( StringID variationID );
-        void SetOverrideValueForVariation( StringID variationID, ResourceID const& resourceID );
+            bool AreSlotValuesValid() const;
+            virtual ResourceTypeID GetSlotResourceTypeID() const { return ResourceTypeID(); }
 
-    protected:
+            // This will return the final resolved resource value for this slot
+            ResourceID GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const;
 
-        KRG_REGISTER ResourceID                 m_defaultResourceID;
-        KRG_REGISTER TVector<OverrideValue>     m_overrides;
-    };
+            // Variation override management
+            //-------------------------------------------------------------------------
 
-    class ResultEditorNode final : public EditorGraphNode
-    {
-        KRG_REGISTER_TYPE( ResultEditorNode );
+            bool HasOverrideForVariation( StringID variationID ) const { return GetOverrideValueForVariation( variationID ) != nullptr; }
+            ResourceID* GetOverrideValueForVariation( StringID variationID );
+            ResourceID const* GetOverrideValueForVariation( StringID variationID ) const { return const_cast<DataSlotEditorNode*>( this )->GetOverrideValueForVariation( variationID ); }
 
-    public:
+            void CreateOverride( StringID variationID );
+            void RenameOverride( StringID oldVariationID, StringID newVariationID );
+            void RemoveOverride( StringID variationID );
+            void SetOverrideValueForVariation( StringID variationID, ResourceID const& resourceID );
 
-        ResultEditorNode() = default;
-        ResultEditorNode( ValueType valueType );
+        protected:
 
-        virtual void Initialize( VisualGraph::BaseGraph* pParent ) override;
+            KRG_REGISTER ResourceID                 m_defaultResourceID;
+            KRG_REGISTER TVector<OverrideValue>     m_overrides;
+        };
 
-        virtual char const* GetTypeName() const override { return "Result"; }
-        virtual char const* GetCategory() const override { return "Results"; }
-        virtual bool IsUserCreatable() const override { return false; }
-        virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        class ResultEditorNode final : public EditorGraphNode
+        {
+            KRG_REGISTER_TYPE( ResultEditorNode );
 
-    private:
+        public:
 
-        KRG_REGISTER ValueType m_valueType = ValueType::Pose;
-    };
+            ResultEditorNode() = default;
+            ResultEditorNode( GraphValueType valueType );
+
+            virtual void Initialize( VisualGraph::BaseGraph* pParent ) override;
+
+            virtual char const* GetTypeName() const override { return "Result"; }
+            virtual char const* GetCategory() const override { return "Results"; }
+            virtual bool IsUserCreatable() const override { return false; }
+            virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree ); }
+            virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+
+        private:
+
+            KRG_REGISTER GraphValueType m_valueType = GraphValueType::Pose;
+        };
+    }
 
     //-------------------------------------------------------------------------
     // PARAMETERS
     //-------------------------------------------------------------------------
 
-    class ControlParameterEditorNode final : public EditorGraphNode
+    namespace GraphNodes
     {
-        KRG_REGISTER_TYPE( ControlParameterEditorNode );
-        friend class AnimationGraphEditorDefinition;
+        class ControlParameterEditorNode final : public EditorGraphNode
+        {
+            KRG_REGISTER_TYPE( ControlParameterEditorNode );
+            friend EditorGraphDefinition;
 
-    public:
+        public:
 
-        ControlParameterEditorNode() = default;
-        ControlParameterEditorNode( String const& name, ValueType type );
+            ControlParameterEditorNode() = default;
+            ControlParameterEditorNode( String const& name, GraphValueType type );
 
-        virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
-        virtual bool IsVisibleNode() const override { return false; }
-        virtual char const* GetDisplayName() const override { return m_name.c_str(); }
-        virtual char const* GetTypeName() const override { return "Parameter"; }
-        virtual char const* GetCategory() const override { return "Control Parameters"; }
-        virtual bool IsUserCreatable() const override { return false; }
-        virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
-        virtual bool IsPersistentNode() const override { return true; }
+            inline StringID GetParameterID() const { return StringID( m_name ); }
 
-    private:
+            virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
+            virtual bool IsVisibleNode() const override { return false; }
+            virtual char const* GetDisplayName() const override { return m_name.c_str(); }
+            virtual char const* GetTypeName() const override { return "Parameter"; }
+            virtual char const* GetCategory() const override { return "Control Parameters"; }
+            virtual bool IsUserCreatable() const override { return false; }
+            virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
+            virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+            virtual bool IsPersistentNode() const override { return true; }
 
-        KRG_REGISTER String                     m_name;
-        KRG_REGISTER ValueType                  m_type = ValueType::Float;
-    };
+        private:
 
-    class VirtualParameterEditorNode final : public EditorGraphNode
-    {
-        KRG_REGISTER_TYPE( VirtualParameterEditorNode );
-        friend class AnimationGraphEditorDefinition;
+            KRG_REGISTER String                     m_name;
+            KRG_REGISTER GraphValueType             m_type = GraphValueType::Float;
+        };
 
-    public:
+        class VirtualParameterEditorNode final : public EditorGraphNode
+        {
+            KRG_REGISTER_TYPE( VirtualParameterEditorNode );
+            friend EditorGraphDefinition;
 
-        VirtualParameterEditorNode() = default;
-        VirtualParameterEditorNode( String const& name, ValueType type );
+        public:
 
-        virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
-        virtual bool IsVisibleNode() const override { return false; }
-        virtual char const* GetDisplayName() const override { return m_name.c_str(); }
-        virtual char const* GetTypeName() const override { return "Parameter"; }
-        virtual char const* GetCategory() const override { return "Virtual Parameters"; }
-        virtual bool IsUserCreatable() const override { return false; }
-        virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+            VirtualParameterEditorNode() = default;
+            VirtualParameterEditorNode( String const& name, GraphValueType type );
 
-    private:
+            virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
+            virtual bool IsVisibleNode() const override { return false; }
+            virtual char const* GetDisplayName() const override { return m_name.c_str(); }
+            virtual char const* GetTypeName() const override { return "Parameter"; }
+            virtual char const* GetCategory() const override { return "Virtual Parameters"; }
+            virtual bool IsUserCreatable() const override { return false; }
+            virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
+            virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
-        KRG_REGISTER String                     m_name;
-        KRG_REGISTER ValueType                  m_type = ValueType::Float;
-    };
+        private:
 
-    class ParameterReferenceEditorNode final : public EditorGraphNode
-    {
-        KRG_REGISTER_TYPE( ParameterReferenceEditorNode );
-        friend class AnimationGraphEditorDefinition;
+            KRG_REGISTER String                     m_name;
+            KRG_REGISTER GraphValueType             m_type = GraphValueType::Float;
+        };
 
-    public:
+        class ParameterReferenceEditorNode final : public EditorGraphNode
+        {
+            KRG_REGISTER_TYPE( ParameterReferenceEditorNode );
+            friend EditorGraphDefinition;
 
-        static void RefreshParameterReferences( VisualGraph::BaseGraph* pRootGraph );
+        public:
 
-    public:
+            static void RefreshParameterReferences( VisualGraph::BaseGraph* pRootGraph );
 
-        ParameterReferenceEditorNode() = default;
-        ParameterReferenceEditorNode( ControlParameterEditorNode const* pParameter );
-        ParameterReferenceEditorNode( VirtualParameterEditorNode const* pParameter );
+        public:
 
-        virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
+            ParameterReferenceEditorNode() = default;
+            ParameterReferenceEditorNode( ControlParameterEditorNode const* pParameter );
+            ParameterReferenceEditorNode( VirtualParameterEditorNode const* pParameter );
 
-        inline EditorGraphNode const* GetReferencedParameter() const { return m_pParameter; }
-        inline UUID const& GetReferencedParameterID() const { return m_parameterUUID; }
-        inline ValueType GetParameterValueType() const { return m_parameterValueType; }
+            virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
 
-        virtual char const* GetDisplayName() const override { return m_pParameter->GetDisplayName(); }
-        virtual char const* GetTypeName() const override { return "Parameter"; }
-        virtual char const* GetCategory() const override { return "Parameter"; }
-        virtual bool IsUserCreatable() const override { return true; }
-        virtual bool IsDestroyable() const override { return true; }
-        virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+            inline EditorGraphNode const* GetReferencedParameter() const { return m_pParameter; }
+            inline UUID const& GetReferencedParameterID() const { return m_parameterUUID; }
+            inline GraphValueType GetParameterValueType() const { return m_parameterValueType; }
 
-    private:
+            virtual char const* GetDisplayName() const override { return m_pParameter->GetDisplayName(); }
+            virtual char const* GetTypeName() const override { return "Parameter"; }
+            virtual char const* GetCategory() const override { return "Parameter"; }
+            virtual bool IsUserCreatable() const override { return true; }
+            virtual bool IsDestroyable() const override { return true; }
+            virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
+            virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
-        EditorGraphNode const*                  m_pParameter = nullptr;
-        KRG_REGISTER UUID                       m_parameterUUID;
-        KRG_REGISTER ValueType                  m_parameterValueType;
-    };
+        private:
+
+            EditorGraphNode const*                  m_pParameter = nullptr;
+            KRG_REGISTER UUID                       m_parameterUUID;
+            KRG_REGISTER GraphValueType             m_parameterValueType;
+        };
+    }
 
     //-------------------------------------------------------------------------
     // BASE ANIMATION FLOW GRAPH
@@ -222,7 +231,7 @@ namespace KRG::Animation::Graph
 
     class FlowGraph : public VisualGraph::FlowGraph
     {
-        friend class AnimationGraphEditorDefinition;
+        friend class EditorGraphDefinition;
         KRG_REGISTER_TYPE( FlowGraph );
 
     public:
@@ -239,7 +248,7 @@ namespace KRG::Animation::Graph
         {
             VisualGraph::ScopedGraphModification sgm( this );
 
-            static_assert( std::is_base_of<EditorGraphNode, T>::value );
+            static_assert( std::is_base_of<GraphNodes::EditorGraphNode, T>::value );
             auto pNode = KRG::New<T>( std::forward<ConstructorParams>( params )... );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );
             pNode->Initialize( this );
@@ -247,12 +256,12 @@ namespace KRG::Animation::Graph
             return pNode;
         }
 
-        EditorGraphNode* CreateNode( TypeSystem::TypeInfo const* pTypeInfo )
+        GraphNodes::EditorGraphNode* CreateNode( TypeSystem::TypeInfo const* pTypeInfo )
         {
             VisualGraph::ScopedGraphModification sgm( this );
 
-            KRG_ASSERT( pTypeInfo->IsDerivedFrom( EditorGraphNode::GetStaticTypeID() ) );
-            auto pNode = Cast<EditorGraphNode>( pTypeInfo->m_pTypeHelper->CreateType() );
+            KRG_ASSERT( pTypeInfo->IsDerivedFrom( GraphNodes::EditorGraphNode::GetStaticTypeID() ) );
+            auto pNode = Cast<GraphNodes::EditorGraphNode>( pTypeInfo->m_pTypeHelper->CreateType() );
             KRG_ASSERT( pNode->GetAllowedParentGraphTypes().IsFlagSet( m_type ) );
             pNode->Initialize( this );
             AddNode( pNode );

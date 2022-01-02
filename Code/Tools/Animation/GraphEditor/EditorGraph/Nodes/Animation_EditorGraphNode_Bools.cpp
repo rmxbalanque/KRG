@@ -4,17 +4,17 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void AndEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateInputPin( "And", ValueType::Bool );
-        CreateInputPin( "And", ValueType::Bool );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateInputPin( "And", GraphValueType::Bool );
+        CreateInputPin( "And", GraphValueType::Bool );
     }
 
-    NodeIndex AndEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex AndEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         AndNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<AndNode>( this, pSettings );
@@ -55,12 +55,12 @@ namespace KRG::Animation::Graph
     void OrEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateInputPin( "Or", ValueType::Bool );
-        CreateInputPin( "Or", ValueType::Bool );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateInputPin( "Or", GraphValueType::Bool );
+        CreateInputPin( "Or", GraphValueType::Bool );
     }
 
-    NodeIndex OrEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex OrEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         OrNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<OrNode>( this, pSettings );
@@ -101,11 +101,11 @@ namespace KRG::Animation::Graph
     void NotEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateInputPin( "Not", ValueType::Bool );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateInputPin( "Not", GraphValueType::Bool );
     }
 
-    NodeIndex NotEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex NotEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         NotNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<NotNode>( this, pSettings );

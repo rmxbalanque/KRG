@@ -25,7 +25,7 @@
     <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_BoneMaskPool.h" />
+    <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Common.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Contexts.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Controller.h" />
@@ -33,9 +33,9 @@
     <ClInclude Include="Graph\Animation_RuntimeGraph_Instance.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Node.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Resources.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_Task.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskPosePool.h" />
-    <ClInclude Include="Graph\Animation_RuntimeGraph_TaskSystem.h" />
+    <ClInclude Include="TaskSystem\Animation_Task.h" />
+    <ClInclude Include="TaskSystem\Animation_TaskPosePool.h" />
+    <ClInclude Include="TaskSystem\Animation_TaskSystem.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_AnimationClip.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Blends.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_BoneMasks.h" />
@@ -57,15 +57,16 @@
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.h" />
-    <ClInclude Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.h" />
     <ClInclude Include="ResourceLoaders\AnimationClipLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationSkeletonLoader.h" />
     <ClInclude Include="ResourceLoaders\AnimationGraphLoader.h" />
     <ClInclude Include="Systems\EntitySystem_Animation.h" />
     <ClInclude Include="Systems\WorldSystem_Animation.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Blend.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_CachedPose.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_DefaultPose.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Ragdoll.h" />
+    <ClInclude Include="TaskSystem\Tasks\Animation_Task_Sample.h" />
     <ClInclude Include="_Module\API.h" />
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
@@ -82,7 +83,7 @@
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
     <ClCompile Include="Events\AnimationEvent_Foot.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_BoneMaskPool.cpp" />
+    <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Common.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Contexts.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Controller.cpp" />
@@ -90,9 +91,9 @@
     <ClCompile Include="Graph\Animation_RuntimeGraph_Instance.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Node.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Resources.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_Task.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskPosePool.cpp" />
-    <ClCompile Include="Graph\Animation_RuntimeGraph_TaskSystem.cpp" />
+    <ClCompile Include="TaskSystem\Animation_Task.cpp" />
+    <ClCompile Include="TaskSystem\Animation_TaskPosePool.cpp" />
+    <ClCompile Include="TaskSystem\Animation_TaskSystem.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_AnimationClip.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Blends.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_BoneMasks.cpp" />
@@ -114,15 +115,16 @@
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Targets.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Transition.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Vectors.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Blend.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_CachedPose.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_DefaultPose.cpp" />
-    <ClCompile Include="Graph\Tasks\Animation_RuntimeGraphTask_Sample.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationClipLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationSkeletonLoader.cpp" />
     <ClCompile Include="ResourceLoaders\AnimationGraphLoader.cpp" />
     <ClCompile Include="Systems\EntitySystem_Animation.cpp" />
     <ClCompile Include="Systems\WorldSystem_Animation.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Blend.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_CachedPose.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_DefaultPose.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Ragdoll.cpp" />
+    <ClCompile Include="TaskSystem\Tasks\Animation_Task_Sample.cpp" />
     <ClCompile Include="_Module\Module.cpp" />
     <ClCompile Include="_Module\_AutoGenerated\_module.cpp" />
   </ItemGroup>

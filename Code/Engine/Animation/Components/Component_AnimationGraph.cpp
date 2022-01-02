@@ -15,11 +15,10 @@ namespace KRG::Animation
         m_pPose = KRG::New<Pose>( m_pGraphVariation->GetSkeleton() );
         m_pPose->CalculateGlobalTransforms();
 
-        m_pTaskSystem = KRG::New<Graph::TaskSystem>( m_pGraphVariation->GetSkeleton() );
-        m_graphContext.Initialize( m_pTaskSystem, m_pPose );
+        m_pTaskSystem = KRG::New<TaskSystem>( m_pGraphVariation->GetSkeleton() );
+        m_graphContext.Initialize( GetEntityID().m_ID, m_pTaskSystem, m_pPose );
 
-        m_pGraphInstance = KRG::New<Graph::GraphInstance>( m_pGraphVariation.GetPtr() );
-        m_pGraphInstance->Initialize( m_graphContext );
+        m_pGraphInstance = KRG::New<GraphInstance>( m_pGraphVariation.GetPtr() );
     }
 
     void AnimationGraphComponent::Shutdown()
@@ -52,18 +51,24 @@ namespace KRG::Animation
         return m_pGraphVariation->GetSkeleton();
     }
 
-    void AnimationGraphComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
+    void AnimationGraphComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
-        m_graphContext.Update( deltaTime, characterTransform );
+        m_graphContext.Update( deltaTime, characterTransform, pPhysicsScene );
+
+        // Initialize graph on the first update
+        if ( !m_pGraphInstance->IsInitialized() )
+        {
+            m_pGraphInstance->Initialize( m_graphContext );
+        }
 
         m_pTaskSystem->Reset();
-        Graph::PoseNodeResult const result = m_pGraphInstance->UpdateGraph( m_graphContext );
+        GraphPoseNodeResult const result = m_pGraphInstance->UpdateGraph( m_graphContext );
         m_rootMotionDelta = result.m_rootMotionDelta;
         m_pTaskSystem->UpdatePrePhysics( m_graphContext.m_deltaTime, m_graphContext.m_worldTransform, m_graphContext.m_worldTransformInverse );
     }
 
-    void AnimationGraphComponent::PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
+    void AnimationGraphComponent::PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
         m_pTaskSystem->UpdatePostPhysics( *m_pPose );

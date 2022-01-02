@@ -56,7 +56,7 @@ namespace KRG::Animation
         return m_pAnimation->GetSkeleton();
     }
 
-    void AnimationClipPlayerComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform )
+    void AnimationClipPlayerComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
         KRG_ASSERT( m_pAnimation != nullptr && m_pPose != nullptr );

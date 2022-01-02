@@ -3,16 +3,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void ParameterizedBlendEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
 
-        CreateOutputPin( "Pose", ValueType::Pose );
-        CreateInputPin( "Parameter", ValueType::Float );
-        CreateInputPin( "Input", ValueType::Pose );
-        CreateInputPin( "Input", ValueType::Pose );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
+        CreateInputPin( "Parameter", GraphValueType::Float );
+        CreateInputPin( "Input", GraphValueType::Pose );
+        CreateInputPin( "Input", GraphValueType::Pose );
     }
 
     bool ParameterizedBlendEditorNode::CompileParameterAndSourceNodes( EditorGraphCompilationContext& context, ParameterizedBlendNode::Settings* pSettings ) const
@@ -23,7 +23,7 @@ namespace KRG::Animation::Graph
         auto pParameterNode = GetConnectedInputNode<EditorGraphNode>( 0 );
         if ( pParameterNode != nullptr )
         {
-            NodeIndex const compiledNodeIdx = pParameterNode->Compile( context );
+            GraphNodeIndex const compiledNodeIdx = pParameterNode->Compile( context );
             if ( compiledNodeIdx != InvalidIndex )
             {
                 pSettings->m_inputParameterValueNodeIdx = compiledNodeIdx;
@@ -47,7 +47,7 @@ namespace KRG::Animation::Graph
             auto pSourceNode = GetConnectedInputNode<EditorGraphNode>( i );
             if ( pSourceNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pSourceNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pSourceNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_sourceNodeIndices.emplace_back( compiledNodeIdx );
@@ -82,7 +82,7 @@ namespace KRG::Animation::Graph
         m_parameterValues.emplace_back( 1.0f );
     }
 
-    NodeIndex RangedBlendEditorNode::Compile( EditorGraphCompilationContext & context ) const
+    GraphNodeIndex RangedBlendEditorNode::Compile( EditorGraphCompilationContext & context ) const
     {
         RangedBlendNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<RangedBlendNode>( this, pSettings );
@@ -107,7 +107,7 @@ namespace KRG::Animation::Graph
     bool RangedBlendEditorNode::DrawPinControls( VisualGraph::Flow::Pin const& pin )
     {
         // Add parameter value input field
-        if ( pin.IsInputPin() && pin.m_type == (uint32) ValueType::Pose )
+        if ( pin.IsInputPin() && pin.m_type == (uint32) GraphValueType::Pose )
         {
             int32 const pinIdx = GetInputPinIndex( pin.m_ID );
             int32 const parameterIdx = pinIdx - 1;
@@ -141,7 +141,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    NodeIndex VelocityBlendEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex VelocityBlendEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         VelocityBlendNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<VelocityBlendNode>( this, pSettings );

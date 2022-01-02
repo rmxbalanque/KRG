@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API RootMotionOverrideNode final : public PassthroughNode
     {
@@ -26,12 +26,12 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PassthroughNode::Settings, m_desiredHeadingVelocityNodeIdx, m_desiredFacingDirectionNodeIdx, m_linearVelocityLimitNodeIdx, m_angularVelocityLimitNodeIdx, m_maxLinearVelocity, m_maxAngularVelocity, m_overrideFlags );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                        m_desiredHeadingVelocityNodeIdx = InvalidIndex;
-            NodeIndex                        m_desiredFacingDirectionNodeIdx = InvalidIndex;
-            NodeIndex                        m_linearVelocityLimitNodeIdx = InvalidIndex;
-            NodeIndex                        m_angularVelocityLimitNodeIdx = InvalidIndex;
+            GraphNodeIndex                        m_desiredHeadingVelocityNodeIdx = InvalidIndex;
+            GraphNodeIndex                        m_desiredFacingDirectionNodeIdx = InvalidIndex;
+            GraphNodeIndex                        m_linearVelocityLimitNodeIdx = InvalidIndex;
+            GraphNodeIndex                        m_angularVelocityLimitNodeIdx = InvalidIndex;
             float                            m_maxLinearVelocity = -1.0f;
             float                            m_maxAngularVelocity = -1.0f;
             TBitFlags<OverrideFlags>         m_overrideFlags;
@@ -42,10 +42,10 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
-        void ModifyDisplacement( GraphContext& context, PoseNodeResult& NodeResult ) const;
+        void ModifyDisplacement( GraphContext& context, GraphPoseNodeResult& NodeResult ) const;
 
     private:
 

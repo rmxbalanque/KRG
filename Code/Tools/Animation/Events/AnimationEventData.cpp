@@ -33,7 +33,7 @@ namespace KRG::Animation
         KRG::Delete( m_pEvent );
     }
 
-    InlineString<100> EventItem::GetLabel() const
+    InlineString EventItem::GetLabel() const
     {
         return m_pEvent->GetDisplayText();
     }

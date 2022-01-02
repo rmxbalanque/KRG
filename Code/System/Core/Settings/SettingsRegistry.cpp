@@ -100,7 +100,7 @@ namespace KRG
     DebugSetting const* SettingsRegistry::TryGetDebugSetting( char const* pCategoryName, char const* pSettingName ) const
     {
         KRG_ASSERT( pCategoryName != nullptr && pSettingName != nullptr );
-        InlineString<256> combinedName( pCategoryName );
+        InlineString combinedName( pCategoryName );
         combinedName += pSettingName;
 
         uint32 const combinedNameHash = Hash::GetHash32( combinedName.c_str() );

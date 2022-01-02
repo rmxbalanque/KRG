@@ -11,11 +11,11 @@ namespace KRG::TypeSystem { class TypeRegistry; }
 
 namespace KRG::Animation
 {
-    class AnimationGraphLoader final : public Resource::ResourceLoader
+    class GraphLoader final : public Resource::ResourceLoader
     {
     public:
 
-        AnimationGraphLoader();
+        GraphLoader();
 
         inline void SetTypeRegistry( TypeSystem::TypeRegistry const* pTypeRegistry ) { KRG_ASSERT( pTypeRegistry != nullptr ); m_pTypeRegistry = pTypeRegistry; }
 

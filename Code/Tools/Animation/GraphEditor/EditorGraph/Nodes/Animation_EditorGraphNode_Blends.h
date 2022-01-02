@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class ParameterizedBlendEditorNode : public EditorGraphNode
     {
@@ -17,8 +17,8 @@ namespace KRG::Animation::Graph
         virtual char const* GetCategory() const override { return "Blends"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override final { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual InlineString<100> GetNewDynamicInputPinName() const override { return "Input"; }
-        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) ValueType::Pose; }
+        virtual TInlineString<100> GetNewDynamicInputPinName() const override { return "Input"; }
+        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) GraphValueType::Pose; }
 
     protected:
 
@@ -38,7 +38,7 @@ namespace KRG::Animation::Graph
         virtual void Initialize( VisualGraph::BaseGraph* pParent ) override;
 
         virtual char const* GetTypeName() const override { return "Ranged Blend"; }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual bool DrawPinControls( VisualGraph::Flow::Pin const& pin ) override;
         virtual void OnDynamicPinCreation( UUID pinID ) override;
         virtual void OnDynamicPinDestruction( UUID pinID ) override;
@@ -55,6 +55,6 @@ namespace KRG::Animation::Graph
         KRG_REGISTER_TYPE( VelocityBlendEditorNode );
 
         virtual char const* GetTypeName() const override { return "Velocity Blend"; }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
     };
 }

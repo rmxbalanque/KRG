@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     template<typename T>
     static SampledEvent const* GetDominantEvent( SampledEventsBuffer const& sampledEvents, SampledEventRange const& searchRange, bool preferHigherPercentageThrough )
@@ -59,7 +59,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void GenericEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void GenericEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<GenericEventConditionNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -161,7 +161,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void GenericEventPercentageThroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void GenericEventPercentageThroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<GenericEventPercentageThroughNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -233,7 +233,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FootEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void FootEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<FootEventConditionNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -329,7 +329,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void FootstepEventPercentageThroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void FootstepEventPercentageThroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<FootstepEventPercentageThroughNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -453,7 +453,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void SyncEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void SyncEventConditionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<SyncEventConditionNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );
@@ -507,7 +507,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void CurrentSyncEventNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void CurrentSyncEventNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<CurrentSyncEventNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceStateNodeIdx, pNode->m_pSourceStateNode );

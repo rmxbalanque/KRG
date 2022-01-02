@@ -11,19 +11,19 @@ namespace KRG::Animation
     AnimationGraphCompiler::AnimationGraphCompiler()
         : Resource::Compiler( "GraphCompiler", s_version )
     {
-        m_outputTypes.push_back( AnimationGraphDefinition::GetStaticResourceTypeID() );
-        m_outputTypes.push_back( AnimationGraphVariation::GetStaticResourceTypeID() );
-        m_virtualTypes.push_back( AnimationGraphDataSet::GetStaticResourceTypeID() );
+        m_outputTypes.push_back( GraphDefinition::GetStaticResourceTypeID() );
+        m_outputTypes.push_back( GraphVariation::GetStaticResourceTypeID() );
+        m_virtualTypes.push_back( GraphDataSet::GetStaticResourceTypeID() );
     }
 
     Resource::CompilationResult AnimationGraphCompiler::Compile( Resource::CompileContext const& ctx ) const
     {
         auto const resourceTypeID = ctx.m_resourceID.GetResourceTypeID();
-        if ( resourceTypeID == AnimationGraphDefinition::GetStaticResourceTypeID() )
+        if ( resourceTypeID == GraphDefinition::GetStaticResourceTypeID() )
         {
             return CompileDefinition( ctx );
         }
-        else if ( resourceTypeID == AnimationGraphVariation::GetStaticResourceTypeID() )
+        else if ( resourceTypeID == GraphVariation::GetStaticResourceTypeID() )
         {
             return CompileVariation( ctx );
         }
@@ -40,8 +40,8 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationGraphEditorDefinition toolsGraph;
-        if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
+        EditorGraphDefinition editorGraph;
+        if ( !editorGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
@@ -49,8 +49,8 @@ namespace KRG::Animation
         // Compile
         //-------------------------------------------------------------------------
 
-        Graph::EditorGraphCompilationContext context;
-        if ( !toolsGraph.Compile( context ) )
+        EditorGraphCompilationContext context;
+        if ( !editorGraph.Compile( context ) )
         {
             // Dump log
             for ( auto const& logEntry : context.GetLog() )
@@ -83,8 +83,13 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            archive << Resource::ResourceHeader( s_version, AnimationGraphDefinition::GetStaticResourceTypeID() );
+            archive << Resource::ResourceHeader( s_version, GraphDefinition::GetStaticResourceTypeID() );
             archive << context;
+            
+            // Node paths
+            #if !KRG_CONFIGURATION_FINAL
+            archive << context.m_compiledNodePaths;
+            #endif
 
             // Node settings type descs
             TypeSystem::TypeDescriptorCollection settingsTypeDescriptors;
@@ -111,7 +116,7 @@ namespace KRG::Animation
 
     Resource::CompilationResult AnimationGraphCompiler::CompileVariation( Resource::CompileContext const& ctx ) const
     {
-        AnimationGraphVariationResourceDescriptor resourceDescriptor;
+        GraphVariationResourceDescriptor resourceDescriptor;
         if ( !ctx.TryReadResourceDescriptor( resourceDescriptor ) )
         {
             return Error( "Failed to read resource descriptor from input file: %s", ctx.m_inputFilePath.c_str() );
@@ -132,13 +137,13 @@ namespace KRG::Animation
             return Error( "Failed to read animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        Graph::AnimationGraphEditorDefinition toolsGraph;
+        EditorGraphDefinition toolsGraph;
         if ( !toolsGraph.LoadFromJson( ctx.m_typeRegistry, jsonReader.GetDocument() ) )
         {
             return Error( "Malformed animation graph file: %s", ctx.m_inputFilePath.c_str() );
         }
 
-        StringID const variationID = resourceDescriptor.m_variationID.IsValid() ? resourceDescriptor.m_variationID : AnimationGraphVariation::DefaultVariationID;
+        StringID const variationID = resourceDescriptor.m_variationID.IsValid() ? resourceDescriptor.m_variationID : GraphVariation::DefaultVariationID;
         if ( !toolsGraph.IsValidVariation( variationID ) )
         {
             return Error( "Invalid variation requested: %s", variationID.c_str() );
@@ -148,7 +153,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
         // We need to compile the graph to get the order of the data slots
 
-        Graph::EditorGraphCompilationContext context;
+        EditorGraphCompilationContext context;
         if ( !toolsGraph.Compile( context ) )
         {
             // Dump log
@@ -175,7 +180,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         String dataSetFileName;
-        dataSetFileName.sprintf( "%s_%s.%s", graphFilePath.GetFileNameWithoutExtension().c_str(), variationID.c_str(), AnimationGraphDataSet::GetStaticResourceTypeID().ToString().c_str() );
+        dataSetFileName.sprintf( "%s_%s.%s", graphFilePath.GetFileNameWithoutExtension().c_str(), variationID.c_str(), GraphDataSet::GetStaticResourceTypeID().ToString().c_str() );
 
         FileSystem::Path dataSetFilePath = graphFilePath.GetParentDirectory();
         dataSetFilePath.Append( dataSetFileName );
@@ -189,7 +194,7 @@ namespace KRG::Animation
         // Create variation resource and serialize
         //-------------------------------------------------------------------------
 
-        AnimationGraphVariation variation;
+        GraphVariation variation;
         variation.m_pGraphDefinition = ResourceID( resourceDescriptor.m_graphPath );
         variation.m_pDataSet = ResourceID( dataSetPath );
 
@@ -199,7 +204,7 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( s_version, AnimationGraphDataSet::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, GraphDataSet::GetStaticResourceTypeID() );
             hdr.AddInstallDependency( variation.m_pDataSet.GetResourceID() );
             hdr.AddInstallDependency( variation.m_pGraphDefinition.GetResourceID() );
 
@@ -216,17 +221,17 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationGraphEditorDefinition const& toolsGraph, Graph::EditorGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
+    bool AnimationGraphCompiler::GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, EditorGraphDefinition const& editorGraph, EditorGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const
     {
-        AnimationGraphDataSet dataSet;
+        GraphDataSet dataSet;
         dataSet.m_variationID = variationID;
 
         //-------------------------------------------------------------------------
         // Get skeleton for variation
         //-------------------------------------------------------------------------
 
-        KRG_ASSERT( toolsGraph.IsValidVariation( variationID ) );
-        auto const pVariation = toolsGraph.GetVariation( variationID );
+        KRG_ASSERT( editorGraph.IsValidVariation( variationID ) );
+        auto const pVariation = editorGraph.GetVariation( variationID );
         KRG_ASSERT( pVariation != nullptr ); 
         if ( !pVariation->m_pSkeleton.IsValid() )
         {
@@ -240,11 +245,11 @@ namespace KRG::Animation
         // Fill data slots
         //-------------------------------------------------------------------------
 
-        THashMap<UUID, DataSlotEditorNode const*> dataSlotLookupMap;
-        auto const& dataSlotNodes = toolsGraph.GetAllDataSlotNodes();
+        THashMap<UUID, GraphNodes::DataSlotEditorNode const*> dataSlotLookupMap;
+        auto const& dataSlotNodes = editorGraph.GetAllDataSlotNodes();
         for ( auto pSlotNode : dataSlotNodes )
         {
-            dataSlotLookupMap.insert( TPair<UUID, DataSlotEditorNode const*>( pSlotNode->GetID(), pSlotNode ) );
+            dataSlotLookupMap.insert( TPair<UUID, GraphNodes::DataSlotEditorNode const*>( pSlotNode->GetID(), pSlotNode ) );
         }
 
         dataSet.m_resources.reserve( compilationContext.m_registeredDataSlots.size() );
@@ -258,7 +263,7 @@ namespace KRG::Animation
                 return false;
             }
 
-            auto const dataSlotResourceID = iter->second->GetValue( toolsGraph.GetVariationHierarchy(), variationID );
+            auto const dataSlotResourceID = iter->second->GetValue( editorGraph.GetVariationHierarchy(), variationID );
             dataSet.m_resources.emplace_back( dataSlotResourceID );
         }
 
@@ -271,7 +276,7 @@ namespace KRG::Animation
         Serialization::BinaryFileArchive archive( Serialization::Mode::Write, dataSetOutputPath );
         if ( archive.IsValid() )
         {
-            Resource::ResourceHeader hdr( s_version, AnimationGraphDataSet::GetStaticResourceTypeID() );
+            Resource::ResourceHeader hdr( s_version, GraphDataSet::GetStaticResourceTypeID() );
 
             hdr.AddInstallDependency( dataSet.m_pSkeleton.GetResourceID() );
 

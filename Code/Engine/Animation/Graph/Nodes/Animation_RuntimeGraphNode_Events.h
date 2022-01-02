@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class StateNode;
 
@@ -40,11 +40,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_eventIDs, m_operator, m_searchMode );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
             Operator                                    m_operator = Operator::Or;
             EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
             TInlineVector<StringID, 5>                  m_eventIDs;
@@ -75,11 +75,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_eventID, m_searchMode, m_preferHighestPercentageThrough );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
             EventSearchMode                             m_searchMode = EventSearchMode::SearchAll;
             bool                                        m_preferHighestPercentageThrough = false;
             StringID                                    m_eventID;
@@ -108,11 +108,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_phaseCondition, m_preferHighestPercentageThrough );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
             FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
             bool                                        m_preferHighestPercentageThrough = false;
         };
@@ -140,11 +140,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_phaseCondition, m_preferHighestPercentageThrough );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
             FootEvent::PhaseCondition                   m_phaseCondition = FootEvent::PhaseCondition::LeftFootDown;
             bool                                        m_preferHighestPercentageThrough = false;
         };
@@ -180,11 +180,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx, m_syncEventIdx, m_triggerMode );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
             TriggerMode                                 m_triggerMode = TriggerMode::ExactlyAtEventIndex;
             int32                                       m_syncEventIdx = InvalidIndex;
         };
@@ -215,11 +215,11 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_sourceStateNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_sourceStateNodeIdx = InvalidIndex;
         };
 
     private:

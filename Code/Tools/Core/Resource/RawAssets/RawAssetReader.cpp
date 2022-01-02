@@ -151,7 +151,7 @@ namespace KRG::RawAssets
         }
         else
         {
-            InlineString<512> errorString;
+            TInlineString<512> errorString;
             errorString.sprintf( "unsupported extension: %s", sourceFilePath.c_str() );
             ctx.m_errorDelegate( errorString.c_str() );
         }

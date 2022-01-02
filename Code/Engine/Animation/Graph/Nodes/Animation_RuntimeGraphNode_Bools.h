@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API AndNode final : public BoolValueNode
     {
@@ -14,9 +14,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            TInlineVector<NodeIndex, 4>            m_conditionNodeIndices;
+            TInlineVector<GraphNodeIndex, 4>            m_conditionNodeIndices;
         };
 
     private:
@@ -42,9 +42,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            TInlineVector<NodeIndex, 4>            m_conditionNodeIndices;
+            TInlineVector<GraphNodeIndex, 4>            m_conditionNodeIndices;
         };
 
     private:
@@ -70,9 +70,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_inputValueNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                               m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                               m_inputValueNodeIdx = InvalidIndex;
         };
 
     private:

@@ -1,19 +1,28 @@
 #pragma once
 
-#include "Engine/Animation/Graph/Animation_RuntimeGraph_Common.h"
-#include "Animation_RuntimeGraph_TaskPosePool.h"
+#include "Animation_TaskPosePool.h"
 #include "System/Core/Types/Color.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class Task;
 
     //-------------------------------------------------------------------------
 
+    using TaskSourceID = int16;
     using TaskIndex = int8;
     using TaskDependencies = TInlineVector<TaskIndex, 2>;
+
+    //-------------------------------------------------------------------------
+
+    enum class TaskUpdateStage : uint8
+    {
+        Any = 0,
+        PrePhysics,
+        PostPhysics,
+    };
 
     //-------------------------------------------------------------------------
 
@@ -27,6 +36,7 @@ namespace KRG::Animation::Graph
         Transform                       m_worldTransformInverse = Transform::Identity;
         TInlineVector<Task*, 2>         m_dependencies = { nullptr, nullptr };
         float                           m_deltaTime = 0;
+        TaskUpdateStage                 m_updateStage = TaskUpdateStage::Any;
         PoseBufferPool&                 m_posePool;
     };
 
@@ -37,26 +47,24 @@ namespace KRG::Animation::Graph
 
     public:
 
-        enum class UpdateStage : uint8
-        {
-            Any = 0,
-            PrePhysics,
-            PostPhysics,
-        };
-
-    public:
-
-        Task( NodeIndex sourceNodeIdx, UpdateStage updateStage = UpdateStage::Any, TaskDependencies const& dependencies = TaskDependencies() );
+        Task( TaskSourceID sourceID, TaskUpdateStage updateStage = TaskUpdateStage::Any, TaskDependencies const& dependencies = TaskDependencies() );
         virtual ~Task() {}
         virtual void Execute( TaskContext const& context ) = 0;
         virtual uint32 GetTypeID() const { return 0; }
 
         inline int8 GetResultBufferIndex() const { return m_bufferIdx; }
         inline bool IsComplete() const { return m_isComplete; }
-        inline UpdateStage GetRequiredUpdateStage() const { return m_updateStage; }
-        inline bool	HasPhysicsDependency() const { return m_updateStage != UpdateStage::Any; }
         inline TaskDependencies const& GetDependencyIndices() const { return m_dependencies; }
         inline int32 GetNumDependencies() const { return (int32) m_dependencies.size(); }
+
+        // Get the stage that this task is required to run in
+        inline TaskUpdateStage GetRequiredUpdateStage() const { return m_updateStage; }
+
+        // Get the stage that this task actually run in (this only differs from the required stage for 'Any' stage tasks)
+        inline TaskUpdateStage GetActualUpdateStage() const { return m_actualUpdateStage; }
+
+        // Do we have a dependency on the physics simulation?
+        inline bool	HasPhysicsDependency() const { return m_updateStage != TaskUpdateStage::Any; }
 
         #if KRG_DEVELOPMENT_TOOLS
         virtual String GetDebugText() const { return String(); }
@@ -119,7 +127,7 @@ namespace KRG::Animation::Graph
         // Release the temporary buffer we requested
         inline void ReleaseTemporaryPoseBuffer( TaskContext const& context, int8 bufferIdx )
         {
-            KRG_ASSERT( bufferIdx != InvalidIndex && bufferIdx != bufferIdx );
+            KRG_ASSERT( bufferIdx != InvalidIndex && bufferIdx != m_bufferIdx );
             context.m_posePool.ReleasePoseBuffer( bufferIdx );
         }
 
@@ -129,6 +137,7 @@ namespace KRG::Animation::Graph
         {
             KRG_ASSERT( !m_isComplete );
             m_isComplete = true;
+            m_actualUpdateStage = context.m_updateStage;
 
             #if KRG_DEVELOPMENT_TOOLS
             KRG_ASSERT( m_bufferIdx != InvalidIndex );
@@ -138,13 +147,14 @@ namespace KRG::Animation::Graph
 
     protected:
 
-        int16                           m_sourceNodeIdx = InvalidIndex;
-        UpdateStage                     m_updateStage = UpdateStage::Any;
+        TaskSourceID                    m_sourceID = InvalidIndex;
+        TaskUpdateStage                 m_updateStage = TaskUpdateStage::Any;
 
     private:
 
         int8                            m_bufferIdx = InvalidIndex;
         TaskDependencies                m_dependencies;
+        TaskUpdateStage                 m_actualUpdateStage = TaskUpdateStage::Any;
         bool                            m_isComplete = false;
     };
 }

@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API PassthroughNode : public PoseNode
     {
@@ -14,9 +14,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex       m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex       m_childNodeIdx = InvalidIndex;
         };
 
     public:
@@ -32,8 +32,8 @@ namespace KRG::Animation::Graph
         // Syntactic sugar for readability in derived classes
         inline bool IsChildValid() const { return m_pChildNode != nullptr && m_pChildNode->IsValid(); }
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
     protected:

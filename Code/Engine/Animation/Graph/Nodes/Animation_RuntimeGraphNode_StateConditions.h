@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class StateNode;
 
@@ -18,12 +18,12 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_transitionDurationOverrideNodeIdx, m_transitionDuration );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                       m_sourceStateNodeIdx = InvalidIndex;
-            NodeIndex                       m_transitionDurationOverrideNodeIdx = InvalidIndex;
+            GraphNodeIndex                       m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                       m_transitionDurationOverrideNodeIdx = InvalidIndex;
             float                           m_transitionDuration = 0.0f;
         };
 
@@ -74,12 +74,12 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_sourceStateNodeIdx, m_comparand, m_inputValueNodeIdx, m_type, m_operator );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
-            NodeIndex                               m_sourceStateNodeIdx = InvalidIndex;
-            NodeIndex                               m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                               m_sourceStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                               m_inputValueNodeIdx = InvalidIndex;
             float                                   m_comparand = 0.0f;
             ComparisonType                          m_type = ComparisonType::ElapsedTime;
             Operator                                m_operator = Operator::LessThan;

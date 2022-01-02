@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class AnimationClipEditorNode final : public DataSlotEditorNode
     {
@@ -18,8 +18,8 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Animation Clip"; }
         virtual char const* GetCategory() const override { return "Animation"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
-        virtual ResourceTypeID GetSlotResourceType() const override { return AnimationClip::GetStaticResourceTypeID(); }
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual ResourceTypeID GetSlotResourceTypeID() const override { return AnimationClip::GetStaticResourceTypeID(); }
 
     private:
 

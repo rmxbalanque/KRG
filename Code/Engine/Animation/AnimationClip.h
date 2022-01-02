@@ -413,7 +413,6 @@ namespace KRG::Animation
     inline void AnimationClip::GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const
     {
         KRG_ASSERT( toTime >= fromTime );
-        TInlineVector<Event const*, 10> events;
 
         for ( auto const& pEvent : m_events )
         {
@@ -425,7 +424,7 @@ namespace KRG::Animation
 
             if ( FloatRange( fromTime, toTime ).Overlaps( pEvent->GetTimeRange() ) )
             {
-                events.emplace_back( pEvent );
+                outEvents.emplace_back( pEvent );
             }
         }
     }

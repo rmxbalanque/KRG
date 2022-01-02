@@ -1,17 +1,17 @@
 #pragma once
 
-#include "Engine/Animation/Graph/Animation_RuntimeGraph_Task.h"
+#include "Engine/Animation/TaskSystem/Animation_Task.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
     class DefaultPoseTask : public Task
     {
 
     public:
 
-        DefaultPoseTask( NodeIndex sourceNodeIdx, Pose::InitialState type );
+        DefaultPoseTask( TaskSourceID sourceID, Pose::InitialState type );
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS

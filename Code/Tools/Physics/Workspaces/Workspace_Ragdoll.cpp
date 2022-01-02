@@ -4,12 +4,14 @@
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Animation/AnimationClip.h"
+#include "Engine/Animation/AnimationBlender.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Update/UpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Animation/AnimationPose.h"
 #include "System/Core/Math/MathStringHelpers.h"
 #include "System/Core/Math/MathHelpers.h"
+#include "Engine/Physics/PhysicsScene.h"
 
 //-------------------------------------------------------------------------
 // Definition Modification Functions
@@ -47,18 +49,24 @@ namespace KRG::Physics
 
     void RagdollWorkspace::CreateBody( StringID boneID )
     {
-        ScopedDescriptorModification const sdm( this );
-
         auto pRagdollDefinition = GetRagdollDefinition();
         KRG_ASSERT( pRagdollDefinition->IsValid() && m_pSkeleton.IsLoaded() );
+
+        if ( pRagdollDefinition->GetNumBodies() >= RagdollDefinition::s_maxNumBodies )
+        {
+            return;
+        }
+
+        ScopedDescriptorModification const sdm( this );
+
         KRG_ASSERT( pRagdollDefinition->GetBodyIndexForBoneID( boneID ) == InvalidIndex );
 
         int32 const newBodyBoneIdx = m_pSkeleton->GetBoneIndex( boneID );
         int32 const numBodies = pRagdollDefinition->GetNumBodies();
-        int32 insertionIdx = 0;
-        for ( insertionIdx = 0; insertionIdx < numBodies; insertionIdx++ )
+        int32 bodyInsertionIdx = 0;
+        for ( bodyInsertionIdx = 0; bodyInsertionIdx < numBodies; bodyInsertionIdx++ )
         {
-            int32 const existingBodyBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[insertionIdx].m_boneID );
+            int32 const existingBodyBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[bodyInsertionIdx].m_boneID );
             if ( existingBodyBoneIdx > newBodyBoneIdx )
             {
                 break;
@@ -68,8 +76,8 @@ namespace KRG::Physics
         // Body
         //-------------------------------------------------------------------------
 
-        pRagdollDefinition->m_bodies.insert( pRagdollDefinition->m_bodies.begin() + insertionIdx, RagdollDefinition::BodyDefinition() );
-        auto& newBody = pRagdollDefinition->m_bodies[insertionIdx];
+        pRagdollDefinition->m_bodies.insert( pRagdollDefinition->m_bodies.begin() + bodyInsertionIdx, RagdollDefinition::BodyDefinition() );
+        auto& newBody = pRagdollDefinition->m_bodies[bodyInsertionIdx];
         newBody.m_boneID = boneID;
 
         // Calculate initial  body and joint transforms
@@ -116,11 +124,20 @@ namespace KRG::Physics
 
         for ( auto& profile : pRagdollDefinition->m_profiles )
         {
-            profile.m_bodySettings.insert( profile.m_bodySettings.begin() + insertionIdx, RagdollBodySettings() );
+            // Mass
+            profile.m_bodySettings.insert( profile.m_bodySettings.begin() + bodyInsertionIdx, RagdollBodySettings() );
+            float const capsuleVolume = Math::CalculateCapsuleVolume( pRagdollDefinition->m_bodies[bodyInsertionIdx].m_radius, pRagdollDefinition->m_bodies[bodyInsertionIdx].m_halfHeight * 2 );
+            profile.m_bodySettings[bodyInsertionIdx].m_mass = capsuleVolume * 985.0f; // human body density
 
-            // Set initial mass
-            float const capsuleVolume = Math::CalculateCapsuleVolume( pRagdollDefinition->m_bodies[insertionIdx].m_radius, pRagdollDefinition->m_bodies[insertionIdx].m_halfHeight * 2 );
-            profile.m_bodySettings[insertionIdx].m_mass = capsuleVolume * 985; // human body density
+            // Materials
+            profile.m_materialSettings.insert( profile.m_materialSettings.begin() + bodyInsertionIdx, RagdollBodyMaterialSettings() ); // human body density
+
+            // Joint Settings
+            int32 const jointInsertionIdx = bodyInsertionIdx - 1;
+            if ( jointInsertionIdx >= 0 )
+            {
+                profile.m_jointSettings.insert( profile.m_jointSettings.begin() + jointInsertionIdx, RagdollJointSettings() );
+            }
         }
     }
 
@@ -143,6 +160,13 @@ namespace KRG::Physics
         for ( auto& profile : pRagdollDefinition->m_profiles )
         {
             profile.m_bodySettings.erase( profile.m_bodySettings.begin() + bodyIdx );
+            profile.m_materialSettings.erase( profile.m_materialSettings.begin() + bodyIdx );
+
+            int32 const jointIdx = bodyIdx - 1;
+            if ( jointIdx >= 0 )
+            {
+                profile.m_jointSettings.erase( profile.m_jointSettings.begin() + jointIdx );
+            }
         }
     }
 
@@ -187,7 +211,8 @@ namespace KRG::Physics
         // Skipping the root bone
 
         int32 const numBones = m_pSkeleton->GetNumBones();
-        for ( auto i = 1; i < numBones; i++ )
+        int32 const numBodiesToCreate = Math::Min( numBones, (int32) RagdollDefinition::s_maxNumBodies );
+        for ( auto i = 1; i < numBodiesToCreate; i++ )
         {
             CreateBody( m_pSkeleton->GetBoneID( i ) );
         }
@@ -226,10 +251,17 @@ namespace KRG::Physics
         int32 const numBodies = pRagdollDefinition->GetNumBodies();
 
         auto& profile = pRagdollDefinition->m_profiles.emplace_back();
-        profile.m_bodySettings.resize( numBodies );
-
-        InlineString<128> ID( InlineString<128>::CtorSprintf(), "%u", (uint64) &profile );
+        
+        InlineString ID( InlineString::CtorSprintf(), "%u", (uint64) &profile );
         profile.m_ID = StringID( ID.c_str() );
+
+        profile.m_bodySettings.resize( numBodies );
+        profile.m_materialSettings.resize( numBodies );
+
+        if ( numBodies > 1 )
+        {
+            profile.m_jointSettings.resize( numBodies - 1 );
+        }
 
         return profile.m_ID;
     }
@@ -329,19 +361,54 @@ namespace KRG::Physics
         , m_solverSettingsGrid( *m_pTypeRegistry, *m_pResourceDatabase )
         , m_resourceFilePicker( *m_pResourceDatabase )
     {
-        auto OnPreEdit = [this] ( PropertyEditInfo const& info ) { PreEdit( info ); };
-        auto OnPostEdit = [this] ( PropertyEditInfo const& info ) { PostEdit( info ); };
+        SetViewportCameraSpeed( 5.0f );
+        SetWorldTimeControlsEnabled( true );
+
+        //-------------------------------------------------------------------------
+
+        auto OnPreEdit = [this] ( PropertyEditInfo const& info ) 
+        {
+            PreEdit( info ); 
+        };
+        
+        auto OnPostEdit = [this] ( PropertyEditInfo const& info ) 
+        {
+            PostEdit( info ); 
+        };
 
         m_bodyGridPreEditEventBindingID = m_bodyEditorPropertyGrid.OnPreEdit().Bind( OnPreEdit );
         m_bodyGridPostEditEventBindingID = m_bodyEditorPropertyGrid.OnPostEdit().Bind( OnPostEdit );
-        m_solverGridPreEditEventBindingID = m_solverSettingsGrid.OnPreEdit().Bind( OnPreEdit );
-        m_solverGridPostEditEventBindingID = m_solverSettingsGrid.OnPostEdit().Bind( OnPostEdit );
+
+        //-------------------------------------------------------------------------
+
+        auto OnSolverPreEdit = [this] ( PropertyEditInfo const& info )
+        {
+            PreEdit( info );
+        };
+
+        auto OnSolverPostEdit = [this] ( PropertyEditInfo const& info )
+        {
+            auto pSolverSettings = Cast<RagdollDefinition::Profile>( m_solverSettingsGrid.GetEditedType() );
+            pSolverSettings->CorrectSettingsToValidRanges();
+            PostEdit( info );
+        };
+
+        m_solverGridPreEditEventBindingID = m_solverSettingsGrid.OnPreEdit().Bind( OnSolverPreEdit );
+        m_solverGridPostEditEventBindingID = m_solverSettingsGrid.OnPostEdit().Bind( OnSolverPostEdit );
+
+        //-------------------------------------------------------------------------
 
         m_gizmo.SetOption( ImGuiX::Gizmo::Options::DrawManipulationPlanes, false );
         m_gizmo.SetOption( ImGuiX::Gizmo::Options::AllowScale, false );
         m_gizmo.SetOption( ImGuiX::Gizmo::Options::AllowCoordinateSpaceSwitching, false );
         m_gizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
         m_gizmo.SetTargetTransform( &m_gizmoWorkingTransform );
+
+        m_previewGizmo.SetOption( ImGuiX::Gizmo::Options::DrawManipulationPlanes, false );
+        m_previewGizmo.SetOption( ImGuiX::Gizmo::Options::AllowScale, false );
+        m_previewGizmo.SetOption( ImGuiX::Gizmo::Options::AllowCoordinateSpaceSwitching, false );
+        m_previewGizmo.SwitchMode( ImGuiX::Gizmo::GizmoMode::Translation );
+        m_previewGizmo.SetTargetTransform( &m_previewGizmoTransform );
     }
 
     RagdollWorkspace::~RagdollWorkspace()
@@ -551,8 +618,6 @@ namespace KRG::Physics
 
         if ( !IsPreviewing() )
         {
-            ImGui::SameLine();
-
             if ( BeginViewportToolbarGroup( "Editing Options", ImVec2( 140, 0 ) ) )
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
@@ -563,11 +628,11 @@ namespace KRG::Physics
         }
         else
         {
-            ImGui::SameLine();
-
-            if ( BeginViewportToolbarGroup( "Editing Options", ImVec2( 140, 0 ) ) )
+            if ( BeginViewportToolbarGroup( "Preview Options", ImVec2( 230, 0 ) ) )
             {
                 ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
+                ImGui::Checkbox( "Draw Ragdoll", &m_drawRagdoll );
+                ImGui::SameLine( 0, 4 );
                 ImGui::Checkbox( "Draw Anim Pose", &m_drawAnimationPose );
                 ImGui::PopStyleVar();
             }
@@ -592,137 +657,142 @@ namespace KRG::Physics
 
         if ( IsPreviewing() )
         {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        auto drawingCtx = GetDrawingContext();
-
-        // Draw skeleton
-        if ( m_drawSkeleton )
-        {
-            drawingCtx.Draw( *m_pSkeleton.GetPtr(), Transform::Identity );
-        }
-
-        //-------------------------------------------------------------------------
-
-        if ( m_editorMode == Mode::BodyEditor )
-        {
-            int32 const numBodies = pRagdollDefinition->GetNumBodies();
-            for ( auto i = 0; i < numBodies; i++ )
+            m_previewGizmoTransform = m_pMeshComponent->GetWorldTransform();
+            if ( m_previewGizmo.Draw( *pViewport ) )
             {
-                auto const& body = pRagdollDefinition->m_bodies[i];
-                int32 const boneIdx = m_pSkeleton->GetBoneIndex( body.m_boneID );
-                KRG_ASSERT( boneIdx != InvalidIndex );
-
-                if ( m_isolateSelectedBody && body.m_boneID != m_selectedBoneID )
-                {
-                    continue;
-                }
-
-                //-------------------------------------------------------------------------
-
-                Transform const bodyTransform = body.m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( boneIdx );
-                drawingCtx.DrawCapsuleHeightX( bodyTransform, body.m_radius, body.m_halfHeight, Colors::Orange, 3.0f );
-
-                // Draw body axes
-                if ( m_drawBodyAxes )
-                {
-                    drawingCtx.DrawAxis( bodyTransform, 0.025f, 2 );
-                }
-
-                // Draw joint
-                if ( i > 0 )
-                {
-                    int32 const parentBodyIdx = GetParentBodyIndex( m_pSkeleton.GetPtr(), *pRagdollDefinition, i );
-                    int32 const parentBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[parentBodyIdx].m_boneID );
-                    KRG_ASSERT( parentBoneIdx != InvalidIndex );
-                    Transform const parentBodyTransform = pRagdollDefinition->m_bodies[parentBodyIdx].m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( parentBoneIdx );
-
-                    drawingCtx.DrawAxis( body.m_jointTransform, 0.1f, 3 );
-                    drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), parentBodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
-                    drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), bodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
-                }
+                m_pMeshComponent->SetWorldTransform( m_previewGizmoTransform );
             }
         }
         else
         {
-            int32 const numBodies = pRagdollDefinition->GetNumBodies();
-            auto pActiveProfile = pRagdollDefinition->GetProfile( m_activeProfileID );
+            auto drawingCtx = GetDrawingContext();
 
-            for ( auto i = 1; i < numBodies; i++ )
+            // Draw skeleton
+            if ( m_drawSkeleton )
             {
-                auto const& body = pRagdollDefinition->m_bodies[i];
-                int32 const boneIdx = m_pSkeleton->GetBoneIndex( body.m_boneID );
-                KRG_ASSERT( boneIdx != InvalidIndex );
-
-                if ( m_isolateSelectedBody && body.m_boneID != m_selectedBoneID )
-                {
-                    continue;
-                }
-
-                int32 const parentBodyIdx = GetParentBodyIndex( m_pSkeleton.GetPtr(), *pRagdollDefinition, i );
-                int32 const parentBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[parentBodyIdx].m_boneID );
-                KRG_ASSERT( parentBoneIdx != InvalidIndex );
-
-                Transform const bodyTransform = body.m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( boneIdx );
-                Transform const parentBodyTransform = pRagdollDefinition->m_bodies[parentBodyIdx].m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( parentBoneIdx );
-
-                // Draw joint
-                drawingCtx.DrawAxis( body.m_jointTransform, 0.1f, 4 );
-                drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), parentBodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
-                drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), bodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
-
-                // Draw limits
-                if ( pActiveProfile->m_bodySettings[i].m_twistLimitEnabled )
-                {
-                    DrawTwistLimits( drawingCtx, body.m_jointTransform, Degrees( pActiveProfile->m_bodySettings[i].m_twistLimitMin ), Degrees( pActiveProfile->m_bodySettings[i].m_twistLimitMax ), Colors::Red, 1.0f );
-                }
-
-                if ( pActiveProfile->m_bodySettings[i].m_swingLimitEnabled )
-                {
-                    DrawSwingLimits( drawingCtx, body.m_jointTransform, Degrees( pActiveProfile->m_bodySettings[i].m_swingLimitY ), Degrees( pActiveProfile->m_bodySettings[i].m_swingLimitZ ), Colors::Yellow, 1.0f );
-                }
+                drawingCtx.Draw( *m_pSkeleton.GetPtr(), Transform::Identity );
             }
-        }
 
-        // Gizmo
-        //-------------------------------------------------------------------------
+            //-------------------------------------------------------------------------
 
-        if ( m_selectedBoneID.IsValid() )
-        {
-            int32 const boneIdx = m_pSkeleton->GetBoneIndex( m_selectedBoneID );
-            int32 const bodyIdx = pRagdollDefinition->GetBodyIndexForBoneID( m_selectedBoneID );
-            if ( bodyIdx != InvalidIndex )
+            if ( m_editorMode == Mode::BodyEditor )
             {
-                auto& body = pRagdollDefinition->m_bodies[bodyIdx];
+                int32 const numBodies = pRagdollDefinition->GetNumBodies();
+                for ( auto i = 0; i < numBodies; i++ )
+                {
+                    auto const& body = pRagdollDefinition->m_bodies[i];
+                    int32 const boneIdx = m_pSkeleton->GetBoneIndex( body.m_boneID );
+                    KRG_ASSERT( boneIdx != InvalidIndex );
 
-                if ( m_editorMode == Mode::BodyEditor )
-                {
-                    Transform const boneTransform = m_pSkeleton->GetBoneGlobalTransform( boneIdx );
-                    Transform const bodyTransform = body.m_offsetTransform * boneTransform;
-                    m_gizmoWorkingTransform = bodyTransform;
-                    if ( m_gizmo.Draw( *pViewport ) )
+                    if ( m_isolateSelectedBody && body.m_boneID != m_selectedBoneID )
                     {
-                        body.m_offsetTransform = m_gizmoWorkingTransform * boneTransform.GetInverse();
+                        continue;
                     }
-                }
-                else
-                {
-                    m_gizmoWorkingTransform = body.m_jointTransform;
-                    if ( m_gizmo.Draw( *pViewport ) )
+
+                    //-------------------------------------------------------------------------
+
+                    Transform const bodyTransform = body.m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( boneIdx );
+                    drawingCtx.DrawCapsuleHeightX( bodyTransform, body.m_radius, body.m_halfHeight, Colors::Orange, 3.0f );
+
+                    // Draw body axes
+                    if ( m_drawBodyAxes )
                     {
-                        body.m_jointTransform = m_gizmoWorkingTransform;
+                        drawingCtx.DrawAxis( bodyTransform, 0.025f, 2 );
+                    }
+
+                    // Draw joint
+                    if ( i > 0 )
+                    {
+                        int32 const parentBodyIdx = GetParentBodyIndex( m_pSkeleton.GetPtr(), *pRagdollDefinition, i );
+                        int32 const parentBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[parentBodyIdx].m_boneID );
+                        KRG_ASSERT( parentBoneIdx != InvalidIndex );
+                        Transform const parentBodyTransform = pRagdollDefinition->m_bodies[parentBodyIdx].m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( parentBoneIdx );
+
+                        drawingCtx.DrawAxis( body.m_jointTransform, 0.1f, 3 );
+                        drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), parentBodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
+                        drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), bodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
                     }
                 }
             }
-
-            if ( m_isViewportFocused )
+            else
             {
-                if ( ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Space ) ) )
+                int32 const numBodies = pRagdollDefinition->GetNumBodies();
+                auto pActiveProfile = pRagdollDefinition->GetProfile( m_activeProfileID );
+
+                for ( auto bodyIdx = 1; bodyIdx < numBodies; bodyIdx++ )
                 {
-                    m_gizmo.SwitchToNextMode();
+                    int32 const jointIdx = bodyIdx - 1;
+                    auto const& body = pRagdollDefinition->m_bodies[bodyIdx];
+                    int32 const boneIdx = m_pSkeleton->GetBoneIndex( body.m_boneID );
+                    KRG_ASSERT( boneIdx != InvalidIndex );
+
+                    if ( m_isolateSelectedBody && body.m_boneID != m_selectedBoneID )
+                    {
+                        continue;
+                    }
+
+                    int32 const parentBodyIdx = GetParentBodyIndex( m_pSkeleton.GetPtr(), *pRagdollDefinition, bodyIdx );
+                    int32 const parentBoneIdx = m_pSkeleton->GetBoneIndex( pRagdollDefinition->m_bodies[parentBodyIdx].m_boneID );
+                    KRG_ASSERT( parentBoneIdx != InvalidIndex );
+
+                    Transform const bodyTransform = body.m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( boneIdx );
+                    Transform const parentBodyTransform = pRagdollDefinition->m_bodies[parentBodyIdx].m_offsetTransform * m_pSkeleton->GetBoneGlobalTransform( parentBoneIdx );
+
+                    // Draw joint
+                    drawingCtx.DrawAxis( body.m_jointTransform, 0.1f, 4 );
+                    drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), parentBodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
+                    drawingCtx.DrawLine( body.m_jointTransform.GetTranslation(), bodyTransform.GetTranslation(), Colors::Cyan, 2.0f );
+
+                    // Draw limits
+                    if ( pActiveProfile->m_jointSettings[jointIdx].m_twistLimitEnabled )
+                    {
+                        DrawTwistLimits( drawingCtx, body.m_jointTransform, Degrees( pActiveProfile->m_jointSettings[jointIdx].m_twistLimitMin ), Degrees( pActiveProfile->m_jointSettings[jointIdx].m_twistLimitMax ), Colors::Red, 1.0f );
+                    }
+
+                    if ( pActiveProfile->m_jointSettings[jointIdx].m_swingLimitEnabled )
+                    {
+                        DrawSwingLimits( drawingCtx, body.m_jointTransform, Degrees( pActiveProfile->m_jointSettings[jointIdx].m_swingLimitY ), Degrees( pActiveProfile->m_jointSettings[jointIdx].m_swingLimitZ ), Colors::Yellow, 1.0f );
+                    }
+                }
+            }
+
+            // Gizmo
+            //-------------------------------------------------------------------------
+
+            if ( m_selectedBoneID.IsValid() )
+            {
+                int32 const boneIdx = m_pSkeleton->GetBoneIndex( m_selectedBoneID );
+                int32 const bodyIdx = pRagdollDefinition->GetBodyIndexForBoneID( m_selectedBoneID );
+                if ( bodyIdx != InvalidIndex )
+                {
+                    auto& body = pRagdollDefinition->m_bodies[bodyIdx];
+
+                    if ( m_editorMode == Mode::BodyEditor )
+                    {
+                        Transform const boneTransform = m_pSkeleton->GetBoneGlobalTransform( boneIdx );
+                        Transform const bodyTransform = body.m_offsetTransform * boneTransform;
+                        m_gizmoWorkingTransform = bodyTransform;
+                        if ( m_gizmo.Draw( *pViewport ) )
+                        {
+                            body.m_offsetTransform = m_gizmoWorkingTransform * boneTransform.GetInverse();
+                        }
+                    }
+                    else
+                    {
+                        m_gizmoWorkingTransform = body.m_jointTransform;
+                        if ( m_gizmo.Draw( *pViewport ) )
+                        {
+                            body.m_jointTransform = m_gizmoWorkingTransform;
+                        }
+                    }
+                }
+
+                if ( m_isViewportFocused )
+                {
+                    if ( ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Space ) ) )
+                    {
+                        m_gizmo.SwitchToNextMode();
+                    }
                 }
             }
         }
@@ -739,6 +809,11 @@ namespace KRG::Physics
         if ( !skeletonsMatch && m_definitionLoaded )
         {
             UnloadDefinition();
+        }
+
+        if ( IsPreviewing() && !pRagdollDefinition->IsValid() )
+        {
+            StopPreview();
         }
 
         //-------------------------------------------------------------------------
@@ -769,12 +844,12 @@ namespace KRG::Physics
             ImGui::SetNextWindowClass( pWindowClass );
             DrawBodyEditorDetailsWindow( context );
 
-            ImGui::SetNextWindowClass( pWindowClass );
-            DrawProfileEditorWindow( context );
-
             DrawDescriptorWindow( context, pWindowClass );
         }
         ImGui::EndDisabled();
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawProfileEditorWindow( context );
 
         // Preview UI
         //-------------------------------------------------------------------------
@@ -910,7 +985,7 @@ namespace KRG::Physics
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        InlineString<128> boneLabel;
+        InlineString boneLabel;
         boneLabel.sprintf( "%d. %s", pBone->m_boneIdx, currentBoneID.c_str() );
 
         if ( hasBody )
@@ -940,18 +1015,28 @@ namespace KRG::Physics
                 if ( ImGui::MenuItem( "Destroy Body" ) )
                 {
                     DestroyBody( bodyIdx );
+                    SetActiveProfile( m_activeProfileID );
                 }
 
                 if ( ImGui::MenuItem( "Destroy All Child Bodies" ) )
                 {
                     DestroyChildBodies( bodyIdx );
+                    SetActiveProfile( m_activeProfileID );
                 }
             }
             else
             {
-                if ( ImGui::MenuItem( "Create Body" ) )
+                if ( pRagdollDefinition->GetNumBodies() >= RagdollDefinition::s_maxNumBodies )
                 {
-                    CreateBody( currentBoneID );
+                    ImGui::Text( "Max number of bodies reached" );
+                }
+                else
+                {
+                    if ( ImGui::MenuItem( "Create Body" ) )
+                    {
+                        CreateBody( currentBoneID );
+                        SetActiveProfile( m_activeProfileID );
+                    }
                 }
             }
 
@@ -995,6 +1080,11 @@ namespace KRG::Physics
         auto pRagdollDefinition = GetRagdollDefinition();
         m_activeProfileID = profileID;
         m_workingProfileCopy = *pRagdollDefinition->GetProfile( profileID );
+
+        if ( IsPreviewing() )
+        {
+            m_pRagdoll->SwitchProfile( m_activeProfileID );
+        }
     }
 
     void RagdollWorkspace::DrawProfileEditorWindow( UpdateContext const& context )
@@ -1003,122 +1093,7 @@ namespace KRG::Physics
 
         if ( ImGui::Begin( m_profileEditorWindowName.c_str() ) )
         {
-            // Profile Management
-            //-------------------------------------------------------------------------
-
-            constexpr static float const renameButtonWidth = 24;
-            constexpr static float const buttonWidth = 100;
-            float const spacing = ImGui::GetStyle().ItemSpacing.x;
-
-            if ( pRagdollDefinition->IsValid() )
-            {
-                ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - ( renameButtonWidth + spacing ) - ( 2 * ( buttonWidth + spacing ) ) );
-                if ( ImGui::BeginCombo( "##ProfileSelector", m_activeProfileID.IsValid() ? m_activeProfileID.c_str() : "Invalid Profile ID" ) )
-                {
-                    for( auto const& profile : pRagdollDefinition->m_profiles )
-                    {
-                        bool const isSelected = ( profile.m_ID == m_activeProfileID );
-                        if ( ImGui::Selectable( profile.m_ID.c_str(), isSelected ) )
-                        {
-                            SetActiveProfile( profile.m_ID );
-                        }
-
-                        if ( isSelected )
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                    }
-
-                    ImGui::EndCombo();
-                }
-
-                ImGui::SameLine();
-                if ( ImGuiX::ColoredButton( Colors::RoyalBlue, Colors::White, KRG_ICON_PENCIL"##Rename", ImVec2( renameButtonWidth, 0 ) ) )
-                {
-                    Printf( m_profileNameBuffer, 256, m_activeProfileID.c_str() );
-                    m_originalPrenameID = m_activeProfileID;
-                    ImGui::OpenPopup( "Rename Profile" );
-                }
-
-                ImGui::SameLine();
-                if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, "New Profile", ImVec2( buttonWidth, 0 ) ) )
-                {
-                    SetActiveProfile( CreateProfile() );
-                    Printf( m_profileNameBuffer, 256, m_activeProfileID.c_str() );
-                    m_originalPrenameID = m_activeProfileID;
-                    ImGui::OpenPopup( "Rename Profile" );
-                }
-
-                ImGui::SameLine();
-                ImGui::BeginDisabled( pRagdollDefinition->GetNumProfiles() == 1 );
-                if ( ImGuiX::ColoredButton( Colors::MediumRed, Colors::White, "Delete", ImVec2( buttonWidth, 0 ) ) )
-                {
-                    if ( pRagdollDefinition->GetNumProfiles() > 1 )
-                    {
-                        DestroyProfile( m_activeProfileID );
-                        SetActiveProfile( pRagdollDefinition->GetDefaultProfile()->m_ID );
-                    }
-                }
-                ImGui::EndDisabled();
-            }
-
-            //-------------------------------------------------------------------------
-
-            ImGui::SetNextWindowSize( ImVec2( 600, 52 ) );
-            if ( ImGui::BeginPopupModal( "Rename Profile", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize ) )
-            {
-                auto ValidateProfileName = [this, pRagdollDefinition] ( char const* const pName )
-                {
-                    StringID potentialID( pName );
-                    if ( !potentialID.IsValid() )
-                    {
-                        return false;
-                    }
-
-                    if ( potentialID == m_originalPrenameID )
-                    {
-                        return true;
-                    }
-
-                    return pRagdollDefinition->GetProfile( potentialID ) == nullptr;
-                };
-
-                auto pProfile = pRagdollDefinition->GetProfile( m_activeProfileID );
-                if ( pProfile != nullptr )
-                {
-                    auto CommitChanges = [this, pProfile, ValidateProfileName] ()
-                    {
-                        if ( ValidateProfileName( m_profileNameBuffer ) )
-                        {
-                            ScopedDescriptorModification const sdm( this );
-                            pProfile->m_ID = StringID( m_profileNameBuffer );
-                            SetActiveProfile( pProfile->m_ID );
-                            ImGui::CloseCurrentPopup();
-                        }
-                    };
-
-                    ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - 40 - ImGui::GetStyle().ItemSpacing.x );
-                    if ( ImGui::InputText( "##ProfileName", m_profileNameBuffer, 256, ImGuiInputTextFlags_EnterReturnsTrue ) )
-                    {
-                        CommitChanges();
-                    }
-
-                    ImGui::SameLine();
-                    ImGui::BeginDisabled( !ValidateProfileName( m_profileNameBuffer ) );
-                    if ( ImGui::Button( "OK", ImVec2( 40, 0 ) ) )
-                    {
-                        CommitChanges();
-                    }
-                    ImGui::EndDisabled();
-                }
-                else
-                {
-                    ImGui::CloseCurrentPopup();
-                    SetActiveProfile( pRagdollDefinition->GetDefaultProfile()->m_ID );
-                }
-
-                ImGui::EndPopup();
-            }
+            DrawProfileManager();
 
             //-------------------------------------------------------------------------
 
@@ -1135,21 +1110,27 @@ namespace KRG::Physics
                 ImGui::TextColored( Colors::Red.ToFloat4(), "Invalid Definition" );
                 m_solverSettingsGrid.SetTypeToEdit( nullptr );
             }
+            else if ( pRagdollDefinition->GetNumBodies() == 0 )
+            {
+                ImGui::TextColored( Colors::Yellow.ToFloat4(), "No Bodies" );
+                m_solverSettingsGrid.SetTypeToEdit( nullptr );
+            }
             else
             {
                 if ( ImGui::BeginTabBar( "ProfileSetings" ) )
                 {
-                    if ( ImGui::BeginTabItem( "Joint Settings" ) )
+                    if ( ImGui::BeginTabItem( "Body/Joint Settings" ) )
                     {
+                        DrawRootBodySettings( context, pActiveProfile );
                         DrawJointSettingsTable( context, pActiveProfile );
                         ImGui::EndTabItem();
                     }
 
                     //-------------------------------------------------------------------------
 
-                    if ( ImGui::BeginTabItem( "Body Settings" ) )
+                    if ( ImGui::BeginTabItem( "Material Settings" ) )
                     {
-                        DrawBodySettingsTable( context, pActiveProfile );
+                        DrawMaterialSettingsTable( context, pActiveProfile );
                         ImGui::EndTabItem();
                     }
 
@@ -1157,9 +1138,9 @@ namespace KRG::Physics
 
                     if ( ImGui::BeginTabItem( "Solver Settings" ) )
                     {
-                        if ( m_solverSettingsGrid.GetEditedType() != &pActiveProfile->m_solverSettings )
+                        if ( m_solverSettingsGrid.GetEditedType() != pActiveProfile )
                         {
-                            m_solverSettingsGrid.SetTypeToEdit( &pActiveProfile->m_solverSettings );
+                            m_solverSettingsGrid.SetTypeToEdit( pActiveProfile );
                         }
                         m_solverSettingsGrid.DrawGrid();
                         ImGui::EndTabItem();
@@ -1172,66 +1153,465 @@ namespace KRG::Physics
         ImGui::End();
     }
 
+    void RagdollWorkspace::DrawProfileManager()
+    {
+        constexpr static float const renameButtonWidth = 24;
+        constexpr static float const buttonWidth = 100;
+        float const spacing = ImGui::GetStyle().ItemSpacing.x;
+
+        auto pRagdollDefinition = GetRagdollDefinition();
+        if ( !pRagdollDefinition->IsValid() )
+        {
+            return;
+        }
+
+        // Profile Selector
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - ( renameButtonWidth + spacing ) - ( 2 * ( buttonWidth + spacing ) ) );
+        if ( ImGui::BeginCombo( "##ProfileSelector", m_activeProfileID.IsValid() ? m_activeProfileID.c_str() : "Invalid Profile ID" ) )
+        {
+            for ( auto const& profile : pRagdollDefinition->m_profiles )
+            {
+                bool const isSelected = ( profile.m_ID == m_activeProfileID );
+                if ( ImGui::Selectable( profile.m_ID.c_str(), isSelected ) )
+                {
+                    SetActiveProfile( profile.m_ID );
+                }
+
+                if ( isSelected )
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndCombo();
+        }
+
+        // Controls
+        //-------------------------------------------------------------------------
+
+        ImGui::BeginDisabled( IsPreviewing() );
+
+        ImGui::SameLine();
+        if ( ImGuiX::ColoredButton( Colors::RoyalBlue, Colors::White, KRG_ICON_PENCIL"##Rename", ImVec2( renameButtonWidth, 0 ) ) )
+        {
+            Printf( m_profileNameBuffer, 256, m_activeProfileID.c_str() );
+            m_originalPrenameID = m_activeProfileID;
+            ImGui::OpenPopup( "Rename Profile" );
+        }
+
+        ImGui::SameLine();
+        if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, "New Profile", ImVec2( buttonWidth, 0 ) ) )
+        {
+            SetActiveProfile( CreateProfile() );
+            Printf( m_profileNameBuffer, 256, m_activeProfileID.c_str() );
+            m_originalPrenameID = m_activeProfileID;
+            ImGui::OpenPopup( "Rename Profile" );
+        }
+
+        ImGui::SameLine();
+        ImGui::BeginDisabled( pRagdollDefinition->GetNumProfiles() == 1 );
+        if ( ImGuiX::ColoredButton( Colors::MediumRed, Colors::White, "Delete", ImVec2( buttonWidth, 0 ) ) )
+        {
+            if ( pRagdollDefinition->GetNumProfiles() > 1 )
+            {
+                DestroyProfile( m_activeProfileID );
+                SetActiveProfile( pRagdollDefinition->GetDefaultProfile()->m_ID );
+            }
+        }
+
+        ImGui::EndDisabled();
+
+        // Rename Dialog
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowSize( ImVec2( 600, 52 ) );
+        if ( ImGui::BeginPopupModal( "Rename Profile", nullptr, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize ) )
+        {
+            auto ValidateProfileName = [this, pRagdollDefinition] ( char const* const pName )
+            {
+                StringID potentialID( pName );
+                if ( !potentialID.IsValid() )
+                {
+                    return false;
+                }
+
+                if ( potentialID == m_originalPrenameID )
+                {
+                    return true;
+                }
+
+                return pRagdollDefinition->GetProfile( potentialID ) == nullptr;
+            };
+
+            auto pProfile = pRagdollDefinition->GetProfile( m_activeProfileID );
+            if ( pProfile != nullptr )
+            {
+                auto CommitChanges = [this, pProfile, ValidateProfileName] ()
+                {
+                    if ( ValidateProfileName( m_profileNameBuffer ) )
+                    {
+                        ScopedDescriptorModification const sdm( this );
+                        pProfile->m_ID = StringID( m_profileNameBuffer );
+                        SetActiveProfile( pProfile->m_ID );
+                        ImGui::CloseCurrentPopup();
+                    }
+                };
+
+                ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - 40 - ImGui::GetStyle().ItemSpacing.x );
+                if ( ImGui::InputText( "##ProfileName", m_profileNameBuffer, 256, ImGuiInputTextFlags_EnterReturnsTrue ) )
+                {
+                    CommitChanges();
+                }
+
+                ImGui::SameLine();
+                ImGui::BeginDisabled( !ValidateProfileName( m_profileNameBuffer ) );
+                if ( ImGui::Button( "OK", ImVec2( 40, 0 ) ) )
+                {
+                    CommitChanges();
+                }
+                ImGui::EndDisabled();
+            }
+            else
+            {
+                ImGui::CloseCurrentPopup();
+                SetActiveProfile( pRagdollDefinition->GetDefaultProfile()->m_ID );
+            }
+
+            ImGui::EndPopup();
+        }
+
+        ImGui::EndDisabled();
+    }
+
+    void RagdollWorkspace::DrawRootBodySettings( UpdateContext const& context, RagdollDefinition::Profile* pProfile )
+    {
+        static char const* const rootBodyDriveComboOptions[3] = { "None", "Kinematic", "Spring" };
+
+        KRG_ASSERT( pProfile != nullptr );
+        auto pRagdollDefinition = GetRagdollDefinition();
+
+        ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+        if ( ImGui::BeginTable( "BodySettingsTable", 9, ImGuiTableFlags_BordersInnerV ) )
+        {
+            ImGui::TableSetupColumn( "Root Body", ImGuiTableColumnFlags_WidthFixed, 120 );
+            ImGui::TableSetupColumn( "Mass", ImGuiTableColumnFlags_WidthFixed, 40 );
+            ImGui::TableSetupColumn( "CCD", ImGuiTableColumnFlags_WidthFixed, 20 );
+            ImGui::TableSetupColumn( "Self Collision", ImGuiTableColumnFlags_WidthFixed, 30 );
+
+            ImGui::TableSetupColumn( "Drive", ImGuiTableColumnFlags_WidthFixed, 75 );
+
+            ImGui::TableSetupColumn( "Stiffness", ImGuiTableColumnFlags_WidthFixed, 70 );
+            ImGui::TableSetupColumn( "Damping", ImGuiTableColumnFlags_WidthFixed, 70 );
+
+            ImGui::TableSetupColumn( "Max Distance", ImGuiTableColumnFlags_WidthFixed, 70 );
+            ImGui::TableSetupColumn( "Tolerance", ImGuiTableColumnFlags_WidthFixed, 70 );
+
+            ImGui::TableHeadersRow();
+
+            //-------------------------------------------------------------------------
+
+            auto& cachedBodySettings = m_workingProfileCopy.m_bodySettings[0];
+            auto& realBodySettings = pProfile->m_bodySettings[0];
+
+            auto& cachedSettings = m_workingProfileCopy.m_rootControlBodySettings;
+            auto& realSettings = pProfile->m_rootControlBodySettings;
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextRow();
+
+            ImGui::TableNextColumn();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text( pRagdollDefinition->m_bodies[0].m_boneID.c_str() );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat( "##Mass", &cachedBodySettings.m_mass, 0.0f, 0.0f, "%.2f" ) )
+            {
+                cachedBodySettings.m_mass = Math::Clamp( cachedBodySettings.m_mass, 0.0f, 1000000.0f );
+            }
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realBodySettings.m_mass = cachedBodySettings.m_mass;
+            }
+            ImGuiX::ItemTooltip( "The mass of the body" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::Checkbox( "##CCD", &cachedBodySettings.m_enableCCD );
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realBodySettings.m_enableCCD = cachedBodySettings.m_enableCCD;
+            }
+            ImGuiX::ItemTooltip( "Enable continuous collision detection for this body" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::Checkbox( "##SC", &cachedBodySettings.m_enableSelfCollision );
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realBodySettings.m_enableSelfCollision = cachedBodySettings.m_enableSelfCollision;
+            }
+            ImGuiX::ItemTooltip( "Should this body collide with other bodies in the ragdoll" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+
+            int32 dt = (int32) cachedSettings.m_driveType;
+            if ( ImGui::Combo( "##DriveMode", &dt, rootBodyDriveComboOptions, 3 ) )
+            {
+                ScopedDescriptorModification const sdm( this );
+                cachedSettings.m_driveType = (RagdollRootControlBodySettings::DriveType) dt;
+                realSettings.m_driveType = cachedSettings.m_driveType;
+
+                if ( IsPreviewing() )
+                {
+                    m_pRagdoll->RecreateRootControlBody();
+                }
+            }
+
+            ImGuiX::ItemTooltip( "The drive mode for the root control body's joint" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat( "##Stiffness", &cachedSettings.m_stiffness, 0.0f, 0.0f, "%.1f" ) )
+            {
+                cachedSettings.m_stiffness = Math::Clamp( cachedSettings.m_stiffness, 0.0f, 1000000.0f );
+            }
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realSettings.m_stiffness = cachedSettings.m_stiffness;
+            }
+            ImGuiX::ItemTooltip( "The stiffness of the spring used to correct the root body once the limit is exceeded" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat( "##Damping", &cachedSettings.m_damping, 0.0f, 0.0f, "%.1f" ) )
+            {
+                cachedSettings.m_damping = Math::Clamp( cachedSettings.m_damping, 0.0f, 1000000.0f );
+            }
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realSettings.m_damping = cachedSettings.m_damping;
+            }
+            ImGuiX::ItemTooltip( "The damping of the spring used to correct the root body once the limit is exceeded" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat( "##Max Distance", &cachedSettings.m_maxDistance, 0.0f, 0.0f, "%.3f" ) )
+            {
+                cachedSettings.m_maxDistance = Math::Clamp( cachedSettings.m_maxDistance, 0.0f, 5.0f );
+            }
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realSettings.m_maxDistance = cachedSettings.m_maxDistance;
+            }
+            ImGuiX::ItemTooltip( "The max distance the root body can drift from the control body" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableNextColumn();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat( "##Tolerance", &cachedSettings.m_tolerance, 0.0f, 0.0f, "%.3f" ) )
+            {
+                cachedSettings.m_tolerance = Math::Clamp( cachedSettings.m_tolerance, 0.0f, 1.0f );
+            }
+            if ( ImGui::IsItemDeactivatedAfterEdit() )
+            {
+                ScopedDescriptorModification const sdm( this );
+                realSettings.m_tolerance = cachedSettings.m_tolerance;
+            }
+            ImGuiX::ItemTooltip( "The acceptance error tolerance before the position is corrected" );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::EndTable();
+        }
+    }
+
     void RagdollWorkspace::DrawJointSettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile )
     {
-        static char const* const rootBodyDriveComboOptions[3] = { "Kinematic", "Spring", "None" };
         static char const* const driveComboOptions[3] = { "Kinematic", "Spring", "Velocity" };
 
         KRG_ASSERT( pProfile != nullptr );
         auto pRagdollDefinition = GetRagdollDefinition();
 
         ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
-        if ( ImGui::BeginTable( "BodySettingsTable", 16, ImGuiTableFlags_BordersInnerV ) )
+        if ( ImGui::BeginTable( "BodySettingsTable", 19, ImGuiTableFlags_BordersInnerV ) )
         {
             ImGui::TableSetupColumn( "Body", ImGuiTableColumnFlags_WidthFixed, 120 );
+            ImGui::TableSetupColumn( "Mass", ImGuiTableColumnFlags_WidthFixed, 40 );
+            ImGui::TableSetupColumn( "CCD", ImGuiTableColumnFlags_WidthFixed, 20 );
+            ImGui::TableSetupColumn( "Self Collision", ImGuiTableColumnFlags_WidthFixed, 30 );
+            ImGui::TableSetupColumn( "Int. Compliance", ImGuiTableColumnFlags_WidthFixed, 50 );
+            ImGui::TableSetupColumn( "Ext. Compliance", ImGuiTableColumnFlags_WidthFixed, 50 );
+
             ImGui::TableSetupColumn( "Drive", ImGuiTableColumnFlags_WidthFixed, 75 );
             ImGui::TableSetupColumn( "Stiffness", ImGuiTableColumnFlags_WidthFixed, 50 );
             ImGui::TableSetupColumn( "Damping", ImGuiTableColumnFlags_WidthFixed, 50 );
 
             ImGui::TableSetupColumn( "Twist", ImGuiTableColumnFlags_WidthFixed, 24 );
-            ImGui::TableSetupColumn( "Twist Lmt Min", ImGuiTableColumnFlags_WidthFixed, 70 );
-            ImGui::TableSetupColumn( "Twist Lmt Max", ImGuiTableColumnFlags_WidthFixed, 70 );
-            ImGui::TableSetupColumn( "Twist C-Dist", ImGuiTableColumnFlags_WidthFixed, 70 );
+            ImGui::TableSetupColumn( "Twist Lmt Min", ImGuiTableColumnFlags_WidthFixed, 60 );
+            ImGui::TableSetupColumn( "Twist Lmt Max", ImGuiTableColumnFlags_WidthFixed, 60 );
+            ImGui::TableSetupColumn( "Twist C-Dist", ImGuiTableColumnFlags_WidthFixed, 60 );
 
             ImGui::TableSetupColumn( "Swing", ImGuiTableColumnFlags_WidthFixed, 24 );
-            ImGui::TableSetupColumn( "Swing Lmt Y", ImGuiTableColumnFlags_WidthFixed, 70 );
-            ImGui::TableSetupColumn( "Swing Lmt Z", ImGuiTableColumnFlags_WidthFixed, 70 );
-            ImGui::TableSetupColumn( "Swing C-Dist", ImGuiTableColumnFlags_WidthFixed, 70 );
-            ImGui::TableSetupColumn( "Tang. Stiffness", ImGuiTableColumnFlags_WidthFixed, 74 );
-            ImGui::TableSetupColumn( "Tang. Damping", ImGuiTableColumnFlags_WidthFixed, 74 );
-
-            ImGui::TableSetupColumn( "Int. Compliance", ImGuiTableColumnFlags_WidthFixed, 74 );
-            ImGui::TableSetupColumn( "Ext. Compliance", ImGuiTableColumnFlags_WidthFixed, 74 );
+            ImGui::TableSetupColumn( "Swing Lmt Y", ImGuiTableColumnFlags_WidthFixed, 60 );
+            ImGui::TableSetupColumn( "Swing Lmt Z", ImGuiTableColumnFlags_WidthFixed, 60 );
+            ImGui::TableSetupColumn( "Swing C-Dist", ImGuiTableColumnFlags_WidthFixed, 60 );
+            ImGui::TableSetupColumn( "Tang. Stiffness", ImGuiTableColumnFlags_WidthFixed, 50 );
+            ImGui::TableSetupColumn( "Tang. Damping", ImGuiTableColumnFlags_WidthFixed, 50 );
 
             ImGui::TableHeadersRow();
 
             //-------------------------------------------------------------------------
 
             int32 const numBodies = pRagdollDefinition->GetNumBodies();
-            for ( auto bodyIdx = 0; bodyIdx < numBodies; bodyIdx++ )
+            int32 const numJoints = numBodies - 1;
+            for ( auto bodyIdx = 1; bodyIdx < numBodies; bodyIdx++ )
             {
-                auto& bodySettings = m_workingProfileCopy.m_bodySettings[bodyIdx];
+                auto& cachedBodySettings = m_workingProfileCopy.m_bodySettings[bodyIdx];
                 auto& realBodySettings = pProfile->m_bodySettings[bodyIdx];
 
-                ImGui::PushID( &bodySettings );
+                int32 const jointIdx = bodyIdx - 1;
+                auto& cachedJointSettings = m_workingProfileCopy.m_jointSettings[jointIdx];
+                auto& realJointSettings = pProfile->m_jointSettings[jointIdx];
+
+                //-------------------------------------------------------------------------
+                // Body Settings
+                //-------------------------------------------------------------------------
+
+                ImGui::PushID( &cachedJointSettings );
                 ImGui::TableNextRow();
 
                 ImGui::TableNextColumn();
                 ImGui::AlignTextToFramePadding();
-                ImGui::Text( pRagdollDefinition->m_bodies[bodyIdx].m_boneID.c_str() );
+                ImGui::Text( "%d. %s", bodyIdx, pRagdollDefinition->m_bodies[bodyIdx].m_boneID.c_str());
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth( -1 );
+                if ( ImGui::InputFloat( "##Mass", &cachedBodySettings.m_mass, 0.0f, 0.0f, "%.2f" ) )
+                {
+                    cachedBodySettings.m_mass = Math::Clamp( cachedBodySettings.m_mass, 0.0f, 1000000.0f );
+                }
+                if ( ImGui::IsItemDeactivatedAfterEdit() )
+                {
+                    ScopedDescriptorModification const sdm( this );
+                    realBodySettings.m_mass = cachedBodySettings.m_mass;
+                }
+                ImGuiX::ItemTooltip( "The mass of the body" );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::Checkbox( "##CCD", &cachedBodySettings.m_enableCCD );
+                if ( ImGui::IsItemDeactivatedAfterEdit() )
+                {
+                    ScopedDescriptorModification const sdm( this );
+                    realBodySettings.m_enableCCD = cachedBodySettings.m_enableCCD;
+                }
+                ImGuiX::ItemTooltip( "Enable continuous collision detection for this body" );
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::Checkbox( "##SC", &cachedBodySettings.m_enableSelfCollision );
+                if ( ImGui::IsItemDeactivatedAfterEdit() )
+                {
+                    ScopedDescriptorModification const sdm( this );
+                    realBodySettings.m_enableSelfCollision = cachedBodySettings.m_enableSelfCollision;
+                }
+                ImGuiX::ItemTooltip( "Should this body collide with other bodies in the ragdoll" );
+
+                //-------------------------------------------------------------------------
+                // Joint Settings
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth( -1 );
+                ImGui::SliderFloat( "##IntCompliance", &cachedJointSettings.m_internalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                if ( ImGui::IsItemDeactivatedAfterEdit() )
+                {
+                    ScopedDescriptorModification const sdm( this );
+                    realJointSettings.m_internalCompliance = cachedJointSettings.m_internalCompliance;
+                }
+                ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by internal forces generated from other joints." );
+
+                if ( ImGui::BeginPopupContextItem() )
+                {
+                    if ( ImGui::MenuItem( "Set To All" ) )
+                    {
+                        ScopedDescriptorModification const sdm( this );
+                        float const value = cachedJointSettings.m_internalCompliance;
+                        for ( int32 i = 0; i < numJoints; i++ )
+                        {
+                            m_workingProfileCopy.m_jointSettings[i].m_internalCompliance = value;
+                            pProfile->m_jointSettings[i].m_internalCompliance = value;
+                        }
+                    }
+                    ImGui::EndPopup();
+                }
+
+                //-------------------------------------------------------------------------
+
+                ImGui::TableNextColumn();
+                ImGui::SetNextItemWidth( -1 );
+                ImGui::SliderFloat( "##ExtCompliance", &cachedJointSettings.m_externalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                if ( ImGui::IsItemDeactivatedAfterEdit() )
+                {
+                    ScopedDescriptorModification const sdm( this );
+                    realJointSettings.m_externalCompliance = cachedJointSettings.m_externalCompliance;
+                }
+                ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by external forces such as gravity and contact forces" );
+
+                if ( ImGui::BeginPopupContextItem() )
+                {
+                    if ( ImGui::MenuItem( "Set To All" ) )
+                    {
+                        ScopedDescriptorModification const sdm( this );
+                        float const value = cachedJointSettings.m_externalCompliance;
+                        for ( int32 i = 0; i < numJoints; i++ )
+                        {
+                            m_workingProfileCopy.m_jointSettings[i].m_externalCompliance = value;
+                            pProfile->m_jointSettings[i].m_externalCompliance = value;
+                        }
+                    }
+                    ImGui::EndPopup();
+                }
 
                 //-------------------------------------------------------------------------
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
 
-                bool const isRootBody = bodyIdx == 0;
-                int32 dt = (int32) bodySettings.m_driveType;
-                if( ImGui::Combo( "##DriveMode", &dt, isRootBody ? rootBodyDriveComboOptions : driveComboOptions, 3 ) )
+                int32 dt = (int32) cachedJointSettings.m_driveType;
+                if( ImGui::Combo( "##DriveMode", &dt, driveComboOptions, 3 ) )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    bodySettings.m_driveType = (RagdollDriveType) dt;
-                    realBodySettings.m_driveType = bodySettings.m_driveType;
+                    cachedJointSettings.m_driveType = (RagdollJointSettings::DriveType) dt;
+                    realJointSettings.m_driveType = cachedJointSettings.m_driveType;
                 }
 
                 ImGuiX::ItemTooltip( "The drive mode for this body's joint" );
@@ -1241,11 +1621,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-                        RagdollDriveType value = bodySettings.m_driveType;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        RagdollJointSettings::DriveType value = cachedJointSettings.m_driveType;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_driveType = value;
-                            pProfile->m_bodySettings[i].m_driveType = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_driveType = value;
+                            pProfile->m_jointSettings[i].m_driveType = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1255,14 +1635,14 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                if ( ImGui::InputFloat( "##Stiffness", &bodySettings.m_stiffness ) )
+                if ( ImGui::InputFloat( "##Stiffness", &cachedJointSettings.m_stiffness, 0.0f, 0.0f, "%.1f" ) )
                 {
-                    bodySettings.m_stiffness = Math::Clamp( bodySettings.m_stiffness, 0.0f, 1000000.0f );
+                    cachedJointSettings.m_stiffness = Math::Clamp( cachedJointSettings.m_stiffness, 0.0f, 1000000.0f );
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_stiffness = bodySettings.m_stiffness;
+                    realJointSettings.m_stiffness = cachedJointSettings.m_stiffness;
                 }
                 ImGuiX::ItemTooltip( "The acceleration generated by the spring drive is proportional to this value and the angle between the drive target position and the current position" );
 
@@ -1271,12 +1651,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_stiffness;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_stiffness;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_stiffness = value;
-                            pProfile->m_bodySettings[i].m_stiffness = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_stiffness = value;
+                            pProfile->m_jointSettings[i].m_stiffness = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1286,14 +1665,14 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                if ( ImGui::InputFloat( "##Damping", &bodySettings.m_damping ) )
+                if ( ImGui::InputFloat( "##Damping", &cachedJointSettings.m_damping, 0.0f, 0.0f, "%.1f" ) )
                 {
-                    bodySettings.m_damping = Math::Clamp( bodySettings.m_damping, 0.0f, 1000000.0f );
+                    cachedJointSettings.m_damping = Math::Clamp( cachedJointSettings.m_damping, 0.0f, 1000000.0f );
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_damping = bodySettings.m_damping;
+                    realJointSettings.m_damping = cachedJointSettings.m_damping;
                 }
                 ImGuiX::ItemTooltip( "The acceleration generated by the spring drive is proportional to this value and the difference between the angular velocity of the joint and the target drive velocity." );
 
@@ -1302,12 +1681,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_damping;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_damping;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_damping = value;
-                            pProfile->m_bodySettings[i].m_damping = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_damping = value;
+                            pProfile->m_jointSettings[i].m_damping = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1316,11 +1694,11 @@ namespace KRG::Physics
                 //-------------------------------------------------------------------------
 
                 ImGui::TableNextColumn();
-                ImGui::Checkbox( "##Twist", &bodySettings.m_twistLimitEnabled );
+                ImGui::Checkbox( "##Twist", &cachedJointSettings.m_twistLimitEnabled );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_twistLimitEnabled = bodySettings.m_twistLimitEnabled;
+                    realJointSettings.m_twistLimitEnabled = cachedJointSettings.m_twistLimitEnabled;
                 }
                 ImGuiX::ItemTooltip( "Enable Twist Limits." );
 
@@ -1329,12 +1707,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        bool const value = bodySettings.m_twistLimitEnabled;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        bool const value = cachedJointSettings.m_twistLimitEnabled;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_twistLimitEnabled = value;
-                            pProfile->m_bodySettings[i].m_twistLimitEnabled = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_twistLimitEnabled = value;
+                            pProfile->m_jointSettings[i].m_twistLimitEnabled = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1344,12 +1721,12 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##TwistLimitMin", &bodySettings.m_twistLimitMin, -179, bodySettings.m_twistLimitMax - 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##TwistLimitMin", &cachedJointSettings.m_twistLimitMin, -179, cachedJointSettings.m_twistLimitMax - 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    KRG_ASSERT( bodySettings.m_twistLimitMin < bodySettings.m_twistLimitMax );
+                    KRG_ASSERT( cachedJointSettings.m_twistLimitMin < cachedJointSettings.m_twistLimitMax );
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_twistLimitMin = bodySettings.m_twistLimitMin;
+                    realJointSettings.m_twistLimitMin = cachedJointSettings.m_twistLimitMin;
                 }
                 ImGuiX::ItemTooltip( "The lower limit value must be less than the upper limit if the limit is enabled." );
 
@@ -1358,22 +1735,21 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
+                        float const value = cachedJointSettings.m_twistLimitMin;
+                        float const maxTwistContactDistance = ( cachedJointSettings.m_twistLimitMax - value ) / 2;
 
-                        float const value = bodySettings.m_twistLimitMin;
-                        float const maxTwistContactDistance = ( bodySettings.m_twistLimitMax - value ) / 2;
-
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            if ( value < m_workingProfileCopy.m_bodySettings[i].m_twistLimitMax )
+                            if ( value < m_workingProfileCopy.m_jointSettings[i].m_twistLimitMax )
                             {
-                                m_workingProfileCopy.m_bodySettings[i].m_twistLimitMin = value;
-                                if ( m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance >= maxTwistContactDistance )
+                                m_workingProfileCopy.m_jointSettings[i].m_twistLimitMin = value;
+                                if ( m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance >= maxTwistContactDistance )
                                 {
-                                    m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance = maxTwistContactDistance / 2;
+                                    m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance = maxTwistContactDistance / 2;
                                 }
 
-                                pProfile->m_bodySettings[i].m_twistLimitMin = m_workingProfileCopy.m_bodySettings[i].m_twistLimitMin;
-                                pProfile->m_bodySettings[i].m_twistLimitContactDistance = m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance;
+                                pProfile->m_jointSettings[i].m_twistLimitMin = m_workingProfileCopy.m_jointSettings[i].m_twistLimitMin;
+                                pProfile->m_jointSettings[i].m_twistLimitContactDistance = m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance;
                             }
                         }
                     }
@@ -1384,12 +1760,12 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##TwistLimitMax", &bodySettings.m_twistLimitMax, bodySettings.m_twistLimitMin + 1, 179, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##TwistLimitMax", &cachedJointSettings.m_twistLimitMax, cachedJointSettings.m_twistLimitMin + 1, 179, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    KRG_ASSERT( bodySettings.m_twistLimitMin < bodySettings.m_twistLimitMax );
+                    KRG_ASSERT( cachedJointSettings.m_twistLimitMin < cachedJointSettings.m_twistLimitMax );
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_twistLimitMax = bodySettings.m_twistLimitMax;
+                    realJointSettings.m_twistLimitMax = cachedJointSettings.m_twistLimitMax;
                 }
                 ImGuiX::ItemTooltip( "The lower limit value must be less than the upper limit if the limit is enabled." );
 
@@ -1398,22 +1774,21 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
+                        float const value = cachedJointSettings.m_twistLimitMax;
+                        float const maxTwistContactDistance = ( value - cachedJointSettings.m_twistLimitMin ) / 2;
 
-                        float const value = bodySettings.m_twistLimitMax;
-                        float const maxTwistContactDistance = ( value - bodySettings.m_twistLimitMin ) / 2;
-
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            if ( value > m_workingProfileCopy.m_bodySettings[i].m_twistLimitMin )
+                            if ( value > m_workingProfileCopy.m_jointSettings[i].m_twistLimitMin )
                             {
-                                m_workingProfileCopy.m_bodySettings[i].m_twistLimitMax = value;
-                                if ( m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance >= maxTwistContactDistance )
+                                m_workingProfileCopy.m_jointSettings[i].m_twistLimitMax = value;
+                                if ( m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance >= maxTwistContactDistance )
                                 {
-                                    m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance = maxTwistContactDistance / 2;
+                                    m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance = maxTwistContactDistance / 2;
                                 }
 
-                                pProfile->m_bodySettings[i].m_twistLimitMax = m_workingProfileCopy.m_bodySettings[i].m_twistLimitMax;
-                                pProfile->m_bodySettings[i].m_twistLimitContactDistance = m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance;
+                                pProfile->m_jointSettings[i].m_twistLimitMax = m_workingProfileCopy.m_jointSettings[i].m_twistLimitMax;
+                                pProfile->m_jointSettings[i].m_twistLimitContactDistance = m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance;
                             }
                         }
                     }
@@ -1423,21 +1798,21 @@ namespace KRG::Physics
                 //-------------------------------------------------------------------------
 
                 // The contact distance should be less than half the distance between the upper and lower limits.
-                float const maxTwistContactDistance = ( bodySettings.m_twistLimitMax - bodySettings.m_twistLimitMin ) / 2;
-                if ( bodySettings.m_twistLimitContactDistance >= maxTwistContactDistance )
+                float const maxTwistContactDistance = ( cachedJointSettings.m_twistLimitMax - cachedJointSettings.m_twistLimitMin ) / 2;
+                if ( cachedJointSettings.m_twistLimitContactDistance >= maxTwistContactDistance )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    bodySettings.m_twistLimitContactDistance = maxTwistContactDistance / 2;
-                    realBodySettings.m_twistLimitContactDistance = bodySettings.m_twistLimitContactDistance;
+                    cachedJointSettings.m_twistLimitContactDistance = maxTwistContactDistance / 2;
+                    realJointSettings.m_twistLimitContactDistance = cachedJointSettings.m_twistLimitContactDistance;
                 }
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##TwistContactDistance", &bodySettings.m_twistLimitContactDistance, 0, maxTwistContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##TwistContactDistance", &cachedJointSettings.m_twistLimitContactDistance, 0, maxTwistContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_twistLimitContactDistance = bodySettings.m_twistLimitContactDistance;
+                    realJointSettings.m_twistLimitContactDistance = cachedJointSettings.m_twistLimitContactDistance;
                 }
                 ImGuiX::ItemTooltip( "The contact distance should be less than half the distance between the upper and lower limits." );
 
@@ -1446,12 +1821,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_twistLimitContactDistance;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_twistLimitContactDistance;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_twistLimitContactDistance = value;
-                            pProfile->m_bodySettings[i].m_twistLimitContactDistance = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_twistLimitContactDistance = value;
+                            pProfile->m_jointSettings[i].m_twistLimitContactDistance = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1460,12 +1834,12 @@ namespace KRG::Physics
                 //-------------------------------------------------------------------------
 
                 ImGui::TableNextColumn();
-                ImGui::Checkbox( "##Swing", &bodySettings.m_swingLimitEnabled );
+                ImGui::Checkbox( "##Swing", &cachedJointSettings.m_swingLimitEnabled );
                 ImGuiX::ItemTooltip( "Enable Swing Limits." );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_swingLimitEnabled = bodySettings.m_swingLimitEnabled;
+                    realJointSettings.m_swingLimitEnabled = cachedJointSettings.m_swingLimitEnabled;
                 }
 
                 if ( ImGui::BeginPopupContextItem() )
@@ -1474,11 +1848,11 @@ namespace KRG::Physics
                     {
                         ScopedDescriptorModification const sdm( this );
 
-                        bool const value = bodySettings.m_swingLimitEnabled;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        bool const value = cachedJointSettings.m_swingLimitEnabled;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_swingLimitEnabled = value;
-                            pProfile->m_bodySettings[i].m_swingLimitEnabled = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_swingLimitEnabled = value;
+                            pProfile->m_jointSettings[i].m_swingLimitEnabled = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1488,11 +1862,11 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##SwingLimitY", &bodySettings.m_swingLimitY, 1, 179, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##SwingLimitY", &cachedJointSettings.m_swingLimitY, 1, 179, "%.1f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_swingLimitY = bodySettings.m_swingLimitY;
+                    realJointSettings.m_swingLimitY = cachedJointSettings.m_swingLimitY;
                 }
                 ImGuiX::ItemTooltip( "Limit the allowed extent of rotation around the y-axis." );
 
@@ -1502,19 +1876,19 @@ namespace KRG::Physics
                     {
                         ScopedDescriptorModification const sdm( this );
 
-                        float const value = bodySettings.m_swingLimitY;
-                        float const maxSwingContactDistance = Math::Min( bodySettings.m_swingLimitY, bodySettings.m_swingLimitZ );
+                        float const value = cachedJointSettings.m_swingLimitY;
+                        float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
 
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_swingLimitY = value;
-                            if ( m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance >= maxSwingContactDistance )
+                            m_workingProfileCopy.m_jointSettings[i].m_swingLimitY = value;
+                            if ( m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance >= maxSwingContactDistance )
                             {
-                                m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance = maxSwingContactDistance / 2;
+                                m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance = maxSwingContactDistance / 2;
                             }
 
-                            pProfile->m_bodySettings[i].m_swingLimitY = m_workingProfileCopy.m_bodySettings[i].m_swingLimitY;
-                            pProfile->m_bodySettings[i].m_swingLimitContactDistance = m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance;
+                            pProfile->m_jointSettings[i].m_swingLimitY = m_workingProfileCopy.m_jointSettings[i].m_swingLimitY;
+                            pProfile->m_jointSettings[i].m_swingLimitContactDistance = m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance;
                         }
                     }
                     ImGui::EndPopup();
@@ -1524,11 +1898,11 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##SwingLimitZ", &bodySettings.m_swingLimitZ, 1, 179, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##SwingLimitZ", &cachedJointSettings.m_swingLimitZ, 1, 179, "%.1f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_swingLimitZ = bodySettings.m_swingLimitZ;
+                    realJointSettings.m_swingLimitZ = cachedJointSettings.m_swingLimitZ;
                 }
                 ImGuiX::ItemTooltip( "Limit the allowed extent of rotation around the z-axis." );
 
@@ -1537,20 +1911,19 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
+                        float const value = cachedJointSettings.m_swingLimitZ;
+                        float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
 
-                        float const value = bodySettings.m_swingLimitZ;
-                        float const maxSwingContactDistance = Math::Min( bodySettings.m_swingLimitY, bodySettings.m_swingLimitZ );
-
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_swingLimitZ = value;
-                            if ( m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance >= maxSwingContactDistance )
+                            m_workingProfileCopy.m_jointSettings[i].m_swingLimitZ = value;
+                            if ( m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance >= maxSwingContactDistance )
                             {
-                                m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance = maxSwingContactDistance / 2;
+                                m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance = maxSwingContactDistance / 2;
                             }
 
-                            pProfile->m_bodySettings[i].m_swingLimitZ = m_workingProfileCopy.m_bodySettings[i].m_swingLimitZ;
-                            pProfile->m_bodySettings[i].m_swingLimitContactDistance = m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance;
+                            pProfile->m_jointSettings[i].m_swingLimitZ = m_workingProfileCopy.m_jointSettings[i].m_swingLimitZ;
+                            pProfile->m_jointSettings[i].m_swingLimitContactDistance = m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance;
                         }
                     }
                     ImGui::EndPopup();
@@ -1559,21 +1932,21 @@ namespace KRG::Physics
                 //-------------------------------------------------------------------------
 
                 // The contact distance should be less than either limit angle
-                float const maxSwingContactDistance = Math::Min( bodySettings.m_swingLimitY, bodySettings.m_swingLimitZ );
-                if ( bodySettings.m_swingLimitContactDistance >= maxSwingContactDistance )
+                float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
+                if ( cachedJointSettings.m_swingLimitContactDistance >= maxSwingContactDistance )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    bodySettings.m_swingLimitContactDistance = maxSwingContactDistance - 1.0f;
-                    realBodySettings.m_swingLimitContactDistance = bodySettings.m_swingLimitContactDistance;
+                    cachedJointSettings.m_swingLimitContactDistance = maxSwingContactDistance - 1.0f;
+                    realJointSettings.m_swingLimitContactDistance = cachedJointSettings.m_swingLimitContactDistance;
                 }
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##SwingContactDistance", &bodySettings.m_swingLimitContactDistance, 0, maxSwingContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
+                ImGui::SliderFloat( "##SwingContactDistance", &cachedJointSettings.m_swingLimitContactDistance, 0, maxSwingContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_swingLimitContactDistance = bodySettings.m_swingLimitContactDistance;
+                    realJointSettings.m_swingLimitContactDistance = cachedJointSettings.m_swingLimitContactDistance;
                 }
                 ImGuiX::ItemTooltip( "The contact distance should be less than either limit angle." );
 
@@ -1582,12 +1955,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_swingLimitContactDistance;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_swingLimitContactDistance;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_swingLimitContactDistance = value;
-                            pProfile->m_bodySettings[i].m_swingLimitContactDistance = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_swingLimitContactDistance = value;
+                            pProfile->m_jointSettings[i].m_swingLimitContactDistance = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1597,14 +1969,14 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                if ( ImGui::InputFloat( "##TangStiffness", &bodySettings.m_tangentialStiffness ) )
+                if ( ImGui::InputFloat( "##TangStiffness", &cachedJointSettings.m_tangentialStiffness, 0.0f, 0.0f, "%.1f" ) )
                 {
-                    bodySettings.m_tangentialStiffness = Math::Clamp( bodySettings.m_tangentialStiffness, 0.0f, 1000000.0f );
+                    cachedJointSettings.m_tangentialStiffness = Math::Clamp( cachedJointSettings.m_tangentialStiffness, 0.0f, 1000000.0f );
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_tangentialStiffness = bodySettings.m_tangentialStiffness;
+                    realJointSettings.m_tangentialStiffness = cachedJointSettings.m_tangentialStiffness;
                 }
                 ImGuiX::ItemTooltip( "The tangential stiffness for the swing limit cone." );
 
@@ -1613,12 +1985,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_tangentialStiffness;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_tangentialStiffness;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_tangentialStiffness = value;
-                            pProfile->m_bodySettings[i].m_tangentialStiffness = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_tangentialStiffness = value;
+                            pProfile->m_jointSettings[i].m_tangentialStiffness = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1628,14 +1999,14 @@ namespace KRG::Physics
 
                 ImGui::TableNextColumn();
                 ImGui::SetNextItemWidth( -1 );
-                if ( ImGui::InputFloat( "##TangDamping", &bodySettings.m_tangentialDamping ) )
+                if ( ImGui::InputFloat( "##TangDamping", &cachedJointSettings.m_tangentialDamping, 0.0f, 0.0f, "%.1f" ) )
                 {
-                    bodySettings.m_tangentialDamping = Math::Clamp( bodySettings.m_tangentialDamping, 0.0f, 1000000.0f );
+                    cachedJointSettings.m_tangentialDamping = Math::Clamp( cachedJointSettings.m_tangentialDamping, 0.0f, 1000000.0f );
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_tangentialDamping = bodySettings.m_tangentialDamping;
+                    realJointSettings.m_tangentialDamping = cachedJointSettings.m_tangentialDamping;
                 }
                 ImGuiX::ItemTooltip( "The tangential damping for the swing limit cone." );
 
@@ -1644,68 +2015,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_tangentialDamping;
-                        for ( int32 i = 0; i < numBodies; i++ )
+                        float const value = cachedJointSettings.m_tangentialDamping;
+                        for ( int32 i = 0; i < numJoints; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_tangentialDamping = value;
-                            pProfile->m_bodySettings[i].m_tangentialDamping = value;
-                        }
-                    }
-                    ImGui::EndPopup();
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableNextColumn();
-                ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##IntCompliance", &bodySettings.m_internalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-                if ( ImGui::IsItemDeactivatedAfterEdit() )
-                {
-                    ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_internalCompliance = bodySettings.m_internalCompliance;
-                }
-                ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by internal forces generated from other joints." );
-
-                if ( ImGui::BeginPopupContextItem() )
-                {
-                    if ( ImGui::MenuItem( "Set To All" ) )
-                    {
-                        ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_internalCompliance;
-                        for ( int32 i = 0; i < numBodies; i++ )
-                        {
-                            m_workingProfileCopy.m_bodySettings[i].m_internalCompliance = value;
-                            pProfile->m_bodySettings[i].m_internalCompliance = value;
-                        }
-                    }
-                    ImGui::EndPopup();
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableNextColumn();
-                ImGui::SetNextItemWidth( -1 );
-                ImGui::SliderFloat( "##ExtCompliance", &bodySettings.m_externalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
-                if ( ImGui::IsItemDeactivatedAfterEdit() )
-                {
-                    ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_externalCompliance = bodySettings.m_externalCompliance;
-                }
-                ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by external forces such as gravity and contact forces" );
-
-                if ( ImGui::BeginPopupContextItem() )
-                {
-                    if ( ImGui::MenuItem( "Set To All" ) )
-                    {
-                        ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_externalCompliance;
-                        for ( int32 i = 0; i < numBodies; i++ )
-                        {
-                            m_workingProfileCopy.m_bodySettings[i].m_externalCompliance = value;
-                            pProfile->m_bodySettings[i].m_externalCompliance = value;
+                            m_workingProfileCopy.m_jointSettings[i].m_tangentialDamping = value;
+                            pProfile->m_jointSettings[i].m_tangentialDamping = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1720,7 +2034,7 @@ namespace KRG::Physics
         }
     }
 
-    void RagdollWorkspace::DrawBodySettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile )
+    void RagdollWorkspace::DrawMaterialSettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile )
     {
         static char const* const comboOptions[4] = { "Average", "Min", "Multiply", "Max" };
 
@@ -1730,10 +2044,9 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
-        if ( ImGui::BeginTable( "MaterialSettingsTable", 7, ImGuiTableFlags_BordersInnerV ) )
+        if ( ImGui::BeginTable( "MaterialSettingsTable", 6, ImGuiTableFlags_BordersInnerV ) )
         {
             ImGui::TableSetupColumn( "Body", ImGuiTableColumnFlags_WidthFixed, 120 );
-            ImGui::TableSetupColumn( "Mass", ImGuiTableColumnFlags_WidthFixed, 100 );
             ImGui::TableSetupColumn( "Static Friction", ImGuiTableColumnFlags_WidthFixed, 100 );
             ImGui::TableSetupColumn( "Dynamic Friction", ImGuiTableColumnFlags_WidthFixed, 100 );
             ImGui::TableSetupColumn( "Restitution", ImGuiTableColumnFlags_WidthFixed, 100 );
@@ -1747,8 +2060,8 @@ namespace KRG::Physics
             int32 const numBodies = pRagdollDefinition->GetNumBodies();
             for ( auto bodyIdx = 0; bodyIdx < numBodies; bodyIdx++ )
             {
-                auto& bodySettings = m_workingProfileCopy.m_bodySettings[bodyIdx];
-                auto& realBodySettings = pProfile->m_bodySettings[bodyIdx];
+                auto& bodySettings = m_workingProfileCopy.m_materialSettings[bodyIdx];
+                auto& realBodySettings = pProfile->m_materialSettings[bodyIdx];
 
                 ImGui::PushID( &bodySettings );
                 ImGui::TableNextRow();
@@ -1756,21 +2069,6 @@ namespace KRG::Physics
                 ImGui::TableNextColumn();
                 ImGui::AlignTextToFramePadding();
                 ImGui::Text( pRagdollDefinition->m_bodies[bodyIdx].m_boneID.c_str() );
-
-                //-------------------------------------------------------------------------
-
-                ImGui::TableNextColumn();
-                ImGui::SetNextItemWidth( -1 );
-                if ( ImGui::InputFloat( "##Mass", &bodySettings.m_mass ) )
-                {
-                    bodySettings.m_mass = Math::Clamp( bodySettings.m_mass, 0.0f, 1000000.0f );
-                }
-                if ( ImGui::IsItemDeactivatedAfterEdit() )
-                {
-                    ScopedDescriptorModification const sdm( this );
-                    realBodySettings.m_mass = bodySettings.m_mass;
-                }
-                ImGuiX::ItemTooltip( "The mass of the body" );
 
                 //-------------------------------------------------------------------------
 
@@ -1792,12 +2090,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
                         float const value = bodySettings.m_staticFriction;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_staticFriction = value;
-                            pProfile->m_bodySettings[i].m_staticFriction = value;
+                            m_workingProfileCopy.m_materialSettings[i].m_staticFriction = value;
+                            pProfile->m_materialSettings[i].m_staticFriction = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1823,12 +2120,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
                         float const value = bodySettings.m_dynamicFriction;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_dynamicFriction = value;
-                            pProfile->m_bodySettings[i].m_dynamicFriction = value;
+                            m_workingProfileCopy.m_materialSettings[i].m_dynamicFriction = value;
+                            pProfile->m_materialSettings[i].m_dynamicFriction = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1851,12 +2147,11 @@ namespace KRG::Physics
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
                         ScopedDescriptorModification const sdm( this );
-
-                        float const value = bodySettings.m_dynamicFriction;
+                        float const value = bodySettings.m_restitution;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
-                            m_workingProfileCopy.m_bodySettings[i].m_restitution = value;
-                            pProfile->m_bodySettings[i].m_restitution = value;
+                            m_workingProfileCopy.m_materialSettings[i].m_restitution = value;
+                            pProfile->m_materialSettings[i].m_restitution = value;
                         }
                     }
                     ImGui::EndPopup();
@@ -1914,7 +2209,7 @@ namespace KRG::Physics
             }
             else
             {
-                ImGui::BeginDisabled( !pRagdollDefinition->IsValid() );
+                ImGui::BeginDisabled( !pRagdollDefinition->IsValid() && m_pMeshComponent != nullptr );
                 if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLAY" Start Preview", ImVec2( -1, 0 ) ) )
                 {
                     StartPreview( context );
@@ -1948,6 +2243,20 @@ namespace KRG::Physics
             ImGui::Checkbox( "Auto Connect to PVD", &m_autoConnectToPVD );
             ImGui::EndDisabled();
 
+            ImGui::BeginDisabled( !IsPreviewing() );
+            if ( ImGui::Button( "Reset Ragdoll State", ImVec2( -1, 0 ) ) )
+            {
+                m_pRagdoll->ResetState();
+                m_initializeRagdollPose = true;
+            }
+            ImGui::EndDisabled();
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text( "Blend Weight:" );
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth( -1 );
+            ImGui::SliderFloat( "##PhysicsWeight", &m_physicsBlendWeight, 0, 1, "%.3f", ImGuiSliderFlags_NoInput );
+
             //-------------------------------------------------------------------------
             // Animation
             //-------------------------------------------------------------------------
@@ -1968,7 +2277,7 @@ namespace KRG::Physics
                         UnloadResource( &m_pPreviewAnimation );
                     }
                 
-                    m_pPreviewAnimation = m_resourceFilePicker.GetSelectedResourceID();
+                    m_pPreviewAnimation = selectedResourceID.IsValid() ? m_resourceFilePicker.GetSelectedResourceID() : nullptr;
 
                     if ( m_pPreviewAnimation.IsValid() )
                     {
@@ -2034,23 +2343,28 @@ namespace KRG::Physics
 
         auto pPhysicsWorldSystem = m_pWorld->GetWorldSystem<PhysicsWorldSystem>();
 
-        m_pRagdoll = KRG::New<Ragdoll>( pPhysicsWorldSystem->GetPxPhysics(), pRagdollDefinition, m_activeProfileID );
-        m_pRagdoll->SetGravityEnabled( m_enableGravity );
-        m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
-
         if ( m_autoConnectToPVD )
         {
             m_pPhysicsSystem = context.GetSystem<PhysicsSystem>();
             m_pPhysicsSystem->ConnectToPVD();
         }
 
-        pPhysicsWorldSystem->AddRagdollToWorld( m_pRagdoll );
+        m_pRagdoll = pPhysicsWorldSystem->GetScene()->CreateRagdoll( pRagdollDefinition, m_activeProfileID, 0 );
+        m_pRagdoll->SetGravityEnabled( m_enableGravity );
+        m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
+
+        m_initializeRagdollPose = true;
 
         //-------------------------------------------------------------------------
 
-        m_animTime = 0.0f;
-        m_isPlayingAnimation = m_autoPlayAnimation;
+        if ( m_autoPlayAnimation )
+        {
+            m_animTime = 0.0f;
+            m_isPlayingAnimation = true;
+        }
+
         m_pPose = KRG::New<Animation::Pose>( m_pSkeleton.GetPtr() );
+        m_pFinalPose = KRG::New<Animation::Pose>( m_pSkeleton.GetPtr() );
     }
 
     void RagdollWorkspace::StopPreview()
@@ -2067,9 +2381,10 @@ namespace KRG::Physics
 
         m_pMeshComponent->ResetPose();
         m_pMeshComponent->FinalizePose();
+        m_pMeshComponent->SetWorldTransform( Transform::Identity );
 
         auto pPhysicsWorldSystem = m_pWorld->GetWorldSystem<PhysicsWorldSystem>();
-        pPhysicsWorldSystem->RemoveRagdollFromWorld( m_pRagdoll );
+        m_pRagdoll->RemoveFromScene();
         KRG::Delete( m_pRagdoll );
 
         auto pRagdollDefinition = GetRagdollDefinition();
@@ -2078,25 +2393,27 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         KRG::Delete( m_pPose );
-        m_animTime = 0.0f;
-        m_isPlayingAnimation = false;
+        KRG::Delete( m_pFinalPose );
     }
 
-    void RagdollWorkspace::Update( UpdateContext const& updateContext )
+    void RagdollWorkspace::Update( EntityWorldUpdateContext const& updateContext )
     {
         if ( !IsPreviewing() )
         {
             return;
         }
 
+        Seconds const deltaTime = updateContext.GetDeltaTime();
+
         //-------------------------------------------------------------------------
 
         auto drawingCtx = GetDrawingContext();
-        Seconds const deltaTime = updateContext.GetDeltaTime();
+
+        Transform const worldTransform = m_pMeshComponent->GetWorldTransform();
 
         if ( updateContext.GetUpdateStage() == UpdateStage::PrePhysics )
         {
-            // Update animation time
+            // Update animation time and sample pose
             bool const hasValidAndLoadedPreviewAnim = m_pPreviewAnimation.IsValid() && m_pPreviewAnimation.IsLoaded();
             if ( hasValidAndLoadedPreviewAnim )
             {
@@ -2110,44 +2427,62 @@ namespace KRG::Physics
                         m_isPlayingAnimation = false;
                     }
                 }
-            }
 
-            if ( hasValidAndLoadedPreviewAnim && m_enablePoseFollowing )
-            {
                 m_pPreviewAnimation->GetPose( m_animTime, m_pPose );
-
-                if ( m_drawAnimationPose )
-                {
-                    drawingCtx.Draw( *m_pPose, Transform::Identity );
-                }
-
-                m_pRagdoll->SetGravityEnabled( m_enableGravity );
-                m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
-
-                m_pPose->CalculateGlobalTransforms();
-                m_pRagdoll->SetTargetPose( updateContext.GetDeltaTime(), Transform::Identity, m_pPose );
             }
             else
             {
-                m_pPose->CalculateGlobalTransforms();
+                m_pPose->Reset( Animation::Pose::InitialState::ReferencePose );
+            }
+
+            // Draw the pose
+            if ( m_drawAnimationPose )
+            {
+                drawingCtx.Draw( *m_pPose, worldTransform );
+            }
+
+            // Set ragdoll settings
+            m_pRagdoll->SetGravityEnabled( m_enableGravity );
+            m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
+            m_pRagdoll->RefreshSettings();
+
+            // Update ragdoll
+            m_pPose->CalculateGlobalTransforms();
+            if ( !updateContext.IsWorldPaused() )
+            {
+                m_pRagdoll->Update( updateContext.GetDeltaTime(), worldTransform, m_pPose, m_initializeRagdollPose );
+                m_initializeRagdollPose = false;
             }
         }
         else if ( updateContext.GetUpdateStage() == UpdateStage::PostPhysics )
         {
-            m_pRagdoll->GetPose( Transform::Identity, m_pPose );
+            // Copy the anim pose
+            m_pFinalPose->CopyFrom( m_pPose );
 
-            if ( m_drawAnimationPose )
+            // Retrieve the ragdoll pose
+            bool const killPreview = !m_pRagdoll->GetPose( worldTransform.GetInverse(), m_pPose );
+
+            // Apply physics blend weight
+            Animation::Blender::Blend( m_pFinalPose, m_pPose, m_physicsBlendWeight, TBitFlags<Animation::PoseBlendOptions>(), nullptr, m_pFinalPose);
+
+            // Draw ragdoll pose
+            if ( m_drawRagdoll )
             {
-                drawingCtx.Draw( *m_pPose, Transform::Identity );
+                drawingCtx.Draw( *m_pRagdoll );
             }
 
-            m_pPose->CalculateGlobalTransforms();
-            m_pMeshComponent->SetPose( m_pPose );
+            // Update mesh pose
+            m_pFinalPose->CalculateGlobalTransforms();
+            m_pMeshComponent->SetPose( m_pFinalPose );
             m_pMeshComponent->FinalizePose();
 
             //-------------------------------------------------------------------------
 
-            drawingCtx.Draw( *m_pRagdoll );
+            if ( killPreview )
+            {
+                KRG_LOG_WARNING( "Physics", "Ragdoll destabilized" );
+                StopPreview();
+            }
         }
     }
 }

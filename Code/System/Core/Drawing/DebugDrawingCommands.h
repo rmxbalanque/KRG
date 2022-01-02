@@ -185,7 +185,7 @@ namespace KRG::Drawing
         TextAlignment               m_alignment;
         bool                        m_isScreenText;
         bool                        m_hasBackground;
-        InlineString<24>            m_text;
+        TInlineString<24>            m_text;
         Seconds                     m_TTL;
     };
 

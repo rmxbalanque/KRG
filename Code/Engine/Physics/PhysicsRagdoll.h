@@ -28,22 +28,61 @@ namespace KRG::Physics
     // Ragdoll Settings
     //-------------------------------------------------------------------------
 
-    enum class RagdollDriveType : uint8
+    struct KRG_ENGINE_PHYSICS_API RagdollBodyMaterialSettings : public IRegisteredType
     {
-        KRG_REGISTER_ENUM
+        KRG_SERIALIZE_MEMBERS( m_staticFriction, m_dynamicFriction, m_restitution, m_frictionCombineMode, m_restitutionCombineMode );
+        KRG_REGISTER_TYPE( RagdollBodyMaterialSettings );
 
-        Kinematic = 0,
-        Spring = 1,
-        Velocity = 2,
+    public:
+
+        bool IsValid() const;
+
+        // Ensures that all material settings are within the required limits. Returns true if any changes were made!
+        bool CorrectSettingsToValidRanges();
+
+    public:
+
+        KRG_EXPOSE float                                    m_staticFriction = PhysicsMaterial::DefaultStaticFriction;
+        KRG_EXPOSE float                                    m_dynamicFriction = PhysicsMaterial::DefaultDynamicFriction;
+        KRG_EXPOSE float                                    m_restitution = PhysicsMaterial::DefaultRestitution;
+        KRG_EXPOSE PhysicsCombineMode                       m_frictionCombineMode = PhysicsCombineMode::Average;
+        KRG_EXPOSE PhysicsCombineMode                       m_restitutionCombineMode = PhysicsCombineMode::Average;
+    };
+
+    //-------------------------------------------------------------------------
+
+    struct KRG_ENGINE_PHYSICS_API RagdollRootControlBodySettings : public IRegisteredType
+    {
+        KRG_SERIALIZE_MEMBERS( m_driveType, m_maxDistance, m_tolerance, m_stiffness, m_damping );
+        KRG_REGISTER_TYPE( RagdollRootControlBodySettings );
+
+        enum DriveType : uint8
+        {
+            KRG_REGISTER_ENUM
+
+            None = 0,
+            Kinematic = 1,
+            Spring = 2
+        };
+
+    public:
+
+        bool IsValid() const;
+
+    public:
+
+        KRG_EXPOSE DriveType                                m_driveType = DriveType::Kinematic;
+        KRG_EXPOSE float                                    m_maxDistance = 0.05f;
+        KRG_EXPOSE float                                    m_tolerance = 0.01f;
+        KRG_EXPOSE float                                    m_stiffness = 0.0f;
+        KRG_EXPOSE float                                    m_damping = 0.0f;
     };
 
     //-------------------------------------------------------------------------
 
     struct KRG_ENGINE_PHYSICS_API RagdollBodySettings : public IRegisteredType
     {
-        KRG_SERIALIZE_MEMBERS(  m_mass, m_staticFriction, m_dynamicFriction, m_restitution, m_frictionCombineMode, m_restitutionCombineMode, m_driveType,
-                                m_twistLimitEnabled, m_swingLimitEnabled, m_stiffness, m_damping, m_internalCompliance, m_externalCompliance, m_twistLimitMin, m_twistLimitMax, m_twistLimitContactDistance,
-                                m_swingLimitY, m_swingLimitZ, m_tangentialStiffness, m_tangentialDamping, m_swingLimitContactDistance );
+        KRG_SERIALIZE_MEMBERS( m_mass, m_enableCCD, m_enableSelfCollision );
         KRG_REGISTER_TYPE( RagdollBodySettings );
 
         // Are all the settings valid
@@ -52,71 +91,65 @@ namespace KRG::Physics
         // Ensures that all body settings are within the required limits. Returns true if any changes were made!
         bool CorrectSettingsToValidRanges();
 
-        // Reset all settings to default
-        void Reset() { *this = RagdollBodySettings(); }
-
     public:
 
-        // Mass and Material Settings
-        //-------------------------------------------------------------------------
-
-        KRG_EXPOSE float                                m_mass = 1.0f;
-        KRG_EXPOSE float                                m_staticFriction = PhysicsMaterial::DefaultStaticFriction;
-        KRG_EXPOSE float                                m_dynamicFriction = PhysicsMaterial::DefaultDynamicFriction;
-        KRG_EXPOSE float                                m_restitution = PhysicsMaterial::DefaultRestitution;
-        KRG_EXPOSE PhysicsCombineMode                   m_frictionCombineMode = PhysicsCombineMode::Average;
-        KRG_EXPOSE PhysicsCombineMode                   m_restitutionCombineMode = PhysicsCombineMode::Average;
-
-        // Joint Settings
-        //-------------------------------------------------------------------------
-
-        KRG_EXPOSE RagdollDriveType                     m_driveType = RagdollDriveType::Kinematic;
-        KRG_EXPOSE bool                                 m_twistLimitEnabled = false;
-        KRG_EXPOSE bool                                 m_swingLimitEnabled = false;
-
-        // General
-        KRG_EXPOSE float                                m_stiffness = 0.0f;
-        KRG_EXPOSE float                                m_damping = 0.0f;
-
-        KRG_EXPOSE float                                m_internalCompliance = 1.0f;
-        KRG_EXPOSE float                                m_externalCompliance = 1.0f;
-
-        // Twist
-        KRG_EXPOSE float                                m_twistLimitMin = -45;
-        KRG_EXPOSE float                                m_twistLimitMax = 45;
-        KRG_EXPOSE float                                m_twistLimitContactDistance = 3.0f;
-
-        // Swing
-        KRG_EXPOSE float                                m_swingLimitY = 45.0f;
-        KRG_EXPOSE float                                m_swingLimitZ = 45.0f;
-        KRG_EXPOSE float                                m_tangentialStiffness = 0.0f; // Only for swing limit
-        KRG_EXPOSE float                                m_tangentialDamping = 0.0f; // Only for swing limit
-        KRG_EXPOSE float                                m_swingLimitContactDistance = 3.0f;
+        KRG_REGISTER float                                  m_mass = 1.0f;
+        KRG_REGISTER bool                                   m_enableCCD = false;
+        KRG_REGISTER bool                                   m_enableSelfCollision = false;
     };
 
     //-------------------------------------------------------------------------
 
-    struct KRG_ENGINE_PHYSICS_API RagdollSolverSettings : public IRegisteredType
+    struct KRG_ENGINE_PHYSICS_API RagdollJointSettings : public IRegisteredType
     {
-        KRG_SERIALIZE_MEMBERS( m_solverPositionIterations, m_solverVelocityIterations, m_stabilizationThreshold, m_maxProjectionIterations, m_sleepThreshold, m_separationTolerance, m_internalDriveIterations, m_externalDriveIterations );
-        KRG_REGISTER_TYPE( RagdollSolverSettings );
+        KRG_SERIALIZE_MEMBERS(  m_driveType, m_stiffness, m_damping, m_internalCompliance, m_externalCompliance,
+                                m_twistLimitEnabled, m_twistLimitMin, m_twistLimitMax, m_twistLimitContactDistance,
+                                m_swingLimitEnabled, m_swingLimitY, m_swingLimitZ, m_tangentialStiffness, m_tangentialDamping, m_swingLimitContactDistance );
+        KRG_REGISTER_TYPE( RagdollJointSettings );
+
+        enum DriveType : uint8
+        {
+            KRG_REGISTER_ENUM
+
+            Kinematic = 0,
+            Spring = 1,
+            Velocity = 2,
+        };
+
+    public:
 
         // Are all the settings valid
         bool IsValid() const;
 
+        // Ensures that all joint settings are within the required limits. Returns true if any changes were made!
+        bool CorrectSettingsToValidRanges();
+
         // Reset all settings to default
-        void Reset() { *this = RagdollSolverSettings(); }
+        void Reset() { *this = RagdollJointSettings(); }
 
     public:
 
-        KRG_EXPOSE uint32                               m_solverPositionIterations = 4;
-        KRG_EXPOSE uint32                               m_solverVelocityIterations = 4;
-        KRG_EXPOSE uint32                               m_maxProjectionIterations = 4;
-        KRG_EXPOSE uint32                               m_internalDriveIterations = 4;
-        KRG_EXPOSE uint32                               m_externalDriveIterations = 4;
-        KRG_EXPOSE float                                m_separationTolerance = 0.1f;
-        KRG_EXPOSE float                                m_stabilizationThreshold = 0.01f * Constants::s_speedScale * Constants::s_speedScale;
-        KRG_EXPOSE float                                m_sleepThreshold = 1;
+        KRG_REGISTER DriveType                                m_driveType = DriveType::Kinematic;
+        KRG_REGISTER bool                                     m_twistLimitEnabled = false;
+        KRG_REGISTER bool                                     m_swingLimitEnabled = false;
+
+        // General
+        KRG_REGISTER float                                    m_stiffness = 0.0f;
+        KRG_REGISTER float                                    m_damping = 0.0f;
+        KRG_REGISTER float                                    m_internalCompliance = 0.01f;
+        KRG_REGISTER float                                    m_externalCompliance = 0.01f;
+
+        // Twist
+        KRG_REGISTER float                                    m_twistLimitMin = -45;
+        KRG_REGISTER float                                    m_twistLimitMax = 45;
+        KRG_REGISTER float                                    m_twistLimitContactDistance = 3.0f;
+
+        // Swing
+        KRG_REGISTER float                                    m_swingLimitY = 45.0f;
+        KRG_REGISTER float                                    m_swingLimitZ = 45.0f;
+        KRG_REGISTER float                                    m_tangentialStiffness = 0.0f; // Only for swing limit
+        KRG_REGISTER float                                    m_tangentialDamping = 0.0f; // Only for swing limit
+        KRG_REGISTER float                                    m_swingLimitContactDistance = 3.0f;
     };
 
     //-------------------------------------------------------------------------
@@ -131,36 +164,67 @@ namespace KRG::Physics
 
     public:
 
+        constexpr static uint32 const s_maxNumBodies = 64;
+
         struct KRG_ENGINE_PHYSICS_API BodyDefinition : public IRegisteredType
         {
             KRG_SERIALIZE_MEMBERS( m_boneID, m_offsetTransform, m_radius, m_halfHeight, m_jointTransform );
             KRG_REGISTER_TYPE( BodyDefinition );
 
-            KRG_REGISTER StringID                       m_boneID;
-            int32                                       m_parentBodyIdx = InvalidIndex;
-            KRG_EXPOSE float                            m_radius = 0.075f;
-            KRG_EXPOSE float                            m_halfHeight = 0.025f;
-            KRG_EXPOSE Transform                        m_offsetTransform;
-            Transform                                   m_initialGlobalTransform;
-            Transform                                   m_inverseOffsetTransform;
-            KRG_EXPOSE Transform                        m_jointTransform; // Global joint transform
-            Transform                                   m_childRelativeTransform;
-            Transform                                   m_parentRelativeTransform;
+            KRG_REGISTER StringID                           m_boneID;
+            int32                                           m_parentBodyIdx = InvalidIndex;
+            KRG_EXPOSE float                                m_radius = 0.075f;
+            KRG_EXPOSE float                                m_halfHeight = 0.025f;
+            KRG_EXPOSE Transform                            m_offsetTransform;
+            Transform                                       m_initialGlobalTransform;
+            Transform                                       m_inverseOffsetTransform;
+            KRG_EXPOSE Transform                            m_jointTransform; // Global joint transform
+            Transform                                       m_bodyRelativeJointTransform; // The joint transform relative to the current body
+            Transform                                       m_parentRelativeJointTransform; // The joint transform relative to the parent body
         };
+
+        //-------------------------------------------------------------------------
 
         struct KRG_ENGINE_PHYSICS_API Profile : public IRegisteredType
         {
-            KRG_SERIALIZE_MEMBERS( m_ID, m_bodySettings, m_solverSettings );
+            KRG_SERIALIZE_MEMBERS
+            (
+                m_ID, m_rootControlBodySettings, m_bodySettings, m_jointSettings, m_materialSettings,
+                m_solverPositionIterations, m_solverVelocityIterations, m_maxProjectionIterations, m_internalDriveIterations, m_externalDriveIterations, m_separationTolerance, m_stabilizationThreshold, m_sleepThreshold
+            );
             KRG_REGISTER_TYPE( Profile );
+
+            bool IsValid() const;
 
             // Ensures that all body settings are within the required limits. Returns true if any changes were made!
             bool CorrectSettingsToValidRanges();
 
+            inline bool ShouldBodiesCollides( int32 bodyIdx0, int32 bodyIdx1 ) const
+            {
+                KRG_ASSERT( IsValid() );
+                uint64 const result = m_selfCollisionRules[bodyIdx0] & ( 1ULL << bodyIdx1 );
+                return result != 0;
+            }
+
         public:
 
-            KRG_EXPOSE StringID                         m_ID = StringID( "Default" );
-            KRG_EXPOSE TVector<RagdollBodySettings>     m_bodySettings;
-            KRG_EXPOSE RagdollSolverSettings            m_solverSettings;
+            KRG_REGISTER StringID                               m_ID = StringID( "Default" );
+            KRG_REGISTER RagdollRootControlBodySettings         m_rootControlBodySettings;
+            KRG_REGISTER TVector<RagdollBodySettings>           m_bodySettings;
+            KRG_REGISTER TVector<RagdollJointSettings>          m_jointSettings;
+            KRG_REGISTER TVector<RagdollBodyMaterialSettings>   m_materialSettings;
+
+            // Solver Settings
+            KRG_EXPOSE uint32                                   m_solverPositionIterations = 4;
+            KRG_EXPOSE uint32                                   m_solverVelocityIterations = 4;
+            KRG_EXPOSE uint32                                   m_maxProjectionIterations = 4;
+            KRG_EXPOSE uint32                                   m_internalDriveIterations = 4;
+            KRG_EXPOSE uint32                                   m_externalDriveIterations = 4;
+            KRG_EXPOSE float                                    m_separationTolerance = 0.1f;
+            KRG_EXPOSE float                                    m_stabilizationThreshold = 0.01f * Constants::s_speedScale * Constants::s_speedScale;
+            KRG_EXPOSE float                                    m_sleepThreshold = 1;
+
+            TVector<uint64>                                     m_selfCollisionRules;
         };
 
     public:
@@ -170,6 +234,7 @@ namespace KRG::Physics
         void CreateRuntimeData();
 
         int32 GetNumBodies() const { return (int32) m_bodies.size(); }
+        int32 GetNumJoints() const { return (int32) m_bodies.size() - 1; }
         int32 GetBodyIndexForBoneID( StringID boneID ) const;
         int32 GetBodyIndexForBoneIdx( int32 boneIdx ) const;
 
@@ -185,19 +250,21 @@ namespace KRG::Physics
 
     public:
 
-        KRG_REGISTER StringID                           m_ID;
-        KRG_EXPOSE TResourcePtr<Animation::Skeleton>    m_pSkeleton;
-        KRG_EXPOSE TVector<BodyDefinition>              m_bodies;
-        KRG_EXPOSE TVector<Profile>                     m_profiles;
+        KRG_EXPOSE StringID                                     m_ID;
+        KRG_EXPOSE TResourcePtr<Animation::Skeleton>            m_pSkeleton;
+        KRG_REGISTER TVector<BodyDefinition>                    m_bodies;
+        KRG_REGISTER TVector<Profile>                           m_profiles;
 
         // Runtime Data
-        TVector<int32>                                  m_boneToBodyMap;
-        TVector<int32>                                  m_bodyToBoneMap;
+        TVector<int32>                                          m_boneToBodyMap;
+        TVector<int32>                                          m_bodyToBoneMap;
     };
 
     //-------------------------------------------------------------------------
     // Ragdoll Instance
     //-------------------------------------------------------------------------
+    // By default ragdolls with the same userID will not collide together
+    // Ragdoll self-collision is user specified in the definition
 
     using RagdollPose = TInlineVector<Transform, 40>;
 
@@ -205,15 +272,74 @@ namespace KRG::Physics
     {
         friend class PhysicsWorldSystem;
 
+        class [[nodiscard]] ScopedWriteLock
+        {
+        public:
+
+            ScopedWriteLock( Ragdoll* pRagdoll )
+                : m_pRagdoll( pRagdoll )
+            {
+                KRG_ASSERT( pRagdoll != nullptr );
+                m_pRagdoll->LockWriteScene();
+            }
+
+            ~ScopedWriteLock()
+            {
+                m_pRagdoll->UnlockWriteScene();
+            }
+
+        private:
+
+            Ragdoll*  m_pRagdoll = nullptr;
+        };
+
+        class [[nodiscard]] ScopedReadLock
+        {
+        public:
+
+            ScopedReadLock( Ragdoll const* pRagdoll )
+                : m_pRagdoll( pRagdoll )
+            {
+                KRG_ASSERT( pRagdoll != nullptr );
+                m_pRagdoll->LockReadScene();
+            }
+
+            ~ScopedReadLock()
+            {
+                m_pRagdoll->UnlockReadScene();
+            }
+
+        private:
+
+            Ragdoll const*  m_pRagdoll = nullptr;
+        };
+
     public:
 
-        Ragdoll( physx::PxPhysics* pPhysics, RagdollDefinition const* pDefinition, StringID const profileID = StringID() );
+        // Create a new ragdoll instance. The userID is used to prevent collisions between the ragdolls on the same user
+        Ragdoll( physx::PxPhysics* pPhysics, RagdollDefinition const* pDefinition, StringID const profileID = StringID(), uint64 userID = 0 );
         ~Ragdoll();
 
         bool IsValid() const { return m_pArticulation != nullptr; }
 
-        // Ragdoll Controls
+        void AddToScene( physx::PxScene* pScene );
+        void RemoveFromScene();
+
+        // Collision Rules
         //-------------------------------------------------------------------------
+
+        inline uintptr_t GetUserID() const { return m_userID; }
+
+        inline bool ShouldBodiesCollides( int32 bodyIdx0, int32 bodyIdx1 ) const
+        {
+            KRG_ASSERT( IsValid() );
+            return m_pProfile->ShouldBodiesCollides( bodyIdx0, bodyIdx1 );
+        }
+
+        // Ragdoll API
+        //-------------------------------------------------------------------------
+
+        void SwitchProfile( StringID newProfileID );
 
         void SetGravityEnabled( bool isGravityEnabled );
         inline void SetPoseFollowingEnabled( bool shouldFollowPose );
@@ -225,24 +351,30 @@ namespace KRG::Physics
         // Update / Results
         //-------------------------------------------------------------------------
 
-        void SetTargetPose( Seconds const deltaTime, Transform const& worldTransform, Animation::Pose* pPose );
-        void GetPose( Transform const& inverseWorldTransform, Animation::Pose* pPose ) const;
+        void Update( Seconds const deltaTime, Transform const& worldTransform, Animation::Pose* pPose = nullptr, bool initializeBodies = false );
+        bool GetPose( Transform const& inverseWorldTransform, Animation::Pose* pPose ) const;
         void GetRagdollPose( RagdollPose& pose ) const;
 
         // Debug
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
+        void RefreshSettings();
+        void RecreateRootControlBody();
+        void ResetState();
         void DrawDebug( Drawing::DrawContext& ctx ) const;
         #endif
 
     private:
 
-        void UpdateMassAndMaterialSettings( TVector<RagdollBodySettings> const& bodySettings );
-        void UpdateSolverSettings( RagdollSolverSettings const& solverSettings );
-        void UpdateJointSettings( TVector<RagdollBodySettings> const& bodySettings );
+        void TryCreateRootControlBody();
+        void DestroyRootControlBody();
 
-        KRG_FORCE_INLINE void LockWriteScene()
+        void UpdateBodySettings();
+        void UpdateSolverSettings();
+        void UpdateJointSettings();
+
+        inline void LockWriteScene()
         {
             if ( auto pScene = m_pArticulation->getScene() )
             {
@@ -250,7 +382,7 @@ namespace KRG::Physics
             }
         }
 
-        KRG_FORCE_INLINE void UnlockWriteScene()
+        inline void UnlockWriteScene()
         {
             if ( auto pScene = m_pArticulation->getScene() )
             {
@@ -258,7 +390,7 @@ namespace KRG::Physics
             }
         }
 
-        KRG_FORCE_INLINE void LockReadScene() const
+        inline void LockReadScene() const
         {
             if ( auto pScene = m_pArticulation->getScene() )
             {
@@ -266,7 +398,7 @@ namespace KRG::Physics
             }
         }
 
-        KRG_FORCE_INLINE void UnlockReadScene() const
+        inline void UnlockReadScene() const
         {
             if ( auto pScene = m_pArticulation->getScene() )
             {
@@ -276,16 +408,22 @@ namespace KRG::Physics
 
     private:
 
-        RagdollDefinition const*                    m_pDefinition = nullptr;
-        RagdollDefinition::Profile const*           m_pProfile = nullptr;
-        physx::PxArticulation*                      m_pArticulation = nullptr;
-        TVector<physx::PxArticulationLink*>         m_links;
-        bool                                        m_shouldFollowPose = false;
-        bool                                        m_gravityEnabled = true;
-        mutable TVector<Transform>                  m_globalBoneTransforms;
+        physx::PxPhysics*                                       m_pPhysics = nullptr;
+        RagdollDefinition const*                                m_pDefinition = nullptr;
+        RagdollDefinition::Profile const*                       m_pProfile = nullptr;
+        physx::PxArticulation*                                  m_pArticulation = nullptr;
+        uint64                                                  m_userID = 0;
+        TVector<physx::PxArticulationLink*>                     m_links;
+
+        physx::PxRigidDynamic*                                  m_pRootControlActor = nullptr;
+        physx::PxJoint*                                         m_pRootTargetJoint = nullptr;
+
+        bool                                                    m_shouldFollowPose = false;
+        bool                                                    m_gravityEnabled = true;
+        mutable TVector<Transform>                              m_globalBoneTransforms;
 
         #if KRG_DEVELOPMENT_TOOLS
-        InlineString<100>                           m_ragdollName;
+        TInlineString<100>                                       m_ragdollName;
         #endif
     };
 }

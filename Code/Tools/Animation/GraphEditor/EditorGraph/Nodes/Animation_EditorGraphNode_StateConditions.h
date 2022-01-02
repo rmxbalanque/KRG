@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class StateCompletedConditionEditorNode final : public EditorGraphNode
     {
@@ -17,7 +17,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "State Completed"; }
         virtual char const* GetCategory() const override { return "Transitions"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
     };
 
     //-------------------------------------------------------------------------
@@ -33,7 +33,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Time Condition"; }
         virtual char const* GetCategory() const override { return "Transitions"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 

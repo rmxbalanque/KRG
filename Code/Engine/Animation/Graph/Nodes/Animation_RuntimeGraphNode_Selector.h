@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API SelectorNode final : public PoseNode
     {
@@ -16,10 +16,10 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
-            TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
+            TInlineVector<GraphNodeIndex, 5>                     m_optionNodeIndices;
+            TInlineVector<GraphNodeIndex, 5>                     m_conditionNodeIndices;
         };
 
     public:
@@ -32,8 +32,8 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         int32 SelectOption( GraphContext& context ) const;
@@ -57,10 +57,10 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_optionNodeIndices, m_conditionNodeIndices );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            TInlineVector<NodeIndex, 5>                     m_optionNodeIndices;
-            TInlineVector<NodeIndex, 5>                     m_conditionNodeIndices;
+            TInlineVector<GraphNodeIndex, 5>                     m_optionNodeIndices;
+            TInlineVector<GraphNodeIndex, 5>                     m_conditionNodeIndices;
         };
 
     public:
@@ -73,8 +73,8 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         virtual AnimationClip const* GetAnimation() const override;

@@ -5,7 +5,7 @@
 #include "Engine/Physics/Components/Component_PhysicsSphere.h"
 #include "Engine/Physics/Components/Component_PhysicsBox.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace KRG::Physics
 
     PhysicsDebugView::PhysicsDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Physics", [this] ( EntityUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Physics", [this] ( EntityWorldUpdateContext const& context ) { DrawPhysicsMenu( context ); } ) );
     }
 
     void PhysicsDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -112,7 +112,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsDebugView::DrawPhysicsMenu( EntityUpdateContext const& context )
+    void PhysicsDebugView::DrawPhysicsMenu( EntityWorldUpdateContext const& context )
     {
         //-------------------------------------------------------------------------
         // Scene
@@ -181,7 +181,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void PhysicsDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( m_isComponentWindowOpen )
         {
@@ -198,7 +198,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    void PhysicsDebugView::DrawPVDMenu( EntityUpdateContext const& context )
+    void PhysicsDebugView::DrawPVDMenu( EntityWorldUpdateContext const& context )
     {
         if ( ImGui::BeginMenu( "PhysX Visual Debugger" ) )
         {
@@ -227,9 +227,9 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawComponentsWindow( EntityUpdateContext const& context )
+    void PhysicsDebugView::DrawComponentsWindow( EntityWorldUpdateContext const& context )
     {
-        InlineString<50> componentID;
+        TInlineString<50> componentID;
         bool selectedComponentValid = false;
 
         ImGui::SetNextWindowBgAlpha( 0.5f );
@@ -279,7 +279,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawComponentVisualization( EntityUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const
+    void PhysicsDebugView::DrawComponentVisualization( EntityWorldUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const
     {
         auto drawingContext = context.GetDrawingContext();
 
@@ -299,7 +299,7 @@ namespace KRG::Physics
         }
     }
 
-    void PhysicsDebugView::DrawMaterialDatabaseWindow( EntityUpdateContext const& context )
+    void PhysicsDebugView::DrawMaterialDatabaseWindow( EntityWorldUpdateContext const& context )
     {
         if ( m_isMaterialDatabaseWindowOpen )
         {

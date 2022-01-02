@@ -2,7 +2,7 @@
 #include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Render/Components/Component_Lights.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -35,7 +35,7 @@ namespace KRG::Render
 
     RenderDebugView::RenderDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Render", [this] ( EntityUpdateContext const& context ) { DrawRenderMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Render", [this] ( EntityWorldUpdateContext const& context ) { DrawRenderMenu( context ); } ) );
     }
 
     void RenderDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -50,16 +50,16 @@ namespace KRG::Render
         EntityWorldDebugView::Shutdown();
     }
 
-    void RenderDebugView::DrawRenderMenu( EntityUpdateContext const& context )
+    void RenderDebugView::DrawRenderMenu( EntityWorldUpdateContext const& context )
     {
         DrawRenderVisualizationModesMenu( m_pWorld );
     }
 
-    void RenderDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void RenderDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
     }
 
-    void RenderDebugView::DrawOverlayElements( EntityUpdateContext const& context )
+    void RenderDebugView::DrawOverlayElements( EntityWorldUpdateContext const& context )
     {
     }
 }

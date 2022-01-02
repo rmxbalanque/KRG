@@ -1,8 +1,9 @@
 #include "EntitySystem_Animation.h"
 #include "Engine/Animation/Components/Component_Animation.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
+#include "Engine/Physics/Systems/WorldSystem_Physics.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Animation/AnimationPose.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
 #include "System/Core/Logging/Log.h"
 
@@ -55,7 +56,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void AnimationSystem::Update( EntityUpdateContext const& ctx )
+    void AnimationSystem::Update( EntityWorldUpdateContext const& ctx )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
 
@@ -80,19 +81,21 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
+        auto pPhysicsWorldSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+
         UpdateStage const updateStage = ctx.GetUpdateStage();
         if ( updateStage == UpdateStage::PrePhysics )
         {
             if ( !m_pAnimComponent->RequiresManualUpdate() )
             {
-                m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform() );
+                m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform(), pPhysicsWorldSystem->GetScene() );
             }
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
             if ( !m_pAnimComponent->RequiresManualUpdate() )
             {
-                m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform() );
+                m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform(), pPhysicsWorldSystem->GetScene() );
             }
 
             // Transfer Pose

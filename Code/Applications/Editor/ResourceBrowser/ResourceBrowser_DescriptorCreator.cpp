@@ -27,7 +27,7 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        InlineString<10> const filenameStr( InlineString < 10>::CtorSprintf(), "NewResource.%s", m_pDescriptor->GetCompiledResourceTypeID().ToString().c_str() );
+        TInlineString<10> const filenameStr( TInlineString < 10>::CtorSprintf(), "NewResource.%s", m_pDescriptor->GetCompiledResourceTypeID().ToString().c_str() );
         m_startingPath += filenameStr.c_str();
     }
 
@@ -82,7 +82,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         ResourceTypeID const resourceTypeID = m_pDescriptor->GetCompiledResourceTypeID();
-        InlineString<5> const resourceTypeIDString = resourceTypeID.ToString();
+        TInlineString<5> const resourceTypeIDString = resourceTypeID.ToString();
         TypeSystem::ResourceInfo const* pResourceInfo = pTypeRegistry->GetResourceInfoForResourceType( resourceTypeID );
 
         FileSystem::Path const outPath = SaveDialog( resourceTypeID, m_startingPath, pResourceInfo->m_friendlyName );

@@ -8,27 +8,24 @@
 
 namespace KRG::Animation
 {
-    namespace Graph
-    {
-        class AnimationGraphEditorDefinition; 
-        class EditorGraphCompilationContext;
-    }
+    class EditorGraphDefinition;
+    class EditorGraphCompilationContext;
 
     //-------------------------------------------------------------------------
 
-    struct KRG_TOOLS_ANIMATION_API AnimationGraphResourceDescriptor final : public Resource::ResourceDescriptor
+    struct KRG_TOOLS_ANIMATION_API GraphResourceDescriptor final : public Resource::ResourceDescriptor
     {
-        KRG_REGISTER_TYPE( AnimationGraphResourceDescriptor );
+        KRG_REGISTER_TYPE( GraphResourceDescriptor );
 
         virtual bool IsUserCreateableDescriptor() const override { return true; }
-        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return AnimationGraphDefinition::GetStaticResourceTypeID(); }
+        virtual ResourceTypeID GetCompiledResourceTypeID() const override { return GraphDefinition::GetStaticResourceTypeID(); }
     };
 
     //-------------------------------------------------------------------------
 
-    struct KRG_TOOLS_ANIMATION_API AnimationGraphVariationResourceDescriptor final : public Resource::ResourceDescriptor
+    struct KRG_TOOLS_ANIMATION_API GraphVariationResourceDescriptor final : public Resource::ResourceDescriptor
     {
-        KRG_REGISTER_TYPE( AnimationGraphVariationResourceDescriptor );
+        KRG_REGISTER_TYPE( GraphVariationResourceDescriptor );
 
     public:
 

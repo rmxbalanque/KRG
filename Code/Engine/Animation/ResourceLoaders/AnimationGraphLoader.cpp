@@ -8,24 +8,31 @@
 
 namespace KRG::Animation
 {
-    AnimationGraphLoader::AnimationGraphLoader()
+    GraphLoader::GraphLoader()
     {
-        m_loadableTypes.push_back( AnimationGraphDataSet::GetStaticResourceTypeID() );
-        m_loadableTypes.push_back( AnimationGraphDefinition::GetStaticResourceTypeID() );
-        m_loadableTypes.push_back( AnimationGraphVariation::GetStaticResourceTypeID() );
+        m_loadableTypes.push_back( GraphDataSet::GetStaticResourceTypeID() );
+        m_loadableTypes.push_back( GraphDefinition::GetStaticResourceTypeID() );
+        m_loadableTypes.push_back( GraphVariation::GetStaticResourceTypeID() );
     }
 
-    bool AnimationGraphLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
+    bool GraphLoader::LoadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Serialization::BinaryMemoryArchive& archive ) const
     {
         KRG_ASSERT( archive.IsValid() );
 
         auto const resourceTypeID = resID.GetResourceTypeID();
 
-        if ( resourceTypeID == AnimationGraphDefinition::GetStaticResourceTypeID() )
+        if ( resourceTypeID == GraphDefinition::GetStaticResourceTypeID() )
         {
-            auto* pGraphDef = KRG::New<AnimationGraphDefinition>();
+            auto* pGraphDef = KRG::New<GraphDefinition>();
             archive >> *pGraphDef;
             pResourceRecord->SetResourceData( pGraphDef );
+
+            // Deserialize debug node paths
+            //-------------------------------------------------------------------------
+
+            #if !KRG_CONFIGURATION_FINAL
+            archive >> pGraphDef->m_nodePaths;
+            #endif
 
             // Create Settings
             //-------------------------------------------------------------------------
@@ -46,17 +53,17 @@ namespace KRG::Animation
 
             return pGraphDef->IsValid();
         }
-        else if ( resourceTypeID == AnimationGraphDataSet::GetStaticResourceTypeID() )
+        else if ( resourceTypeID == GraphDataSet::GetStaticResourceTypeID() )
         {
-            AnimationGraphDataSet* pDataSet = KRG::New<AnimationGraphDataSet>();
+            GraphDataSet* pDataSet = KRG::New<GraphDataSet>();
             archive >> *pDataSet;
             KRG_ASSERT( pDataSet->m_variationID.IsValid() && pDataSet->m_pSkeleton.IsValid() );
             pResourceRecord->SetResourceData( pDataSet );
             return true;
         }
-        else if ( resourceTypeID == AnimationGraphVariation::GetStaticResourceTypeID() )
+        else if ( resourceTypeID == GraphVariation::GetStaticResourceTypeID() )
         {
-            AnimationGraphVariation* pGraphVariation = KRG::New<AnimationGraphVariation>();
+            GraphVariation* pGraphVariation = KRG::New<GraphVariation>();
             archive >> *pGraphVariation;
             pResourceRecord->SetResourceData( pGraphVariation );
             return true;
@@ -66,13 +73,13 @@ namespace KRG::Animation
         return false;
     }
 
-    Resource::InstallResult AnimationGraphLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
+    Resource::InstallResult GraphLoader::Install( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord, Resource::InstallDependencyList const& installDependencies ) const
     {
         auto const resourceTypeID = resID.GetResourceTypeID();
 
-        if ( resourceTypeID == AnimationGraphDataSet::GetStaticResourceTypeID() )
+        if ( resourceTypeID == GraphDataSet::GetStaticResourceTypeID() )
         {
-            auto pDataSet = pResourceRecord->GetResourceData<AnimationGraphDataSet>();
+            auto pDataSet = pResourceRecord->GetResourceData<GraphDataSet>();
 
             KRG_ASSERT( pDataSet->m_pSkeleton.GetResourceID().IsValid() );
             pDataSet->m_pSkeleton = GetInstallDependency( installDependencies, pDataSet->m_pSkeleton.GetResourceID() );
@@ -91,9 +98,9 @@ namespace KRG::Animation
                 pDataSet->m_resources[i - 1] = GetInstallDependency( installDependencies, pDataSet->m_resources[i - 1].GetResourceID() );
             }
         }
-        else if ( resourceTypeID == AnimationGraphVariation::GetStaticResourceTypeID() )
+        else if ( resourceTypeID == GraphVariation::GetStaticResourceTypeID() )
         {
-            auto pGraphVariation = pResourceRecord->GetResourceData<AnimationGraphVariation>();
+            auto pGraphVariation = pResourceRecord->GetResourceData<GraphVariation>();
             pGraphVariation->m_pDataSet = GetInstallDependency( installDependencies, pGraphVariation->m_pDataSet.GetResourceID() );
             pGraphVariation->m_pGraphDefinition = GetInstallDependency( installDependencies, pGraphVariation->m_pGraphDefinition.GetResourceID() );
         }
@@ -104,13 +111,13 @@ namespace KRG::Animation
         return Resource::InstallResult::Succeeded;
     }
 
-    void AnimationGraphLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
+    void GraphLoader::UnloadInternal( ResourceID const& resID, Resource::ResourceRecord* pResourceRecord ) const
     {
         auto const resourceTypeID = resID.GetResourceTypeID();
 
-        if ( resourceTypeID == AnimationGraphDefinition::GetStaticResourceTypeID() )
+        if ( resourceTypeID == GraphDefinition::GetStaticResourceTypeID() )
         {
-            auto pGraphDef = pResourceRecord->GetResourceData<AnimationGraphDefinition>();
+            auto pGraphDef = pResourceRecord->GetResourceData<GraphDefinition>();
             if ( pGraphDef != nullptr )
             {
                 TypeSystem::TypeDescriptorCollection::DestroyStaticCollection( pGraphDef->m_nodeSettings );

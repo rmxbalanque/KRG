@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class SelectorConditionEditorNode final : public EditorGraphNode
     {
@@ -36,11 +36,11 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Selector"; }
         virtual char const* GetCategory() const override { return "Utility"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual InlineString<100> GetNewDynamicInputPinName() const override;
-        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) ValueType::Pose; }
+        virtual TInlineString<100> GetNewDynamicInputPinName() const override;
+        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) GraphValueType::Pose; }
         virtual void OnDynamicPinCreation( UUID pinID ) override;
         virtual void OnDynamicPinDestruction( UUID pinID ) override;
     };

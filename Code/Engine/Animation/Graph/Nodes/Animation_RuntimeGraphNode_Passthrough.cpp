@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void PassthroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void PassthroughNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
         auto pNode = CreateNode<PassthroughNode>( nodePtrs, options );
@@ -59,12 +59,12 @@ namespace KRG::Animation::Graph
         PoseNode::ShutdownInternal( context );
     }
 
-    PoseNodeResult PassthroughNode::Update( GraphContext& context )
+    GraphPoseNodeResult PassthroughNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         // Forward child node results
         if ( IsChildValid() )
@@ -82,12 +82,12 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult PassthroughNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult PassthroughNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         // Forward child node results
         if ( IsChildValid() )

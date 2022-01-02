@@ -5,13 +5,13 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class GraphInstance
     {
     public:
 
-        GraphInstance( AnimationGraphVariation const* pGraphVariation );
+        GraphInstance( GraphVariation const* pGraphVariation );
         ~GraphInstance();
 
         void Initialize( GraphContext& context );
@@ -27,12 +27,12 @@ namespace KRG::Animation::Graph
         void Reset( GraphContext& context );
 
         // Run the graph logic
-        PoseNodeResult UpdateGraph( GraphContext& context );
+        GraphPoseNodeResult UpdateGraph( GraphContext& context );
 
         // General Node Info
         //-------------------------------------------------------------------------
 
-        inline bool IsValidNodeIndex( NodeIndex nodeIdx ) const 
+        inline bool IsValidNodeIndex( GraphNodeIndex nodeIdx ) const 
         {
             return nodeIdx < m_pGraphVariation->m_pGraphDefinition->m_nodeSettings.size();
         }
@@ -42,11 +42,11 @@ namespace KRG::Animation::Graph
 
         inline int32 GetNumControlParameters() const { return m_pGraphVariation->m_pGraphDefinition->m_numControlParameters; }
 
-        inline NodeIndex GetControlParameterIndex( StringID parameterID ) const
+        inline GraphNodeIndex GetControlParameterIndex( StringID parameterID ) const
         {
-            for ( NodeIndex i = 0; i < m_pGraphVariation->m_pGraphDefinition->m_numControlParameters; i++ )
+            for ( GraphNodeIndex i = 0; i < m_pGraphVariation->m_pGraphDefinition->m_numControlParameters; i++ )
             {
-                if ( m_pGraphVariation->m_pGraphDefinition->m_nodeSettings[i]->m_nodeID == parameterID )
+                if ( m_pGraphVariation->m_pGraphDefinition->m_controlParameterIDs[i] == parameterID )
                 {
                     return i;
                 }
@@ -55,27 +55,27 @@ namespace KRG::Animation::Graph
             return InvalidIndex;
         }
 
-        inline StringID GetControlParameterID( NodeIndex parameterNodeIdx )
+        inline StringID GetControlParameterID( GraphNodeIndex parameterNodeIdx )
         {
             KRG_ASSERT( IsControlParameter( parameterNodeIdx ) );
-            return m_nodes[parameterNodeIdx]->GetNodeID();
+            return m_pGraphVariation->m_pGraphDefinition->m_controlParameterIDs[parameterNodeIdx];
         }
 
-        inline ValueType GetControlParameterType( NodeIndex parameterNodeIdx )
+        inline GraphValueType GetControlParameterType( GraphNodeIndex parameterNodeIdx )
         {
             KRG_ASSERT( IsControlParameter( parameterNodeIdx ) );
             return static_cast<ValueNode*>( m_nodes[parameterNodeIdx] )->GetValueType();
         }
 
         template<typename T>
-        inline void SetControlParameterValue( GraphContext& context, NodeIndex parameterNodeIdx, T const& value )
+        inline void SetControlParameterValue( GraphContext& context, GraphNodeIndex parameterNodeIdx, T const& value )
         {
             KRG_ASSERT( IsControlParameter( parameterNodeIdx ) );
             static_cast<ValueNode*>( m_nodes[parameterNodeIdx] )->SetValue<T>( context, value );
         }
 
         template<typename T>
-        inline T GetControlParameterValue( GraphContext& context, NodeIndex parameterNodeIdx ) const
+        inline T GetControlParameterValue( GraphContext& context, GraphNodeIndex parameterNodeIdx ) const
         {
             KRG_ASSERT( IsControlParameter( parameterNodeIdx ) );
             return static_cast<ValueNode*>( m_nodes[parameterNodeIdx] )->GetValue<T>( context );
@@ -85,14 +85,14 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
         
         #if KRG_DEVELOPMENT_TOOLS
-        inline bool IsNodeActive( GraphContext& context, NodeIndex nodeIdx ) const
+        inline bool IsNodeActive( GraphContext& context, GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
             auto pNode = m_nodes[nodeIdx];
             return pNode->IsNodeActive( context );
         }
 
-        inline PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphContext& context, NodeIndex nodeIdx ) const
+        inline PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphContext& context, GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
             auto pNode = static_cast<PoseNode const*>( m_nodes[nodeIdx] );
@@ -102,7 +102,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        KRG_FORCE_INLINE bool IsControlParameter( NodeIndex nodeIdx ) const 
+        KRG_FORCE_INLINE bool IsControlParameter( GraphNodeIndex nodeIdx ) const 
         {
             return nodeIdx < m_pGraphVariation->m_pGraphDefinition->m_numControlParameters;
         }
@@ -114,7 +114,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        AnimationGraphVariation const* const    m_pGraphVariation = nullptr;
+        GraphVariation const* const             m_pGraphVariation = nullptr;
         TVector<GraphNode*>                     m_nodes;
         Byte*                                   m_pAllocatedInstanceMemory = nullptr;
         PoseNode*                               m_pRootNode = nullptr;

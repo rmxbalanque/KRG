@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    GraphInstance::GraphInstance( AnimationGraphVariation const* pGraphVariation )
+    GraphInstance::GraphInstance( GraphVariation const* pGraphVariation )
         : m_pGraphVariation( pGraphVariation )
     {
         KRG_ASSERT( pGraphVariation != nullptr );
@@ -81,7 +81,7 @@ namespace KRG::Animation::Graph
         m_pRootNode->Initialize( context, SyncTrackTime() );
     }
 
-    PoseNodeResult GraphInstance::UpdateGraph( GraphContext& context )
+    GraphPoseNodeResult GraphInstance::UpdateGraph( GraphContext& context )
     {
         return m_pRootNode->Update( context );
     }

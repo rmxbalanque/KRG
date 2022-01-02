@@ -8,7 +8,7 @@
 // CORE EDITOR NODES
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     static void TraverseHierarchy( VisualGraph::BaseNode const* pNode, TVector<VisualGraph::BaseNode const*>& nodePath )
     {
@@ -25,11 +25,11 @@ namespace KRG::Animation::Graph
 
     void EditorGraphNode::DrawExtraControls( VisualGraph::DrawContext const& ctx )
     {
-        NodeIndex runtimeNodeIdx = InvalidIndex;
+        GraphNodeIndex runtimeNodeIdx = InvalidIndex;
         auto pDebugContext = reinterpret_cast<DebugContext*>( ctx.m_pUserContext );
         if ( pDebugContext != nullptr )
         {
-            runtimeNodeIdx = pDebugContext->GetRuntimeNodeIndex( GetID() );
+            runtimeNodeIdx = pDebugContext->GetRuntimeGraphNodeIndex( GetID() );
 
             // Some nodes dont have runtime representations
             if ( runtimeNodeIdx == InvalidIndex )
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
         // Draw Pose Node
         //-------------------------------------------------------------------------
 
-        if ( GetValueType() == ValueType::Pose )
+        if ( GetValueType() == GraphValueType::Pose )
         {
             if ( pDebugContext != nullptr && pDebugContext->IsNodeActive( runtimeNodeIdx ) )
             {
@@ -80,7 +80,7 @@ namespace KRG::Animation::Graph
 
     bool DataSlotEditorNode::AreSlotValuesValid() const
     {
-        if ( m_defaultResourceID.GetResourceTypeID() != GetSlotResourceType() )
+        if ( m_defaultResourceID.GetResourceTypeID() != GetSlotResourceTypeID() )
         {
             return false;
         }
@@ -92,7 +92,7 @@ namespace KRG::Animation::Graph
                 return false;
             }
 
-            if ( variation.m_resourceID.GetResourceTypeID() != GetSlotResourceType() )
+            if ( variation.m_resourceID.GetResourceTypeID() != GetSlotResourceTypeID() )
             {
                 return false;
             }
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( variationHierarchy.IsValidVariation( variationID ) );
 
-        if ( variationID == AnimationGraphVariation::DefaultVariationID )
+        if ( variationID == GraphVariation::DefaultVariationID )
         {
             return m_defaultResourceID;
         }
@@ -116,7 +116,7 @@ namespace KRG::Animation::Graph
 
         auto TryGetResourceID = [this, &resourceID] ( StringID variationID )
         {
-            if ( variationID == AnimationGraphVariation::DefaultVariationID )
+            if ( variationID == GraphVariation::DefaultVariationID )
             {
                 resourceID = m_defaultResourceID;
                 return true;
@@ -161,7 +161,7 @@ namespace KRG::Animation::Graph
     {
         KRG_ASSERT( variationID.IsValid() );
 
-        if ( variationID == AnimationGraphVariation::DefaultVariationID )
+        if ( variationID == GraphVariation::DefaultVariationID )
         {
             return &m_defaultResourceID;
         }
@@ -180,9 +180,9 @@ namespace KRG::Animation::Graph
     void DataSlotEditorNode::SetOverrideValueForVariation( StringID variationID, ResourceID const& resourceID )
     {
         KRG_ASSERT( variationID.IsValid() );
-        KRG_ASSERT( !resourceID.IsValid() || resourceID.GetResourceTypeID() == GetSlotResourceType() );
+        KRG_ASSERT( !resourceID.IsValid() || resourceID.GetResourceTypeID() == GetSlotResourceTypeID() );
 
-        if ( variationID == AnimationGraphVariation::DefaultVariationID )
+        if ( variationID == GraphVariation::DefaultVariationID )
         {
             m_defaultResourceID = resourceID;
             return;
@@ -206,7 +206,7 @@ namespace KRG::Animation::Graph
 
     void DataSlotEditorNode::CreateOverride( StringID variationID )
     {
-        KRG_ASSERT( variationID.IsValid() && variationID != AnimationGraphVariation::DefaultVariationID );
+        KRG_ASSERT( variationID.IsValid() && variationID != GraphVariation::DefaultVariationID );
         KRG_ASSERT( !HasOverrideForVariation( variationID ) );
 
         auto& createdOverride = m_overrides.emplace_back();
@@ -216,7 +216,7 @@ namespace KRG::Animation::Graph
     void DataSlotEditorNode::RenameOverride( StringID oldVariationID, StringID newVariationID )
     {
         KRG_ASSERT( oldVariationID.IsValid() && newVariationID.IsValid() );
-        KRG_ASSERT( oldVariationID != AnimationGraphVariation::DefaultVariationID && newVariationID != AnimationGraphVariation::DefaultVariationID );
+        KRG_ASSERT( oldVariationID != GraphVariation::DefaultVariationID && newVariationID != GraphVariation::DefaultVariationID );
 
         for ( auto& overrideValue : m_overrides )
         {
@@ -229,7 +229,7 @@ namespace KRG::Animation::Graph
 
     void DataSlotEditorNode::RemoveOverride( StringID variationID )
     {
-        KRG_ASSERT( variationID.IsValid() && variationID != AnimationGraphVariation::DefaultVariationID );
+        KRG_ASSERT( variationID.IsValid() && variationID != GraphVariation::DefaultVariationID );
 
         for ( auto iter = m_overrides.begin(); iter != m_overrides.end(); ++iter )
         {
@@ -245,7 +245,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ResultEditorNode::ResultEditorNode( ValueType valueType )
+    ResultEditorNode::ResultEditorNode( GraphValueType valueType )
         : m_valueType( valueType )
     {}
 
@@ -255,7 +255,7 @@ namespace KRG::Animation::Graph
         CreateInputPin( "Out", m_valueType );
     }
 
-    NodeIndex ResultEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ResultEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         // Get connected node and compile it
         auto pConnectedNode = GetConnectedInputNode<EditorGraphNode>( 0 );
@@ -273,7 +273,7 @@ namespace KRG::Animation::Graph
 // PARAMETERS
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void ParameterReferenceEditorNode::RefreshParameterReferences( VisualGraph::BaseGraph* pRootGraph )
     {
@@ -335,7 +335,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    ControlParameterEditorNode::ControlParameterEditorNode( String const& name, ValueType type )
+    ControlParameterEditorNode::ControlParameterEditorNode( String const& name, GraphValueType type )
         : m_name( name )
         , m_type( type )
     {
@@ -348,83 +348,62 @@ namespace KRG::Animation::Graph
         CreateOutputPin( "Value", m_type, true );
     }
 
-    NodeIndex ControlParameterEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ControlParameterEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         switch ( GetValueType() )
         {
-            case ValueType::Bool:
+            case GraphValueType::Bool:
             {
-                ControlParameterBoolNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterBoolNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterBoolNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterBoolNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::ID:
+            case GraphValueType::ID:
             {
-                ControlParameterIDNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterIDNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterIDNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterIDNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::Int:
+            case GraphValueType::Int:
             {
-                ControlParameterIntNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterIntNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterIntNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterIntNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::Float:
+            case GraphValueType::Float:
             {
-                ControlParameterFloatNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterFloatNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterFloatNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterFloatNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::Vector:
+            case GraphValueType::Vector:
             {
-                ControlParameterVectorNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterVectorNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterVectorNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterVectorNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::Target:
+            case GraphValueType::Target:
             {
-                ControlParameterTargetNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterTargetNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterTargetNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterTargetNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
 
-            case ValueType::BoneMask:
+            case GraphValueType::BoneMask:
             {
-                ControlParameterBoneMaskNode::Settings* pSettings = nullptr;
-                if ( context.GetSettings<ControlParameterBoneMaskNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
-                {
-                    pSettings->m_nodeID = StringID( m_name );
-                }
+                GraphNodes::ControlParameterBoneMaskNode::Settings* pSettings = nullptr;
+                context.GetSettings<GraphNodes::ControlParameterBoneMaskNode>( this, pSettings );
                 return pSettings->m_nodeIdx;
             }
             break;
@@ -436,7 +415,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    VirtualParameterEditorNode::VirtualParameterEditorNode( String const& name, ValueType type )
+    VirtualParameterEditorNode::VirtualParameterEditorNode( String const& name, GraphValueType type )
         : m_name( name )
         , m_type( type )
     {
@@ -454,7 +433,7 @@ namespace KRG::Animation::Graph
         SetSecondaryGraph( pParameterGraph );
     }
 
-    NodeIndex VirtualParameterEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex VirtualParameterEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         auto const resultNodes = GetSecondaryGraph()->FindAllNodesOfType<ResultEditorNode>();
         KRG_ASSERT( resultNodes.size() == 1 );
@@ -485,7 +464,7 @@ namespace KRG::Animation::Graph
         CreateOutputPin( "Value", m_pParameter->GetValueType(), true );
     }
 
-    NodeIndex ParameterReferenceEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ParameterReferenceEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         return m_pParameter->Compile( context );
     }
@@ -495,7 +474,7 @@ namespace KRG::Animation::Graph
 // BASE ANIMATION FLOW GRAPH
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     FlowGraph::FlowGraph( GraphType type )
         : m_type( type )
@@ -518,6 +497,6 @@ namespace KRG::Animation::Graph
     void FlowGraph::PostPasteNodes( TInlineVector<VisualGraph::BaseNode*, 20> const& pastedNodes )
     {
         VisualGraph::FlowGraph::PostPasteNodes( pastedNodes );
-        ParameterReferenceEditorNode::RefreshParameterReferences( GetRootGraph() );
+        GraphNodes::ParameterReferenceEditorNode::RefreshParameterReferences( GetRootGraph() );
     }
 }

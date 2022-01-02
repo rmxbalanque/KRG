@@ -12,7 +12,7 @@ namespace KRG::Network
 
     //-------------------------------------------------------------------------
 
-    using AddressString = InlineString<30>;
+    using AddressString = TInlineString<30>;
 
     //-------------------------------------------------------------------------
 

@@ -4,15 +4,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void BoneMaskEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Bone Mask", ValueType::BoneMask, true );
+        CreateOutputPin( "Bone Mask", GraphValueType::BoneMask, true );
     }
 
-    NodeIndex BoneMaskEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex BoneMaskEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         BoneMaskNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<BoneMaskNode>( this, pSettings );
@@ -32,13 +32,13 @@ namespace KRG::Animation::Graph
     void BoneMaskBlendEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::BoneMask, true );
-        CreateInputPin( "Blend Weight", ValueType::Float );
-        CreateInputPin( "Source", ValueType::BoneMask );
-        CreateInputPin( "Target", ValueType::BoneMask );
+        CreateOutputPin( "Result", GraphValueType::BoneMask, true );
+        CreateInputPin( "Blend Weight", GraphValueType::Float );
+        CreateInputPin( "Source", GraphValueType::BoneMask );
+        CreateInputPin( "Target", GraphValueType::BoneMask );
     }
 
-    NodeIndex BoneMaskBlendEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex BoneMaskBlendEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         BoneMaskBlendNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<BoneMaskBlendNode>( this, pSettings );
@@ -47,7 +47,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_blendWeightValueNodeIdx = compiledNodeIdx;
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 1 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_sourceMaskNodeIdx = compiledNodeIdx;
@@ -89,7 +89,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 2 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_targetMaskNodeIdx = compiledNodeIdx;
@@ -113,13 +113,13 @@ namespace KRG::Animation::Graph
     void BoneMaskSelectorEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::BoneMask, true );
-        CreateInputPin( "Parameter", ValueType::ID );
-        CreateInputPin( "Default Mask", ValueType::BoneMask );
-        CreateInputPin( "Mask 0", ValueType::BoneMask );
+        CreateOutputPin( "Result", GraphValueType::BoneMask, true );
+        CreateInputPin( "Parameter", GraphValueType::ID );
+        CreateInputPin( "Default Mask", GraphValueType::BoneMask );
+        CreateInputPin( "Mask 0", GraphValueType::BoneMask );
     }
 
-    NodeIndex BoneMaskSelectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex BoneMaskSelectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         BoneMaskSelectorNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<BoneMaskSelectorNode>( this, pSettings );
@@ -131,7 +131,7 @@ namespace KRG::Animation::Graph
             auto pParameterNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pParameterNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pParameterNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pParameterNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_parameterValueNodeIdx = compiledNodeIdx;
@@ -153,7 +153,7 @@ namespace KRG::Animation::Graph
             auto pDefaultMaskNode = GetConnectedInputNode<EditorGraphNode>( 1 );
             if ( pDefaultMaskNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pDefaultMaskNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pDefaultMaskNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_defaultMaskNodeIdx = compiledNodeIdx;

@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void StateMachineNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void StateMachineNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<StateMachineNode>( nodePtrs, options );
 
@@ -160,7 +160,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void StateMachineNode::EvaluateTransitions( GraphContext& context, PoseNodeResult& sourceNodeResult )
+    void StateMachineNode::EvaluateTransitions( GraphContext& context, GraphPoseNodeResult& sourceNodeResult )
     {
         auto pSettings = GetSettings<StateMachineNode>();
         auto const& currentlyActiveState = m_states[m_activeStateIndex];
@@ -249,7 +249,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult StateMachineNode::Update( GraphContext& context )
+    GraphPoseNodeResult StateMachineNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
@@ -258,7 +258,7 @@ namespace KRG::Animation::Graph
         UpdateTransitionStack( context );
 
         // If we are fully in a state, update the state directly
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( m_pActiveTransition == nullptr )
         {
             result = static_cast<PoseNode*>( m_states[m_activeStateIndex].m_pStateNode )->Update( context );
@@ -289,7 +289,7 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult StateMachineNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult StateMachineNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
@@ -298,7 +298,7 @@ namespace KRG::Animation::Graph
         UpdateTransitionStack( context );
 
         // If we are fully in a state, update the state directly
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( m_pActiveTransition == nullptr )
         {
             result = m_states[m_activeStateIndex].m_pStateNode->Update( context, updateRange );

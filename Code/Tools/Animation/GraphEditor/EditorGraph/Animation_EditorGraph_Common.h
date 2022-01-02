@@ -14,49 +14,44 @@ namespace KRG::Animation
 {
     class AnimationGraphComponent;
 
+    // Graph Types
     //-------------------------------------------------------------------------
 
-    namespace Graph
+    enum class GraphType
     {
-        // Graph Types
-        //-------------------------------------------------------------------------
+        KRG_REGISTER_ENUM
 
-        enum class GraphType
+        BlendTree,
+        ValueTree,
+        TransitionTree,
+    };
+
+    // Debug
+    //-------------------------------------------------------------------------
+
+    struct DebugContext
+    {
+        inline GraphNodeIndex GetRuntimeGraphNodeIndex( UUID const& nodeID ) const
         {
-            KRG_REGISTER_ENUM
-
-            BlendTree,
-            ValueTree,
-            TransitionTree,
-        };
-
-        // Debug
-        //-------------------------------------------------------------------------
-
-        struct DebugContext
-        {
-            inline NodeIndex GetRuntimeNodeIndex( UUID const& nodeID ) const
+            auto const foundIter = m_nodeIDtoIndexMap.find( nodeID );
+            if ( foundIter != m_nodeIDtoIndexMap.end() )
             {
-                auto const foundIter = m_nodeIDtoIndexMap.find( nodeID );
-                if ( foundIter != m_nodeIDtoIndexMap.end() )
-                {
-                    return foundIter->second;
-                }
-                return InvalidIndex;
+                return foundIter->second;
             }
+            return InvalidIndex;
+        }
 
-            bool IsNodeActive( NodeIndex nodeIdx ) const;
-            PoseNodeDebugInfo GetPoseNodeDebugInfo( NodeIndex runtimeNodeIdx ) const;
+        bool IsNodeActive( GraphNodeIndex nodeIdx ) const;
+        PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphNodeIndex runtimeNodeIdx ) const;
 
-        public:
+    public:
 
-            AnimationGraphComponent*        m_pGraphComponent = nullptr;
-            THashMap<UUID, NodeIndex>       m_nodeIDtoIndexMap;
-        };
+        AnimationGraphComponent*        m_pGraphComponent = nullptr;
+        THashMap<UUID, GraphNodeIndex>       m_nodeIDtoIndexMap;
+    };
 
-        //-------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
 
-        void DrawPoseNodeDebugInfo( VisualGraph::DrawContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo );
-        void DrawEmptyPoseNodeDebugInfo( VisualGraph::DrawContext const& ctx, float width );
-    }
+    void DrawPoseNodeDebugInfo( VisualGraph::DrawContext const& ctx, float width, PoseNodeDebugInfo const& debugInfo );
+    void DrawEmptyPoseNodeDebugInfo( VisualGraph::DrawContext const& ctx, float width );
 }

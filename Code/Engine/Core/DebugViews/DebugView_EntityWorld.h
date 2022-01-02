@@ -24,11 +24,11 @@ namespace KRG
 
     private:
 
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawMenu( EntityUpdateContext const& context );
-        void DrawWorldBrowser( EntityUpdateContext const& context );
-        void DrawMapLoader( EntityUpdateContext const& context );
+        void DrawMenu( EntityWorldUpdateContext const& context );
+        void DrawWorldBrowser( EntityWorldUpdateContext const& context );
+        void DrawMapLoader( EntityWorldUpdateContext const& context );
 
         void DrawComponentEntry( EntityComponent const* pComponent );
         void DrawSpatialComponentTree( SpatialEntityComponent const* pComponent );

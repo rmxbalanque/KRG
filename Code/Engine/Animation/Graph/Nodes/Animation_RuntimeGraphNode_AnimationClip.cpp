@@ -1,19 +1,18 @@
 #include "Animation_RuntimeGraphNode_AnimationClip.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_DefaultPose.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_Sample.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_DefaultPose.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_Sample.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void AnimationClipNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void AnimationClipNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<AnimationClipNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_playInReverseValueNodeIdx, pNode->m_pPlayInReverseValueNode );
 
-        auto pSettings = pNode->GetSettings<AnimationClipNode>();
-        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_dataSlotIdx );
+        pNode->m_pAnimation = pDataSet->GetResource<AnimationClip>( m_dataSlotIdx );
     }
 
     bool AnimationClipNode::IsValid() const
@@ -53,13 +52,13 @@ namespace KRG::Animation::Graph
         AnimationClipReferenceNode::ShutdownInternal( context );
     }
 
-    PoseNodeResult AnimationClipNode::Update( GraphContext& context )
+    GraphPoseNodeResult AnimationClipNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
         if ( !IsValid() )
         {
-            return PoseNodeResult();
+            return GraphPoseNodeResult();
         }
 
         MarkNodeActive( context );
@@ -106,13 +105,13 @@ namespace KRG::Animation::Graph
         return CalculateResult( context, true );
     }
 
-    PoseNodeResult AnimationClipNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult AnimationClipNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
         if ( !IsValid() )
         {
-            return PoseNodeResult();
+            return GraphPoseNodeResult();
         }
 
         MarkNodeActive( context );
@@ -148,12 +147,13 @@ namespace KRG::Animation::Graph
         return CalculateResult( context, true );
     }
 
-    PoseNodeResult AnimationClipNode::CalculateResult( GraphContext& context, bool isSynchronizedUpdate ) const
+    GraphPoseNodeResult AnimationClipNode::CalculateResult( GraphContext& context, bool isSynchronizedUpdate ) const
     {
         KRG_ASSERT( m_pAnimation != nullptr );
         auto pSettings = GetSettings<AnimationClipNode>();
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
+        result.m_sampledEventRange = context.m_sampledEvents.GetNumEvents();
 
         //-------------------------------------------------------------------------
 
@@ -208,13 +208,13 @@ namespace KRG::Animation::Graph
             }
         }
 
-        result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents(), context.m_sampledEvents.GetNumEvents() + (int16) sampledAnimationEvents.size() );
+        result.m_sampledEventRange.m_endIdx = context.m_sampledEvents.GetNumEvents();
 
         // Register pose tasks
         //-------------------------------------------------------------------------
 
         Percentage const sampleTime = m_shouldPlayInReverse ? Percentage( 1.0f - m_currentTime.ToFloat() ) : m_currentTime;
-        result.m_taskIdx = context.m_pTaskSystem->RegisterTask<SampleTask>( GetNodeIndex(), m_pAnimation, sampleTime );
+        result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIndex(), m_pAnimation, sampleTime );
         return result;
     }
 }

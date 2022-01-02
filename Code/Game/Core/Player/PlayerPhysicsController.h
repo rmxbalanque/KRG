@@ -10,13 +10,13 @@
 
 namespace KRG 
 {
-    class EntityUpdateContext;
+    class EntityWorldUpdateContext;
 }
 
 namespace KRG::Physics 
 {
     class CharacterComponent;
-    class PhysicsWorldSystem;
+    class Scene;
 }
 
 //-------------------------------------------------------------------------
@@ -122,15 +122,15 @@ namespace KRG::Player
 
         inline bool IsOnGround() const { return m_isOnGround; }
 
-        bool TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+        bool TryMoveCapsule( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, Vector const& deltaTranslation, Quaternion const& deltaRotation );
 
     private:
 
-        MoveResult SweepCylinder( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx );
+        MoveResult SweepCylinder( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx );
 
-        MoveResult SweepCylinderVertical( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& Idx );
+        MoveResult SweepCylinderVertical( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& Idx );
 
-        MoveResult AdjustCapsuleToGround( Physics::PhysicsWorldSystem* pPhysicsSystem, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance );
+        MoveResult AdjustCapsuleToGround( Physics::Scene* pPhysicsScene, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance );
 
     private:
 

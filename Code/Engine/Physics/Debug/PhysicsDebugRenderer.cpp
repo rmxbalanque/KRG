@@ -254,7 +254,7 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
-        auto const& renderBuffer = pPhysicsSystem->m_pScene->getRenderBuffer();
+        auto const& renderBuffer = pPhysicsSystem->GetPxScene()->getRenderBuffer();
 
         uint32 const numPoints = renderBuffer.getNbPoints();
         DrawPoints( renderContext, viewport, renderBuffer.getPoints(), numPoints );

@@ -5,14 +5,14 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void SelectorConditionEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
 
-        CreateInputPin( "Option 0", ValueType::Bool );
-        CreateInputPin( "Option 1", ValueType::Bool );
+        CreateInputPin( "Option 0", GraphValueType::Bool );
+        CreateInputPin( "Option 1", GraphValueType::Bool );
     }
 
     //-------------------------------------------------------------------------
@@ -21,9 +21,9 @@ namespace KRG::Animation::Graph
     {
         EditorGraphNode::Initialize( pParent );
 
-        CreateOutputPin( "Pose", ValueType::Pose );
-        CreateInputPin( "Option 0", ValueType::Pose );
-        CreateInputPin( "Option 1", ValueType::Pose );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
+        CreateInputPin( "Option 0", GraphValueType::Pose );
+        CreateInputPin( "Option 1", GraphValueType::Pose );
 
         auto pConditionGraph = KRG::New<FlowGraph>( GraphType::ValueTree );
         pConditionGraph->CreateNode<SelectorConditionEditorNode>();
@@ -31,7 +31,7 @@ namespace KRG::Animation::Graph
         SetSecondaryGraph( pConditionGraph );
     }
 
-    NodeIndex SelectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex SelectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         SelectorNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<SelectorNode>( this, pSettings );
@@ -98,10 +98,10 @@ namespace KRG::Animation::Graph
         return pSettings->m_nodeIdx;
     }
 
-    InlineString<100> SelectorEditorNode::GetNewDynamicInputPinName() const
+    TInlineString<100> SelectorEditorNode::GetNewDynamicInputPinName() const
     {
         int32 const numOptions = GetNumInputPins();
-        InlineString<100> pinName;
+        TInlineString<100> pinName;
         pinName.sprintf( "Option %d", numOptions - 1 );
         return pinName;
     }
@@ -115,9 +115,9 @@ namespace KRG::Animation::Graph
         int32 const numOptions = GetNumInputPins();
         KRG_ASSERT( pConditionsNode->GetNumInputPins() == numOptions - 1 );
 
-        InlineString<100> pinName;
+        TInlineString<100> pinName;
         pinName.sprintf( "Option %d", numOptions - 1 );
-        pConditionsNode->CreateInputPin( pinName.c_str(), ValueType::Bool );
+        pConditionsNode->CreateInputPin( pinName.c_str(), GraphValueType::Bool );
     }
 
     void SelectorEditorNode::OnDynamicPinDestruction( UUID pinID )
@@ -143,7 +143,7 @@ namespace KRG::Animation::Graph
                 continue;
             }
 
-            InlineString<100> newPinName; 
+            TInlineString<100> newPinName; 
             newPinName.sprintf( "Option %d", newPinIdx );
 
             GetInputPin( i )->m_name = newPinName;

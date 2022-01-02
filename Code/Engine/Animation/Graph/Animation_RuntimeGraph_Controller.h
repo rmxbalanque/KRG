@@ -73,7 +73,7 @@ namespace KRG::Animation
             private:
 
                 StringID                        m_ID;
-                Graph::NodeIndex                m_index = InvalidIndex;
+                GraphNodeIndex                  m_index = InvalidIndex;
             };
 
         protected:
@@ -108,8 +108,8 @@ namespace KRG::Animation
 
         private:
 
-            AnimationGraphComponent*        m_pGraphComponent = nullptr;
-            Render::SkeletalMeshComponent*          m_pAnimatedMeshComponent = nullptr;
+            AnimationGraphComponent*            m_pGraphComponent = nullptr;
+            Render::SkeletalMeshComponent*      m_pAnimatedMeshComponent = nullptr;
         };
     }
 

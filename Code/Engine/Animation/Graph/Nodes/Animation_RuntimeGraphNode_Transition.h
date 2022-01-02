@@ -2,11 +2,12 @@
 
 #include "Animation_RuntimeGraphNode_State.h"
 #include "Engine/Animation/AnimationBoneMask.h"
+#include "Engine/Animation/AnimationBlender.h"
 #include "Engine/Core/Math/Easing.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API TransitionNode final : public PoseNode
     {
@@ -19,15 +20,6 @@ namespace KRG::Animation::Graph
 
     public:
 
-        enum class RootMotionBlend : uint8
-        {
-            KRG_REGISTER_ENUM
-
-            Blend,
-            IgnoreSource,
-            IgnoreTarget
-        };
-
         enum class TransitionOptions : uint8
         {
             Synchronized,
@@ -39,7 +31,7 @@ namespace KRG::Animation::Graph
 
         struct InitializationOptions
         {
-            PoseNodeResult                      m_sourceNodeResult;
+            GraphPoseNodeResult                 m_sourceNodeResult;
             bool                                m_shouldCachePose = false;
         };
 
@@ -50,7 +42,7 @@ namespace KRG::Animation::Graph
 
         public:
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
             inline bool IsSynchronized() const { return m_transitionOptions.IsFlagSet( TransitionOptions::Synchronized ); }
             inline bool ShouldClampDuration() const { return m_transitionOptions.IsFlagSet( TransitionOptions::ClampDuration ); }
@@ -60,11 +52,11 @@ namespace KRG::Animation::Graph
 
         public:
 
-            NodeIndex                           m_targetStateNodeIdx = InvalidIndex;
-            NodeIndex                           m_durationOverrideNodeIdx = InvalidIndex;
-            NodeIndex                           m_syncEventOffsetOverrideNodeIdx = InvalidIndex;
+            GraphNodeIndex                      m_targetStateNodeIdx = InvalidIndex;
+            GraphNodeIndex                      m_durationOverrideNodeIdx = InvalidIndex;
+            GraphNodeIndex                      m_syncEventOffsetOverrideNodeIdx = InvalidIndex;
             Math::Easing::Type                  m_blendWeightEasingType = Math::Easing::Type::Linear;
-            RootMotionBlend                     m_rootMotionBlend = RootMotionBlend::Blend;
+            RootMotionBlendMode                 m_rootMotionBlend = RootMotionBlendMode::Blend;
             Seconds                             m_duration = 0;
             float                               m_syncEventOffset = 0;
             TBitFlags<TransitionOptions>        m_transitionOptions;
@@ -73,13 +65,13 @@ namespace KRG::Animation::Graph
     public:
 
         virtual SyncTrack const& GetSyncTrack() const override { return IsComplete() ? m_pTargetNode->GetSyncTrack() : SyncTrack::s_defaultTrack; }
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         // Transition Info
-        PoseNodeResult StartTransitionFromState( GraphContext& context, InitializationOptions const& options, StateNode* SourceState );
-        PoseNodeResult StartTransitionFromTransition( GraphContext& context, InitializationOptions const& options, TransitionNode* SourceTransition, bool bForceTransition );
+        GraphPoseNodeResult StartTransitionFromState( GraphContext& context, InitializationOptions const& options, StateNode* SourceState );
+        GraphPoseNodeResult StartTransitionFromTransition( GraphContext& context, InitializationOptions const& options, TransitionNode* SourceTransition, bool bForceTransition );
         inline bool IsComplete() const { return m_transitionProgress >= 1.0f; }
         inline SourceType GetSourceType() const { return m_sourceType; }
 
@@ -93,7 +85,7 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        PoseNodeResult InitializeTargetStateAndUpdateTransition( GraphContext& context, InitializationOptions const& options );
+        GraphPoseNodeResult InitializeTargetStateAndUpdateTransition( GraphContext& context, InitializationOptions const& options );
 
         void UpdateProgress( GraphContext& context, bool isInitializing = false );
         void UpdateProgressClampedSynchronized( GraphContext& context, SyncTrackTimeRange const& updateRange, bool isInitializing = false );
@@ -102,13 +94,13 @@ namespace KRG::Animation::Graph
 
         void EndSourceTransition( GraphContext& context );
 
-        PoseNodeResult UpdateUnsynchronized( GraphContext& context );
-        PoseNodeResult UpdateSynchronized( GraphContext& context, SyncTrackTimeRange const& updateRange );
+        GraphPoseNodeResult UpdateUnsynchronized( GraphContext& context );
+        GraphPoseNodeResult UpdateSynchronized( GraphContext& context, SyncTrackTimeRange const& updateRange );
 
         void UpdateCachedPoseBufferIDState( GraphContext& context );
         void TransferAdditionalPoseBufferIDs( TInlineVector<UUID, 2>& outInheritedCachedPoseBufferIDs );
 
-        void RegisterPoseTasksAndUpdateDisplacement( GraphContext& context, PoseNodeResult const& sourceResult, PoseNodeResult const& targetResult, PoseNodeResult& outResult );
+        void RegisterPoseTasksAndUpdateDisplacement( GraphContext& context, GraphPoseNodeResult const& sourceResult, GraphPoseNodeResult const& targetResult, GraphPoseNodeResult& outResult );
 
         inline void CalculateBlendWeight()
         {
@@ -136,5 +128,10 @@ namespace KRG::Animation::Graph
         float                                   m_sourceCachedPoseBlendWeight = 0.0f;
 
         SourceType                              m_sourceType = SourceType::State;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        int16                                   m_rootMotionActionIdxSource = InvalidIndex;
+        int16                                   m_rootMotionActionIdxTarget = InvalidIndex;
+        #endif
     };
 }

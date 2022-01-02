@@ -59,6 +59,9 @@ namespace KRG
         // Get the current edited type
         IRegisteredType const* GetEditedType() const { return m_pTypeInstance; }
 
+        // Get the current edited type
+        IRegisteredType* GetEditedType() { return m_pTypeInstance; }
+
         // Set the type instance to edit, will reset dirty status
         void SetTypeToEdit( IRegisteredType* pTypeInstance );
 

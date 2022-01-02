@@ -83,6 +83,7 @@ namespace KRG
         inline FreeLookCameraComponent* GetDebugCamera() const { return m_pDebugCameraComponent; }
         inline void ResetDebugCameraSpeed() { m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed; }
         inline void SetDebugCameraSpeed( float speed ) { m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( speed ); }
+        inline void SetDebugCameraView( Transform const& cameraTransform );
         inline float GetDebugCameraMoveSpeed() const { return m_debugCameraMoveSpeed; }
         #endif
 
@@ -91,13 +92,13 @@ namespace KRG
         virtual void ShutdownSystem() override final;
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
-        virtual void UpdateSystem( EntityUpdateContext const& ctx ) override;
+        virtual void UpdateSystem( EntityWorldUpdateContext const& ctx ) override;
 
-        bool TrySpawnPlayer( EntityUpdateContext const& ctx );
+        bool TrySpawnPlayer( EntityWorldUpdateContext const& ctx );
 
         #if KRG_DEVELOPMENT_TOOLS
-        void SpawnDebugCamera( EntityUpdateContext const& ctx );
-        void UpdateDebugCamera( EntityUpdateContext const& ctx );
+        void SpawnDebugCamera( EntityWorldUpdateContext const& ctx );
+        void UpdateDebugCamera( EntityWorldUpdateContext const& ctx );
         #endif
 
     private:
@@ -113,7 +114,7 @@ namespace KRG
 
         #if KRG_DEVELOPMENT_TOOLS
         FreeLookCameraComponent*                    m_pDebugCameraComponent = nullptr;
-        float                                       m_debugCameraMoveSpeed = 0;
+        float                                       m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
         Vector                                      m_directionChangeAccumulator = Vector::Zero;
         DebugMode                                   m_debugMode = DebugMode::None;
         #endif

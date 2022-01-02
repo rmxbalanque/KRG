@@ -183,7 +183,7 @@ namespace KRG
 
     String FloatCurve::ToString() const
     {
-        InlineString<100> pointStr;
+        TInlineString<100> pointStr;
 
         String curveStr;
         curveStr.reserve( GetNumPoints() * 30 ); // rough over-estimate of 30 characters per point

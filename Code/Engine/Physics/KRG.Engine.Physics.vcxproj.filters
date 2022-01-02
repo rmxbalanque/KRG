@@ -52,6 +52,7 @@
     <ClCompile Include="Components\Component_PhysicsCharacter.cpp" />
     <ClCompile Include="PhysicsRagdoll.cpp" />
     <ClCompile Include="ResourceLoaders\ResourceLoader_PhysicsRagdoll.cpp" />
+    <ClCompile Include="PhysicsScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug\DebugView_Physics.h">
@@ -89,5 +90,6 @@
     <ClInclude Include="Components\Component_PhysicsCharacter.h" />
     <ClInclude Include="PhysicsRagdoll.h" />
     <ClInclude Include="ResourceLoaders\ResourceLoader_PhysicsRagdoll.h" />
+    <ClInclude Include="PhysicsScene.h" />
   </ItemGroup>
 </Project>

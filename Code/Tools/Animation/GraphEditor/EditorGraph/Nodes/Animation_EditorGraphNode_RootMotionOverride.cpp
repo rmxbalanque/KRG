@@ -4,20 +4,20 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void RootMotionOverrideEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Pose, true );
-        CreateInputPin( "Input", ValueType::Pose );
-        CreateInputPin( "Desired Heading Velocity (Character)", ValueType::Vector );
-        CreateInputPin( "Desired Facing Direction (Character)", ValueType::Vector );
-        CreateInputPin( "Linear Velocity Limit (Optional)", ValueType::Float );
-        CreateInputPin( "Angular Velocity Limit (Optional)", ValueType::Float );
+        CreateOutputPin( "Result", GraphValueType::Pose, true );
+        CreateInputPin( "Input", GraphValueType::Pose );
+        CreateInputPin( "Desired Heading Velocity (Character)", GraphValueType::Vector );
+        CreateInputPin( "Desired Facing Direction (Character)", GraphValueType::Vector );
+        CreateInputPin( "Linear Velocity Limit (Optional)", GraphValueType::Float );
+        CreateInputPin( "Angular Velocity Limit (Optional)", GraphValueType::Float );
     }
 
-    NodeIndex RootMotionOverrideEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex RootMotionOverrideEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         RootMotionOverrideNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<RootMotionOverrideNode>( this, pSettings );
@@ -26,7 +26,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_childNodeIdx = compiledNodeIdx;
@@ -47,7 +47,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 1 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_desiredHeadingVelocityNodeIdx = compiledNodeIdx;
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 2 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_desiredFacingDirectionNodeIdx = compiledNodeIdx;
@@ -89,7 +89,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 3 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_linearVelocityLimitNodeIdx = compiledNodeIdx;
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 4 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_angularVelocityLimitNodeIdx = compiledNodeIdx;

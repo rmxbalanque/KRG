@@ -4,12 +4,12 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG { class EntityUpdateContext; }
+namespace KRG { class EntityWorldUpdateContext; }
 
 namespace KRG::Physics
 {
     class CharacterComponent;
-    class PhysicsWorldSystem;
+    class Scene;
 }
 
 //-------------------------------------------------------------------------
@@ -26,7 +26,7 @@ namespace KRG::AI
             KRG_ASSERT( m_pCharacterComponent != nullptr );
         }
 
-        bool TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation );
+        bool TryMoveCapsule( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, Vector const& deltaTranslation, Quaternion const& deltaRotation );
 
     public:
 

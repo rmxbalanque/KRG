@@ -1,12 +1,12 @@
 #include "Animation_RuntimeGraphNode_Pose.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_DefaultPose.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_Sample.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_DefaultPose.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_Sample.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void ZeroPoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ZeroPoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ZeroPoseNode>( nodePtrs, options );
     }
@@ -17,21 +17,21 @@ namespace KRG::Animation::Graph
         m_duration = 1 / 30.0f;
     }
 
-    PoseNodeResult ZeroPoseNode::Update( GraphContext& context )
+    GraphPoseNodeResult ZeroPoseNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
         auto pSettings = GetSettings<ZeroPoseNode>();
 
-        PoseNodeResult Result;
+        GraphPoseNodeResult Result;
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ZeroPose );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ZeroPose );
         return Result;
     }
 
     //-------------------------------------------------------------------------
 
-    void ReferencePoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ReferencePoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ReferencePoseNode>( nodePtrs, options );
     }
@@ -42,27 +42,27 @@ namespace KRG::Animation::Graph
         m_duration = 1 / 30.0f;
     }
 
-    PoseNodeResult ReferencePoseNode::Update( GraphContext& context )
+    GraphPoseNodeResult ReferencePoseNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         MarkNodeActive( context );
         auto pSettings = GetSettings<ReferencePoseNode>();
 
-        PoseNodeResult Result;
+        GraphPoseNodeResult Result;
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
         return Result;
     }
 
     //-------------------------------------------------------------------------
 
-    void AnimationPoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void AnimationPoseNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<AnimationPoseNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_poseTimeValueNodeIdx, pNode->m_pPoseTimeValue );
 
         auto pSettings = pNode->GetSettings<AnimationPoseNode>();
-        pNode->m_pAnimation = pDataSet->GetAnimationClip( pSettings->m_dataSlotIndex );
+        pNode->m_pAnimation = pDataSet->GetResource<AnimationClip>( pSettings->m_dataSlotIndex );
     }
 
     bool AnimationPoseNode::IsValid() const
@@ -86,12 +86,12 @@ namespace KRG::Animation::Graph
         PoseNode::ShutdownInternal( context );
     }
 
-    PoseNodeResult AnimationPoseNode::Update( GraphContext& context )
+    GraphPoseNodeResult AnimationPoseNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         auto Settings = GetSettings<PoseNode>();
 
-        PoseNodeResult Result;
+        GraphPoseNodeResult Result;
         if ( !IsValid() )
         {
             return Result;
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         Result.m_sampledEventRange = SampledEventRange( context.m_sampledEvents.GetNumEvents() );
-        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<SampleTask>( GetNodeIndex(), m_pAnimation, m_currentTime );
+        Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::SampleTask>( GetNodeIndex(), m_pAnimation, m_currentTime );
         return Result;
     }
 

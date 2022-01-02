@@ -9,7 +9,7 @@ namespace KRG::Player
     {
         if ( ctx.m_pInputSystem->GetControllerState()->GetRightTriggerValue() >= 0.2f )
         {
-            auto drawingCtx = ctx.m_pEntityUpdateContext->GetDrawingContext();
+            auto drawingCtx = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
             return true;
         }
 

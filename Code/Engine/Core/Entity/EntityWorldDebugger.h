@@ -32,7 +32,7 @@ namespace KRG
             void AddCallback( EntityWorldDebugView::DebugMenu const* pCallback );
             void RemoveCallback( EntityWorldDebugView::DebugMenu const* pCallback );
             void RemoveEmptyChildMenus();
-            void DrawMenu( EntityUpdateContext const& context );
+            void DrawMenu( EntityWorldUpdateContext const& context );
 
         private:
 

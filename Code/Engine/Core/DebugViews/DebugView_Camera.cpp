@@ -5,7 +5,7 @@
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "Engine/Core/Update/UpdateContext.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Core/Math/MathStringHelpers.h"
 
 //-------------------------------------------------------------------------
@@ -40,7 +40,7 @@ namespace KRG
 
     CameraDebugView::CameraDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Player", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Player", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
     void CameraDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -55,7 +55,7 @@ namespace KRG
         EntityWorldDebugView::Shutdown();
     }
 
-    void CameraDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void CameraDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( m_pWorld != nullptr );
 
@@ -70,7 +70,7 @@ namespace KRG
         }
     }
 
-    void CameraDebugView::DrawMenu( EntityUpdateContext const& context )
+    void CameraDebugView::DrawMenu( EntityWorldUpdateContext const& context )
     {
         if ( ImGui::MenuItem( "Camera" ) )
         {
@@ -78,7 +78,7 @@ namespace KRG
         }
     }
    
-    void CameraDebugView::DrawCameraWindow( EntityUpdateContext const& context )
+    void CameraDebugView::DrawCameraWindow( EntityWorldUpdateContext const& context )
     {
         auto DrawCameraDetails = [] ( CameraComponent* pCamera )
         {

@@ -89,7 +89,7 @@ namespace KRG::Render
 
         virtual void InitializeSystem( SystemRegistry const& systemRegistry ) override final;
         virtual void ShutdownSystem() override final;
-        virtual void UpdateSystem( EntityUpdateContext const& ctx ) override final;
+        virtual void UpdateSystem( EntityWorldUpdateContext const& ctx ) override final;
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
 

@@ -122,10 +122,10 @@ namespace KRG
 
     SystemDebugView::SystemDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "System", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "System", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
-    void SystemDebugView::DrawMenu( EntityUpdateContext const& context )
+    void SystemDebugView::DrawMenu( EntityWorldUpdateContext const& context )
     {
         if ( ImGui::MenuItem( "Open Profiler" ) )
         {

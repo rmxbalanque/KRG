@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class BoneMaskEditorNode final : public EditorGraphNode
     {
@@ -26,7 +26,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Bone Mask"; }
         virtual char const* GetCategory() const override { return "Values/Bone Mask"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 
@@ -47,7 +47,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Bone Mask Blend"; }
         virtual char const* GetCategory() const override { return "Values/Bone Mask"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
     };
 
     //-------------------------------------------------------------------------
@@ -65,10 +65,10 @@ namespace KRG::Animation::Graph
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::ValueTree, GraphType::TransitionTree ); }
 
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual InlineString<100> GetNewDynamicInputPinName() const override { return "Mask"; }
-        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) ValueType::BoneMask; }
+        virtual TInlineString<100> GetNewDynamicInputPinName() const override { return "Mask"; }
+        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) GraphValueType::BoneMask; }
 
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 

@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class ConstBoolEditorNode final : public EditorGraphNode
     {
@@ -16,7 +16,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const Bool"; }
         virtual char const* GetCategory() const override { return "Values/Bool"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -37,7 +37,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const ID"; }
         virtual char const* GetCategory() const override { return "Values/ID"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -58,7 +58,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const Int"; }
         virtual char const* GetCategory() const override { return "Values/Int"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -79,7 +79,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const Float"; }
         virtual char const* GetCategory() const override { return "Values/Float"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -100,7 +100,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const Vector"; }
         virtual char const* GetCategory() const override { return "Values/Vector"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -121,7 +121,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Const Target"; }
         virtual char const* GetCategory() const override { return "Values/Target"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree, GraphType::ValueTree, GraphType::TransitionTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
 
     private:

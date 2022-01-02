@@ -10,10 +10,10 @@ namespace KRG::Resource { class ResourceDatabase; }
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class VariationHierarchy;
-    class AnimationGraphEditorDefinition;
+    class EditorGraphDefinition;
 
     //-------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, AnimationGraphEditorDefinition* pGraphDefinition );
+        GraphVariationEditor( Resource::ResourceDatabase const* pResourceDatabase, EditorGraphDefinition* pGraphDefinition );
 
         void UpdateAndDraw( UpdateContext const& context, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
@@ -46,7 +46,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        AnimationGraphEditorDefinition*     m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*     m_pGraphDefinition = nullptr;
         StringID                            m_activeOperationVariationID;
         char                                m_buffer[255];
         Resource::ResourceFilePicker        m_resourcePicker;

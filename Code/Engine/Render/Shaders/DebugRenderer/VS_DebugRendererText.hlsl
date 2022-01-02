@@ -1,23 +1,11 @@
+#include "DebugShaderCommon.hlsli"
+
 cbuffer TextGlobalData
 {
-    float4      g_viewportSize;
+    float4      m_viewportSize;
 };
 
-struct VertexShaderInput
-{
-    float2 pos : POSITION;
-    float2 uv  : TEXCOORD0;
-    float4 col : COLOR0;
-};
-
-struct PixelShaderInput
-{
-    float4 pos : SV_POSITION;
-    float4 col : COLOR0;
-    float2 uv  : TEXCOORD0;
-};
-
-PixelShaderInput main( VertexShaderInput input )
+TextVertexShaderOutput main( TextVertexShaderInput input )
 {
     float4 pointCS = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -25,8 +13,8 @@ PixelShaderInput main( VertexShaderInput input )
     //-------------------------------------------------------------------------
 
     // To Normalized pixel space
-    pointCS.x = input.pos.x / g_viewportSize.x;
-    pointCS.y = input.pos.y / g_viewportSize.y;
+    pointCS.x = input.m_position.x / m_viewportSize.x;
+    pointCS.y = input.m_position.y / m_viewportSize.y;
 
     // Invert Y
     pointCS.y = 1.0f - pointCS.y;
@@ -38,9 +26,9 @@ PixelShaderInput main( VertexShaderInput input )
     // Set PS input
     //-------------------------------------------------------------------------
 
-    PixelShaderInput output;
-    output.pos = pointCS;
-    output.col = input.col;
-    output.uv = input.uv;
+    TextVertexShaderOutput output;
+    output.m_position = pointCS;
+    output.m_color = input.m_color;
+    output.m_uv = input.m_uv;
     return output;
 }

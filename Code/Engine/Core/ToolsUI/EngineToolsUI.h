@@ -56,6 +56,11 @@ namespace KRG
         virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload, TVector<ResourceID> const& resourcesToBeReloaded ) override {}
         virtual void EndHotReload() {}
 
+        void ToggleWorldPause( EntityWorld* pGameWorld );
+        void SetWorldTimeScale( EntityWorld* pGameWorld, float newTimeScale );
+        void ResetWorldTimeScale( EntityWorld* pGameWorld );
+        void RequestWorldTimeStep( EntityWorld* pGameWorld );
+
     protected:
 
         EntityWorldManager*                                 m_pWorldManager = nullptr;
@@ -65,7 +70,6 @@ namespace KRG
         TVector<ModalPopupMessage>                          m_modalPopups;
         Seconds                                             m_averageDeltaTime = 0.0f;
         float                                               m_timeScale = 1.0f;
-        bool                                                m_stepRequested = false;
         bool                                                m_debugOverlayEnabled = false;
 
         SystemLogView                                       m_systemLogView;

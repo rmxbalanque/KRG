@@ -1,7 +1,7 @@
 #include "DebugView_Input.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "Engine/Core/Update/UpdateContext.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
@@ -226,7 +226,7 @@ namespace KRG::Input
 
     InputDebugView::InputDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Player/Input", [this] ( EntityUpdateContext const& context ) { DrawControllerMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Player/Input", [this] ( EntityWorldUpdateContext const& context ) { DrawControllerMenu( context ); } ) );
     }
 
     void InputDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -241,7 +241,7 @@ namespace KRG::Input
         EntityWorldDebugView::Shutdown();
     }
 
-    void InputDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void InputDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto pInputSystem = context.GetSystem<InputSystem>();
         KRG_ASSERT( pInputSystem != nullptr );
@@ -272,7 +272,7 @@ namespace KRG::Input
         }
     }
 
-    void InputDebugView::DrawControllerMenu( EntityUpdateContext const& context )
+    void InputDebugView::DrawControllerMenu( EntityWorldUpdateContext const& context )
     {
         KRG_ASSERT( m_pInputSystem != nullptr );
 
@@ -289,7 +289,7 @@ namespace KRG::Input
         uint32 const numControllers = m_pInputSystem->GetNumConnectedControllers();
         if ( numControllers > 0 )
         {
-            InlineString<100> str;
+            TInlineString<100> str;
             bool noControllersConnected = true;
             for ( uint32 i = 0u; i < numControllers; i++ )
             {

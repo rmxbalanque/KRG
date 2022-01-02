@@ -6,7 +6,7 @@
 #include "Engine/Navmesh/Systems/WorldSystem_Navmesh.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Core/Types/ScopedValue.h"
 
 //-------------------------------------------------------------------------
@@ -105,11 +105,11 @@ namespace KRG::AI
 
     //-------------------------------------------------------------------------
 
-    void AIController::Update( EntityUpdateContext const& ctx )
+    void AIController::Update( EntityWorldUpdateContext const& ctx )
     {
-        TScopedGuardValue const contextGuardValue( m_behaviorContext.m_pEntityUpdateContext, &ctx );
+        TScopedGuardValue const contextGuardValue( m_behaviorContext.m_pEntityWorldUpdateContext, &ctx );
         TScopedGuardValue const navmeshSystemGuardValue( m_behaviorContext.m_pNavmeshSystem, ctx.GetWorldSystem<Navmesh::NavmeshWorldSystem>() );
-        TScopedGuardValue const physicsSystemGuard( m_behaviorContext.m_pPhysicsWorld, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>() );
+        TScopedGuardValue const physicsSystemGuard( m_behaviorContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
 
         if ( !m_behaviorContext.IsValid() )
         {
@@ -124,17 +124,17 @@ namespace KRG::AI
             m_behaviorSelector.Update();
 
             // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
-            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
+            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_behaviorContext.m_pPhysicsScene );
             Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_behaviorContext.m_pCharacterController->TryMoveCapsule( ctx, m_behaviorContext.m_pPhysicsWorld, deltaTranslation, deltaRotation );
+            m_behaviorContext.m_pCharacterController->TryMoveCapsule( ctx, m_behaviorContext.m_pPhysicsScene, deltaTranslation, deltaRotation );
 
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
+            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_behaviorContext.m_pPhysicsScene );
         }
         else
         {

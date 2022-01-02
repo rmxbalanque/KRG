@@ -11,7 +11,8 @@
 namespace KRG
 {
     using String = eastl::basic_string<char>;
-    template<eastl_size_t S> using InlineString = eastl::fixed_string<char, S, true>;
+    template<eastl_size_t S> using TInlineString = eastl::fixed_string<char, S, true>;
+    using InlineString = eastl::fixed_string<char, 255, true>;
 
     //-------------------------------------------------------------------------
     // Additional utility functions for string class

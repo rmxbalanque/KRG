@@ -160,7 +160,7 @@ namespace KRG::Animation
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void Pose::DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform ) const
+    void Pose::DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform, Color color ) const
     {
         auto const& parentIndices = m_pSkeleton->GetParentBoneIndices();
 
@@ -192,15 +192,15 @@ namespace KRG::Animation
                 auto const& parentTransform = worldTransforms[parentIdx];
                 auto const& boneTransform = worldTransforms[boneIdx];
 
-                ctx.DrawLine( boneTransform.GetTranslation().ToFloat3(), parentTransform.GetTranslation().ToFloat3(), Colors::HotPink, 2.0f );
+                ctx.DrawLine( boneTransform.GetTranslation().ToFloat3(), parentTransform.GetTranslation().ToFloat3(), color, 2.0f );
                 ctx.DrawAxis( boneTransform, 0.03f, 3.0f );
             }
 
             // Draw root
             //-------------------------------------------------------------------------
 
-            constexpr static float const gizmoRadius = 0.025f;
-            constexpr static float const arrowLength = 0.075f;
+            constexpr static float const gizmoRadius = 0.045f;
+            constexpr static float const arrowLength = 0.1f;
 
             Vector const fwdDir = worldTransforms[0].GetAxisY().GetNegated();
             Vector const arrowStartPos = Vector::MultiplyAdd( fwdDir, Vector( gizmoRadius ), worldTransforms[0].GetTranslation() );

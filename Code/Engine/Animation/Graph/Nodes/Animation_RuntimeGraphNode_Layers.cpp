@@ -1,13 +1,13 @@
 #include "Animation_RuntimeGraphNode_Layers.h"
 #include "Animation_RuntimeGraphNode_StateMachine.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_DefaultPose.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_Blend.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_DefaultPose.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_Blend.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void LayerBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void LayerBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<LayerBlendNode>( nodePtrs, options );
 
@@ -80,12 +80,12 @@ namespace KRG::Animation::Graph
     }
 
     // NB: Layered nodes always update the base according to the specified update time delta or time range. The layers are then updated relative to the base.
-    PoseNodeResult LayerBlendNode::Update( GraphContext& context )
+    GraphPoseNodeResult LayerBlendNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
         auto pSettings = GetSettings<LayerBlendNode>();
 
-        PoseNodeResult Result;
+        GraphPoseNodeResult Result;
 
         if ( IsValid() )
         {
@@ -104,7 +104,7 @@ namespace KRG::Animation::Graph
             // We need to register a task at the base layer in all cases - since we blend the layers tasks on top of it
             if ( !Result.HasRegisteredTasks() )
             {
-                Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
+                Result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
             }
 
             UpdateLayers( context, Result );
@@ -114,12 +114,12 @@ namespace KRG::Animation::Graph
     }
 
     // NB: Layered nodes always update the base according to the specified update time delta or time range. The layers are then updated relative to the base.
-    PoseNodeResult LayerBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult LayerBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
         auto pSettings = GetSettings<LayerBlendNode>();
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         if ( IsValid() )
         {
@@ -132,13 +132,17 @@ namespace KRG::Animation::Graph
             m_currentTime = m_pBaseLayerNode->GetCurrentTime();
             m_duration = m_pBaseLayerNode->GetDuration();
 
+            #if KRG_DEVELOPMENT_TOOLS
+            m_rootMotionActionIdxBase = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+            #endif
+
             // Update the layers
             //-------------------------------------------------------------------------
 
             // We need to register a task at the base layer in all cases - since we blend the layers tasks on top of it
             if ( !result.HasRegisteredTasks() )
             {
-                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
+                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::DefaultPoseTask>( GetNodeIndex(), Pose::InitialState::ReferencePose );
             }
 
             UpdateLayers( context, result );
@@ -147,7 +151,7 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    void LayerBlendNode::UpdateLayers( GraphContext& context, PoseNodeResult& nodeResult )
+    void LayerBlendNode::UpdateLayers( GraphContext& context, GraphPoseNodeResult& nodeResult )
     {
         KRG_ASSERT( context.IsValid() && IsValid() );
         auto pSettings = GetSettings<LayerBlendNode>();
@@ -155,6 +159,11 @@ namespace KRG::Animation::Graph
         SyncTrackTime const baseStartTime = m_pBaseLayerNode->GetSyncTrack().GetTime( m_pBaseLayerNode->GetPreviousTime() );
         SyncTrackTime const baseEndTime = m_pBaseLayerNode->GetSyncTrack().GetTime( m_pBaseLayerNode->GetCurrentTime() );
         SyncTrackTimeRange layerUpdateRange( baseStartTime, baseEndTime );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        int16 rootMotionActionIdxCurrentBase = m_rootMotionActionIdxBase;
+        int16 rootMotionActionIdxLayer = m_rootMotionActionIdxBase;
+        #endif
 
         int32 const numLayers = (int32) m_layers.size();
         for ( auto i = 0; i < numLayers; i++ )
@@ -171,17 +180,13 @@ namespace KRG::Animation::Graph
             context.m_layerContext.BeginLayer();
 
             // Record the current state of the registered tasks
-            auto const TaskMarker = context.m_pTaskSystem->GetCurrentTaskIndexMarker();
+            auto const taskMarker = context.m_pTaskSystem->GetCurrentTaskIndexMarker();
 
             // Update time and layer weight
             //-------------------------------------------------------------------------
             // Always update the layers as they are state machines and transitions need to be evaluated
 
-            #if KRG_DEVELOPMENT_TOOLS
-            context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
-            #endif
-
-            PoseNodeResult layerResult;
+            GraphPoseNodeResult layerResult;
             StateMachineNode* pLayerStateMachine = m_layers[i];
 
             if ( pSettings->m_layerSettings[i].m_isSynchronized )
@@ -193,6 +198,10 @@ namespace KRG::Animation::Graph
                 layerResult = static_cast<PoseNode*>( pLayerStateMachine )->Update( context );
             }
 
+            #if KRG_DEVELOPMENT_TOOLS
+            rootMotionActionIdxLayer = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+            #endif
+
             // Register the layer blend tasks
             //-------------------------------------------------------------------------
 
@@ -202,31 +211,20 @@ namespace KRG::Animation::Graph
                 // Create a blend task if the layer is enabled
                 if ( context.m_layerContext.m_layerWeight > 0 )
                 {
-                    TBitFlags<RootMotionBlendOptions> rootMotionBlendOptions;
-                    rootMotionBlendOptions.SetFlag( RootMotionBlendOptions::IgnoreTarget, pSettings->m_onlySampleBaseRootMotion );
-
-                    nodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), nodeResult.m_taskIdx, layerResult.m_taskIdx, context.m_layerContext.m_layerWeight, pSettings->m_layerSettings[i].m_blendOptions, context.m_layerContext.m_pLayerMask );
-                    nodeResult.m_rootMotionDelta = Blender::BlendRootMotionDeltas( nodeResult.m_rootMotionDelta, layerResult.m_rootMotionDelta, context.m_layerContext.m_layerWeight, rootMotionBlendOptions );
+                    RootMotionBlendMode const blendMode = pSettings->m_onlySampleBaseRootMotion ? RootMotionBlendMode::IgnoreTarget : RootMotionBlendMode::Blend;
+                    nodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), nodeResult.m_taskIdx, layerResult.m_taskIdx, context.m_layerContext.m_layerWeight, pSettings->m_layerSettings[i].m_blendOptions, context.m_layerContext.m_pLayerMask );
+                    nodeResult.m_rootMotionDelta = Blender::BlendRootMotionDeltas( nodeResult.m_rootMotionDelta, layerResult.m_rootMotionDelta, context.m_layerContext.m_layerWeight, blendMode );
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), nodeResult.m_rootMotionDelta );
+                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), rootMotionActionIdxCurrentBase, rootMotionActionIdxLayer, nodeResult.m_rootMotionDelta );
+                    rootMotionActionIdxCurrentBase = context.GetRootMotionActionRecorder()->GetLastActionIndex();
                     #endif
 
                 }
                 else // Remove any layer registered tasks
                 {
-                    context.m_pTaskSystem->RollbackToTaskIndexMarker( TaskMarker );
-
-                    #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->PopBlendHierarchyLevel();
-                    #endif
+                    context.m_pTaskSystem->RollbackToTaskIndexMarker( taskMarker );
                 }
-            }
-            else
-            {
-                #if KRG_DEVELOPMENT_TOOLS
-                context.GetRootMotionActionRecorder()->PopBlendHierarchyLevel();
-                #endif
             }
 
             // Update events for the Layer

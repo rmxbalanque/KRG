@@ -3,16 +3,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void IsTargetSetEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateInputPin( "Target", ValueType::Target );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateInputPin( "Target", GraphValueType::Target );
     }
 
-    NodeIndex IsTargetSetEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex IsTargetSetEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         IsTargetSetNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<IsTargetSetNode>( this, pSettings );
@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;
@@ -45,11 +45,11 @@ namespace KRG::Animation::Graph
     void TargetInfoEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Float, true );
-        CreateInputPin( "Target", ValueType::Target );
+        CreateOutputPin( "Result", GraphValueType::Float, true );
+        CreateInputPin( "Target", GraphValueType::Target );
     }
 
-    NodeIndex TargetInfoEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex TargetInfoEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         TargetInfoNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<TargetInfoNode>( this, pSettings );
@@ -58,7 +58,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;
@@ -84,7 +84,7 @@ namespace KRG::Animation::Graph
 
     void TargetInfoEditorNode::DrawInfoText( VisualGraph::DrawContext const& ctx )
     {
-        InlineString<150> infoText;
+        InlineString infoText;
         
         if ( m_isWorldSpaceTarget )
         {
@@ -156,11 +156,11 @@ namespace KRG::Animation::Graph
     void TargetOffsetEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Target, true );
-        CreateInputPin( "Target", ValueType::Target );
+        CreateOutputPin( "Result", GraphValueType::Target, true );
+        CreateInputPin( "Target", GraphValueType::Target );
     }
 
-    NodeIndex TargetOffsetEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex TargetOffsetEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         TargetOffsetNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<TargetOffsetNode>( this, pSettings );
@@ -169,7 +169,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;

@@ -16,13 +16,13 @@ namespace KRG::Animation
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class GraphUndoableAction;
 
     //-------------------------------------------------------------------------
 
-    class AnimationGraphWorkspace final : public TResourceWorkspace<AnimationGraphDefinition>
+    class AnimationGraphWorkspace final : public TResourceWorkspace<GraphDefinition>
     {
     public:
 
@@ -51,12 +51,19 @@ namespace KRG::Animation::Graph
         void StartPreview();
         void StopPreview();
 
+        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
+
     private:
 
         String                              m_controlParametersWindowName;
         String                              m_graphViewWindowName;
         String                              m_propertyGridWindowName;
         String                              m_variationEditorWindowName;
+
+        GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
+        GraphVariationEditor*               m_pVariationEditor = nullptr;
+        GraphEditor*                        m_pGraphEditor = nullptr;
+        PropertyGrid                        m_propertyGrid;
 
         EventBindingID                      m_rootGraphBeginModificationBindingID;
         EventBindingID                      m_rootGraphEndModificationBindingID;
@@ -66,18 +73,17 @@ namespace KRG::Animation::Graph
         GraphUndoableAction*                m_pActiveUndoableAction = nullptr;
         int32                               m_beginCallCount = 0;
 
-        AnimationGraphEditorDefinition*     m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*              m_pGraphDefinition = nullptr;
         FileSystem::Path                    m_graphFilePath;
-        StringID                            m_selectedVariationID = AnimationGraphVariation::DefaultVariationID;
+        StringID                            m_selectedVariationID = GraphVariation::DefaultVariationID;
 
+        // Preview
         Entity*                             m_pPreviewEntity = nullptr;
         AnimationGraphComponent*            m_pGraphComponent = nullptr;
         DebugContext                        m_debugContext;
         bool                                m_isPreviewing = false;
-
-        GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
-        GraphVariationEditor*               m_pVariationEditor = nullptr;
-        GraphEditor*                        m_pGraphEditor = nullptr;
-        PropertyGrid                        m_propertyGrid;
+        bool                                m_applyRootMotion = true;
+        bool                                m_drawRoot = false;
+        bool                                m_drawRecordedRootMotion = false;
     };
 }

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Engine/Animation/Graph/Animation_RuntimeGraph_Task.h"
+#include "Engine/Animation/TaskSystem/Animation_Task.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
     class CachedPoseWriteTask : public Task
     {
     public:
 
-        CachedPoseWriteTask( NodeIndex sourceNodeIdx, TaskIndex sourceTaskIdx, UUID cachedPoseID );
+        CachedPoseWriteTask( TaskSourceID sourceID, TaskIndex sourceTaskIdx, UUID cachedPoseID );
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -30,7 +30,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        CachedPoseReadTask( NodeIndex sourceNodeIdx, UUID cachedPoseID );
+        CachedPoseReadTask( TaskSourceID sourceID, UUID cachedPoseID );
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS

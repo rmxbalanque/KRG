@@ -6,7 +6,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API AnimationClipNode final : public AnimationClipReferenceNode
     {
@@ -18,9 +18,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_playInReverseValueNodeIdx, m_sampleRootMotion, m_allowLooping, m_dataSlotIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                                   m_playInReverseValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_playInReverseValueNodeIdx = InvalidIndex;
             bool                                        m_sampleRootMotion = true;
             bool                                        m_allowLooping = false;
             DataSetSlotIndex                            m_dataSlotIdx = InvalidIndex;
@@ -30,8 +30,8 @@ namespace KRG::Animation::Graph
 
         virtual bool IsValid() const override;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
 
         virtual AnimationClip const* GetAnimation() const final { KRG_ASSERT( IsValid() ); return m_pAnimation; }
         virtual void DisableRootMotionSampling() final { KRG_ASSERT( IsValid() ); m_shouldSampleRootMotion = false; }
@@ -44,7 +44,7 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime ) override;
         virtual void ShutdownInternal( GraphContext& context ) override;
 
-        PoseNodeResult CalculateResult( GraphContext& context, bool bIsSynchronizedUpdate ) const;
+        GraphPoseNodeResult CalculateResult( GraphContext& context, bool bIsSynchronizedUpdate ) const;
 
     private:
 

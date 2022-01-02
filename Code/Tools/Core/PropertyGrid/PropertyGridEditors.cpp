@@ -1614,9 +1614,9 @@ namespace KRG::TypeSystem
 
     private:
 
-        char                            m_buffer_imgui[s_bufferSize];
-        InlineString<s_bufferSize>      m_buffer_cached;
-        InlineString<s_bufferSize>      m_IDString;
+        char                             m_buffer_imgui[s_bufferSize];
+        TInlineString<s_bufferSize>      m_buffer_cached;
+        TInlineString<s_bufferSize>      m_IDString;
     };
 
     //-------------------------------------------------------------------------

@@ -6,72 +6,55 @@
 namespace KRG::Math
 {
     // Taken from DirectXMath: XMMatrixPerspectiveFovRH
-    // TODO: Rewrite with KRG math lib
-    static Matrix CreatePerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlaneZ, float farPlaneZ )
+    Matrix CreatePerspectiveProjectionMatrix( float verticalFOV, float aspectRatio, float nearPlaneZ, float farPlaneZ )
     {
         KRG_ASSERT( nearPlaneZ > 0.f && farPlaneZ > 0.f );
         KRG_ASSERT( !Math::IsNearEqual( verticalFOV, 0.0f, 0.00001f * 2.0f ) && !Math::IsNearEqual( aspectRatio, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlaneZ, nearPlaneZ, 0.00001f ) );
 
-        Vector sinFov, cosFov;
-        Vector::SinCos( sinFov, cosFov, 0.5f * verticalFOV );
-        Vector height = cosFov / sinFov;
-        float const focalRange = farPlaneZ / ( nearPlaneZ - farPlaneZ );
+        float const halfFOV = verticalFOV * 0.5f;
+        float const yScale = Math::Cos( halfFOV ) / Math::Sin( halfFOV );
+        float const xScale = yScale / aspectRatio;
+        float const nearMinusFarZ = ( nearPlaneZ - farPlaneZ );
 
-        Vector vValues( height.GetX() / aspectRatio, height.GetX(), focalRange, focalRange * nearPlaneZ );
-        Vector vTemp = _mm_setzero_ps();
-        vTemp = _mm_move_ss( vTemp, vValues );
+        Matrix projectionMatrix( ZeroInit );
+        projectionMatrix.m_values[0][0] = xScale;
+        projectionMatrix.m_values[1][1] = yScale;
+        projectionMatrix.m_values[2][2] = farPlaneZ / nearMinusFarZ;
+        projectionMatrix.m_values[2][3] = -1.0f;
+        projectionMatrix.m_values[3][2] = nearPlaneZ * farPlaneZ / nearMinusFarZ;
 
-        static __m128 const negativeUnitW = { 0, 0, 0, -1.0f };
-
-        // CosFov / SinFov,0,0,0
-        Matrix M;
-        M.m_rows[0] = vTemp;
-        // 0,Height / AspectRatio,0,0
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
-        M.m_rows[1] = vTemp;
-        // m_x=fRange,m_y=-fRange * NearZ,0,-1.0f
-        vTemp = _mm_setzero_ps();
-        vValues = _mm_shuffle_ps( vValues, negativeUnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // 0,0,fRange,-1.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 0, 0, 0 ) );
-        M.m_rows[2] = vTemp;
-        // 0,0,fRange * NearZ,0.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 1, 0, 0 ) );
-        M.m_rows[3] = vTemp;
-        return M;
+        return projectionMatrix;
     }
 
     // Taken from DirectXMath: XMMatrixOrthographicRH
-    // TODO: Rewrite with KRG math lib
-    static Matrix CreateOrthographicProjectionMatrix( float width, float height, float nearPlane, float farPlane )
+    Matrix CreateOrthographicProjectionMatrix( float width, float height, float nearPlaneZ, float farPlaneZ )
     {
-        KRG_ASSERT( !Math::IsNearEqual( width, 0.0f, 0.00001f ) && !Math::IsNearEqual( height, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlane, nearPlane, 0.00001f ) );
+        KRG_ASSERT( !Math::IsNearEqual( width, 0.0f, 0.00001f ) && !Math::IsNearEqual( height, 0.0f, 0.00001f ) && !Math::IsNearEqual( farPlaneZ, nearPlaneZ, 0.00001f ) );
 
-        float const fRange = 1.0f / ( nearPlane - farPlane );
+        float const range = 1.0f / ( nearPlaneZ - farPlaneZ );
 
-        Vector vValues = { 2.0f / width, 2.0f / height, fRange, fRange * nearPlane };
-        Vector vTemp = _mm_setzero_ps();
-        // Copy m_x only
-        vTemp = _mm_move_ss( vTemp, vValues );
+        Matrix projectionMatrix( NoInit );
+        projectionMatrix.m_values[0][0] = 2.0f / width;
+        projectionMatrix.m_values[0][1] = 0.0f;
+        projectionMatrix.m_values[0][2] = 0.0f;
+        projectionMatrix.m_values[0][3] = 0.0f;
 
-        Matrix M;
-        // 2.0f / ViewWidth,0,0,0
-        M.m_rows[0] = vTemp;
-        // 0,2.0f / ViewHeight,0,0
-        vTemp = vValues;
-        vTemp = _mm_and_ps( vTemp, SIMD::g_mask0Y00 );
-        M.m_rows[1] = vTemp;
-        // m_x=fRange,m_y=fRange * nearPlane,0,1.0f
-        vTemp = _mm_setzero_ps();
-        vValues = _mm_shuffle_ps( vValues, Vector::UnitW, _MM_SHUFFLE( 3, 2, 3, 2 ) );
-        // 0,0,fRange,0.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 2, 0, 0, 0 ) );
-        M.m_rows[2] = vTemp;
-        // 0,0,fRange * nearPlane,1.0f
-        vTemp = _mm_shuffle_ps( vTemp, vValues, _MM_SHUFFLE( 3, 1, 0, 0 ) );
-        M.m_rows[3] = vTemp;
-        return M;
+        projectionMatrix.m_values[1][0] = 0.0f;
+        projectionMatrix.m_values[1][1] = 2.0f / height;
+        projectionMatrix.m_values[1][2] = 0.0f;
+        projectionMatrix.m_values[1][3] = 0.0f;
+
+        projectionMatrix.m_values[2][0] = 0.0f;
+        projectionMatrix.m_values[2][1] = 0.0f;
+        projectionMatrix.m_values[2][2] = range;
+        projectionMatrix.m_values[2][3] = 0.0f;
+
+        projectionMatrix.m_values[3][0] = 0.0f;
+        projectionMatrix.m_values[3][1] = 0.0f;
+        projectionMatrix.m_values[3][2] = range * nearPlaneZ;
+        projectionMatrix.m_values[3][3] = 1.0f;
+
+        return projectionMatrix;
     }
 
     // Taken from DirectXMath: XMMatrixOrthographicOffCenterRH
@@ -216,6 +199,47 @@ namespace KRG::Math
 
     //-------------------------------------------------------------------------
 
+    #if KRG_DEVELOPMENT_TOOLS
+    void ViewVolume::VolumeCorners::DrawDebug( Drawing::DrawContext& drawingContext ) const
+    {
+        // Near Plane
+        //-------------------------------------------------------------------------
+
+        drawingContext.DrawPoint( m_points[0], Colors::Cyan, 10.0f );
+        drawingContext.DrawPoint( m_points[1], Colors::Cyan, 10.0f );
+        drawingContext.DrawPoint( m_points[2], Colors::Cyan, 10.0f );
+        drawingContext.DrawPoint( m_points[3], Colors::Cyan, 10.0f );
+
+        drawingContext.DrawLine( m_points[0], m_points[1], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[1], m_points[2], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[2], m_points[3], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[3], m_points[0], Colors::Cyan, 3.0f );
+
+        // Far Plane
+        //-------------------------------------------------------------------------
+
+        drawingContext.DrawPoint( m_points[4], Colors::Yellow, 10.0f );
+        drawingContext.DrawPoint( m_points[5], Colors::Yellow, 10.0f );
+        drawingContext.DrawPoint( m_points[6], Colors::Yellow, 10.0f );
+        drawingContext.DrawPoint( m_points[7], Colors::Yellow, 10.0f );
+
+        drawingContext.DrawLine( m_points[4], m_points[5], Colors::Yellow, 3.0f );
+        drawingContext.DrawLine( m_points[5], m_points[6], Colors::Yellow, 3.0f );
+        drawingContext.DrawLine( m_points[6], m_points[7], Colors::Yellow, 3.0f );
+        drawingContext.DrawLine( m_points[7], m_points[4], Colors::Yellow, 3.0f );
+
+        // Connecting Lines
+        //-------------------------------------------------------------------------
+
+        drawingContext.DrawLine( m_points[0], m_points[4], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[1], m_points[5], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[2], m_points[6], Colors::Cyan, 3.0f );
+        drawingContext.DrawLine( m_points[3], m_points[7], Colors::Cyan, 3.0f );
+    }
+    #endif
+
+    //-------------------------------------------------------------------------
+
     ViewVolume::ViewVolume( Float2 const& viewDimensions, FloatRange depthRange, Matrix const& worldMatrix )
         : m_viewDimensions( viewDimensions )
         , m_depthRange( depthRange )
@@ -325,8 +349,10 @@ namespace KRG::Math
 
     //-------------------------------------------------------------------------
 
-    void ViewVolume::GetCorners( Vector corners[8] ) const
+    ViewVolume::VolumeCorners ViewVolume::GetCorners() const
     {
+        VolumeCorners vc;
+
         if ( IsOrthographic() )
         {
             Vector const viewPosition = GetViewPosition();
@@ -334,19 +360,19 @@ namespace KRG::Math
             Vector const upDir = GetViewUpVector();
             Vector const rightDir = GetViewRightVector();
 
-            Vector const nearPlaneDepthCenterPoint = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_end ), viewPosition );
+            Vector const nearPlaneDepthCenterPoint = Vector::MultiplyAdd( fwdDir, Vector( m_depthRange.m_start ), viewPosition );
             Vector const halfWidth( m_viewDimensions.m_x / 2, m_viewDimensions.m_y / 2, 0.0f, 0.0f );
 
-            corners[0] = nearPlaneDepthCenterPoint - ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
-            corners[1] = nearPlaneDepthCenterPoint - ( rightDir * ( m_viewDimensions.m_x / 2 ) ) + ( upDir * ( m_viewDimensions.m_y / 2 ) );
-            corners[2] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) + ( upDir * ( m_viewDimensions.m_y / 2 ) );
-            corners[3] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
+            vc.m_points[0] = nearPlaneDepthCenterPoint - ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
+            vc.m_points[1] = nearPlaneDepthCenterPoint - ( rightDir * ( m_viewDimensions.m_x / 2 ) ) + ( upDir * ( m_viewDimensions.m_y / 2 ) );
+            vc.m_points[2] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) + ( upDir * ( m_viewDimensions.m_y / 2 ) );
+            vc.m_points[3] = nearPlaneDepthCenterPoint + ( rightDir * ( m_viewDimensions.m_x / 2 ) ) - ( upDir * ( m_viewDimensions.m_y / 2 ) );
 
-            Vector const farPlaneDepthOffset = fwdDir * m_depthRange.m_end;
-            corners[4] = corners[0] + farPlaneDepthOffset;
-            corners[5] = corners[1] + farPlaneDepthOffset;
-            corners[6] = corners[2] + farPlaneDepthOffset;
-            corners[7] = corners[3] + farPlaneDepthOffset;
+            Vector const farPlaneDepthOffset = fwdDir * ( m_depthRange.m_end - m_depthRange.m_start );
+            vc.m_points[4] = vc.m_points[0] + farPlaneDepthOffset;
+            vc.m_points[5] = vc.m_points[1] + farPlaneDepthOffset;
+            vc.m_points[6] = vc.m_points[2] + farPlaneDepthOffset;
+            vc.m_points[7] = vc.m_points[3] + farPlaneDepthOffset;
         }
         else
         {
@@ -369,15 +395,17 @@ namespace KRG::Math
             float extentRightFar = extentUpFar * aspectRatio;
 
             // Points are just offset from the center points along camera basis
-            corners[0] = centerNear - rightDir * extentRightNear - upDir * extentUpNear;
-            corners[1] = centerNear - rightDir * extentRightNear + upDir * extentUpNear;
-            corners[2] = centerNear + rightDir * extentRightNear + upDir * extentUpNear;
-            corners[3] = centerNear + rightDir * extentRightNear - upDir * extentUpNear;
-            corners[4] = centerFar - rightDir * extentRightFar - upDir * extentUpFar;
-            corners[5] = centerFar - rightDir * extentRightFar + upDir * extentUpFar;
-            corners[6] = centerFar + rightDir * extentRightFar + upDir * extentUpFar;
-            corners[7] = centerFar + rightDir * extentRightFar - upDir * extentUpFar;
+            vc.m_points[0] = centerNear - rightDir * extentRightNear - upDir * extentUpNear;
+            vc.m_points[1] = centerNear - rightDir * extentRightNear + upDir * extentUpNear;
+            vc.m_points[2] = centerNear + rightDir * extentRightNear + upDir * extentUpNear;
+            vc.m_points[3] = centerNear + rightDir * extentRightNear - upDir * extentUpNear;
+            vc.m_points[4] = centerFar - rightDir * extentRightFar - upDir * extentUpFar;
+            vc.m_points[5] = centerFar - rightDir * extentRightFar + upDir * extentUpFar;
+            vc.m_points[6] = centerFar + rightDir * extentRightFar + upDir * extentUpFar;
+            vc.m_points[7] = centerFar + rightDir * extentRightFar - upDir * extentUpFar;
         }
+
+        return vc;
     }
 
     //-------------------------------------------------------------------------
@@ -385,8 +413,7 @@ namespace KRG::Math
     #if KRG_DEVELOPMENT_TOOLS
     void ViewVolume::DrawDebug( Drawing::DrawContext& drawingContext ) const
     {
-        Vector corners[8];
-        GetCorners( corners );
+        VolumeCorners const corners = GetCorners();
 
         Vector const viewPosition = GetViewPosition();
         drawingContext.DrawPoint( viewPosition, Colors::LimeGreen, 10.0f );
@@ -396,39 +423,14 @@ namespace KRG::Math
 
         //-------------------------------------------------------------------------
 
-        drawingContext.DrawLine( corners[0], corners[4], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[1], corners[5], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[2], corners[6], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[3], corners[7], Colors::Cyan, 3.0f );
-
-        drawingContext.DrawLine( corners[0], viewPosition, Colors::Red, 1.5f );
-        drawingContext.DrawLine( corners[1], viewPosition, Colors::Red, 1.5f );
-        drawingContext.DrawLine( corners[2], viewPosition, Colors::Red, 1.5f );
-        drawingContext.DrawLine( corners[3], viewPosition, Colors::Red, 1.5f );
+        drawingContext.DrawLine( corners.m_points[0], viewPosition, Colors::Red, 1.5f );
+        drawingContext.DrawLine( corners.m_points[1], viewPosition, Colors::Red, 1.5f );
+        drawingContext.DrawLine( corners.m_points[2], viewPosition, Colors::Red, 1.5f );
+        drawingContext.DrawLine( corners.m_points[3], viewPosition, Colors::Red, 1.5f );
 
         //-------------------------------------------------------------------------
 
-        drawingContext.DrawPoint( corners[0], Colors::Cyan, 10.0f );
-        drawingContext.DrawPoint( corners[1], Colors::Cyan, 10.0f );
-        drawingContext.DrawPoint( corners[2], Colors::Cyan, 10.0f );
-        drawingContext.DrawPoint( corners[3], Colors::Cyan, 10.0f );
-
-        drawingContext.DrawLine( corners[0], corners[1], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[1], corners[2], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[2], corners[3], Colors::Cyan, 3.0f );
-        drawingContext.DrawLine( corners[3], corners[0], Colors::Cyan, 3.0f );
-
-        //-------------------------------------------------------------------------
-
-        drawingContext.DrawPoint( corners[4], Colors::Yellow, 10.0f );
-        drawingContext.DrawPoint( corners[5], Colors::Yellow, 10.0f );
-        drawingContext.DrawPoint( corners[6], Colors::Yellow, 10.0f );
-        drawingContext.DrawPoint( corners[7], Colors::Yellow, 10.0f );
-
-        drawingContext.DrawLine( corners[4], corners[5], Colors::Yellow, 3.0f );
-        drawingContext.DrawLine( corners[5], corners[6], Colors::Yellow, 3.0f );
-        drawingContext.DrawLine( corners[6], corners[7], Colors::Yellow, 3.0f );
-        drawingContext.DrawLine( corners[7], corners[4], Colors::Yellow, 3.0f );
+        drawingContext.Draw( corners );
     }
     #endif
 

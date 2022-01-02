@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     //-------------------------------------------------------------------------
     // A sampled event from the graph
@@ -43,13 +43,13 @@ namespace KRG::Animation::Graph
     public:
 
         SampledEvent() = default;
-        SampledEvent( NodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough );
-        SampledEvent( NodeIndex sourceNodeIdx, Flags stateEventType, StringID ID, Percentage percentageThrough );
+        SampledEvent( GraphNodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough );
+        SampledEvent( GraphNodeIndex sourceNodeIdx, Flags stateEventType, StringID ID, Percentage percentageThrough );
 
-        inline NodeIndex GetSourceNodeIndex() const { return m_sourceNodeIdx; }
+        inline GraphNodeIndex GetSourceNodeIndex() const { return m_sourceNodeIdx; }
         inline bool IsStateEvent() const { return m_flags.AreAnyFlagsSet( Flags::StateEntry, Flags::StateExecute, Flags::StateExit, Flags::StateTimed ); }
         inline bool IsFromActiveBranch() const { return !m_flags.IsFlagSet( Flags::FromInactiveBranch ); }
-        inline StringID GetID() const { KRG_ASSERT( IsStateEvent() ); return m_eventData.m_stateEventID; }
+        inline StringID GetStateEventID() const { KRG_ASSERT( IsStateEvent() ); return m_eventData.m_stateEventID; }
         inline float GetWeight() const { return m_weight; }
         inline void SetWeight( float weight ) { KRG_ASSERT( weight >= 0.0f && weight <= 1.0f ); m_weight = weight; }
         inline Percentage GetPercentageThrough() const { return m_percentageThrough; }
@@ -79,7 +79,7 @@ namespace KRG::Animation::Graph
         float                               m_weight = 1.0f;                // The weight of the event when sampled
         Percentage                          m_percentageThrough = 1.0f;     // The percentage through the event we were when sampling
         TBitFlags<Flags>                    m_flags;                        // Misc flags
-        NodeIndex                           m_sourceNodeIdx = InvalidIndex; // The index of the node that this event was sampled from
+        GraphNodeIndex                           m_sourceNodeIdx = InvalidIndex; // The index of the node that this event was sampled from
     };
 
     //-------------------------------------------------------------------------
@@ -153,15 +153,15 @@ namespace KRG::Animation::Graph
 
         //-------------------------------------------------------------------------
 
-        inline SampledEvent& EmplaceAnimEvent( NodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough )
+        inline SampledEvent& EmplaceAnimEvent( GraphNodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough )
         {
-            return m_events.emplace_back( SampledEvent( sourceNodeIdx, pEvent, percentageThrough ) );
+            return m_events.emplace_back( sourceNodeIdx, pEvent, percentageThrough );
         }
 
-        inline SampledEvent& EmplaceStateEvent( NodeIndex sourceNodeIdx, SampledEvent::Flags stateEventType, StringID ID )
+        inline SampledEvent& EmplaceStateEvent( GraphNodeIndex sourceNodeIdx, SampledEvent::Flags stateEventType, StringID ID )
         {
             KRG_ASSERT( stateEventType >= SampledEvent::Flags::StateEntry );
-            return m_events.emplace_back( SampledEvent( sourceNodeIdx, stateEventType, ID, 1.0f ) );
+            return m_events.emplace_back( sourceNodeIdx, stateEventType, ID, 1.0f );
         }
 
         // Helpers
@@ -186,7 +186,7 @@ namespace KRG::Animation::Graph
                     continue;
                 }
 
-                if ( event.IsStateEvent() && event.GetID() == ID )
+                if ( event.IsStateEvent() && event.GetStateEventID() == ID )
                 {
                     return true;
                 }
@@ -213,7 +213,7 @@ namespace KRG::Animation::Graph
                     continue;
                 }
 
-                if ( event.IsStateEvent() && event.m_flags.IsFlagSet( flag ) && !event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) && event.GetID() == ID )
+                if ( event.IsStateEvent() && event.m_flags.IsFlagSet( flag ) && !event.m_flags.IsFlagSet( SampledEvent::Flags::FromInactiveBranch ) && event.GetStateEventID() == ID )
                 {
                     return true;
                 }

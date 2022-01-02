@@ -1,11 +1,11 @@
-#include "Animation_RuntimeGraphTask_Sample.h"
+#include "Animation_Task_Sample.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
-    SampleTask::SampleTask( NodeIndex sourceNodeIdx, AnimationClip const* pAnimation, Percentage time )
-        : Task( sourceNodeIdx )
+    SampleTask::SampleTask( TaskSourceID sourceID, AnimationClip const* pAnimation, Percentage time )
+        : Task( sourceID )
         , m_pAnimation( pAnimation )
         , m_time( time )
     {
@@ -26,11 +26,11 @@ namespace KRG::Animation::Graph
     {
         if ( m_pAnimation->IsAdditive() )
         {
-            return String( String::CtorSprintf(), "Sample Task (Additive): %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
+            return String( String::CtorSprintf(), "Sample Task (Additive): %s, %.2f%%%%", m_pAnimation->GetResourceID().c_str(), (float) m_time * 100 );
         }
         else
         {
-            return String( String::CtorSprintf(), "Sample Task: %s at %.2f", m_pAnimation->GetResourceID().c_str(), (float) m_time );
+            return String( String::CtorSprintf(), "Sample Task: %s, %.2f%%%%", m_pAnimation->GetResourceID().c_str(), (float) m_time * 100 );
         }
     }
     #endif

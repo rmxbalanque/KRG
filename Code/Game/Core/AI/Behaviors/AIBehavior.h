@@ -1,6 +1,6 @@
 #pragma once
 #include "System/Core/Algorithm/Hash.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 
 #if KRG_DEVELOPMENT_TOOLS
 #include "imgui.h"
@@ -11,7 +11,7 @@
 namespace KRG
 {
     class EntityComponent;
-    namespace Physics { class CharacterComponent; class PhysicsWorldSystem; }
+    namespace Physics { class CharacterComponent; class Scene; }
     namespace Navmesh { class NavmeshWorldSystem; }
     namespace Animation { class GraphController; }
 }
@@ -52,16 +52,16 @@ namespace KRG::AI
         // Forwarding helper functions
         //-------------------------------------------------------------------------
 
-        KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityUpdateContext->GetDeltaTime(); }
-        KRG_FORCE_INLINE Drawing::DrawContext GetDrawingContext() const { return m_pEntityUpdateContext->GetDrawingContext(); }
-        template<typename T> inline T* GetWorldSystem() const { return m_pEntityUpdateContext->GetWorldSystem<T>(); }
-        template<typename T> inline T* GetSystem() const { return m_pEntityUpdateContext->GetSystem<T>(); }
+        KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityWorldUpdateContext->GetDeltaTime(); }
+        KRG_FORCE_INLINE Drawing::DrawContext GetDrawingContext() const { return m_pEntityWorldUpdateContext->GetDrawingContext(); }
+        template<typename T> inline T* GetWorldSystem() const { return m_pEntityWorldUpdateContext->GetWorldSystem<T>(); }
+        template<typename T> inline T* GetSystem() const { return m_pEntityWorldUpdateContext->GetSystem<T>(); }
         template<typename T> inline T* GetAnimSubGraphController() const { return m_pAnimationController->GetSubGraphController<T>(); }
 
     public:
 
-        EntityUpdateContext const*                  m_pEntityUpdateContext = nullptr;
-        Physics::PhysicsWorldSystem*                m_pPhysicsWorld = nullptr;
+        EntityWorldUpdateContext const*             m_pEntityWorldUpdateContext = nullptr;
+        Physics::Scene*                             m_pPhysicsScene = nullptr;
         Navmesh::NavmeshWorldSystem*                m_pNavmeshSystem = nullptr;
 
         AIComponent*                                m_pAIComponent = nullptr;

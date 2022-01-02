@@ -133,6 +133,11 @@ namespace KRG::Timeline
 
         if ( newPlayState == PlayState::Playing )
         {
+            if ( m_playheadTime >= m_timeRange.m_end )
+            {
+                m_playheadTime = (float) m_timeRange.m_start;
+            }
+
             m_viewUpdateMode = ViewUpdateMode::TrackPlayhead;
             m_playState = PlayState::Playing;
         }
@@ -673,7 +678,7 @@ namespace KRG::Timeline
                 pDrawList->AddLine( ImVec2( lineOffsetX, startPosY + lineOffsetY ), ImVec2( lineOffsetX, endPosY ), lineColor, 1 );
 
                 // Draw text label
-                InlineString<256> label;
+                InlineString label;
                 label.sprintf( "%d", m_viewRange.m_start + i );
                 pDrawList->AddText( ImVec2( lineOffsetX + g_timelineLabelLeftPadding, startPosY ), g_headerLabelColor, label.c_str() );
             }
@@ -942,7 +947,7 @@ namespace KRG::Timeline
                     // Draw actual item
                     pDrawList->AddRectFilled( itemStart, itemEnd, ImColor( itemColor ), pItem->IsImmediateItem() ? 0.0f : 4.0f );
 
-                    InlineString<100> const itemLabel = pItem->GetLabel();
+                    InlineString const itemLabel = pItem->GetLabel();
                     pDrawList->AddText( itemStart + ImVec2( 5, 1 ), 0xFF000000, itemLabel.c_str() );
                     pDrawList->AddText( itemStart + ImVec2( 4, 0 ), ImColor( ImGuiX::Style::s_textColor ), itemLabel.c_str() );
                 }

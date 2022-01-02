@@ -93,18 +93,18 @@ namespace KRG::FileSystem
         inline bool MatchesExtension( String const& inExtension ) const { return MatchesExtension( inExtension.c_str() ); }
 
         char const* GetExtension() const;
-        inline InlineString<6> GetExtensionAsString() const { return InlineString<6>( GetExtension() ); }
+        inline TInlineString<6> GetExtensionAsString() const { return TInlineString<6>( GetExtension() ); }
         
-        inline InlineString<6> GetLowercaseExtensionAsString() const
+        inline TInlineString<6> GetLowercaseExtensionAsString() const
         {
-            auto ext = InlineString<6>( GetExtension() );
+            auto ext = TInlineString<6>( GetExtension() );
             ext.make_lower();
             return ext;
         }
 
         void ReplaceExtension( const char* pExtension );
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
-        template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
+        template<size_t S> void ReplaceExtension( TInlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Directories
         //-------------------------------------------------------------------------

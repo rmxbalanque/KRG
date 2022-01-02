@@ -2,7 +2,7 @@
 #include "Game/Core/AI/Components/Component_AISpawn.h"
 #include "Game/Core/AI/Components/Component_AI.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
 #include "Engine/Core/Entity/EntityCollection.h"
 #include "System/TypeSystem/TypeRegistry.h"
@@ -44,7 +44,7 @@ namespace KRG::AI
 
     //-------------------------------------------------------------------------
 
-    void AIManager::UpdateSystem( EntityUpdateContext const& ctx )
+    void AIManager::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
         if ( ctx.IsGameWorld() && !m_hasSpawnedAI )
         {
@@ -52,7 +52,7 @@ namespace KRG::AI
         }
     }
 
-    bool AIManager::TrySpawnAI( EntityUpdateContext const& ctx )
+    bool AIManager::TrySpawnAI( EntityWorldUpdateContext const& ctx )
     {
         if ( m_spawnPoints.empty() )
         {

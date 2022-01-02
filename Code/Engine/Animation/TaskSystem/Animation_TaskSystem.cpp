@@ -1,11 +1,12 @@
-#include "Animation_RuntimeGraph_TaskSystem.h"
-#include "Tasks/Animation_RuntimeGraphTask_DefaultPose.h"
+#include "Animation_TaskSystem.h"
+#include "Tasks/Animation_Task_DefaultPose.h"
 #include "Engine/Animation/AnimationBlender.h"
 #include "System/Core/Logging/Log.h"
+#include "System/Core/Drawing/DebugDrawing.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     TaskSystem::TaskSystem( Skeleton const* pSkeleton )
         : m_posePool( pSkeleton )
@@ -63,7 +64,7 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         // Cant have a dependency that relies on physics
-        if ( pTask->GetRequiredUpdateStage() == Task::UpdateStage::PostPhysics )
+        if ( pTask->GetRequiredUpdateStage() == TaskUpdateStage::PostPhysics )
         {
             return false;
         }
@@ -83,6 +84,7 @@ namespace KRG::Animation::Graph
         m_taskContext.m_deltaTime = deltaTime;
         m_taskContext.m_worldTransform = worldTransform;
         m_taskContext.m_worldTransformInverse = worldTransformInverse;
+        m_taskContext.m_updateStage = TaskUpdateStage::PrePhysics;
 
         m_prePhysicsTaskIndices.clear();
         m_hasCodependentPhysicsTasks = false;
@@ -96,7 +98,7 @@ namespace KRG::Animation::Graph
             auto const numTasks = (int8) m_tasks.size();
             for ( TaskIndex i = 0; i < numTasks; i++ )
             {
-                if ( m_tasks[i]->GetRequiredUpdateStage() == Task::UpdateStage::PrePhysics )
+                if ( m_tasks[i]->GetRequiredUpdateStage() == TaskUpdateStage::PrePhysics )
                 {
                     if ( !AddTaskChainToPrePhysicsList( i ) )
                     {
@@ -110,7 +112,7 @@ namespace KRG::Animation::Graph
             if ( m_hasCodependentPhysicsTasks )
             {
                 KRG_LOG_WARNING( "Animation", "Co-dependent physics tasks detected!" );
-                RegisterTask<DefaultPoseTask>( (int16) InvalidIndex, Pose::InitialState::ReferencePose );
+                RegisterTask<Tasks::DefaultPoseTask>( (int16) InvalidIndex, Pose::InitialState::ReferencePose );
                 m_tasks.back()->Execute( m_taskContext );
             }
             else // Execute pre-physics tasks
@@ -137,6 +139,8 @@ namespace KRG::Animation::Graph
 
     void TaskSystem::UpdatePostPhysics( Pose& outPose )
     {
+        m_taskContext.m_updateStage = TaskUpdateStage::PostPhysics;
+
         // If we detected co-dependent tasks in the pre-physics update, there's nothing to do here
         if ( m_hasCodependentPhysicsTasks )
         {
@@ -204,4 +208,96 @@ namespace KRG::Animation::Graph
             }
         }
     }
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void TaskSystem::SetDebugMode( DebugMode mode )
+    {
+        m_debugMode = mode;
+        m_posePool.EnableRecording( m_debugMode != DebugMode::Off );
+    }
+
+    void TaskSystem::CalculateTaskOffset( TaskIndex taskIdx, Float2 const& currentOffset, TInlineVector<Float2, 16>& offsets )
+    {
+        KRG_ASSERT( taskIdx >= 0 && taskIdx < m_tasks.size() );
+        auto pTask = m_tasks[taskIdx];
+        offsets[taskIdx] = currentOffset;
+        
+        int32 const numDependencies = pTask->GetNumDependencies();
+        if ( numDependencies == 0 )
+        {
+            // Do nothing
+        }
+        else if ( numDependencies == 1 )
+        {
+            Float2 childOffset = currentOffset;
+            childOffset += Float2( 0, -1 );
+            CalculateTaskOffset( pTask->GetDependencyIndices()[0], childOffset, offsets );
+        }
+        else // multiple dependencies
+        {
+            Float2 childOffset = currentOffset;
+            childOffset += Float2( 0, -1 );
+
+            float const childTaskStartOffset = -( numDependencies - 1.0f ) / 2.0f;
+            for ( int32 i = 0; i < numDependencies; i++ )
+            {
+                childOffset.m_x = currentOffset.m_x + childTaskStartOffset + i;
+                CalculateTaskOffset( pTask->GetDependencyIndices()[i], childOffset, offsets );
+            }
+        }
+    }
+
+    void TaskSystem::DrawDebug( Drawing::DrawContext& drawingContext, Transform const& worldTransform)
+    {
+        if ( m_debugMode == DebugMode::Off )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        KRG_ASSERT( m_posePool.IsRecordingEnabled() );
+        if ( !HasTasks() || !m_posePool.HasRecordedData() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_debugMode == DebugMode::FinalPose )
+        {
+            auto const& pFinalTask = m_tasks.back();
+            KRG_ASSERT( pFinalTask->IsComplete() );
+            auto pPoseBuffer = m_posePool.GetRecordedPose( (int8) m_tasks.size() - 1 );
+            pPoseBuffer->m_pose.DrawDebug( drawingContext, worldTransform );
+            return;
+        }
+
+        // Calculate task tree offset
+        //-------------------------------------------------------------------------
+
+        TInlineVector<Float2, 16> taskTreeOffsets;
+        taskTreeOffsets.resize( m_tasks.size(), Float2::Zero );
+        CalculateTaskOffset( (TaskIndex) m_tasks.size() - 1, Float2::Zero, taskTreeOffsets );
+
+        // Draw tree
+        //-------------------------------------------------------------------------
+
+        Transform offsetTransform = worldTransform;
+        Vector const offsetVectorX = worldTransform.GetAxisX().GetNegated() * 2.0f;
+        Vector const offsetVectorY = worldTransform.GetAxisY().GetNegated() * 1.5f;
+
+        for ( int8 i = (int8) m_tasks.size() - 1; i >= 0; i-- )
+        {
+            Vector const offset = ( offsetVectorX * taskTreeOffsets[i].m_x ) + ( offsetVectorY * taskTreeOffsets[i].m_y );
+            offsetTransform.SetTranslation( worldTransform.GetTranslation() + offset );
+
+            auto pPoseBuffer = m_posePool.GetRecordedPose( i );
+            pPoseBuffer->m_pose.DrawDebug( drawingContext, offsetTransform, m_tasks[i]->GetDebugColor() );
+            drawingContext.DrawText3D( offsetTransform.GetTranslation(), m_tasks[i]->GetDebugText().c_str(), m_tasks[i]->GetDebugColor(), Drawing::FontSmall, Drawing::AlignMiddleCenter );
+        }
+    }
+    #endif
 }

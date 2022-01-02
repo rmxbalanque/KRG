@@ -24,7 +24,7 @@ namespace KRG::Animation
         EventItem( Event* pEvent, float frameRate );
         ~EventItem();
 
-        virtual InlineString<100> GetLabel() const override;
+        virtual InlineString GetLabel() const override;
         virtual FloatRange GetTimeRange() const override;
 
         Event* GetEvent() const { return m_pEvent; }

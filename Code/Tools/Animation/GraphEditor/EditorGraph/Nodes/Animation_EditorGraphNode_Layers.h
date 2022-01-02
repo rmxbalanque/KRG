@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class LayerSettingsEditorNode final : public EditorGraphNode
     {
@@ -50,11 +50,11 @@ namespace KRG::Animation::Graph
         virtual bool IsValidConnection( UUID const& inputPinID, Node const* pOutputPinNode, UUID const& outputPinID ) const override;
 
         virtual bool SupportsDynamicInputPins() const override { return true; }
-        virtual InlineString<100> GetNewDynamicInputPinName() const override;
-        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) ValueType::Unknown; }
+        virtual TInlineString<100> GetNewDynamicInputPinName() const override;
+        virtual uint32 GetDynamicInputPinValueType() const override { return (uint32) GraphValueType::Unknown; }
         virtual void OnDynamicPinDestruction( UUID pinID ) override;
 
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 

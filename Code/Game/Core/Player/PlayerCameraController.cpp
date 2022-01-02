@@ -1,6 +1,6 @@
 #include "PlayerCameraController.h"
 #include "Engine/Core/Components/Component_Cameras.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace KRG::Player
         KRG_ASSERT( pCamera != nullptr );
     }
 
-    void CameraController::UpdateCamera( EntityUpdateContext const& ctx )
+    void CameraController::UpdateCamera( EntityWorldUpdateContext const& ctx )
     {
         auto pInputSystem = ctx.GetSystem<Input::InputSystem>();
         auto const pControllerState = pInputSystem->GetControllerState();

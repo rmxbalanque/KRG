@@ -87,7 +87,7 @@ namespace KRG::Animation
 
                 auto CreateTrackOption = [this, pDefaultEventInstance, pTypeInfo] ( Event::EventType type, char const* pNameSuffix = nullptr )
                 {
-                    InlineString<255> menuItemName = pDefaultEventInstance->GetEventName();
+                    InlineString menuItemName = pDefaultEventInstance->GetEventName();
                     if ( pNameSuffix != nullptr )
                     {
                         menuItemName += pNameSuffix;

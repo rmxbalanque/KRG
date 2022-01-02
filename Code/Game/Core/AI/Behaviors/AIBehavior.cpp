@@ -9,7 +9,7 @@ namespace KRG::AI
 {
     BehaviorContext::~BehaviorContext()
     {
-        KRG_ASSERT( m_pEntityUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsWorld == nullptr );
+        KRG_ASSERT( m_pEntityWorldUpdateContext == nullptr && m_pNavmeshSystem == nullptr && m_pPhysicsScene == nullptr );
         KRG_ASSERT( m_pCharacter == nullptr && m_pCharacterController == nullptr );
         KRG_ASSERT( m_pAIComponent == nullptr && m_pAnimationController == nullptr );
     }
@@ -31,6 +31,6 @@ namespace KRG::AI
             return false;
         }
 
-        return m_pEntityUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsWorld != nullptr;
+        return m_pEntityWorldUpdateContext != nullptr && m_pNavmeshSystem != nullptr && m_pPhysicsScene != nullptr;
     }
 }

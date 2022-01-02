@@ -362,7 +362,7 @@ namespace KRG::Render
             treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        InlineString<128> boneLabel;
+        InlineString boneLabel;
         boneLabel.sprintf( "%d. %s", pBone->m_boneIdx, m_pResource->GetBoneID( pBone->m_boneIdx ).c_str() );
         pBone->m_isExpanded = ImGui::TreeNodeEx( boneLabel.c_str(), treeNodeFlags );
 

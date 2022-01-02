@@ -175,7 +175,7 @@ namespace KRG::Resource
             bool filterUpdated = false;
 
             ImGui::SetNextItemWidth( contentRegionAvailable.x - ImGui::GetStyle().WindowPadding.x - 22 );
-            InlineString<256> filterCopy( m_filterBuffer );
+            InlineString filterCopy( m_filterBuffer );
             
             if ( m_initializeFocus )
             {

@@ -16,6 +16,9 @@ namespace KRG
     constexpr static float const g_menuHeight = 19.0f;
     constexpr static float const g_statusBarHeight = 21.0f;
 
+    constexpr static float const g_minTimeScaleValue = 0.1f;
+    constexpr static float const g_maxTimeScaleValue = 3.5f;
+
     //-------------------------------------------------------------------------
 
     void EngineToolsUI::Initialize( UpdateContext const& context )
@@ -85,6 +88,34 @@ namespace KRG
             pPlayerManager->SetDebugMode( m_debugOverlayEnabled ? PlayerManager::DebugMode::FullDebug : PlayerManager::DebugMode::None );
         }
 
+        // Time Controls
+        //-------------------------------------------------------------------------
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Pause ) )
+        {
+            ToggleWorldPause( pGameWorld );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageUp ) )
+        {
+            SetWorldTimeScale( pGameWorld, m_timeScale + 0.1f );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageDown ) )
+        {
+            SetWorldTimeScale( pGameWorld, m_timeScale - 0.1f );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Home ) )
+        {
+            ResetWorldTimeScale( pGameWorld );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_End ) )
+        {
+            RequestWorldTimeStep( pGameWorld );
+        }
+
         //-------------------------------------------------------------------------
 
         Render::Viewport const* pViewport = pGameWorld->GetViewport();
@@ -135,7 +166,7 @@ namespace KRG
 
                     float const currentFPS = 1.0f / context.GetDeltaTime();
                     float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-                    InlineString<200> const perfStatStr( InlineString<200>::CtorSprintf(), "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
+                    InlineString const perfStatStr( InlineString::CtorSprintf(), "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
 
                     ImVec2 const availableSpace = ImGui::GetContentRegionAvail();
                     ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );
@@ -156,6 +187,8 @@ namespace KRG
 
         // The pop-ups should be always be drawn if enabled
         DrawPopups( context );
+
+        //-------------------------------------------------------------------------
     }
 
     //-------------------------------------------------------------------------
@@ -299,7 +332,7 @@ namespace KRG
         ImGui::SetNextWindowPos( windowPos );
         if ( ImGui::BeginChild( "Stats", windowSize, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar ) )
         {
-            InlineString<100> tempStr;
+            TInlineString<100> tempStr;
 
             // Player Control
             //-------------------------------------------------------------------------
@@ -322,13 +355,6 @@ namespace KRG
             // Time Scaling
             //-------------------------------------------------------------------------
 
-            // If we've requested a time step, re-pause the game
-            if ( m_stepRequested )
-            {
-                pGameWorld->SetTimeScale( -1.0f );
-                m_stepRequested = false;
-            }
-
             ImGuiX::VerticalSeparator();
             {
                 ImGuiX::ScopedFont sf( ImGuiX::Font::Small );
@@ -338,16 +364,15 @@ namespace KRG
                 {
                     if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld" ) )
                     {
-                        pGameWorld->SetTimeScale( m_timeScale );
+                        ToggleWorldPause( pGameWorld );
                     }
-                    ImGuiX::ItemTooltip( "Pause" );
+                    ImGuiX::ItemTooltip( "Resume" );
                 }
                 else
                 {
                     if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld" ) )
                     {
-                        m_timeScale = pGameWorld->GetTimeScale();
-                        pGameWorld->SetTimeScale( -1.0f );
+                        ToggleWorldPause( pGameWorld );
                     }
                     ImGuiX::ItemTooltip( "Pause" );
                 }
@@ -357,8 +382,7 @@ namespace KRG
                 ImGui::BeginDisabled( !pGameWorld->IsPaused() );
                 if ( ImGui::Button( KRG_ICON_STEP_FORWARD"##StepFrame" ) )
                 {
-                    m_stepRequested = true;
-                    pGameWorld->SetTimeScale( m_timeScale );
+                    RequestWorldTimeStep( pGameWorld );
                 }
                 ImGuiX::ItemTooltip( "Step Frame" );
                 ImGui::EndDisabled();
@@ -366,9 +390,10 @@ namespace KRG
                 // Slider
                 ImGui::SameLine( 0, 0 );
                 ImGui::SetNextItemWidth( 100 );
-                if ( ImGui::SliderFloat( "##TimeScale", &m_timeScale, 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput ) )
+                float currentTimeScale = m_timeScale;
+                if ( ImGui::SliderFloat( "##TimeScale", &currentTimeScale, g_minTimeScaleValue, g_maxTimeScaleValue, "%.2f", ImGuiSliderFlags_NoInput ) )
                 {
-                    pGameWorld->SetTimeScale( m_timeScale );
+                    SetWorldTimeScale( pGameWorld, currentTimeScale );
                 }
                 ImGuiX::ItemTooltip( "Time Scale" );
 
@@ -376,8 +401,7 @@ namespace KRG
                 ImGui::SameLine( 0, 0 );
                 if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
                 {
-                    m_timeScale = 1.0f;
-                    pGameWorld->SetTimeScale( 1.0f );
+                    ResetWorldTimeScale( pGameWorld );
                 }
                 ImGuiX::ItemTooltip( "Reset TimeScale" );
             }
@@ -425,6 +449,46 @@ namespace KRG
         }
         ImGui::EndChild();
         ImGui::PopStyleVar( 3 );
+    }
+
+    //-------------------------------------------------------------------------
+
+    void EngineToolsUI::ToggleWorldPause( EntityWorld* pGameWorld )
+    {
+        // Unpause
+        if ( pGameWorld->IsPaused() )
+        {
+            pGameWorld->SetTimeScale( m_timeScale );
+        }
+        else // Pause
+        {
+            m_timeScale = pGameWorld->GetTimeScale();
+            pGameWorld->SetTimeScale( -1.0f );
+        }
+    }
+
+    void EngineToolsUI::SetWorldTimeScale( EntityWorld* pGameWorld, float newTimeScale )
+    {
+        m_timeScale = Math::Clamp( newTimeScale, g_minTimeScaleValue, g_maxTimeScaleValue );
+        pGameWorld->SetTimeScale( m_timeScale );
+    }
+
+    void EngineToolsUI::ResetWorldTimeScale( EntityWorld* pGameWorld )
+    {
+        m_timeScale = 1.0f;
+
+        if ( !pGameWorld->IsPaused() )
+        {
+            pGameWorld->SetTimeScale( m_timeScale );
+        }
+    }
+
+    void EngineToolsUI::RequestWorldTimeStep( EntityWorld* pGameWorld )
+    {
+        if ( pGameWorld->IsPaused() )
+        {
+            pGameWorld->RequestTimeStep();
+        }
     }
 }
 #endif

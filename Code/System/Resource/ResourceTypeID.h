@@ -64,9 +64,9 @@ namespace KRG
             outStr[idx] = 0;
         }
 
-        inline InlineString<5> ToString() const
+        inline TInlineString<5> ToString() const
         {
-            InlineString<5> str;
+            TInlineString<5> str;
             str.resize( 5 );
             GetString( str.data() );
             return str;

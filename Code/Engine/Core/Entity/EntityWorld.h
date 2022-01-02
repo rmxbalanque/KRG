@@ -30,7 +30,7 @@ namespace KRG
     class KRG_ENGINE_CORE_API EntityWorld
     {
         friend class EntityDebugView;
-        friend class EntityUpdateContext;
+        friend class EntityWorldUpdateContext;
 
     public:
 
@@ -39,7 +39,6 @@ namespace KRG
 
         inline EntityWorldID const& GetID() const { return m_worldID; }
         inline bool IsGameWorld() const { return m_worldType == EntityWorldType::Game; }
-        
 
         void Initialize( SystemRegistry const& systemsRegistry, TVector<TypeSystem::TypeInfo const*> worldSystemTypeInfos );
         void Shutdown();
@@ -76,6 +75,12 @@ namespace KRG
 
         // Get the current time scale for this world
         inline void SetTimeScale( float newTimeScale ) { m_timeScale = newTimeScale; }
+
+        // Request a time step - only applicable to paused worlds
+        inline void RequestTimeStep() { KRG_ASSERT( IsPaused() ); m_timeStepRequested = true; }
+
+        // Has a time-step for a paused world been requested?
+        inline bool IsTimeStepRequested() const { return m_timeStepRequested; }
 
         //-------------------------------------------------------------------------
         // Systems
@@ -202,6 +207,7 @@ namespace KRG
         EntityWorldType                                                         m_worldType = EntityWorldType::Game;
         Render::Viewport                                                        m_viewport = Render::Viewport( Int2::Zero, Int2( 640, 480 ), Math::ViewVolume( Float2( 640, 480 ), FloatRange( 0.1f, 100.0f ) ) );
         float                                                                   m_timeScale = 1.0f; // <= 0 means that the world is paused
+        bool                                                                    m_timeStepRequested = false;
 
         // Maps
         TInlineVector<EntityModel::EntityMap, 3>                                m_maps;

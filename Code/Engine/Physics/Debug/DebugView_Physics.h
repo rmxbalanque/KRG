@@ -35,14 +35,14 @@ namespace KRG::Physics
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawPhysicsMenu( EntityUpdateContext const& context );
-        void DrawPVDMenu( EntityUpdateContext const& context );
-        void DrawComponentsWindow( EntityUpdateContext const& context );
-        void DrawMaterialDatabaseWindow( EntityUpdateContext const& context );
+        void DrawPhysicsMenu( EntityWorldUpdateContext const& context );
+        void DrawPVDMenu( EntityWorldUpdateContext const& context );
+        void DrawComponentsWindow( EntityWorldUpdateContext const& context );
+        void DrawMaterialDatabaseWindow( EntityWorldUpdateContext const& context );
 
-        void DrawComponentVisualization( EntityUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const;
+        void DrawComponentVisualization( EntityWorldUpdateContext const& context, PhysicsShapeComponent const* pComponent ) const;
 
     private:
 

@@ -1,5 +1,5 @@
 #include "EntityWorld.h"
-#include "EntityUpdateContext.h"
+#include "EntityWorldUpdateContext.h"
 #include "EntityWorldDebugView.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Profiling/Profiling.h"
@@ -229,7 +229,7 @@ namespace KRG
 
         struct EntityUpdateTask final : public ITaskSet
         {
-            EntityUpdateTask( EntityUpdateContext const& context, TVector<Entity*>& updateList )
+            EntityUpdateTask( EntityWorldUpdateContext const& context, TVector<Entity*>& updateList )
                 : m_context( context )
                 , m_updateList( updateList )
             {
@@ -276,16 +276,17 @@ namespace KRG
 
         private:
 
-            EntityUpdateContext const&              m_context;
-            TVector<Entity*>&                       m_updateList;
+            EntityWorldUpdateContext const&              m_context;
+            TVector<Entity*>&                            m_updateList;
         };
 
         //-------------------------------------------------------------------------
 
-        bool const isWorldPaused = IsPaused();
+        UpdateStage const updateStage = context.GetUpdateStage();
+        bool const isWorldPaused = IsPaused() && !m_timeStepRequested;
 
         // Skip all non-pause updates for paused worlds
-        if ( isWorldPaused && context.GetUpdateStage() != UpdateStage::Paused )
+        if ( isWorldPaused && updateStage != UpdateStage::Paused )
         {
             return;
         }
@@ -298,13 +299,12 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        EntityUpdateContext entityUpdateContext( context, this );
-        UpdateStage const updateStage = entityUpdateContext.GetUpdateStage();
+        EntityWorldUpdateContext entityWorldUpdateContext( context, this );
 
         // Update entities
         //-------------------------------------------------------------------------
 
-        EntityUpdateTask entityUpdateTask( entityUpdateContext, m_entityUpdateList );
+        EntityUpdateTask entityUpdateTask( entityWorldUpdateContext, m_entityUpdateList );
         m_pTaskSystem->ScheduleTask( &entityUpdateTask );
         m_pTaskSystem->WaitForTask( &entityUpdateTask );
 
@@ -318,7 +318,14 @@ namespace KRG
         {
             KRG_PROFILE_SCOPE_SCENE( "Update World Systems" );
             KRG_ASSERT( pSystem->GetRequiredUpdatePriorities().IsStageEnabled( updateStage ) );
-            pSystem->UpdateSystem( entityUpdateContext );
+            pSystem->UpdateSystem( entityWorldUpdateContext );
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( updateStage == UpdateStage::FrameEnd )
+        {
+            m_timeStepRequested = false;
         }
     }
 

@@ -93,7 +93,7 @@ namespace KRG::Player
 
         // Debug
         //-------------------------------------------------------------------------
-        auto Debugger = ctx.m_pEntityUpdateContext->GetDrawingContext();
+        auto Debugger = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
         if( g_debugVelocity && !ResultingVelocity.GetNormalized3().IsZero3() )
         {
             Vector const Origin = ctx.m_pCharacterComponent->GetPosition();

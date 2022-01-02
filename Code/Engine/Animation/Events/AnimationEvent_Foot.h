@@ -44,7 +44,8 @@ namespace KRG::Animation
 
         #if KRG_DEVELOPMENT_TOOLS
         virtual char const* GetEventName() const override { return "Foot"; }
-        virtual InlineString<100> GetDisplayText() const override;
+        virtual InlineString GetDisplayText() const override;
+        virtual InlineString GetDebugText() const override { return GetDisplayText(); }
         virtual EventType GetEventType() const override { return EventType::Duration; }
         #endif
 

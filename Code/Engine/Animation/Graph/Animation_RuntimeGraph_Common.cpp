@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    Color GetColorForValueType( ValueType type )
+    Color GetColorForValueType( GraphValueType type )
     {
         static const Color colors[9] =
         {
@@ -22,53 +22,53 @@ namespace KRG::Animation::Graph
         return colors[(uint8) type];
     }
 
-    char const* GetNameForValueType( ValueType type )
+    char const* GetNameForValueType( GraphValueType type )
     {
         switch ( type )
         {
-            case ValueType::Bool:
+            case GraphValueType::Bool:
             {
                 return "Bool";
             }
             break;
 
-            case ValueType::ID:
+            case GraphValueType::ID:
             {
                 return "ID";
             }
             break;
 
-            case ValueType::Int:
+            case GraphValueType::Int:
             {
                 return "Int";
             }
             break;
 
-            case ValueType::Float:
+            case GraphValueType::Float:
             {
                 return "Float";
             }
             break;
 
-            case ValueType::Vector:
+            case GraphValueType::Vector:
             {
                 return "Vector";
             }
             break;
 
-            case ValueType::Target:
+            case GraphValueType::Target:
             {
                 return "Target";
             }
             break;
 
-            case ValueType::BoneMask:
+            case GraphValueType::BoneMask:
             {
                 return "Bone Mask";
             }
             break;
 
-            case ValueType::Pose:
+            case GraphValueType::Pose:
             {
                 return "Pose";
             }

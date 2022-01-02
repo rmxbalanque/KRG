@@ -11,12 +11,12 @@
 namespace KRG::Animation
 {
     class AnimationClip;
-    class AnimationGraphDataSet;
+    class GraphDataSet;
 }
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class KRG_ENGINE_ANIMATION_API GraphNode
     {
@@ -40,21 +40,21 @@ namespace KRG::Animation::Graph
         protected:
 
             template<typename T>
-            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T*& pTargetPtr )
+            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, GraphNodeIndex nodeIdx, T*& pTargetPtr )
             {
                 KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
                 pTargetPtr = static_cast<T*>( nodePtrs[nodeIdx] );
             }
 
             template<typename T>
-            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T const*& pTargetPtr )
+            KRG_FORCE_INLINE static void SetNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, GraphNodeIndex nodeIdx, T const*& pTargetPtr )
             {
                 KRG_ASSERT( nodeIdx >= 0 && nodeIdx < nodePtrs.size() );
                 pTargetPtr = static_cast<T const*>( nodePtrs[nodeIdx] );
             }
 
             template<typename T>
-            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T*& pTargetPtr )
+            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, GraphNodeIndex nodeIdx, T*& pTargetPtr )
             {
                 if ( nodeIdx == InvalidIndex )
                 {
@@ -68,7 +68,7 @@ namespace KRG::Animation::Graph
             }
 
             template<typename T>
-            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, NodeIndex nodeIdx, T const*& pTargetPtr )
+            KRG_FORCE_INLINE static void SetOptionalNodePtrFromIndex( TVector<GraphNode*> const& nodePtrs, GraphNodeIndex nodeIdx, T const*& pTargetPtr )
             {
                 if ( nodeIdx == InvalidIndex )
                 {
@@ -86,11 +86,11 @@ namespace KRG::Animation::Graph
             virtual ~Settings() = default;
 
             // Factory method, will create the node instance and set all necessary node ptrs
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const = 0;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const = 0;
 
             // Serialization methods
-            virtual void Load( cereal::BinaryInputArchive& archive ) { archive( m_nodeIdx, m_nodeID ); }
-            virtual void Save( cereal::BinaryOutputArchive& archive ) const { archive( m_nodeIdx, m_nodeID ); }
+            virtual void Load( cereal::BinaryInputArchive& archive ) { archive( m_nodeIdx ); }
+            virtual void Save( cereal::BinaryOutputArchive& archive ) const { archive( m_nodeIdx ); }
 
         protected:
 
@@ -110,8 +110,7 @@ namespace KRG::Animation::Graph
 
         public:
 
-            NodeIndex                           m_nodeIdx = InvalidIndex; // The index of this node in the graph, we currently only support graphs with max of 32k nodes
-            StringID                            m_nodeID;
+            GraphNodeIndex                      m_nodeIdx = InvalidIndex; // The index of this node in the graph, we currently only support graphs with max of 32k nodes
         };
 
     public:
@@ -123,12 +122,11 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         virtual bool IsValid() const { return true; }
-        virtual ValueType GetValueType() const = 0;
-        inline NodeIndex GetNodeIndex() const { return m_pSettings->m_nodeIdx; }
-        inline StringID GetNodeID() const { return m_pSettings->m_nodeID; }
+        virtual GraphValueType GetValueType() const = 0;
+        inline GraphNodeIndex GetNodeIndex() const { return m_pSettings->m_nodeIdx; }
 
         inline bool IsInitialized() const { return m_initializationCount > 0; }
-        virtual void Initialize( GraphContext& cContext );
+        virtual void Initialize( GraphContext& context );
         void Shutdown( GraphContext& context );
 
         // Update
@@ -165,7 +163,7 @@ namespace KRG::Animation::Graph
     // Animation Nodes
     //-------------------------------------------------------------------------
 
-    struct PoseNodeResult
+    struct GraphPoseNodeResult
     {
         KRG_FORCE_INLINE bool HasRegisteredTasks() const { return m_taskIdx != InvalidIndex; }
 
@@ -205,10 +203,10 @@ namespace KRG::Animation::Graph
         virtual void InitializeInternal( GraphContext& context, SyncTrackTime const& initialTime );
 
         // Unsynchronized update
-        virtual PoseNodeResult Update( GraphContext& context ) = 0;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) = 0;
 
         // Synchronized update
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) = 0;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) = 0;
 
         // Deactivate a previous active branch, this is needed when trigger transitions
         virtual void DeactivateBranch( GraphContext& context ) { KRG_ASSERT( context.m_branchState == BranchState::Inactive && IsNodeActive( context ) ); }
@@ -222,7 +220,7 @@ namespace KRG::Animation::Graph
 
         virtual void Initialize( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
         virtual void InitializeInternal( GraphContext& context ) override final { Initialize( context, SyncTrackTime() ); }
-        virtual ValueType GetValueType() const override final { return ValueType::Pose; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Pose; }
 
     protected:
 
@@ -248,14 +246,14 @@ namespace KRG::Animation::Graph
     // Value Nodes
     //-------------------------------------------------------------------------
 
-    template<typename T> struct ValueTypeValidation { static ValueType const Type = ValueType::Unknown; };
-    template<> struct ValueTypeValidation<bool> { static ValueType const Type = ValueType::Bool; };
-    template<> struct ValueTypeValidation<StringID> { static ValueType const Type = ValueType::ID; };
-    template<> struct ValueTypeValidation<int32> { static ValueType const Type = ValueType::Int; };
-    template<> struct ValueTypeValidation<float> { static ValueType const Type = ValueType::Float; };
-    template<> struct ValueTypeValidation<Vector> { static ValueType const Type = ValueType::Vector; };
-    template<> struct ValueTypeValidation<Target> { static ValueType const Type = ValueType::Target; };
-    template<> struct ValueTypeValidation<BoneMask const*> { static ValueType const Type = ValueType::BoneMask; };
+    template<typename T> struct ValueTypeValidation { static GraphValueType const Type = GraphValueType::Unknown; };
+    template<> struct ValueTypeValidation<bool> { static GraphValueType const Type = GraphValueType::Bool; };
+    template<> struct ValueTypeValidation<StringID> { static GraphValueType const Type = GraphValueType::ID; };
+    template<> struct ValueTypeValidation<int32> { static GraphValueType const Type = GraphValueType::Int; };
+    template<> struct ValueTypeValidation<float> { static GraphValueType const Type = GraphValueType::Float; };
+    template<> struct ValueTypeValidation<Vector> { static GraphValueType const Type = GraphValueType::Vector; };
+    template<> struct ValueTypeValidation<Target> { static GraphValueType const Type = GraphValueType::Target; };
+    template<> struct ValueTypeValidation<BoneMask const*> { static GraphValueType const Type = GraphValueType::BoneMask; };
 
     //-------------------------------------------------------------------------
 
@@ -289,49 +287,49 @@ namespace KRG::Animation::Graph
 
     class KRG_ENGINE_ANIMATION_API BoolValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::Bool; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Bool; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API IDValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::ID; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::ID; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API IntValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::Int; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Int; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API FloatValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::Float; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Float; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API VectorValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::Vector; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Vector; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API TargetValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::Target; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::Target; }
     };
 
     //-------------------------------------------------------------------------
 
     class KRG_ENGINE_ANIMATION_API BoneMaskValueNode : public ValueNode
     {
-        virtual ValueType GetValueType() const override final { return ValueType::BoneMask; }
+        virtual GraphValueType GetValueType() const override final { return GraphValueType::BoneMask; }
     };
 }
 

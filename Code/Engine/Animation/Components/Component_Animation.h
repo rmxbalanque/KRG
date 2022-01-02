@@ -9,6 +9,8 @@ namespace KRG
 {
     class UpdateContext;
 
+    namespace Physics { class Scene; }
+
     //-------------------------------------------------------------------------
 
     namespace Animation
@@ -39,10 +41,10 @@ namespace KRG
             inline bool RequiresManualUpdate() const { return m_requiresManualUpdate; }
 
             // Run the pre-physics animation update
-            virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) = 0;
+            virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) = 0;
 
             // Run the post-physics animation update
-            virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) = 0;
+            virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) = 0;
 
         protected:
 

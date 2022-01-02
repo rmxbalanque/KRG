@@ -1,11 +1,11 @@
-#include "Animation_RuntimeGraphTask_CachedPose.h"
+#include "Animation_Task_CachedPose.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
-    CachedPoseWriteTask::CachedPoseWriteTask( NodeIndex sourceNodeIdx, TaskIndex sourceTaskIdx, UUID cachedPoseID )
-        : Task( sourceNodeIdx, UpdateStage::Any, { sourceTaskIdx } )
+    CachedPoseWriteTask::CachedPoseWriteTask( TaskSourceID sourceID, TaskIndex sourceTaskIdx, UUID cachedPoseID )
+        : Task( sourceID, TaskUpdateStage::Any, { sourceTaskIdx } )
         , m_cachedPoseID( cachedPoseID )
     {
         KRG_ASSERT( sourceTaskIdx != InvalidIndex );
@@ -24,8 +24,8 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    CachedPoseReadTask::CachedPoseReadTask( NodeIndex sourceNodeIdx, UUID cachedPoseID )
-        : Task( sourceNodeIdx )
+    CachedPoseReadTask::CachedPoseReadTask( TaskSourceID sourceID, UUID cachedPoseID )
+        : Task( sourceID )
         , m_cachedPoseID( cachedPoseID )
     {
         KRG_ASSERT( m_cachedPoseID.IsValid() );

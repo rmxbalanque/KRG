@@ -4,9 +4,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void StateNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void StateNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<StateNode>( nodePtrs, options );
         SetOptionalNodePtrFromIndex( nodePtrs, m_layerBoneMaskNodeIdx, pNode->m_pBoneMaskNode );
@@ -80,10 +80,12 @@ namespace KRG::Animation::Graph
         // Since we update states before we register transitions, we need to ignore all previously sampled state events for this frame
         for ( auto i = m_sampledEventRange.m_startIdx; i < m_sampledEventRange.m_endIdx; i++ )
         {
-            KRG_ASSERT( context.m_sampledEvents[i].GetSourceNodeIndex() == GetNodeIndex() );
-            if ( context.m_sampledEvents[i].IsStateEvent() )
+            if ( context.m_sampledEvents[i].GetSourceNodeIndex() == GetNodeIndex() )
             {
-                context.m_sampledEvents[i].SetFlag( SampledEvent::Flags::Ignored, true );
+                if ( context.m_sampledEvents[i].IsStateEvent() )
+                {
+                    context.m_sampledEvents[i].SetFlag( SampledEvent::Flags::Ignored, true );
+                }
             }
         }
 
@@ -192,12 +194,12 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult StateNode::Update( GraphContext& context )
+    GraphPoseNodeResult StateNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
         // Update child
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         result = PassthroughNode::Update( context );
         m_elapsedTimeInState += context.m_deltaTime;
 
@@ -212,12 +214,12 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult StateNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult StateNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
         // Update child
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         result = PassthroughNode::Update( context, updateRange );
         m_elapsedTimeInState += context.m_deltaTime;
 

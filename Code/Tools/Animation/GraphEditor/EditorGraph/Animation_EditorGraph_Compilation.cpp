@@ -2,10 +2,10 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     EditorGraphCompilationContext::EditorGraphCompilationContext()
-        : AnimationGraphDefinition()
+        : GraphDefinition()
     {
         m_instanceNodeStartOffsets.emplace_back( 0 );
     }

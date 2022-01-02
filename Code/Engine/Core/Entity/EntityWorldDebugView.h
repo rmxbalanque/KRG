@@ -21,7 +21,7 @@ namespace KRG
 {
     class SystemRegistry;
     class EntityWorld;
-    class EntityUpdateContext;
+    class EntityWorldUpdateContext;
 
     //-------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ namespace KRG
         {
         public:
 
-            DebugMenu( String const& menuPath, TFunction<void( EntityUpdateContext const& )>&& drawFunction )
+            DebugMenu( String const& menuPath, TFunction<void( EntityWorldUpdateContext const& )>&& drawFunction )
                 : m_path( menuPath )
                 , m_drawFunction( drawFunction )
             {
@@ -51,13 +51,13 @@ namespace KRG
             }
 
             inline String const& GetPath() const { return m_path; }
-            inline void Execute( EntityUpdateContext const& ctx ) const { m_drawFunction( ctx ); }
+            inline void Execute( EntityWorldUpdateContext const& ctx ) const { m_drawFunction( ctx ); }
 
         private:
 
             String                                              m_path;
             String                                              m_category;
-            TFunction<void( EntityUpdateContext const& )>       m_drawFunction;
+            TFunction<void( EntityWorldUpdateContext const& )>       m_drawFunction;
         };
 
     public:
@@ -70,10 +70,10 @@ namespace KRG
     protected:
 
         // Called to draw all imgui windows
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
-        virtual void DrawOverlayElements( EntityUpdateContext const& context ) {}
+        virtual void DrawOverlayElements( EntityWorldUpdateContext const& context ) {}
 
     protected:
 

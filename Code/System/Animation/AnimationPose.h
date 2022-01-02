@@ -3,6 +3,7 @@
 #include "_Module/API.h"
 #include "AnimationSkeleton.h"
 #include "System/Core/Math/Math.h"
+#include "System/Core/Types/Color.h"
 
 //-------------------------------------------------------------------------
 
@@ -112,7 +113,7 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        void DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform ) const;
+        void DrawDebug( Drawing::DrawContext& ctx, Transform const& worldTransform, Color color = Colors::HotPink ) const;
         #endif
 
     private:

@@ -29,10 +29,10 @@ namespace KRG::Render
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
-        virtual void DrawOverlayElements( EntityUpdateContext const& context ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawOverlayElements( EntityWorldUpdateContext const& context ) override;
 
-        void DrawRenderMenu( EntityUpdateContext const& context );
+        void DrawRenderMenu( EntityWorldUpdateContext const& context );
 
     private:
 

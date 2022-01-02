@@ -11,7 +11,7 @@ namespace KRG::TypeSystem { class TypeRegistry;}
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     struct Variation : public IRegisteredType
     {

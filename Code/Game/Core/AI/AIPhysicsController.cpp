@@ -1,14 +1,14 @@
 #include "AIPhysicsController.h"
-#include "Engine/Physics/Systems/WorldSystem_Physics.h"
+#include "Engine/Physics/PhysicsScene.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Core/Math/Transform.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::AI
 {
-    bool CharacterPhysicsController::TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation )
+    bool CharacterPhysicsController::TryMoveCapsule( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, Vector const& deltaTranslation, Quaternion const& deltaRotation )
     {
         Transform capsuleWorldTransform = m_pCharacterComponent->GetCapsuleWorldTransform();
 
@@ -38,10 +38,10 @@ namespace KRG::AI
         filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment ) );
         filter.AddIgnoredEntity( m_pCharacterComponent->GetEntityID() );
 
-        pPhysicsWorld->AcquireReadLock();
+        pPhysicsScene->AcquireReadLock();
 
         Physics::SweepResults sweepResults;
-        if ( pPhysicsWorld->SphereSweep( m_pCharacterComponent->GetCapsuleRadius(), sweepStartPos, sweepEndPos, filter, sweepResults ) )
+        if ( pPhysicsScene->SphereSweep( m_pCharacterComponent->GetCapsuleRadius(), sweepStartPos, sweepEndPos, filter, sweepResults ) )
         {
             if ( sweepResults.HadInitialOverlap() )
             {
@@ -65,7 +65,7 @@ namespace KRG::AI
             #endif
         }
 
-        pPhysicsWorld->ReleaseReadLock();
+        pPhysicsScene->ReleaseReadLock();
 
         //-------------------------------------------------------------------------
 

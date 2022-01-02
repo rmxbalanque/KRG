@@ -15,6 +15,7 @@ namespace KRG
     class Entity;
     class EntityWorld;
     class UpdateContext;
+    class EntityWorldUpdateContext;
 
     namespace Render { class Viewport; }
     namespace Resource { class ResourceSystem; }
@@ -91,7 +92,7 @@ namespace KRG
         virtual void Shutdown( UpdateContext const& context ) {}
 
         // Called just before the world is updated per update stage
-        virtual void Update( UpdateContext const& updateContext ) {}
+        virtual void Update( EntityWorldUpdateContext const& updateContext ) {}
 
         // Drawing Functions
         //-------------------------------------------------------------------------
@@ -113,6 +114,15 @@ namespace KRG
 
         // Draw the viewport for this workspace
         bool DrawViewport( UpdateContext const& context, ViewportInfo const& viewportInfo, ImGuiWindowClass* pWindowClass );
+
+        // Preview World Functions
+        //-------------------------------------------------------------------------
+
+        void SetWorldTimeControlsEnabled( bool timeControlsEnabled ) { m_allowWorldTimeControl = timeControlsEnabled; }
+
+        void SetViewportCameraSpeed( float cameraSpeed );
+
+        void SetViewportCameraPosition( Transform const& cameraTransform );
 
         // Undo/Redo
         //-------------------------------------------------------------------------
@@ -162,7 +172,7 @@ namespace KRG
         void DrawDefaultViewportToolbarItems();
 
         // Begin a toolbar group
-        bool BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize );
+        bool BeginViewportToolbarGroup( char const* pGroupID, ImVec2 groupSize, ImVec2 const& padding = ImVec2( 4.0f, 4.0f ) );
 
         // End a toolbar group
         void EndViewportToolbarGroup();
@@ -229,6 +239,10 @@ namespace KRG
     private:
 
         Resource::ResourceSystem* const             m_pResourceSystem = nullptr;
+
+        // Time controls
+        bool                                        m_allowWorldTimeControl = false;
+        float                                       m_worldTimeScale = 1.0f;
 
         // Hot-reloading
         TVector<Resource::ResourcePtr*>             m_requestedResources;

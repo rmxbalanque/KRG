@@ -1,4 +1,5 @@
 #include "WorldSystem_Physics.h"
+#include "Engine/Physics/PhysicsScene.h"
 #include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Physics/Components/Component_PhysicsMesh.h"
@@ -6,9 +7,8 @@
 #include "Engine/Physics/Components/Component_PhysicsSphere.h"
 #include "Engine/Physics/Components/Component_PhysicsBox.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "Engine/Physics/PhysicsRagdoll.h"
 
 //-------------------------------------------------------------------------
 
@@ -22,9 +22,9 @@ namespace KRG::Physics
         : m_pPhysicsSystem( &physicsSystem )
     {}
 
-    physx::PxPhysics* PhysicsWorldSystem::GetPxPhysics()
+    physx::PxScene* PhysicsWorldSystem::GetPxScene()
     {
-        return m_pPhysicsSystem->GetPxPhysics();
+        return m_pScene->m_pScene;
     }
 
     //-------------------------------------------------------------------------
@@ -45,9 +45,7 @@ namespace KRG::Physics
     void PhysicsWorldSystem::ShutdownSystem()
     {
         // Destroy scene
-        m_pScene->release();
-        m_pScene = nullptr;
-
+        KRG::Delete( m_pScene );
         m_pPhysicsSystem = nullptr;
 
         KRG_ASSERT( m_physicsShapeComponents.empty() );
@@ -58,6 +56,8 @@ namespace KRG::Physics
 
     void PhysicsWorldSystem::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
+        PxScene* pPxScene = m_pScene->m_pScene;
+
         if ( auto pPhysicsComponent = TryCast<PhysicsShapeComponent>( pComponent ) )
         {
             m_physicsShapeComponents.Add( pPhysicsComponent );
@@ -94,9 +94,9 @@ namespace KRG::Physics
                 // Add actor to scene
                 if ( pPhysicsActor != nullptr && pShape != nullptr )
                 {
-                    m_pScene->lockWrite();
-                    m_pScene->addActor( *pPhysicsActor );
-                    m_pScene->unlockWrite();
+                    pPxScene->lockWrite();
+                    pPxScene->addActor( *pPhysicsActor );
+                    pPxScene->unlockWrite();
                 }
             }
 
@@ -129,9 +129,9 @@ namespace KRG::Physics
 
             if ( CreateCharacterActorAndShape( pCharacterComponent ) )
             {
-                m_pScene->lockWrite();
-                m_pScene->addActor( *pCharacterComponent->m_pPhysicsActor );
-                m_pScene->unlockWrite();
+                pPxScene->lockWrite();
+                pPxScene->addActor( *pCharacterComponent->m_pPhysicsActor );
+                pPxScene->unlockWrite();
             }
             else
             {
@@ -143,6 +143,8 @@ namespace KRG::Physics
 
     void PhysicsWorldSystem::UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent )
     {
+        PxScene* pPxScene = m_pScene->m_pScene;
+
         if ( auto pPhysicsComponent = TryCast<PhysicsShapeComponent>( pComponent ) )
         {
             // Remove from dynamic components list
@@ -158,9 +160,9 @@ namespace KRG::Physics
 
             if ( pPhysicsComponent->m_pPhysicsActor != nullptr )
             {
-                m_pScene->lockWrite();
-                m_pScene->removeActor( *pPhysicsComponent->m_pPhysicsActor );
-                m_pScene->unlockWrite();
+                pPxScene->lockWrite();
+                pPxScene->removeActor( *pPhysicsComponent->m_pPhysicsActor );
+                pPxScene->unlockWrite();
 
                 pPhysicsComponent->m_pPhysicsActor->release();
             }
@@ -190,9 +192,9 @@ namespace KRG::Physics
 
             if ( pCharacterComponent->m_pPhysicsActor != nullptr )
             {
-                m_pScene->lockWrite();
-                m_pScene->removeActor( *pCharacterComponent->m_pPhysicsActor );
-                m_pScene->unlockWrite();
+                pPxScene->lockWrite();
+                pPxScene->removeActor( *pCharacterComponent->m_pPhysicsActor );
+                pPxScene->unlockWrite();
 
                 pCharacterComponent->m_pPhysicsActor->release();
             }
@@ -248,6 +250,7 @@ namespace KRG::Physics
             {
                 PxRigidDynamic* pRigidDynamicActor = pPhysics->createRigidDynamic( bodyPose );
                 pRigidDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eKINEMATIC, true );
+                pRigidDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eUSE_KINEMATIC_TARGET_FOR_SCENE_QUERIES, true );
                 pPhysicsActor = pRigidDynamicActor;
             }
             break;
@@ -418,6 +421,7 @@ namespace KRG::Physics
 
         PxRigidDynamic* pRigidDynamicActor = pPhysics->createRigidDynamic( bodyPose );
         pRigidDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eKINEMATIC, true );
+        pRigidDynamicActor->setRigidBodyFlag( PxRigidBodyFlag::eUSE_KINEMATIC_TARGET_FOR_SCENE_QUERIES, true );
         pRigidDynamicActor->userData = pComponent;
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -455,22 +459,24 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
     
-    void PhysicsWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
+    void PhysicsWorldSystem::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
+        PxScene* pPxScene = m_pScene->m_pScene;
+
         if ( ctx.GetUpdateStage() == UpdateStage::Physics )
         {
-            AcquireWriteLock();
+            m_pScene->AcquireWriteLock();
             {
                 KRG_PROFILE_SCOPE_PHYSICS( "Simulate" );
                 // TODO: run at fixed time step
-                m_pScene->simulate( ctx.GetDeltaTime() );
+                pPxScene->simulate( ctx.GetDeltaTime() );
             }
 
             {
                 KRG_PROFILE_SCOPE_PHYSICS( "Fetch Results" );
-                m_pScene->fetchResults( true );
+                pPxScene->fetchResults( true );
             }
-            ReleaseWriteLock();
+            m_pScene->ReleaseWriteLock();
         }
         else if ( ctx.GetUpdateStage() == UpdateStage::PostPhysics )
         {
@@ -480,7 +486,7 @@ namespace KRG::Physics
             auto drawingContext = ctx.GetDrawingContext();
             #endif
 
-            AcquireReadLock();
+            m_pScene->AcquireReadLock();
 
             for ( auto const& pDynamicPhysicsComponent : m_dynamicShapeComponents )
             {
@@ -509,36 +515,12 @@ namespace KRG::Physics
                 #endif
             }
 
-            ReleaseReadLock();
+            m_pScene->ReleaseReadLock();
         }
         else
         {
             KRG_UNREACHABLE_CODE();
         }
-    }
-
-    //-------------------------------------------------------------------------
-    // Ragdoll
-    //-------------------------------------------------------------------------
-
-    void PhysicsWorldSystem::AddRagdollToWorld( Ragdoll* pRagdoll )
-    {
-        KRG_ASSERT( pRagdoll != nullptr && pRagdoll->IsValid() );
-        KRG_ASSERT( pRagdoll->m_pArticulation->getScene() == nullptr );
-
-        AcquireWriteLock();
-        m_pScene->addArticulation( *pRagdoll->m_pArticulation );
-        ReleaseWriteLock();
-    }
-
-    void PhysicsWorldSystem::RemoveRagdollFromWorld( Ragdoll* pRagdoll )
-    {
-        KRG_ASSERT( pRagdoll != nullptr && pRagdoll->IsValid() );
-        KRG_ASSERT( pRagdoll->m_pArticulation->getScene() != nullptr );
-
-        AcquireWriteLock();
-        m_pScene->removeArticulation( *pRagdoll->m_pArticulation );
-        ReleaseWriteLock();
     }
 
     //------------------------------------------------------------------------- 
@@ -554,17 +536,18 @@ namespace KRG::Physics
     void PhysicsWorldSystem::SetDebugFlags( uint32 debugFlags )
     {
         KRG_ASSERT( m_pScene != nullptr );
+        PxScene* pPxScene = m_pScene->m_pScene;
         m_sceneDebugFlags = debugFlags;
 
         //-------------------------------------------------------------------------
 
-        auto SetVisualizationParameter = [this] ( PxVisualizationParameter::Enum flag, float onValue, float offValue )
+        auto SetVisualizationParameter = [this, pPxScene] ( PxVisualizationParameter::Enum flag, float onValue, float offValue )
         {
             bool const isFlagSet = ( m_sceneDebugFlags & ( 1 << flag ) ) != 0;
-            m_pScene->setVisualizationParameter( flag, isFlagSet ? onValue : offValue );
+            pPxScene->setVisualizationParameter( flag, isFlagSet ? onValue : offValue );
         };
 
-        AcquireWriteLock();
+        m_pScene->AcquireWriteLock();
         SetVisualizationParameter( PxVisualizationParameter::eSCALE, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_AABBS, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f, 0.0f );
@@ -581,14 +564,15 @@ namespace KRG::Physics
         SetVisualizationParameter( PxVisualizationParameter::eBODY_MASS_AXES, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LIMITS, 1.0f, 0.0f );
         SetVisualizationParameter( PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f, 0.0f );
-        ReleaseWriteLock();
+        m_pScene->ReleaseWriteLock();
     }
 
     void PhysicsWorldSystem::SetDebugCullingBox( AABB const& cullingBox )
     {
-        AcquireWriteLock();
-        m_pScene->setVisualizationCullingBox( ToPx( cullingBox ) );
-        ReleaseWriteLock();
+        PxScene* pPxScene = m_pScene->m_pScene;
+        m_pScene->AcquireWriteLock();
+        pPxScene->setVisualizationCullingBox( ToPx( cullingBox ) );
+        m_pScene->ReleaseWriteLock();
     }
     #endif
 }

@@ -1,14 +1,14 @@
 #include "PlayerPhysicsController.h"
-#include "Engine/Physics/Systems/WorldSystem_Physics.h"
+#include "Engine/Physics/PhysicsScene.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Core/Math/MathHelpers.h"
 
 //------------------------------------------------------------------------- 
 
 namespace KRG::Player
 {
-    bool CharacterPhysicsController::TryMoveCapsule( EntityUpdateContext const& ctx, Physics::PhysicsWorldSystem* pPhysicsWorld, Vector const& deltaTranslation, Quaternion const& deltaRotation )
+    bool CharacterPhysicsController::TryMoveCapsule( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, Vector const& deltaTranslation, Quaternion const& deltaRotation )
     {
         // Be careful that deltaTransform only rotate the Z axis !
         Vector const StepHeightOffset = Vector( 0.0f, 0.0f, 0.5f * m_settings.m_stepHeight );
@@ -25,7 +25,7 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        pPhysicsWorld->AcquireReadLock();
+        pPhysicsScene->AcquireReadLock();
 
         Vector deltaMovement = deltaTranslation;
         if( m_isOnGround && m_ProjectOntoFloor )
@@ -36,7 +36,7 @@ namespace KRG::Player
 
         // Move horizontally
         int32 moveRecursion = 0;
-        auto moveResult = SweepCylinder( pPhysicsWorld, CylinderHalfHeight, capsuleRadius, capsuleWorldTransform.GetTranslation(), deltaMovement, moveRecursion );
+        auto moveResult = SweepCylinder( pPhysicsScene, CylinderHalfHeight, capsuleRadius, capsuleWorldTransform.GetTranslation(), deltaMovement, moveRecursion );
 
         // Update gravity if needed
         Vector verticalAjustement;
@@ -53,7 +53,7 @@ namespace KRG::Player
 
         // Move vertically
         int32 verticalMoveRecursion = 0;
-        auto const  verticalMoveResult = SweepCylinderVertical( pPhysicsWorld, CylinderHalfHeight, capsuleRadius, moveResult.GetFinalPosition(), verticalAjustement, stepHeightOffset, verticalMoveRecursion );
+        auto const  verticalMoveResult = SweepCylinderVertical( pPhysicsScene, CylinderHalfHeight, capsuleRadius, moveResult.GetFinalPosition(), verticalAjustement, stepHeightOffset, verticalMoveRecursion );
 
         // Collided with a floor
         if( verticalMoveResult.GetSweepResults().hasBlock )
@@ -87,11 +87,11 @@ namespace KRG::Player
         if( m_isOnGround )
         {
             // Adjust the position to the capsule collision with the floor, required for not floating on slope
-            MoveResult const capsuleMoveResult = AdjustCapsuleToGround( pPhysicsWorld, m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), m_pCharacterComponent->GetCapsuleRadius(), finalCapsuleWorldTransform, m_settings.m_stepHeight );
+            MoveResult const capsuleMoveResult = AdjustCapsuleToGround( pPhysicsScene, m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), m_pCharacterComponent->GetCapsuleRadius(), finalCapsuleWorldTransform, m_settings.m_stepHeight );
             finalCapsuleWorldTransform.SetTranslation( capsuleMoveResult.GetFinalPosition() );
         }
 
-        pPhysicsWorld->ReleaseReadLock();
+        pPhysicsScene->ReleaseReadLock();
 
         auto characterWorldTransform = m_pCharacterComponent->CalculateWorldTransformFromCapsuleTransform( finalCapsuleWorldTransform );
         characterWorldTransform.SetRotation( deltaRotation * characterWorldTransform.GetRotation() );
@@ -101,7 +101,7 @@ namespace KRG::Player
         return true;
     }
 
-    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinder( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& idx )
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinder( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& idx )
     {
         MoveResult moveResult( startPosition );
         idx++;
@@ -136,7 +136,7 @@ namespace KRG::Player
         }
 
         Physics::SweepResults sweepResults;
-        if ( pPhysicsSystem->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        if ( pPhysicsScene->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
             if ( sweepResults.hasBlock &&sweepResults.block.hadInitialOverlap() )
             {
@@ -149,7 +149,7 @@ namespace KRG::Player
                 float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
                 Vector const correctedStartPosition = startPosition + ( normal * penetrationDistance );
 
-                auto const depenetratedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, idx );
+                auto const depenetratedResult = SweepCylinder( pPhysicsScene, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, idx );
                 moveResult.ApplyCorrectiveMove( depenetratedResult );
             }
             else
@@ -199,7 +199,7 @@ namespace KRG::Player
                             newDeltaMovement.m_y *= ratio;
                         }
 
-                        auto const reprojectedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
+                        auto const reprojectedResult = SweepCylinder( pPhysicsScene, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
                         moveResult.ApplySubsequentMove( reprojectedResult );
                     }
                     // collision with a wall / unnavigable slope
@@ -226,7 +226,7 @@ namespace KRG::Player
                                 newDeltaMovement.m_y *= ratio;
                             }
 
-                            auto const reprojectedResult = SweepCylinder( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
+                            auto const reprojectedResult = SweepCylinder( pPhysicsScene, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, idx );
                             moveResult.ApplySubsequentMove( reprojectedResult );
                         }
                         else
@@ -245,7 +245,7 @@ namespace KRG::Player
         return moveResult;
     }
 
-    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinderVertical( Physics::PhysicsWorldSystem* pPhysicsSystem, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& idx )
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::SweepCylinderVertical( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& idx )
     {
         MoveResult moveResult( startPosition );
 
@@ -273,7 +273,7 @@ namespace KRG::Player
         }
 
         Physics::SweepResults sweepResults;
-        if( pPhysicsSystem->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
+        if( pPhysicsScene->CylinderSweep( cylinderHalfHeight, cylinderRadius, m_pCharacterComponent->GetCapsuleOrientation(), startPosition, moveDirection, distance, filter, sweepResults ) )
         {
             if( sweepResults.hasBlock && sweepResults.block.hadInitialOverlap() )
             {
@@ -289,7 +289,7 @@ namespace KRG::Player
                 float const penetrationDistance = Math::Abs( sweepResults.block.distance ) + Math::HugeEpsilon;
                 Vector const correctedStartPosition = startPosition + ( normal * penetrationDistance );
 
-                auto const depenetratedResult = SweepCylinderVertical( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, stepHeightOffset, idx );
+                auto const depenetratedResult = SweepCylinderVertical( pPhysicsScene, cylinderHalfHeight, cylinderRadius, correctedStartPosition, deltaTranslation, stepHeightOffset, idx );
                 moveResult.ApplyCorrectiveMove( depenetratedResult );
             }
             else
@@ -315,7 +315,7 @@ namespace KRG::Player
                     Vector const newDeltaMovement = unitProjection * remainingDistance;
                     KRG_ASSERT( !deltaTranslation.IsEqual3( newDeltaMovement ) );
 
-                    auto const reprojectedResult = SweepCylinderVertical( pPhysicsSystem, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, Vector::Zero, idx );
+                    auto const reprojectedResult = SweepCylinderVertical( pPhysicsScene, cylinderHalfHeight, cylinderRadius, collisionPosition, newDeltaMovement, Vector::Zero, idx );
                     moveResult.ApplySubsequentMove( reprojectedResult, stepHeightOffset );
                 }
                 else
@@ -332,7 +332,7 @@ namespace KRG::Player
         return moveResult;
     }
 
-    CharacterPhysicsController::MoveResult CharacterPhysicsController::AdjustCapsuleToGround( Physics::PhysicsWorldSystem* pPhysicsSystem, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance )
+    CharacterPhysicsController::MoveResult CharacterPhysicsController::AdjustCapsuleToGround( Physics::Scene* pPhysicsScene, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance )
     {
         MoveResult moveResult( transform.GetTranslation() );
 
@@ -345,7 +345,7 @@ namespace KRG::Player
         }
 
         Physics::SweepResults sweepResults;
-        pPhysicsSystem->CapsuleSweep( capsuleCylinderPortionHalfHeight, capsuleRadius - 0.01f, transform.GetRotation(), transform.GetTranslation(), -Vector::UnitZ, distance, filter, sweepResults );
+        pPhysicsScene->CapsuleSweep( capsuleCylinderPortionHalfHeight, capsuleRadius - 0.01f, transform.GetRotation(), transform.GetTranslation(), -Vector::UnitZ, distance, filter, sweepResults );
         KRG_ASSERT( sweepResults.hasBlock ? !sweepResults.block.hadInitialOverlap() : true );
 
         moveResult.FinalisePosition( sweepResults );

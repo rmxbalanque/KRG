@@ -33,7 +33,7 @@ namespace KRG::AI
 
         virtual void RegisterComponent( EntityComponent* pComponent ) override;
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;
-        virtual void Update( EntityUpdateContext const& ctx ) override;
+        virtual void Update( EntityWorldUpdateContext const& ctx ) override;
 
     private:
 

@@ -23,8 +23,8 @@ namespace KRG::Animation
 
         virtual Skeleton const* GetSkeleton() const override;
         virtual Pose const* GetPose() const override { return m_pPose; }
-        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
-        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
+        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override;
+        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override;
 
         // Get the graph variation ID
         inline ResourceID const& GetGraphVariationID() const { return m_pGraphVariation.GetResourceID(); }
@@ -36,17 +36,17 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         template<typename ParameterType>
-        void SetControlParameterValue( NodeIndex parameterIdx, ParameterType const& value )
+        void SetControlParameterValue( GraphNodeIndex parameterIdx, ParameterType const& value )
         {
             m_pGraphInstance->SetControlParameterValue( m_graphContext, parameterIdx, value );
         }
 
-        KRG_FORCE_INLINE NodeIndex GetControlParameterIndex( StringID parameterID ) const
+        KRG_FORCE_INLINE GraphNodeIndex GetControlParameterIndex( StringID parameterID ) const
         {
             return m_pGraphInstance->GetControlParameterIndex( parameterID );
         }
 
-        KRG_FORCE_INLINE ValueType GetControlParameterValueType( NodeIndex parameterIdx ) const
+        KRG_FORCE_INLINE GraphValueType GetControlParameterValueType( GraphNodeIndex parameterIdx ) const
         {
             return m_pGraphInstance->GetControlParameterType( parameterIdx );
         }
@@ -56,16 +56,16 @@ namespace KRG::Animation
 
         #if KRG_DEVELOPMENT_TOOLS
 
-        inline bool IsNodeActive( NodeIndex nodeIdx ) const
+        inline bool IsNodeActive( GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( m_pGraphInstance != nullptr );
-            return m_pGraphInstance->IsNodeActive( const_cast<Graph::GraphContext&>( m_graphContext ), nodeIdx );
+            return m_pGraphInstance->IsNodeActive( const_cast<GraphContext&>( m_graphContext ), nodeIdx );
         }
 
-        inline PoseNodeDebugInfo GetPoseNodeDebugInfo( NodeIndex nodeIdx ) const
+        inline PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( m_pGraphInstance != nullptr );
-            return m_pGraphInstance->GetPoseNodeDebugInfo( const_cast<Graph::GraphContext&>( m_graphContext ), nodeIdx );
+            return m_pGraphInstance->GetPoseNodeDebugInfo( const_cast<GraphContext&>( m_graphContext ), nodeIdx );
         }
         #endif
 
@@ -76,11 +76,11 @@ namespace KRG::Animation
 
     private:
 
-        KRG_EXPOSE TResourcePtr<AnimationGraphVariation>        m_pGraphVariation = nullptr;
+        KRG_EXPOSE TResourcePtr<GraphVariation>                 m_pGraphVariation = nullptr;
 
-        Graph::GraphInstance*                                   m_pGraphInstance = nullptr;
-        Graph::TaskSystem*                                      m_pTaskSystem = nullptr;
-        Graph::GraphContext                                     m_graphContext;
+        GraphInstance*                                          m_pGraphInstance = nullptr;
+        TaskSystem*                                             m_pTaskSystem = nullptr;
+        GraphContext                                            m_graphContext;
         Pose*                                                   m_pPose = nullptr;
     };
 }

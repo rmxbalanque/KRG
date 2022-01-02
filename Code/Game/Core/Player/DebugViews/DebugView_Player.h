@@ -27,14 +27,14 @@ namespace KRG::Player
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawMenu( EntityUpdateContext const& context );
-        void DrawActionDebuggerWindow( EntityUpdateContext const& context, PlayerController const* pController );
-        void DrawPhysicsStateDebuggerWindow( EntityUpdateContext const& context, PlayerController const* pController );
+        void DrawMenu( EntityWorldUpdateContext const& context );
+        void DrawActionDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pController );
+        void DrawPhysicsStateDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pController );
 
         // HACK since we dont have a UI system yet
-        virtual void DrawOverlayElements( EntityUpdateContext const& context ) override;
+        virtual void DrawOverlayElements( EntityWorldUpdateContext const& context ) override;
 
     private:
 

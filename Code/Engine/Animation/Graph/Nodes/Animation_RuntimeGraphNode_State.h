@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API StateNode final : public PassthroughNode
     {
@@ -44,7 +44,7 @@ namespace KRG::Animation::Graph
 
         public:
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
         public:
 
@@ -53,15 +53,15 @@ namespace KRG::Animation::Graph
             TInlineVector<StringID, 3>                  m_exitEvents;
             TInlineVector<TimedEvent, 1>                m_timedRemainingEvents;
             TInlineVector<TimedEvent, 1>                m_timedElapsedEvents;
-            NodeIndex                                   m_layerBoneMaskNodeIdx = InvalidIndex;
-            NodeIndex                                   m_layerWeightNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_layerBoneMaskNodeIdx = InvalidIndex;
+            GraphNodeIndex                                   m_layerWeightNodeIdx = InvalidIndex;
             bool                                        m_isOffState = false;
         };
 
     public:
 
-        virtual PoseNodeResult Update( GraphContext& context ) override;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override;
         virtual void DeactivateBranch( GraphContext& context ) override;
 
         // State info

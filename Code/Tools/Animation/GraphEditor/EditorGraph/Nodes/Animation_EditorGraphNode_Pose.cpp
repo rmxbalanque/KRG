@@ -4,15 +4,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void ZeroPoseEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Pose", ValueType::Pose );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
     }
 
-    NodeIndex ZeroPoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ZeroPoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ZeroPoseNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<ZeroPoseNode>( this, pSettings );
@@ -24,10 +24,10 @@ namespace KRG::Animation::Graph
     void ReferencePoseEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Pose", ValueType::Pose );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
     }
 
-    NodeIndex ReferencePoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ReferencePoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ReferencePoseNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<ReferencePoseNode>( this, pSettings );
@@ -39,11 +39,11 @@ namespace KRG::Animation::Graph
     void AnimationPoseEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Pose", ValueType::Pose );
-        CreateInputPin( "Time", ValueType::Float );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
+        CreateInputPin( "Time", GraphValueType::Float );
     }
 
-    NodeIndex AnimationPoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex AnimationPoseEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         AnimationPoseNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<AnimationPoseNode>( this, pSettings );

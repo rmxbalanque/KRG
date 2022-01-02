@@ -3,9 +3,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void IsTargetSetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void IsTargetSetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<IsTargetSetNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );
@@ -42,7 +42,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void TargetInfoNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void TargetInfoNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<TargetInfoNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pTargetNode );
@@ -186,7 +186,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void TargetOffsetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void TargetOffsetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<TargetOffsetNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_inputValueNodeIdx, pNode->m_pInputValueNode );

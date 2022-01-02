@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void BoneMaskNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void BoneMaskNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskNode>( nodePtrs, options );
     }
@@ -32,7 +32,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void BoneMaskBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskBlendNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_sourceMaskNodeIdx, pNode->m_pSourceBoneMask );
@@ -95,11 +95,11 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void BoneMaskSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void BoneMaskSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<BoneMaskSelectorNode>( nodePtrs, options );
 
-        for ( NodeIndex const maskNodeIdx : m_maskNodeIndices )
+        for ( GraphNodeIndex const maskNodeIdx : m_maskNodeIndices )
         {
             SetNodePtrFromIndex( nodePtrs, maskNodeIdx, pNode->m_boneMaskOptionNodes.emplace_back() );
         }

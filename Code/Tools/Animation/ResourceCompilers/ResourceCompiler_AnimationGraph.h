@@ -7,17 +7,14 @@
 
 namespace KRG::Animation
 {
-    namespace Graph
-    {
-        class AnimationGraphEditorDefinition; 
-        class EditorGraphCompilationContext;
-    }
+    class EditorGraphDefinition;
+    class EditorGraphCompilationContext;
 
     //-------------------------------------------------------------------------
 
     class AnimationGraphCompiler final : public Resource::Compiler
     {
-        static const int32 s_version = 0;
+        static const int32 s_version = 2;
 
     public:
 
@@ -28,6 +25,6 @@ namespace KRG::Animation
 
         Resource::CompilationResult CompileDefinition( Resource::CompileContext const& ctx ) const;
         Resource::CompilationResult CompileVariation( Resource::CompileContext const& ctx ) const;
-        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, Graph::AnimationGraphEditorDefinition const& toolsGraph, Graph::EditorGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const;
+        bool GenerateVirtualDataSetResource( Resource::CompileContext const& ctx, EditorGraphDefinition const& editorGraph, EditorGraphCompilationContext const& compilationContext, StringID const& variationID, ResourcePath const& dataSetPath ) const;
     };
 }

@@ -770,7 +770,7 @@ namespace KRG::Render
         return true;
     }
 
-    void DebugTextFontAtlas::GetGlyphsForString( uint32 fontIdx, InlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const
+    void DebugTextFontAtlas::GetGlyphsForString( uint32 fontIdx, TInlineString<24> const& str, TInlineVector<int32, 100>& outGlyphIndices ) const
     {
         KRG_ASSERT( fontIdx < m_fonts.size() );
         auto const& fontInfo = m_fonts[fontIdx];

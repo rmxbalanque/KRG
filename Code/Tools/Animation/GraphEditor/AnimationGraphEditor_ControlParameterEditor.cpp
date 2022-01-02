@@ -3,9 +3,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    GraphControlParameterEditor::GraphControlParameterEditor( AnimationGraphEditorDefinition* pGraphDefinition )
+    GraphControlParameterEditor::GraphControlParameterEditor( EditorGraphDefinition* pGraphDefinition )
         : m_pGraphDefinition( pGraphDefinition )
     {}
 
@@ -118,69 +118,69 @@ namespace KRG::Animation::Graph
         {
             if ( ImGui::MenuItem( "Control Parameter - Bool" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::Bool );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - ID" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::ID );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Int" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::Int );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Float" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::Float );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Vector" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::Vector );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Control Parameter - Target" ) )
             {
-                m_pGraphDefinition->CreateControlParameter( ValueType::Target );
+                m_pGraphDefinition->CreateControlParameter( GraphValueType::Target );
             }
 
             ImGui::Separator();
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bool" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::Bool );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::Bool );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - ID" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::ID );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::ID );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Int" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::Int );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::Int );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Float" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::Float );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::Float );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Vector" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::Vector );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::Vector );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Target" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::Target );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::Target );
             }
 
             if ( ImGui::MenuItem( "Virtual Parameter - Bone Mask" ) )
             {
-                m_pGraphDefinition->CreateVirtualParameter( ValueType::BoneMask );
+                m_pGraphDefinition->CreateVirtualParameter( GraphValueType::BoneMask );
             }
 
             ImGui::EndPopup();

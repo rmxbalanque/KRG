@@ -6,9 +6,9 @@ namespace KRG { class UpdateContext; }
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    class AnimationGraphEditorDefinition;
+    class EditorGraphDefinition;
     struct DebugContext;
 
     //-------------------------------------------------------------------------
@@ -24,7 +24,7 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphControlParameterEditor( AnimationGraphEditorDefinition* pGraphDefinition );
+        GraphControlParameterEditor( EditorGraphDefinition* pGraphDefinition );
 
         void UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName );
 
@@ -38,7 +38,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        AnimationGraphEditorDefinition*      m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*      m_pGraphDefinition = nullptr;
         UUID                                m_currentOperationParameterID;
         char                                m_buffer[255];
         OperationType                       m_activeOperation;

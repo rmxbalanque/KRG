@@ -2,7 +2,7 @@
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/Components/Component_Navmesh.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Profiling/Profiling.h"
 
@@ -120,7 +120,7 @@ namespace KRG::Navmesh
 
     //-------------------------------------------------------------------------
 
-    void NavmeshWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
+    void NavmeshWorldSystem::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
         {
             KRG_PROFILE_SCOPE_NAVIGATION( "Navmesh Simulate" );

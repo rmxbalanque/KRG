@@ -5,7 +5,7 @@
 #include "Engine/Core/Entity/EntitySystem.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -14,10 +14,10 @@ namespace KRG
 {
     EntityDebugView::EntityDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "World", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "World", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
-    void EntityDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void EntityDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( m_pWorld != nullptr );
 
@@ -34,7 +34,7 @@ namespace KRG
         }
     }
 
-    void EntityDebugView::DrawMenu( EntityUpdateContext const& context )
+    void EntityDebugView::DrawMenu( EntityWorldUpdateContext const& context )
     {
         if ( ImGui::MenuItem( "Show World Browser" ) )
         {
@@ -51,12 +51,12 @@ namespace KRG
     // Map Loader
     //-------------------------------------------------------------------------
 
-    void EntityDebugView::DrawMapLoader( EntityUpdateContext const& context )
+    void EntityDebugView::DrawMapLoader( EntityWorldUpdateContext const& context )
     {
         ImGui::SetNextWindowBgAlpha( 0.75f );
         if ( ImGui::Begin( "Map Loader", &m_isMapLoaderOpen ) )
         {
-            InlineString<100> tempStr;
+            TInlineString<100> tempStr;
 
             TPair<String, ResourceID> maps[] =
             {
@@ -169,7 +169,7 @@ namespace KRG
         }
     }
 
-    void EntityDebugView::DrawWorldBrowser( EntityUpdateContext const& context )
+    void EntityDebugView::DrawWorldBrowser( EntityWorldUpdateContext const& context )
     {
         KRG_ASSERT( m_isWorldBrowserOpen );
 

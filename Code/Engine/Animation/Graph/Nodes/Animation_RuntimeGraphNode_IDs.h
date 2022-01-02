@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API IDComparisonNode final : public BoolValueNode
     {
@@ -21,9 +21,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_inputValueNodeIdx, m_comparison, m_comparisionIDs );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                               m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                               m_inputValueNodeIdx = InvalidIndex;
             Comparison                              m_comparison = Comparison::Matches;
             TInlineVector<StringID, 4>              m_comparisionIDs;
         };
@@ -51,9 +51,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_inputValueNodeIdx, m_defaultValue, m_IDs, m_values );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
             float                       m_defaultValue = 0.0f;
             TInlineVector<StringID, 5>  m_IDs;
             TInlineVector<float, 5>     m_values;

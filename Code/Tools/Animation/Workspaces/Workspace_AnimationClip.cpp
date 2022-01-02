@@ -89,7 +89,7 @@ namespace KRG::Animation
             {
                 // Create a preview mesh component
                 m_pMeshComponent = KRG::New<Render::SkeletalMeshComponent>( StringID( "Mesh Component" ) );
-                m_pMeshComponent->SetSkeleton( m_pResource->GetSkeleton()->GetResourceID() );
+                m_pMeshComponent->SetSkeleton( pAnimClipDescriptor->m_pSkeleton.GetResourceID() );
                 if ( resourceDesc.m_previewMesh.IsValid() )
                 {
                     m_pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
@@ -122,12 +122,14 @@ namespace KRG::Animation
         TResourceWorkspace<AnimationClip>::BeginHotReload( usersToBeReloaded, resourcesToBeReloaded );
 
         // If someone messed with this resource outside of this editor - destroy the event editor!
-        if ( VectorContains( resourcesToBeReloaded, m_descriptorID ) )
+        if ( m_pDescriptor == nullptr )
         {
             if ( m_pEventEditor != nullptr )
             {
                 KRG::Delete( m_pEventEditor );
             }
+
+            m_propertyGrid.SetTypeToEdit( nullptr );
         }
 
         if ( IsHotReloading() )

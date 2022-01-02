@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     VariationHierarchy::VariationHierarchy()
     {
@@ -16,7 +16,7 @@ namespace KRG::Animation::Graph
         m_variations.clear();
 
         auto& defaultVariation = m_variations.emplace_back();
-        defaultVariation.m_ID = AnimationGraphVariation::DefaultVariationID;
+        defaultVariation.m_ID = GraphVariation::DefaultVariationID;
     }
 
     Variation* VariationHierarchy::GetVariation( StringID variationID )
@@ -40,7 +40,7 @@ namespace KRG::Animation::Graph
         StringID const parentID = m_variations[variationIdx].m_parentID;
         if ( !parentID.IsValid() )
         {
-            KRG_ASSERT( variationID == AnimationGraphVariation::DefaultVariationID );
+            KRG_ASSERT( variationID == GraphVariation::DefaultVariationID );
         }
 
         return parentID;
@@ -78,7 +78,7 @@ namespace KRG::Animation::Graph
     void VariationHierarchy::RenameVariation( StringID oldVariationID, StringID newVariationID )
     {
         KRG_ASSERT( oldVariationID.IsValid() && newVariationID.IsValid() );
-        KRG_ASSERT( oldVariationID != AnimationGraphVariation::DefaultVariationID && newVariationID != AnimationGraphVariation::DefaultVariationID );
+        KRG_ASSERT( oldVariationID != GraphVariation::DefaultVariationID && newVariationID != GraphVariation::DefaultVariationID );
         KRG_ASSERT( IsValidVariation( oldVariationID ) );
         KRG_ASSERT( !IsValidVariation( newVariationID ) );
 
@@ -100,7 +100,7 @@ namespace KRG::Animation::Graph
 
     void VariationHierarchy::DestroyVariation( StringID variationID )
     {
-        KRG_ASSERT( variationID != AnimationGraphVariation::DefaultVariationID );
+        KRG_ASSERT( variationID != GraphVariation::DefaultVariationID );
 
         // Delete the specified variation
         int32 const variationIdx = GetVariationIndex( variationID );
@@ -113,7 +113,7 @@ namespace KRG::Animation::Graph
             bool variationRemoved = false;
             for ( int32 i = (int32) m_variations.size() - 1; i >= 0; i-- )
             {
-                if ( m_variations[i].m_ID == AnimationGraphVariation::DefaultVariationID )
+                if ( m_variations[i].m_ID == GraphVariation::DefaultVariationID )
                 {
                     continue;
                 }

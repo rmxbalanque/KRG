@@ -3,15 +3,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void StateCompletedConditionEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
     }
 
-    NodeIndex StateCompletedConditionEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex StateCompletedConditionEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         StateCompletedConditionNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<StateCompletedConditionNode>( this, pSettings );
@@ -35,11 +35,11 @@ namespace KRG::Animation::Graph
     void TimeConditionEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateOutputPin( "Time Value (optional)", ValueType::Float, true );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateOutputPin( "Time Value (optional)", GraphValueType::Float, true );
     }
 
-    NodeIndex TimeConditionEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex TimeConditionEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         TimeConditionNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<TimeConditionNode>( this, pSettings );
@@ -48,7 +48,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;

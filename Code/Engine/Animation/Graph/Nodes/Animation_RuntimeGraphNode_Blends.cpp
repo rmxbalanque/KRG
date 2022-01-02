@@ -1,10 +1,10 @@
 #include "Animation_RuntimeGraphNode_Blends.h"
 #include "Engine/Animation/AnimationClip.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_Blend.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_Blend.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     // Creates a parameterization for a given set of values (each value corresponds to an input node and are initially ordered as such)
     ParameterizedBlendNode::Parameterization ParameterizedBlendNode::Parameterization::CreateParameterization( TInlineVector<float, 5> values )
@@ -64,7 +64,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ParameterizedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ParameterizedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         KRG_ASSERT( options == GraphNode::Settings::InitOptions::OnlySetPointers );
         auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
@@ -210,11 +210,11 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult ParameterizedBlendNode::Update( GraphContext& context )
+    GraphPoseNodeResult ParameterizedBlendNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         if ( !IsValid() )
         {
@@ -261,13 +261,17 @@ namespace KRG::Animation::Graph
             }
             else
             {
+                // Update Source 0
+                GraphPoseNodeResult const sourceResult0 = pSource0->Update( context );
                 #if KRG_DEVELOPMENT_TOOLS
-                context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
+                int16 const rootMotionActionIdxSource0 = context.GetRootMotionActionRecorder()->GetLastActionIndex();
                 #endif
 
-                // Update source nodes
-                PoseNodeResult const sourceResult0 = pSource0->Update( context );
-                PoseNodeResult const sourceResult1 = pSource1->Update( context );
+                // Update Source 1
+                GraphPoseNodeResult const sourceResult1 = pSource1->Update( context );
+                #if KRG_DEVELOPMENT_TOOLS
+                int16 const rootMotionActionIdxSource1 = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+                #endif
 
                 // Update internal time
                 m_duration = Math::Lerp( pSource0->GetDuration(), pSource1->GetDuration(), m_blendWeight );
@@ -278,20 +282,16 @@ namespace KRG::Animation::Graph
                 // Do we need to blend between the two nodes?
                 if ( sourceResult0.HasRegisteredTasks() && sourceResult1.HasRegisteredTasks() )
                 {
-                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
+                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
                     result.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult0.m_rootMotionDelta, sourceResult1.m_rootMotionDelta, m_blendWeight);
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), result.m_rootMotionDelta );
+                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), rootMotionActionIdxSource0, rootMotionActionIdxSource1, result.m_rootMotionDelta );
                     #endif
                 }
                 else // Keep the result that has a pose
                 {
                     result = ( sourceResult0.HasRegisteredTasks() ) ? sourceResult0 : sourceResult1;
-
-                    #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->PopBlendHierarchyLevel();
-                    #endif
                 }
             }
 
@@ -320,7 +320,7 @@ namespace KRG::Animation::Graph
                 if ( pSourceNode != pSource0 && pSourceNode != pSource1 )
                 {
                     auto const taskMarker = context.m_pTaskSystem->GetCurrentTaskIndexMarker();
-                    PoseNodeResult const updateResult = static_cast<PoseNode*>( pSourceNode )->Update( context );
+                    GraphPoseNodeResult const updateResult = static_cast<PoseNode*>( pSourceNode )->Update( context );
                     context.m_sampledEvents.UpdateWeights( updateResult.m_sampledEventRange, 0.0f );
                     context.m_pTaskSystem->RollbackToTaskIndexMarker( taskMarker );
                 }
@@ -330,11 +330,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult ParameterizedBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult ParameterizedBlendNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         if ( IsValid() )
         {
@@ -362,28 +362,30 @@ namespace KRG::Animation::Graph
             }
             else // We need to update both sources
             {
+                // Update Source 0
+                GraphPoseNodeResult const sourceResult0 = pSource0->Update( context, updateRange );
                 #if KRG_DEVELOPMENT_TOOLS
-                context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
+                int16 const rootMotionActionIdxSource0 = context.GetRootMotionActionRecorder()->GetLastActionIndex();
                 #endif
 
-                PoseNodeResult const sourceResult0 = pSource0->Update( context, updateRange );
-                PoseNodeResult const sourceResult1 = pSource1->Update( context, updateRange );
+                // Update Source 1
+                GraphPoseNodeResult const sourceResult1 = pSource1->Update( context, updateRange );
+                #if KRG_DEVELOPMENT_TOOLS
+                int16 const rootMotionActionIdxSource1 = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+                #endif
+
                 if ( sourceResult0.HasRegisteredTasks() && sourceResult1.HasRegisteredTasks() )
                 {
-                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
+                    result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult0.m_taskIdx, sourceResult1.m_taskIdx, m_blendWeight );
                     result.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult0.m_rootMotionDelta, sourceResult1.m_rootMotionDelta, m_blendWeight );
 
                     #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), result.m_rootMotionDelta );
+                    context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), rootMotionActionIdxSource0, rootMotionActionIdxSource1, result.m_rootMotionDelta );
                     #endif
                 }
                 else
                 {
                     result = ( sourceResult0.HasRegisteredTasks() ) ? sourceResult0 : sourceResult1;
-
-                    #if KRG_DEVELOPMENT_TOOLS
-                    context.GetRootMotionActionRecorder()->PopBlendHierarchyLevel();
-                    #endif
                 }
 
                 result.m_sampledEventRange = CombineAndUpdateEvents( context.m_sampledEvents, sourceResult0.m_sampledEventRange, sourceResult1.m_sampledEventRange, m_blendWeight );
@@ -403,7 +405,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void RangedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void RangedBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<RangedBlendNode>( nodePtrs, options );
         ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
@@ -411,7 +413,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void VelocityBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void VelocityBlendNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<VelocityBlendNode>( nodePtrs, options );
         ParameterizedBlendNode::Settings::InstantiateNode( nodePtrs, pDataSet, GraphNode::Settings::InitOptions::OnlySetPointers );
@@ -428,7 +430,7 @@ namespace KRG::Animation::Graph
 
             TInlineVector<float, 5> values;
             int32 const numSources = (int32) pSettings->m_sourceNodeIndices.size();
-            for ( NodeIndex i = 0; i < numSources; i++ )
+            for ( GraphNodeIndex i = 0; i < numSources; i++ )
             {
                 AnimationClip const* pAnimation = static_cast<AnimationClipReferenceNode const*>( m_sourceNodes[i] )->GetAnimation();
                 KRG_ASSERT( pAnimation != nullptr );

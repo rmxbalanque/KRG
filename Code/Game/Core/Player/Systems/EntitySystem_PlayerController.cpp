@@ -11,7 +11,6 @@
 #include "System/Input/InputSystem.h"
 #include "System/Core/Types/ScopedValue.h"
 
-
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
@@ -129,11 +128,11 @@ namespace KRG::Player
 
     //-------------------------------------------------------------------------
 
-    void PlayerController::Update( EntityUpdateContext const& ctx )
+    void PlayerController::Update( EntityWorldUpdateContext const& ctx )
     {
-        TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityUpdateContext, &ctx );
+        TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityWorldUpdateContext, &ctx );
         TScopedGuardValue const inputSystemGuardValue( m_actionContext.m_pInputSystem, ctx.GetSystem<Input::InputSystem>() );
-        TScopedGuardValue const physicsSystemGuard( m_actionContext.m_pPhysicsWorld, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>() );
+        TScopedGuardValue const physicsSystemGuard( m_actionContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
 
         if ( !m_actionContext.IsValid() )
         {
@@ -152,19 +151,19 @@ namespace KRG::Player
             m_actionStateMachine.Update();
 
             // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
-            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
+            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_actionContext.m_pPhysicsScene );
             Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
-            m_actionContext.m_pCharacterController->TryMoveCapsule( ctx, m_actionContext.m_pPhysicsWorld, deltaTranslation, deltaRotation );
+            m_actionContext.m_pCharacterController->TryMoveCapsule( ctx, m_actionContext.m_pPhysicsScene, deltaTranslation, deltaRotation );
 
             // Update camera position relative to new character position
             m_actionContext.m_pCameraController->FinalizeCamera();
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform() );
+            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_actionContext.m_pPhysicsScene );
         }
         else
         {

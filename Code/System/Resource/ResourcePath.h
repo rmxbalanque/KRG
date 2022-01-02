@@ -91,7 +91,7 @@ namespace KRG
         inline void ReplaceExtension( String const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Replaces the extension for this path. Supplied extension must not start with '.'
-        template<size_t S> void ReplaceExtension( InlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
+        template<size_t S> void ReplaceExtension( TInlineString<S> const& extension ) { ReplaceExtension( extension.c_str() ); }
 
         // Conversion
         //-------------------------------------------------------------------------

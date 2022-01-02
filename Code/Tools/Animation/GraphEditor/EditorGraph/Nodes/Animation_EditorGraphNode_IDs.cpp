@@ -3,16 +3,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void IDComparisonEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Bool, true );
-        CreateInputPin( "ID", ValueType::ID );
+        CreateOutputPin( "Result", GraphValueType::Bool, true );
+        CreateInputPin( "ID", GraphValueType::ID );
     }
 
-    NodeIndex IDComparisonEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex IDComparisonEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         IDComparisonNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<IDComparisonNode>( this, pSettings );
@@ -21,7 +21,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;
@@ -48,7 +48,7 @@ namespace KRG::Animation::Graph
 
     void IDComparisonEditorNode::DrawInfoText( VisualGraph::DrawContext const& ctx )
     {
-        InlineString<255> infoText;
+        InlineString infoText;
 
         if ( m_comparison == IDComparisonNode::Comparison::Matches )
         {
@@ -84,11 +84,11 @@ namespace KRG::Animation::Graph
     void IDToFloatEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Float, true );
-        CreateInputPin( "ID", ValueType::ID );
+        CreateOutputPin( "Result", GraphValueType::Float, true );
+        CreateInputPin( "ID", GraphValueType::ID );
     }
 
-    NodeIndex IDToFloatEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex IDToFloatEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         IDToFloatNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<IDToFloatNode>( this, pSettings );
@@ -97,7 +97,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_inputValueNodeIdx = compiledNodeIdx;

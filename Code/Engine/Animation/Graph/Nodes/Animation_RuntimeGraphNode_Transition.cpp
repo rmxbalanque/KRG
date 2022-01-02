@@ -1,14 +1,14 @@
 #include "Animation_RuntimeGraphNode_Transition.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_CachedPose.h"
-#include "Engine/Animation/Graph/Tasks/Animation_RuntimeGraphTask_Blend.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_CachedPose.h"
+#include "Engine/Animation/TaskSystem/Tasks/Animation_Task_Blend.h"
 #include "Engine/Animation/AnimationBlender.h"
 #include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void TransitionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void TransitionNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<TransitionNode>( nodePtrs, options );
         SetNodePtrFromIndex( nodePtrs, m_targetStateNodeIdx, pNode->m_pTargetNode );
@@ -16,7 +16,7 @@ namespace KRG::Animation::Graph
         SetOptionalNodePtrFromIndex( nodePtrs, m_syncEventOffsetOverrideNodeIdx, pNode->m_pEventOffsetOverrideNode );
     }
 
-    PoseNodeResult TransitionNode::StartTransitionFromState( GraphContext& context, InitializationOptions const& options, StateNode* pSourceState )
+    GraphPoseNodeResult TransitionNode::StartTransitionFromState( GraphContext& context, InitializationOptions const& options, StateNode* pSourceState )
     {
         KRG_ASSERT( pSourceState != nullptr && m_pSourceNode == nullptr && !IsInitialized() );
 
@@ -28,7 +28,7 @@ namespace KRG::Animation::Graph
         return InitializeTargetStateAndUpdateTransition( context, options );
     }
 
-    PoseNodeResult TransitionNode::StartTransitionFromTransition( GraphContext& context, InitializationOptions const& options, TransitionNode* pSourceTransition, bool bForceTransition )
+    GraphPoseNodeResult TransitionNode::StartTransitionFromTransition( GraphContext& context, InitializationOptions const& options, TransitionNode* pSourceTransition, bool bForceTransition )
     {
         KRG_ASSERT( pSourceTransition != nullptr && m_pSourceNode == nullptr && !IsInitialized() );
 
@@ -58,11 +58,16 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult TransitionNode::InitializeTargetStateAndUpdateTransition( GraphContext& context, InitializationOptions const& options )
+    GraphPoseNodeResult TransitionNode::InitializeTargetStateAndUpdateTransition( GraphContext& context, InitializationOptions const& options )
     {
         MarkNodeActive( context );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
+
+        // Record source root motion index
+        #if KRG_DEVELOPMENT_TOOLS
+        m_rootMotionActionIdxSource = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+        #endif
 
         // Layer context update
         //-------------------------------------------------------------------------
@@ -74,14 +79,10 @@ namespace KRG::Animation::Graph
             context.m_layerContext.BeginLayer();
         }
 
-        #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
-        #endif
-
         // Unsynchronized update
         //-------------------------------------------------------------------------
 
-        PoseNodeResult targetNodeResult;
+        GraphPoseNodeResult targetNodeResult;
 
         auto pSettings = GetSettings<TransitionNode>();
         if ( !pSettings->IsSynchronized() )
@@ -136,6 +137,10 @@ namespace KRG::Animation::Graph
             m_pTargetNode->StartTransitionIn( context );
             targetNodeResult = m_pTargetNode->Update( context );
 
+            #if KRG_DEVELOPMENT_TOOLS
+            m_rootMotionActionIdxTarget = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+            #endif
+
             // Clamp duration
             if ( pSettings->ShouldClampDuration() )
             {
@@ -177,6 +182,10 @@ namespace KRG::Animation::Graph
             m_pTargetNode->Initialize( context, targetUpdateRange.m_startTime );
             m_pTargetNode->StartTransitionIn( context );
             targetNodeResult = m_pTargetNode->Update( context, targetUpdateRange );
+
+            #if KRG_DEVELOPMENT_TOOLS
+            m_rootMotionActionIdxTarget = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+            #endif
 
             // Update internal transition state
             SyncTrack const& TargetSyncTrack = m_pTargetNode->GetSyncTrack();
@@ -265,7 +274,7 @@ namespace KRG::Animation::Graph
             // If we have a valid task, cache it
             if ( result.HasRegisteredTasks() )
             {
-                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
+                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
             }
         }
 
@@ -465,37 +474,20 @@ namespace KRG::Animation::Graph
         #endif
     }
 
-    void TransitionNode::RegisterPoseTasksAndUpdateDisplacement( GraphContext& context, PoseNodeResult const& sourceResult, PoseNodeResult const& targetResult, PoseNodeResult& outResult )
+    void TransitionNode::RegisterPoseTasksAndUpdateDisplacement( GraphContext& context, GraphPoseNodeResult const& sourceResult, GraphPoseNodeResult const& targetResult, GraphPoseNodeResult& outResult )
     {
         auto pSettings = GetSettings<TransitionNode>();
 
         if ( sourceResult.HasRegisteredTasks() && targetResult.HasRegisteredTasks() )
         {
-            TBitFlags<RootMotionBlendOptions> rootMotionBlendOptions;
-
-            switch ( pSettings->m_rootMotionBlend )
-            {
-                case RootMotionBlend::IgnoreSource :
-                {
-                    rootMotionBlendOptions.SetFlag( RootMotionBlendOptions::IgnoreSource );
-                }
-                break;
-
-                case RootMotionBlend::IgnoreTarget:
-                {
-                    rootMotionBlendOptions.SetFlag( RootMotionBlendOptions::IgnoreTarget );
-                }
-                break;
-            }
-
-            outResult.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult.m_rootMotionDelta, targetResult.m_rootMotionDelta, m_blendWeight, rootMotionBlendOptions );
+            outResult.m_rootMotionDelta = Blender::BlendRootMotionDeltas( sourceResult.m_rootMotionDelta, targetResult.m_rootMotionDelta, m_blendWeight, pSettings->m_rootMotionBlend );
 
             //-------------------------------------------------------------------------
 
-            outResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), sourceResult.m_taskIdx, targetResult.m_taskIdx, m_blendWeight );
+            outResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), sourceResult.m_taskIdx, targetResult.m_taskIdx, m_blendWeight );
 
             #if KRG_DEVELOPMENT_TOOLS
-            context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), outResult.m_rootMotionDelta );
+            context.GetRootMotionActionRecorder()->RecordBlend( GetNodeIndex(), m_rootMotionActionIdxSource, m_rootMotionActionIdxTarget, outResult.m_rootMotionDelta );
             #endif
         }
         else
@@ -510,16 +502,12 @@ namespace KRG::Animation::Graph
                 outResult.m_taskIdx = targetResult.m_taskIdx;
                 outResult.m_rootMotionDelta = targetResult.m_rootMotionDelta;
             }
-
-            #if KRG_DEVELOPMENT_TOOLS
-            context.GetRootMotionActionRecorder()->PopBlendHierarchyLevel();
-            #endif
         }
     }
 
     //-------------------------------------------------------------------------
 
-    PoseNodeResult TransitionNode::Update( GraphContext& context )
+    GraphPoseNodeResult TransitionNode::Update( GraphContext& context )
     {
         KRG_ASSERT( IsInitialized() && m_pSourceNode != nullptr && m_pSourceNode->IsInitialized() && !IsComplete() );
         auto pSettings = GetSettings<TransitionNode>();
@@ -578,9 +566,9 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult TransitionNode::UpdateUnsynchronized( GraphContext& context )
+    GraphPoseNodeResult TransitionNode::UpdateUnsynchronized( GraphContext& context )
     {
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         auto pSettings = GetSettings<TransitionNode>();
 
@@ -594,25 +582,25 @@ namespace KRG::Animation::Graph
             context.m_layerContext.BeginLayer();
         }
 
-        #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
-        #endif
-
         // Update the source
         //-------------------------------------------------------------------------
 
         // Register the source cached task if it exists
-        TaskIndex const cachedSourceNodeTaskIdx = ( m_sourceCachedPoseBufferID.IsValid() ) ? context.m_pTaskSystem->RegisterTask<CachedPoseReadTask>( GetNodeIndex(), m_sourceCachedPoseBufferID ) : InvalidIndex;
+        TaskIndex const cachedSourceNodeTaskIdx = ( m_sourceCachedPoseBufferID.IsValid() ) ? context.m_pTaskSystem->RegisterTask<Tasks::CachedPoseReadTask>( GetNodeIndex(), m_sourceCachedPoseBufferID ) : InvalidIndex;
 
         // Set the branch state and update the source node
         BranchState const previousBranchState = context.m_branchState;
         context.m_branchState = BranchState::Inactive;
-        PoseNodeResult sourceNodeResult = m_pSourceNode->Update( context );
+        GraphPoseNodeResult sourceNodeResult = m_pSourceNode->Update( context );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_rootMotionActionIdxSource = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+        #endif
 
         // If we have a source cached pose and we have registered tasks, register a blend
         if ( sourceNodeResult.HasRegisteredTasks() && cachedSourceNodeTaskIdx != InvalidIndex )
         {
-            sourceNodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), cachedSourceNodeTaskIdx, sourceNodeResult.m_taskIdx, m_sourceCachedPoseBlendWeight );
+            sourceNodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), cachedSourceNodeTaskIdx, sourceNodeResult.m_taskIdx, m_sourceCachedPoseBlendWeight );
         }
         else
         {
@@ -631,7 +619,11 @@ namespace KRG::Animation::Graph
         // Update the target
         //-------------------------------------------------------------------------
 
-        PoseNodeResult const targetNodeResult = m_pTargetNode->Update( context );
+        GraphPoseNodeResult const targetNodeResult = m_pTargetNode->Update( context );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_rootMotionActionIdxTarget = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+        #endif
 
         // Record target ctx and reset ctx back to parent
         if ( context.m_layerContext.IsSet() )
@@ -662,14 +654,14 @@ namespace KRG::Animation::Graph
             // If we should cache, register the write task here
             if ( m_cachedPoseBufferID.IsValid() )
             {
-                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
+                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
             }
         }
 
         return result;
     }
 
-    PoseNodeResult TransitionNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult TransitionNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( IsInitialized() && m_pSourceNode != nullptr && m_pSourceNode->IsInitialized() && !IsComplete() );
         KRG_ASSERT( ( IsSourceATransition() ? static_cast<TransitionNode*>( m_pSourceNode )->m_pTargetNode : static_cast<StateNode*>( m_pSourceNode ) ) != nullptr );
@@ -707,9 +699,9 @@ namespace KRG::Animation::Graph
         }
     }
 
-    PoseNodeResult TransitionNode::UpdateSynchronized( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult TransitionNode::UpdateSynchronized( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
 
         auto pSettings = GetSettings<TransitionNode>();
 
@@ -722,10 +714,6 @@ namespace KRG::Animation::Graph
             KRG_LOG_ERROR( "Animation", "Transition to state terminated due to synchronous update, this may indicate a bad graph setup!" );
             #endif
         }
-
-        #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->PushBlendHierarchyLevel();
-        #endif
 
         // Update source state in a synchronous manner
         //-------------------------------------------------------------------------
@@ -746,17 +734,21 @@ namespace KRG::Animation::Graph
         }
 
         // Register the source cached task if it exists
-        TaskIndex const cachedSourceNodeTaskIdx = ( m_sourceCachedPoseBufferID.IsValid() ) ? context.m_pTaskSystem->RegisterTask<CachedPoseReadTask>( GetNodeIndex(), m_sourceCachedPoseBufferID ) : InvalidIndex;
+        TaskIndex const cachedSourceNodeTaskIdx = ( m_sourceCachedPoseBufferID.IsValid() ) ? context.m_pTaskSystem->RegisterTask<Tasks::CachedPoseReadTask>( GetNodeIndex(), m_sourceCachedPoseBufferID ) : InvalidIndex;
 
         // Set the branch state and update the source node
         BranchState const previousBranchState = context.m_branchState;
         context.m_branchState = BranchState::Inactive;
-        PoseNodeResult sourceNodeResult = m_pSourceNode->Update( context, sourceUpdateRange );
+        GraphPoseNodeResult sourceNodeResult = m_pSourceNode->Update( context, sourceUpdateRange );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_rootMotionActionIdxSource = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+        #endif
 
         // If we have a source cached pose and we have registered tasks, register a blend
         if ( sourceNodeResult.HasRegisteredTasks() && cachedSourceNodeTaskIdx != InvalidIndex )
         {
-            sourceNodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<BlendTask>( GetNodeIndex(), cachedSourceNodeTaskIdx, sourceNodeResult.m_taskIdx, m_sourceCachedPoseBlendWeight );
+            sourceNodeResult.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::BlendTask>( GetNodeIndex(), cachedSourceNodeTaskIdx, sourceNodeResult.m_taskIdx, m_sourceCachedPoseBlendWeight );
         }
         else
         {
@@ -776,7 +768,11 @@ namespace KRG::Animation::Graph
         // Update the target
         //-------------------------------------------------------------------------
 
-        PoseNodeResult const targetNodeResult = m_pTargetNode->Update( context, updateRange );
+        GraphPoseNodeResult const targetNodeResult = m_pTargetNode->Update( context, updateRange );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_rootMotionActionIdxTarget = context.GetRootMotionActionRecorder()->GetLastActionIndex();
+        #endif
 
         // Record target ctx and reset ctx back to parent
         GraphLayerContext targetLayerCtx;
@@ -806,7 +802,7 @@ namespace KRG::Animation::Graph
         {
             if ( m_cachedPoseBufferID.IsValid() )
             {
-                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
+                result.m_taskIdx = context.m_pTaskSystem->RegisterTask<Tasks::CachedPoseWriteTask>( GetNodeIndex(), result.m_taskIdx, m_cachedPoseBufferID );
             }
         }
 

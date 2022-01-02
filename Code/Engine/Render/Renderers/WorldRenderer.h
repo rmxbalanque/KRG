@@ -59,7 +59,7 @@ namespace KRG::Render
         {
             Vector          m_SunDirIndirectIntensity = Vector::Zero;// TODO: refactor to Float3 and float
             Vector          m_SunColorRoughnessOneLevel = Vector::Zero;// TODO: refactor to Float3 and float
-            Matrix          m_sunShadowMapMatrix = Matrix( InitToZero );
+            Matrix          m_sunShadowMapMatrix = Matrix( ZeroInit );
             float           m_manualExposure = -1.0f;
             uint32          m_lightingFlags = 0;
             uint32          m_numPunctualLights = 0;
@@ -84,9 +84,9 @@ namespace KRG::Render
 
         struct ObjectTransforms
         {
-            Matrix  m_worldTransform = Matrix( InitToZero );
-            Matrix  m_normalTransform = Matrix( InitToZero );
-            Matrix  m_viewprojTransform = Matrix( InitToZero );
+            Matrix  m_worldTransform = Matrix( ZeroInit );
+            Matrix  m_normalTransform = Matrix( ZeroInit );
+            Matrix  m_viewprojTransform = Matrix( ZeroInit );
         };
 
         struct RenderData //TODO: optimize - there should not be per frame updates

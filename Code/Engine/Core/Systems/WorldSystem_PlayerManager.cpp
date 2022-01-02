@@ -3,7 +3,7 @@
 #include "Engine/Core/Components/Component_Cameras.h"
 #include "Engine/Core/Components/Component_Player.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
 #include "Engine/Core/Entity/EntityCollection.h"
 #include "System/Input/InputSystem.h"
@@ -103,7 +103,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    bool PlayerManager::TrySpawnPlayer( EntityUpdateContext const& ctx )
+    bool PlayerManager::TrySpawnPlayer( EntityWorldUpdateContext const& ctx )
     {
         if ( m_spawnPoints.empty() )
         {
@@ -134,26 +134,25 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void PlayerManager::SpawnDebugCamera( EntityUpdateContext const& ctx )
+    void PlayerManager::SpawnDebugCamera( EntityWorldUpdateContext const& ctx )
     {
         KRG_ASSERT( m_pDebugCameraComponent == nullptr );
         m_pDebugCameraComponent = KRG::New<FreeLookCameraComponent>( StringID( "Debug Camera Component" ) );
         m_pDebugCameraComponent->SetPositionAndLookatTarget( Vector( 0, -5, 5 ), Vector( 0, 0, 0 ) );
-        m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
 
         auto pEntity = KRG::New<Entity>( StringID( "Debug Camera" ) );
         pEntity->AddComponent( m_pDebugCameraComponent );
         ctx.GetPersistentMap()->AddEntity( pEntity );
     }
 
-    void PlayerManager::UpdateDebugCamera( EntityUpdateContext const& ctx )
+    void PlayerManager::UpdateDebugCamera( EntityWorldUpdateContext const& ctx )
     {
         KRG_ASSERT( m_pDebugCameraComponent != nullptr );
         KRG_ASSERT( m_isControllerEnabled );
 
         //-------------------------------------------------------------------------
 
-        Seconds const deltaTime = ctx.GetDeltaTime();
+        Seconds const deltaTime = ctx.GetRawDeltaTime();
         auto pInputSystem = ctx.GetSystem<Input::InputSystem>();
         KRG_ASSERT( pInputSystem != nullptr );
 
@@ -261,6 +260,11 @@ namespace KRG
         }
     }
 
+    void PlayerManager::SetDebugCameraView( Transform const& cameraTransform )
+    {
+        m_pDebugCameraComponent->SetWorldTransform( cameraTransform );
+    }
+
     void PlayerManager::SetDebugMode( DebugMode newMode )
     {
         switch ( newMode )
@@ -316,7 +320,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void PlayerManager::UpdateSystem( EntityUpdateContext const& ctx )
+    void PlayerManager::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
         if ( ctx.GetUpdateStage() == UpdateStage::FrameStart )
         {

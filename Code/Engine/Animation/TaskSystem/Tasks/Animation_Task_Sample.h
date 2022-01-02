@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Engine/Animation/Graph/Animation_RuntimeGraph_Task.h"
+#include "Engine/Animation/TaskSystem/Animation_Task.h"
 #include "Engine/Animation/AnimationClip.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::Tasks
 {
     class SampleTask : public Task
     {
 
     public:
 
-        SampleTask( NodeIndex sourceNodeIdx, AnimationClip const* pAnimation, Percentage time );
+        SampleTask( TaskSourceID sourceID, AnimationClip const* pAnimation, Percentage time );
         virtual void Execute( TaskContext const& context ) override;
 
         #if KRG_DEVELOPMENT_TOOLS

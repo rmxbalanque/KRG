@@ -32,8 +32,8 @@ namespace KRG::Animation
 
         virtual Skeleton const* GetSkeleton() const override;
         virtual Pose const* GetPose() const override { return m_pPose; }
-        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override;
-        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform ) override {}
+        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override;
+        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override {}
 
         //-------------------------------------------------------------------------
 

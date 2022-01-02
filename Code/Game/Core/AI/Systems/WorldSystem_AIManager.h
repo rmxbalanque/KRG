@@ -27,9 +27,9 @@ namespace KRG::AI
         virtual void ShutdownSystem() override final;
         virtual void RegisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
-        virtual void UpdateSystem( EntityUpdateContext const& ctx ) override;
+        virtual void UpdateSystem( EntityWorldUpdateContext const& ctx ) override;
 
-        bool TrySpawnAI( EntityUpdateContext const& ctx );
+        bool TrySpawnAI( EntityWorldUpdateContext const& ctx );
 
     private:
 

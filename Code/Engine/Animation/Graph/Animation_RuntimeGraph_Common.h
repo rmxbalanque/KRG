@@ -8,13 +8,13 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    using NodeIndex = int16;
+    using GraphNodeIndex = int16;
 
     //-------------------------------------------------------------------------
 
-    enum class ValueType
+    enum class GraphValueType
     {
         KRG_REGISTER_ENUM
 
@@ -30,8 +30,8 @@ namespace KRG::Animation::Graph
     };
 
     #if KRG_DEVELOPMENT_TOOLS
-    KRG_ENGINE_ANIMATION_API Color GetColorForValueType( ValueType type );
-    KRG_ENGINE_ANIMATION_API char const* GetNameForValueType( ValueType type );
+    KRG_ENGINE_ANIMATION_API Color GetColorForValueType( GraphValueType type );
+    KRG_ENGINE_ANIMATION_API char const* GetNameForValueType( GraphValueType type );
     #endif
 
     //-------------------------------------------------------------------------

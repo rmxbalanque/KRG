@@ -28,9 +28,9 @@ namespace KRG::Resource
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawResourceMenu( EntityUpdateContext const& context );
+        void DrawResourceMenu( EntityWorldUpdateContext const& context );
 
     private:
 

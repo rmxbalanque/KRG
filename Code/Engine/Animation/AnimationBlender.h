@@ -19,9 +19,11 @@ namespace KRG::Animation
         GlobalSpace,
     };
 
-    enum class RootMotionBlendOptions
+    enum class RootMotionBlendMode
     {
-        None = 0,
+        KRG_REGISTER_ENUM
+
+        Blend = 0,
         Additive,
         IgnoreSource,
         IgnoreTarget
@@ -92,27 +94,27 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
-        inline static Transform BlendRootMotionDeltas( Transform const& source, Transform const& target, float blendWeight, TBitFlags<RootMotionBlendOptions> blendOptions = RootMotionBlendOptions::None )
+        inline static Transform BlendRootMotionDeltas( Transform const& source, Transform const& target, float blendWeight, RootMotionBlendMode blendMode = RootMotionBlendMode::Blend )
         {
             Transform result;
 
-            if ( blendWeight <= 0.0f || blendOptions.IsFlagSet( RootMotionBlendOptions::IgnoreTarget ) )
+            if ( blendWeight <= 0.0f || blendMode == RootMotionBlendMode::IgnoreTarget )
             {
                 result = source;
             }
-            else if ( blendWeight >= 1.0f || blendOptions.IsFlagSet( RootMotionBlendOptions::IgnoreSource ) )
+            else if ( blendWeight >= 1.0f || blendMode == RootMotionBlendMode::IgnoreSource )
             {
                 result = target;
             }
             else
             {
-                if ( blendOptions.IsFlagSet( RootMotionBlendOptions::Additive ) )
+                if ( blendMode == RootMotionBlendMode::Additive )
                 {
                     result.SetRotation( AdditiveBlender::BlendRotation( source.GetRotation(), target.GetRotation(), blendWeight ) );
                     result.SetTranslation( AdditiveBlender::BlendTranslation( source.GetTranslation(), target.GetTranslation(), blendWeight ) );
                     result.SetScale( Vector::One );
                 }
-                else
+                else // Regular blend
                 {
                     result.SetRotation( InterpolativeBlender::BlendRotation( source.GetRotation(), target.GetRotation(), blendWeight ) );
                     result.SetTranslation( InterpolativeBlender::BlendTranslation( source.GetTranslation(), target.GetTranslation(), blendWeight ).SetW1() );

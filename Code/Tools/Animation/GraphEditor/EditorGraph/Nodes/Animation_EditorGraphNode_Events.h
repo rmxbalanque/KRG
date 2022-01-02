@@ -5,7 +5,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class GenericEventConditionEditorNode final : public EditorGraphNode
     {
@@ -18,7 +18,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Generic Event Condition"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawInfoText( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -41,7 +41,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Generic Event Percentage Through"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
         virtual void DrawInfoText( VisualGraph::DrawContext const& ctx ) override;
 
     private:
@@ -64,7 +64,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Footstep Condition"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 
@@ -85,7 +85,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Footstep Percentage Through"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 
@@ -106,7 +106,7 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Sync Event Condition"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
 
     private:
 
@@ -127,6 +127,6 @@ namespace KRG::Animation::Graph
         virtual char const* GetTypeName() const override { return "Current Sync Event"; }
         virtual char const* GetCategory() const override { return "Events"; }
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::TransitionTree, GraphType::ValueTree ); }
-        virtual NodeIndex Compile( EditorGraphCompilationContext& context ) const override;
+        virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;
     };
 }

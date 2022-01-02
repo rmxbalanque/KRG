@@ -102,7 +102,7 @@ namespace KRG::Player
             }
         }
 
-        auto Debugger = ctx.m_pEntityUpdateContext->GetDrawingContext();
+        auto Debugger = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
         if( g_debugDistance )
         {
             Vector const Origin = ctx.m_pCharacterComponent->GetPosition();

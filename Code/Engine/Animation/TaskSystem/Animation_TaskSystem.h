@@ -1,13 +1,26 @@
 #pragma once
 
-#include "Animation_RuntimeGraph_Task.h"
+#include "Animation_Task.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class TaskSystem
     {
+        friend class AnimationDebugView;
+
+    public:
+
+        #if KRG_DEVELOPMENT_TOOLS
+        enum class DebugMode
+        {
+            Off,
+            FinalPose,
+            PoseTree,
+            DetailedPoseTree
+        };
+        #endif
 
     public:
 
@@ -47,10 +60,23 @@ namespace KRG::Animation::Graph
         TaskIndex GetCurrentTaskIndexMarker() const { return (TaskIndex) m_tasks.size(); }
         void RollbackToTaskIndexMarker( TaskIndex const marker );
 
+        // Debug
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void SetDebugMode( DebugMode mode );
+        DebugMode GetDebugMode() const { return m_debugMode; }
+        void DrawDebug( Drawing::DrawContext& drawingContext, Transform const& worldTransform );
+        #endif
+
     private:
 
         bool AddTaskChainToPrePhysicsList( TaskIndex taskIdx );
         void ExecuteTasks();
+
+        #if KRG_DEVELOPMENT_TOOLS
+        void CalculateTaskOffset( TaskIndex taskIdx, Float2 const& currentOffset, TInlineVector<Float2, 16>& offsets );
+        #endif
 
     private:
 
@@ -60,5 +86,9 @@ namespace KRG::Animation::Graph
         TInlineVector<TaskIndex, 16>    m_prePhysicsTaskIndices;
         bool                            m_hasPhysicsDependency = false;
         bool                            m_hasCodependentPhysicsTasks = false;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        DebugMode                       m_debugMode = DebugMode::Off;
+        #endif
     };
 }

@@ -2,14 +2,14 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     GraphNode::~GraphNode()
     {
         KRG_ASSERT( m_initializationCount == 0 );
     }
 
-    void GraphNode::Initialize( GraphContext& Context )
+    void GraphNode::Initialize( GraphContext& context )
     {
         if ( IsInitialized() )
         {
@@ -17,16 +17,16 @@ namespace KRG::Animation::Graph
         }
         else
         {
-            InitializeInternal( Context );
+            InitializeInternal( context );
         }
     }
 
-    void GraphNode::Shutdown( GraphContext& Context )
+    void GraphNode::Shutdown( GraphContext& context )
     {
         KRG_ASSERT( IsInitialized() );
         if ( --m_initializationCount == 0 )
         {
-            ShutdownInternal( Context );
+            ShutdownInternal( context );
         }
     }
 

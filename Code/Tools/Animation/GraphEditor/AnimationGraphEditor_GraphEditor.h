@@ -6,16 +6,16 @@
 
 struct ImNodesEditorContext;
 namespace KRG { class UpdateContext; }
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class FlowGraph; 
-    class AnimationGraphEditorDefinition;
+    class EditorGraphDefinition;
     struct DebugContext;
 }
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     class GraphEditor
     {
@@ -56,11 +56,11 @@ namespace KRG::Animation::Graph
 
     public:
 
-        GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphEditorDefinition* pEditorGraph );
+        GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pEditorGraph );
 
         // Graph information
-        AnimationGraphEditorDefinition* GetGraphDefinition() { return m_pGraphDefinition; }
-        AnimationGraphEditorDefinition const* GetGraphDefinition() const { return m_pGraphDefinition; }
+        EditorGraphDefinition* GetGraphDefinition() { return m_pGraphDefinition; }
+        EditorGraphDefinition const* GetGraphDefinition() const { return m_pGraphDefinition; }
         inline Category<TypeSystem::TypeInfo const*> const& GetCategorizedNodeTypes() const { return m_categorizedNodeTypes.GetRootCategory(); }
 
         // Update
@@ -82,7 +82,7 @@ namespace KRG::Animation::Graph
 
     private:
 
-        AnimationGraphEditorDefinition*                 m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*                 m_pGraphDefinition = nullptr;
         TVector<TypeSystem::TypeInfo const*>            m_registeredNodeTypes;
         CategoryTree<TypeSystem::TypeInfo const*>       m_categorizedNodeTypes;
         float                                           m_primaryGraphViewHeight = 300;

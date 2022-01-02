@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     constexpr static float const g_playbackBarMinimumWidth = 120;
     constexpr static float const g_playbackBarRegionHeight = 16;
@@ -13,12 +13,12 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    bool DebugContext::IsNodeActive( NodeIndex nodeIdx ) const
+    bool DebugContext::IsNodeActive( GraphNodeIndex nodeIdx ) const
     {
         return m_pGraphComponent->IsNodeActive( nodeIdx );
     }
 
-    PoseNodeDebugInfo DebugContext::GetPoseNodeDebugInfo( NodeIndex runtimeNodeIdx ) const
+    PoseNodeDebugInfo DebugContext::GetPoseNodeDebugInfo( GraphNodeIndex runtimeNodeIdx ) const
     {
         return m_pGraphComponent->GetPoseNodeDebugInfo( runtimeNodeIdx );
     }

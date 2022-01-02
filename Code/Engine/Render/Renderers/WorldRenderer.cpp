@@ -6,7 +6,7 @@
 #include "Engine/Render/Shaders/EngineShaders.h"
 #include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "System/Render/RenderDefaultResources.h"
 #include "System/Render/RenderViewport.h"
@@ -16,50 +16,46 @@
 
 namespace KRG::Render
 {
-    static Matrix ComputeShadowMatrix( Viewport const& viewport, Transform const& lightWorldTransform, float shadowDistance, float guardFactor = 0.01f )
+    static Matrix ComputeShadowMatrix( Viewport const& viewport, Transform const& lightWorldTransform, float shadowDistance )
     {
         Transform lightTransform = lightWorldTransform;
-        lightTransform.SetTranslation( Vector( 0.0 ) );
-        lightTransform.Inverse();
+        lightTransform.SetTranslation( Vector::Zero );
+        Transform const invLightTransform = lightTransform.GetInverse();
 
-        Vector corners[8];
-        viewport.GetViewVolume().GetCorners( corners );
-        Vector nearCorners[4];
+        //Get a modified camera view volume that has the shadow distance as the z far.
+        // This will get us the appropriate corners to translate into light space.
 
-        nearCorners[0] = lightTransform.ApplyTransform( corners[0] );
-        nearCorners[1] = lightTransform.ApplyTransform( corners[1] );
-        nearCorners[2] = lightTransform.ApplyTransform( corners[2] );
-        nearCorners[3] = lightTransform.ApplyTransform( corners[3] );
+        // To make these cascade, you do this in a loop and move the depth range along by your
+        // cascade distance.
+        KRG::Math::ViewVolume camVolume = viewport.GetViewVolume();
+        camVolume.SetDepthRange( FloatRange( 1.0f, shadowDistance ) );
 
-        float const distScale = shadowDistance / viewport.GetViewVolume().GetDepthRange().m_start;
+        Math::ViewVolume::VolumeCorners corners = camVolume.GetCorners();
 
-        // TODO: optimize - can be done with 4 min + 4 max
-        Vector vmin = Vector::Min( nearCorners[0], nearCorners[0] * distScale );
-        vmin = Vector::Min( vmin, nearCorners[1] );
-        vmin = Vector::Min( vmin, nearCorners[1] * distScale );
-        vmin = Vector::Min( vmin, nearCorners[2] );
-        vmin = Vector::Min( vmin, nearCorners[2] * distScale );
-        vmin = Vector::Min( vmin, nearCorners[3] );
-        vmin = Vector::Min( vmin, nearCorners[3] * distScale );
+        // Translate into light space.
+        for ( int32 i = 0; i < 8; i++ )
+        {
+            corners.m_points[i] = invLightTransform.TransformPoint( corners.m_points[i] );
+        }
 
-        Vector vmax = Vector::Max( nearCorners[0], nearCorners[0] * distScale );
-        vmax = Vector::Max( vmax, nearCorners[1] );
-        vmax = Vector::Max( vmax, nearCorners[1] * distScale );
-        vmax = Vector::Max( vmax, nearCorners[2] );
-        vmax = Vector::Max( vmax, nearCorners[2] * distScale );
-        vmax = Vector::Max( vmax, nearCorners[3] );
-        vmax = Vector::Max( vmax, nearCorners[3] * distScale );
+        // Note for understanding, cornersMin and cornersMax are in light space, not world space.
+        Vector cornersMin = Vector::One * FLT_MAX;
+        Vector cornersMax = Vector::One * -FLT_MAX;
 
-        // TODO: safe guards should be derived from pixel space, configurable?
-        vmin -= Vector( shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor );
-        vmax += Vector( shadowDistance * guardFactor, 1000.0f/*TODO: should be based on world/shadow frustum intersection*/, shadowDistance * guardFactor );
+        for ( int32 i = 0; i < 8; i++ )
+        {
+            cornersMin = Vector::Min( cornersMin, corners.m_points[i] );
+            cornersMax = Vector::Max( cornersMax, corners.m_points[i] );
+        }
 
-        Vector delta = vmax - vmin;
+        Vector lightPosition = Vector::Lerp( cornersMin, cornersMax, 0.5f );
+        lightPosition = Vector::Select( lightPosition, cornersMax, Vector::Select0100 ); //force lightPosition to the "back" of the box.
+        lightPosition = lightTransform.TransformPoint( lightPosition );   //Light position now in world space.
+        lightTransform.SetTranslation( lightPosition );   //Assign to the lightTransform, now it's positioned above our view frustrum.
+
+        Vector delta = cornersMax - cornersMin;
         float dim = Math::Max( delta.m_x, delta.m_z );
-        Matrix offsetMatrix{};
-        offsetMatrix.SetTranslation( Float3( 0.5f * ( vmin.m_x + vmax.m_x ), -vmax.m_y, 0.5f * ( vmin.m_z + vmax.m_z ) ) );
-        Matrix lightWorldMatrix = offsetMatrix.GetInverse() * lightTransform.GetInverse().ToMatrix();
-        Math::ViewVolume lightViewVolume( Float2( dim ), FloatRange( 0, delta.m_y ), lightWorldMatrix );
+        Math::ViewVolume lightViewVolume( Float2( dim ), FloatRange( 1.0, delta.m_y ), lightTransform.ToMatrix() );
 
         Matrix viewProjMatrix = lightViewVolume.GetViewProjectionMatrix();
         Matrix viewMatrix = lightViewVolume.GetViewMatrix();
@@ -714,7 +710,6 @@ namespace KRG::Render
             auto pMesh = pMeshComponent->GetMesh();
             Matrix worldTransform = pMeshComponent->GetWorldTransform().ToMatrix();
             transforms.m_worldTransform = worldTransform;
-            transforms.m_worldTransform.SetTranslation( worldTransform.GetTranslation() ); // TODO: move to shader
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
             renderContext.SetVertexBuffer( pMesh->GetVertexBuffer() );

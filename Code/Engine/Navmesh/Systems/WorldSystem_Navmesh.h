@@ -57,7 +57,7 @@ namespace KRG::Navmesh
         void RegisterNavmesh( NavmeshComponent* pComponent );
         void UnregisterNavmesh( NavmeshComponent* pComponent );
 
-        void UpdateSystem( EntityUpdateContext const& ctx ) override;
+        void UpdateSystem( EntityWorldUpdateContext const& ctx ) override;
 
     private:
 

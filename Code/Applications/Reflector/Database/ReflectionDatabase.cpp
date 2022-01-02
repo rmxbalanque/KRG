@@ -14,7 +14,7 @@ namespace KRG::TypeSystem::Reflection
         // Create the base class for all registered engine types
         //-------------------------------------------------------------------------
 
-        InlineString<100> str;
+        TInlineString<100> str;
 
         str.sprintf( "%s::%s", Settings::g_engineNamespace, Settings::g_registeredTypeInterfaceClassName );
         m_registeredTypeBase = ReflectedType( TypeID( str.c_str() ), Settings::g_registeredTypeInterfaceClassName );

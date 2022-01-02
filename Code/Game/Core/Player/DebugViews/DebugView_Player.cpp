@@ -2,7 +2,7 @@
 #include "Game/Core/Player/Systems/EntitySystem_PlayerController.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntitySystem.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Systems/WorldSystem_PlayerManager.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
@@ -18,7 +18,7 @@ namespace KRG::Player
 {
     PlayerDebugView::PlayerDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Player", [this] ( EntityUpdateContext const& context ) { DrawMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Player", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
     }
 
     void PlayerDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -33,7 +33,7 @@ namespace KRG::Player
         m_pWorld = nullptr;
     }
 
-    void PlayerDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void PlayerDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         KRG_ASSERT( m_pWorld != nullptr );
 
@@ -72,7 +72,7 @@ namespace KRG::Player
         }
     }
 
-    void PlayerDebugView::DrawMenu( EntityUpdateContext const& context )
+    void PlayerDebugView::DrawMenu( EntityWorldUpdateContext const& context )
     {
         PlayerController* pPlayerController = nullptr;
         if ( m_pPlayerManager->HasPlayer() )
@@ -106,7 +106,7 @@ namespace KRG::Player
         }
     }
 
-    void PlayerDebugView::DrawActionDebuggerWindow( EntityUpdateContext const& context, PlayerController const* pPlayerController )
+    void PlayerDebugView::DrawActionDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pPlayerController )
     {
         KRG_ASSERT( pPlayerController != nullptr );
 
@@ -161,7 +161,7 @@ namespace KRG::Player
                     }
 
                     Action* pBaseAction = ( pStateMachine->m_activeBaseActionID != ActionStateMachine::InvalidAction ) ? pStateMachine->m_baseActions[pStateMachine->m_activeBaseActionID] : nullptr;
-                    InlineString<50> const headerString( InlineString<50>::CtorSprintf(), "Base Action: %s###BaseActionHeader", ( pBaseAction != nullptr ) ? pBaseAction->GetName() : "None" );
+                    TInlineString<50> const headerString( TInlineString<50>::CtorSprintf(), "Base Action: %s###BaseActionHeader", ( pBaseAction != nullptr ) ? pBaseAction->GetName() : "None" );
 
                     if ( ImGui::CollapsingHeader( headerString.c_str(), ImGuiTreeNodeFlags_DefaultOpen ) )
                     {
@@ -240,7 +240,7 @@ namespace KRG::Player
         ImGui::End();
     }
 
-    void PlayerDebugView::DrawPhysicsStateDebuggerWindow( EntityUpdateContext const& context, PlayerController const* pPlayerController )
+    void PlayerDebugView::DrawPhysicsStateDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pPlayerController )
     {
         KRG_ASSERT( pPlayerController != nullptr );
 
@@ -262,7 +262,7 @@ namespace KRG::Player
     }
 
     // Called within the context of a large overlay window allowing you to draw helpers and widgets over a viewport
-    void PlayerDebugView::DrawOverlayElements( EntityUpdateContext const& context )
+    void PlayerDebugView::DrawOverlayElements( EntityWorldUpdateContext const& context )
     {
         KRG_ASSERT( m_pWorld != nullptr );
 
@@ -291,7 +291,7 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        InlineString<255> statusString;
+        InlineString statusString;
 
         bool const isChargedJumpReady = static_cast<JumpAction const*>( pPlayerController->m_actionStateMachine.m_baseActions[ActionStateMachine::Jump] )->IsChargedJumpReady();
         if ( isChargedJumpReady )

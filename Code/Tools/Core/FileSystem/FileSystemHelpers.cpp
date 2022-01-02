@@ -8,7 +8,7 @@ namespace KRG::FileSystem
 {
     void OpenInExplorer( FileSystem::Path const& path )
     {
-        InlineString<255> cmdLine( "/select," );
+        InlineString cmdLine( "/select," );
         cmdLine += path.c_str();
         ShellExecute( 0, NULL, "explorer.exe", cmdLine.c_str(), NULL, SW_SHOWNORMAL );
     }

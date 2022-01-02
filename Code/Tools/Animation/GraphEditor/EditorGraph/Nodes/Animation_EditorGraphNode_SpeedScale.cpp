@@ -4,17 +4,17 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void SpeedScaleEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Pose, true );
-        CreateInputPin( "Input", ValueType::Pose );
-        CreateInputPin( "Scale", ValueType::Float );
+        CreateOutputPin( "Result", GraphValueType::Pose, true );
+        CreateInputPin( "Input", GraphValueType::Pose );
+        CreateInputPin( "Scale", GraphValueType::Float );
     }
 
-    NodeIndex SpeedScaleEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex SpeedScaleEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         SpeedScaleNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<SpeedScaleNode>( this, pSettings );
@@ -23,7 +23,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_childNodeIdx = compiledNodeIdx;
@@ -44,7 +44,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 1 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_scaleValueNodeIdx = compiledNodeIdx;
@@ -73,12 +73,12 @@ namespace KRG::Animation::Graph
     void VelocityBasedSpeedScaleEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Result", ValueType::Float, true );
-        CreateInputPin( "Input", ValueType::Pose );
-        CreateInputPin( "Scale", ValueType::Float );
+        CreateOutputPin( "Result", GraphValueType::Float, true );
+        CreateInputPin( "Input", GraphValueType::Pose );
+        CreateInputPin( "Scale", GraphValueType::Float );
     }
 
-    NodeIndex VelocityBasedSpeedScaleEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex VelocityBasedSpeedScaleEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         VelocityBasedSpeedScaleNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<VelocityBasedSpeedScaleNode>( this, pSettings );
@@ -87,7 +87,7 @@ namespace KRG::Animation::Graph
             auto pInputNode = GetConnectedInputNode<EditorGraphNode>( 0 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_childNodeIdx = compiledNodeIdx;
@@ -108,7 +108,7 @@ namespace KRG::Animation::Graph
             pInputNode = GetConnectedInputNode<EditorGraphNode>( 1 );
             if ( pInputNode != nullptr )
             {
-                NodeIndex const compiledNodeIdx = pInputNode->Compile( context );
+                GraphNodeIndex const compiledNodeIdx = pInputNode->Compile( context );
                 if ( compiledNodeIdx != InvalidIndex )
                 {
                     pSettings->m_desiredVelocityValueNodeIdx = compiledNodeIdx;

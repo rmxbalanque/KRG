@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     class KRG_ENGINE_ANIMATION_API ParameterizedBlendNode : public PoseNode
     {
@@ -15,10 +15,10 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( PoseNode::Settings, m_sourceNodeIndices, m_inputParameterValueNodeIdx, m_isSynchronized );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            TInlineVector<NodeIndex, 5>             m_sourceNodeIndices;
-            NodeIndex                               m_inputParameterValueNodeIdx = InvalidIndex;
+            TInlineVector<GraphNodeIndex, 5>             m_sourceNodeIndices;
+            GraphNodeIndex                               m_inputParameterValueNodeIdx = InvalidIndex;
             bool                                    m_isSynchronized = false;
         };
 
@@ -65,8 +65,8 @@ namespace KRG::Animation::Graph
         virtual void ShutdownInternal( GraphContext& context ) override;
         virtual void DeactivateBranch( GraphContext& context ) override final;
 
-        virtual PoseNodeResult Update( GraphContext& context ) override final;
-        virtual PoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override final;
+        virtual GraphPoseNodeResult Update( GraphContext& context ) override final;
+        virtual GraphPoseNodeResult Update( GraphContext& context, SyncTrackTimeRange const& updateRange ) override final;
 
         // Parameterization
         //-------------------------------------------------------------------------
@@ -98,7 +98,7 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( ParameterizedBlendNode::Settings, m_parameterization );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
             Parameterization                        m_parameterization;
         };
@@ -117,7 +117,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public ParameterizedBlendNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:

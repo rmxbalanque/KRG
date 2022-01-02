@@ -1,8 +1,8 @@
-#include "Animation_RuntimeGraph_TaskPosePool.h"
+#include "Animation_TaskPosePool.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     PoseBuffer::PoseBuffer( Skeleton const* pSkeleton )
         : m_pose( pSkeleton )

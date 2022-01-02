@@ -4,15 +4,15 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void ConstBoolEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::Bool, true );
+        CreateOutputPin( "Value", GraphValueType::Bool, true );
     }
 
-    NodeIndex ConstBoolEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstBoolEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstBoolNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<ConstBoolNode>( this, pSettings );
@@ -33,10 +33,10 @@ namespace KRG::Animation::Graph
     void ConstIDEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::ID, true );
+        CreateOutputPin( "Value", GraphValueType::ID, true );
     }
 
-    NodeIndex ConstIDEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstIDEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstIDNode::Settings* pSettings = nullptr;
         if ( context.GetSettings<ConstIDNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
@@ -56,10 +56,10 @@ namespace KRG::Animation::Graph
     void ConstIntEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::Int, true );
+        CreateOutputPin( "Value", GraphValueType::Int, true );
     }
 
-    NodeIndex ConstIntEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstIntEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstIntNode::Settings* pSettings = nullptr;
         if ( context.GetSettings<ConstIntNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
@@ -79,10 +79,10 @@ namespace KRG::Animation::Graph
     void ConstFloatEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::Float, true );
+        CreateOutputPin( "Value", GraphValueType::Float, true );
     }
 
-    NodeIndex ConstFloatEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstFloatEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstFloatNode::Settings* pSettings = nullptr;
         if ( context.GetSettings<ConstFloatNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
@@ -102,10 +102,10 @@ namespace KRG::Animation::Graph
     void ConstVectorEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::Vector, true );
+        CreateOutputPin( "Value", GraphValueType::Vector, true );
     }
 
-    NodeIndex ConstVectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstVectorEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstVectorNode::Settings* pSettings = nullptr;
         if ( context.GetSettings<ConstVectorNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )
@@ -125,10 +125,10 @@ namespace KRG::Animation::Graph
     void ConstTargetEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         EditorGraphNode::Initialize( pParent );
-        CreateOutputPin( "Value", ValueType::Target, true );
+        CreateOutputPin( "Value", GraphValueType::Target, true );
     }
 
-    NodeIndex ConstTargetEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex ConstTargetEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         ConstTargetNode::Settings* pSettings = nullptr;
         if ( context.GetSettings<ConstTargetNode>( this, pSettings ) == NodeCompilationState::NeedCompilation )

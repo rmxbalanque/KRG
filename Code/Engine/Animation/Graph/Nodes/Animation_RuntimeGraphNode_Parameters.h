@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     //-------------------------------------------------------------------------
     // Control Parameters
@@ -17,7 +17,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public BoolValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -39,7 +39,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public IDValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -61,7 +61,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public IntValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -83,7 +83,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public FloatValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -105,7 +105,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public VectorValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -127,7 +127,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public TargetValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -149,7 +149,7 @@ namespace KRG::Animation::Graph
         struct KRG_ENGINE_ANIMATION_API Settings final : public BoneMaskValueNode::Settings
         {
             KRG_REGISTER_TYPE( Settings );
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
         };
 
     private:
@@ -179,9 +179,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoolValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -206,9 +206,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( IDValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -233,9 +233,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( IntValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -260,9 +260,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( FloatValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -287,9 +287,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( VectorValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -314,9 +314,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( TargetValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:
@@ -341,9 +341,9 @@ namespace KRG::Animation::Graph
             KRG_REGISTER_TYPE( Settings );
             KRG_SERIALIZE_GRAPHNODESETTINGS( BoneMaskValueNode::Settings, m_childNodeIdx );
 
-            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const override;
+            virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            NodeIndex m_childNodeIdx = InvalidIndex;
+            GraphNodeIndex m_childNodeIdx = InvalidIndex;
         };
 
     private:

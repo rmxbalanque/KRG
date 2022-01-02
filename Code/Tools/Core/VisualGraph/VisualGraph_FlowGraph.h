@@ -87,7 +87,7 @@ namespace KRG::VisualGraph
             virtual bool SupportsDynamicInputPins() const { return false; }
 
             // Whats the name of the dynamic inputs
-            virtual InlineString<100> GetNewDynamicInputPinName() const { return "Pin"; }
+            virtual TInlineString<100> GetNewDynamicInputPinName() const { return "Pin"; }
 
             // What's the value type of the dynamic inputs
             virtual uint32 GetDynamicInputPinValueType() const { return 0; }

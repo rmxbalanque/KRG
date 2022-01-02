@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void ConstBoolNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstBoolNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstBoolNode>( nodePtrs, options );
     }
@@ -16,7 +16,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ConstIDNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstIDNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstIDNode>( nodePtrs, options );
     }
@@ -28,7 +28,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ConstIntNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstIntNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstIntNode>( nodePtrs, options );
     }
@@ -40,7 +40,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ConstFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstFloatNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstFloatNode>( nodePtrs, options );
     }
@@ -52,7 +52,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ConstVectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstVectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstVectorNode>( nodePtrs, options );
     }
@@ -64,7 +64,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void ConstTargetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void ConstTargetNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<ConstTargetNode>( nodePtrs, options );
     }

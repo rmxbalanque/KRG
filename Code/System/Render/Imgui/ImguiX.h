@@ -140,13 +140,26 @@ namespace KRG::ImGuiX
 
     //-------------------------------------------------------------------------
 
-    KRG_SYSTEM_RENDER_API void DisplayVector2( Vector const& v, float width = -1 );
-    KRG_SYSTEM_RENDER_API void DisplayVector3( Vector const& v, float width = -1 );
-    KRG_SYSTEM_RENDER_API void DisplayVector4( Vector const& v, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayVector2( ImGuiID ID, Vector const& v, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayVector3( ImGuiID ID, Vector const& v, float width = -1 );
+    KRG_SYSTEM_RENDER_API void DisplayVector4( ImGuiID ID, Vector const& v, float width = -1 );
+
+    KRG_FORCE_INLINE void DisplayVector2( Vector const& v, float width = -1 ) { DisplayVector2( ImGui::GetID( &v ), v, width ); }
+    KRG_FORCE_INLINE void DisplayVector3( Vector const& v, float width = -1 ) { DisplayVector3( ImGui::GetID( &v ), v, width ); }
+    KRG_FORCE_INLINE void DisplayVector4( Vector const& v, float width = -1 ) { DisplayVector4( ImGui::GetID( &v ), v, width ); }
+    
+    KRG_FORCE_INLINE void DisplayVector( ImGuiID ID, Float2 const& v, float width = -1 ) { return DisplayVector2( ID, v, width ); }
+    KRG_FORCE_INLINE void DisplayVector( ImGuiID ID, Float3 const& v, float width = -1 ) { return DisplayVector3( ID, v, width ); }
+    KRG_FORCE_INLINE void DisplayVector( ImGuiID ID, Float4 const& v, float width = -1 ) { return DisplayVector4( ID, v, width ); }
+
     KRG_FORCE_INLINE void DisplayVector( Float2 const& v, float width = -1 ) { return DisplayVector2( v, width ); }
     KRG_FORCE_INLINE void DisplayVector( Float3 const& v, float width = -1 ) { return DisplayVector3( v, width ); }
     KRG_FORCE_INLINE void DisplayVector( Float4 const& v, float width = -1 ) { return DisplayVector4( v, width ); }
-    KRG_SYSTEM_RENDER_API void DisplayRotation( Quaternion const& q, float width = -1 );
-    KRG_SYSTEM_RENDER_API void DisplayTransform( Transform const& t, float width = -1 );
+
+    KRG_SYSTEM_RENDER_API void DisplayRotation( ImGuiID ID, Quaternion const& q, float width = -1 );
+    KRG_FORCE_INLINE void DisplayRotation( Quaternion const& q, float width = -1 ) { DisplayRotation( ImGui::GetID( &q ), q, width ); }
+
+    KRG_SYSTEM_RENDER_API void DisplayTransform( ImGuiID ID, Transform const& t, float width = -1 );
+    KRG_FORCE_INLINE void DisplayTransform( Transform const& t, float width = -1 ) { DisplayTransform( ImGui::GetID( &t ), t, width ); }
 }
 #endif

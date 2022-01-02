@@ -12,7 +12,7 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Guaranteed to be unique
 
-    using UUIDString = InlineString<37>;
+    using UUIDString = TInlineString<37>;
 
     class KRG_SYSTEM_CORE_API UUID
     {

@@ -132,7 +132,7 @@ namespace KRG::Resource
 
     void ResourceInspectorFBX::DrawFileInfoAndContents()
     {
-        InlineString<256> tmpString;
+        InlineString tmpString;
 
         ImGui::Text( "Raw File: %s", m_filePath.c_str() );
 

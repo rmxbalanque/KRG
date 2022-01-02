@@ -1,7 +1,7 @@
 #include "EntityWorldDebugger.h"
 #include "System/Render/Imgui/ImguiX.h"
 #include "Engine/Core/Entity/EntityWorld.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 
 //-------------------------------------------------------------------------
 
@@ -176,7 +176,7 @@ namespace KRG
         }
     }
 
-    void EntityWorldDebugger::Menu::DrawMenu( EntityUpdateContext const& context )
+    void EntityWorldDebugger::Menu::DrawMenu( EntityWorldUpdateContext const& context )
     {
         for ( auto& childMenu : m_childMenus )
         {
@@ -216,14 +216,14 @@ namespace KRG
 
     void EntityWorldDebugger::DrawMenu( UpdateContext const& context )
     {
-        EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
+        EntityWorldUpdateContext EntityWorldUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
         if ( m_mainMenu.IsEmpty() )
         {
             ImGui::Text( "No Menu Options" );
         }
         else
         {
-            m_mainMenu.DrawMenu( entityUpdateContext );
+            m_mainMenu.DrawMenu( EntityWorldUpdateContext );
         }
     }
 
@@ -231,10 +231,10 @@ namespace KRG
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
 
-        EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
+        EntityWorldUpdateContext EntityWorldUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
         for ( auto pDebugView : m_pWorld->GetDebugViews() )
         {
-            pDebugView->DrawWindows( entityUpdateContext, pWindowClass );
+            pDebugView->DrawWindows( EntityWorldUpdateContext, pWindowClass );
         }
     }
 
@@ -242,10 +242,10 @@ namespace KRG
     {
         KRG_ASSERT( context.GetUpdateStage() == UpdateStage::FrameEnd );
 
-        EntityUpdateContext entityUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
+        EntityWorldUpdateContext EntityWorldUpdateContext( context, const_cast<EntityWorld*>( m_pWorld ) );
         for ( auto pDebugView : m_pWorld->GetDebugViews() )
         {
-            pDebugView->DrawOverlayElements( entityUpdateContext );
+            pDebugView->DrawOverlayElements( EntityWorldUpdateContext );
         }
     }
 }

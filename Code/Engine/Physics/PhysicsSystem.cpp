@@ -1,4 +1,5 @@
 #include "PhysicsSystem.h"
+#include "PhysicsScene.h"
 #include "PhysicsSimulationFilter.h"
 #include "System/Core/Profiling/Profiling.h"
 
@@ -89,6 +90,7 @@ namespace KRG::Physics
 
         m_pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, *m_pAllocatorCallback, *m_pErrorCallback );
         m_pDispatcher = KRG::New<PhysXTaskDispatcher>();
+        m_pSimulationFilterCallback = KRG::New<SimulationFilter>();
 
         #if KRG_DEVELOPMENT_TOOLS
         m_pPVD = PxCreatePvd( *m_pFoundation );
@@ -131,6 +133,7 @@ namespace KRG::Physics
         m_pPVD->release();
         #endif
 
+        KRG::Delete( m_pSimulationFilterCallback );
         KRG::Delete( m_pDispatcher );
         m_pFoundation->release();
 
@@ -140,7 +143,7 @@ namespace KRG::Physics
 
     //-------------------------------------------------------------------------
 
-    physx::PxScene* PhysicsSystem::CreateScene()
+    Scene* PhysicsSystem::CreateScene()
     {
         PxTolerancesScale tolerancesScale;
         tolerancesScale.length = Constants::s_lengthScale;
@@ -150,17 +153,18 @@ namespace KRG::Physics
         sceneDesc.gravity = ToPx( Constants::s_gravity );
         sceneDesc.cpuDispatcher = m_pDispatcher;
         sceneDesc.filterShader = SimulationFilter::Shader;
+        sceneDesc.filterCallback = m_pSimulationFilterCallback;
         sceneDesc.flags = PxSceneFlag::eENABLE_CCD | PxSceneFlag::eREQUIRE_RW_LOCK;
-        auto pScene = m_pPhysics->createScene( sceneDesc );
+        auto pPxScene = m_pPhysics->createScene( sceneDesc );
 
         #if KRG_DEVELOPMENT_TOOLS
-        auto pPvdClient = pScene->getScenePvdClient();
+        auto pPvdClient = pPxScene->getScenePvdClient();
         pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true );
         pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_CONTACTS, true );
         pPvdClient->setScenePvdFlag( PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true );
         #endif
 
-        return pScene;
+        return KRG::New<Scene>( pPxScene );
     }
 
     //-------------------------------------------------------------------------

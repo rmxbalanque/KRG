@@ -123,7 +123,7 @@ namespace KRG
         KRG_UNIMPLEMENTED_FUNCTION();
     }
 
-    AABB::AABB( Vector* points, uint32 numPoints )
+    AABB::AABB( Vector const* points, uint32 numPoints )
     {
         KRG_ASSERT( points != nullptr && numPoints > 0 );
 

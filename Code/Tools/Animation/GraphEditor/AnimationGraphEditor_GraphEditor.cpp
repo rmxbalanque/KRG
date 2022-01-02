@@ -5,8 +5,12 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
+    using namespace KRG::Animation::GraphNodes;
+
+    //-------------------------------------------------------------------------
+
     void GraphEditor::GraphView::DrawContextMenuForGraph()
     {
         KRG_ASSERT( m_pGraph != nullptr );
@@ -241,7 +245,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    GraphEditor::GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, AnimationGraphEditorDefinition* pGraphDefinition )
+    GraphEditor::GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pGraphDefinition )
         : m_pGraphDefinition( pGraphDefinition )
         , m_primaryGraphView( *this )
         , m_secondaryGraphView( *this )
@@ -397,7 +401,7 @@ namespace KRG::Animation::Graph
                     ImGui::SameLine( 0, -1 );
                     ImGui::Text( "/" );
 
-                    InlineString<128> const str( InlineString<128>::CtorSprintf(), "%s##%s", pathToRoot[i]->GetTitle(), pathToRoot[i]->GetID().ToString().c_str() );
+                    InlineString const str( InlineString::CtorSprintf(), "%s##%s", pathToRoot[i]->GetTitle(), pathToRoot[i]->GetID().ToString().c_str() );
                     ImGui::SameLine( 0, -1 );
                     if ( ImGui::Button( str.c_str() ) )
                     {

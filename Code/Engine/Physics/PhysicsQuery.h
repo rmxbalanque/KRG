@@ -30,7 +30,7 @@ namespace KRG::Physics
     template<int N>
     struct SweepResultBuffer : public physx::PxHitBuffer<physx::PxSweepHit>
     {
-        friend class PhysicsWorldSystem;
+        friend class Scene;
 
     public:
 

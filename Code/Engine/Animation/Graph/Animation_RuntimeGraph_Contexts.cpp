@@ -2,7 +2,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     GraphContext::GraphContext()
     {
@@ -11,8 +11,11 @@ namespace KRG::Animation::Graph
         #endif
     }
 
-    void GraphContext::Initialize( TaskSystem* pTaskSystem, Pose const* pPreviousPose )
+    void GraphContext::Initialize( uint64 graphUserID, TaskSystem* pTaskSystem, Pose const* pPreviousPose )
     {
+        KRG_ASSERT( graphUserID != 0 );
+        m_graphUserID = graphUserID;
+
         KRG_ASSERT( m_pPreviousPose == nullptr && m_pTaskSystem == nullptr && m_pSkeleton == nullptr );
         KRG_ASSERT( pPreviousPose != nullptr && pTaskSystem != nullptr );
 
@@ -44,13 +47,14 @@ namespace KRG::Animation::Graph
         const_cast<TaskSystem*&>( m_pTaskSystem ) = nullptr;
     }
 
-    void GraphContext::Update( Seconds const deltaTime, Transform const& currentWorldTransform )
+    void GraphContext::Update( Seconds const deltaTime, Transform const& currentWorldTransform, Physics::Scene* pPhysicsScene )
     {
         m_deltaTime = deltaTime;
         m_updateID++;
         m_sampledEvents.Reset();
         m_worldTransform = currentWorldTransform;
-        m_worldTransformInverse = m_worldTransform.Inverse();
+        m_worldTransformInverse = m_worldTransform.GetInverse();
+        m_pPhysicsScene = pPhysicsScene;
 
         m_branchState = BranchState::Active;
         m_boneMaskPool.Reset();

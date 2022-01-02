@@ -4,7 +4,7 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
     struct PoseBuffer
     {
@@ -87,8 +87,9 @@ namespace KRG::Animation::Graph
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        inline bool IsDebugRecordingEnabled() const { return m_isDebugRecordingEnabled; }
-        inline void SetDebugRecordingState( bool enabled ) const { m_isDebugRecordingEnabled = enabled; }
+        inline bool IsRecordingEnabled() const { return m_isDebugRecordingEnabled; }
+        inline void EnableRecording( bool enabled ) const { m_isDebugRecordingEnabled = enabled; }
+        inline bool HasRecordedData() const { return m_firstFreeDebugBuffer != 0; }
         void RecordPose( int8 poseBufferIdx );
         PoseBuffer const* GetRecordedPose( int8 debugBufferIdx ) const;
         #endif

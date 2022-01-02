@@ -75,4 +75,28 @@ namespace KRG::Animation
         TVector<float>              m_weights;
         float                       m_rootMotionWeight = 0.0f;
     };
+
+    //-------------------------------------------------------------------------
+
+    class BoneMaskPool
+    {
+        constexpr static int32 const s_initialPoolSize = 4;
+
+    public:
+
+        BoneMaskPool() : m_firstFreePoolIdx( InvalidIndex ) {}
+        ~BoneMaskPool();
+
+        inline bool IsEmpty() const { return m_pool.size() == 0; }
+        void Initialize( Skeleton const* pSkeleton );
+        void Shutdown();
+
+        BoneMask* GetBoneMask();
+        void Reset() { m_firstFreePoolIdx = 0; }
+
+    private:
+
+        TVector<BoneMask*>      m_pool;
+        int32                   m_firstFreePoolIdx = InvalidIndex;
+    };
 }

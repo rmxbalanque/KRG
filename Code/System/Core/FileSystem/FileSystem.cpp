@@ -201,7 +201,7 @@ namespace KRG::FileSystem
         // Path processing
         //-------------------------------------------------------------------------
 
-        InlineString<15> fileLowercaseExtension;
+        TInlineString<15> fileLowercaseExtension;
 
         auto ProcessPath = [&] ( std::filesystem::path const& path )
         {
@@ -225,7 +225,7 @@ namespace KRG::FileSystem
                 if ( numExtensionFilters > 0 )
                 {
                     // Todo: there's likely a more efficient way to do a case insensitive compare
-                    fileLowercaseExtension = InlineString<15>( path.extension().u8string().c_str() );
+                    fileLowercaseExtension = TInlineString<15>( path.extension().u8string().c_str() );
                     fileLowercaseExtension.make_lower();
 
                     for ( auto i = 0u; i < numExtensionFilters; i++ )

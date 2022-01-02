@@ -10,7 +10,7 @@ namespace KRG::Resource
 {
     ResourceDebugView::ResourceDebugView()
     {
-        m_menus.emplace_back( DebugMenu( "Resource", [this] ( EntityUpdateContext const& context ) { DrawResourceMenu( context ); } ) );
+        m_menus.emplace_back( DebugMenu( "Resource", [this] ( EntityWorldUpdateContext const& context ) { DrawResourceMenu( context ); } ) );
     }
 
     void ResourceDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
@@ -25,7 +25,7 @@ namespace KRG::Resource
         EntityWorldDebugView::Shutdown();
     }
 
-    void ResourceDebugView::DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void ResourceDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( m_isHistoryWindowOpen )
         {
@@ -40,7 +40,7 @@ namespace KRG::Resource
         }
     }
 
-    void ResourceDebugView::DrawResourceMenu( EntityUpdateContext const& context )
+    void ResourceDebugView::DrawResourceMenu( EntityWorldUpdateContext const& context )
     {
         if ( ImGui::MenuItem( "Show Request History" ) )
         {

@@ -1,16 +1,21 @@
 #include "Animation_EditorGraph_Definition.h"
 #include "Animation_EditorGraph_Compilation.h"
+#include "Tools/Animation/ResourceDescriptors/ResourceDescriptor_AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    AnimationGraphEditorDefinition::~AnimationGraphEditorDefinition()
+    using namespace KRG::Animation::GraphNodes;
+
+    //-------------------------------------------------------------------------
+
+    EditorGraphDefinition::~EditorGraphDefinition()
     {
         ResetInternalState();
     }
 
-    void AnimationGraphEditorDefinition::ResetInternalState()
+    void EditorGraphDefinition::ResetInternalState()
     {
         m_variationHierarchy.Reset();
         m_controlParameters.clear();
@@ -25,16 +30,16 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationGraphEditorDefinition::CreateNew()
+    void EditorGraphDefinition::CreateNew()
     {
         ResetInternalState();
 
         // Create root blend tree
         m_pRootGraph = KRG::New<FlowGraph>( GraphType::BlendTree );
-        m_pRootGraph->CreateNode<ResultEditorNode>( ValueType::Pose );
+        m_pRootGraph->CreateNode<ResultEditorNode>( GraphValueType::Pose );
     }
 
-    bool AnimationGraphEditorDefinition::LoadFromJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue )
+    bool EditorGraphDefinition::LoadFromJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonValue const& graphDescriptorObjectValue )
     {
         KRG_ASSERT( graphDescriptorObjectValue.IsObject() );
 
@@ -87,16 +92,15 @@ namespace KRG::Animation::Graph
         return true;
     }
 
-    void AnimationGraphEditorDefinition::SaveToJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
+    void EditorGraphDefinition::SaveToJson( TypeSystem::TypeRegistry const& typeRegistry, RapidJsonWriter& writer ) const
     {
         writer.StartObject();
         writer.Key( "TypeID" );
-        writer.String( "KRG::Animation::AnimationGraphResourceDescriptor" );
+        writer.String( GraphResourceDescriptor::GetStaticTypeID().c_str() );
 
         writer.Key( "GraphDefinition" );
         writer.StartObject();
         {
-
             writer.Key( "RootGraph" );
             m_pRootGraph->Serialize( typeRegistry, writer );
 
@@ -110,7 +114,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void AnimationGraphEditorDefinition::CreateControlParameter( ValueType type )
+    void EditorGraphDefinition::CreateControlParameter( GraphValueType type )
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
@@ -120,7 +124,7 @@ namespace KRG::Animation::Graph
         m_controlParameters.emplace_back( pParameter );
     }
 
-    void AnimationGraphEditorDefinition::CreateVirtualParameter( ValueType type )
+    void EditorGraphDefinition::CreateVirtualParameter( GraphValueType type )
     {
         String parameterName = "Parameter";
         EnsureUniqueParameterName( parameterName );
@@ -130,7 +134,7 @@ namespace KRG::Animation::Graph
         m_virtualParameters.emplace_back( pParameter );
     }
 
-    void AnimationGraphEditorDefinition::RenameControlParameter( UUID parameterID, String newName )
+    void EditorGraphDefinition::RenameControlParameter( UUID parameterID, String newName )
     {
         auto pParameter = FindControlParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
@@ -140,7 +144,7 @@ namespace KRG::Animation::Graph
         pParameter->m_name = newName;
     }
 
-    void AnimationGraphEditorDefinition::RenameVirtualParameter( UUID parameterID, String newName )
+    void EditorGraphDefinition::RenameVirtualParameter( UUID parameterID, String newName )
     {
         auto pParameter = FindVirtualParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
@@ -150,7 +154,7 @@ namespace KRG::Animation::Graph
         pParameter->m_name = newName;
     }
 
-    void AnimationGraphEditorDefinition::DestroyControlParameter( UUID parameterID )
+    void EditorGraphDefinition::DestroyControlParameter( UUID parameterID )
     {
         KRG_ASSERT( FindControlParameter( parameterID ) != nullptr );
 
@@ -179,7 +183,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationGraphEditorDefinition::DestroyVirtualParameter( UUID parameterID )
+    void EditorGraphDefinition::DestroyVirtualParameter( UUID parameterID )
     {
         KRG_ASSERT( FindVirtualParameter( parameterID ) != nullptr );
 
@@ -208,7 +212,7 @@ namespace KRG::Animation::Graph
         }
     }
 
-    void AnimationGraphEditorDefinition::EnsureUniqueParameterName( String& parameterName ) const
+    void EditorGraphDefinition::EnsureUniqueParameterName( String& parameterName ) const
     {
         String tempString = parameterName;
         bool isNameUnique = false;
@@ -253,7 +257,7 @@ namespace KRG::Animation::Graph
         parameterName = tempString;
     }
 
-    ControlParameterEditorNode* AnimationGraphEditorDefinition::FindControlParameter( UUID parameterID ) const
+    ControlParameterEditorNode* EditorGraphDefinition::FindControlParameter( UUID parameterID ) const
     {
         for ( auto pParameter : m_controlParameters )
         {
@@ -265,7 +269,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    VirtualParameterEditorNode* AnimationGraphEditorDefinition::FindVirtualParameter( UUID parameterID ) const
+    VirtualParameterEditorNode* EditorGraphDefinition::FindVirtualParameter( UUID parameterID ) const
     {
         for ( auto pParameter : m_virtualParameters )
         {
@@ -277,7 +281,7 @@ namespace KRG::Animation::Graph
         return nullptr;
     }
 
-    bool AnimationGraphEditorDefinition::Compile( EditorGraphCompilationContext& context ) const
+    bool EditorGraphDefinition::Compile( EditorGraphCompilationContext& context ) const
     {
         KRG_ASSERT( IsValid() );
 
@@ -293,6 +297,11 @@ namespace KRG::Animation::Graph
         }
 
         context.m_numControlParameters = (uint32) m_controlParameters.size();
+
+        for ( auto i = 0; i < context.m_numControlParameters; i++ )
+        {
+            context.m_controlParameterIDs.emplace_back( m_controlParameters[i]->GetParameterID() );
+        }
 
         // Then Virtual parameters
         //-------------------------------------------------------------------------

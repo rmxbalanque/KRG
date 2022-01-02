@@ -102,7 +102,7 @@ namespace KRG::EntityModel
             bool filterUpdated = false;
 
             ImGui::SetNextItemWidth( contentRegionAvailable.x - ImGui::GetStyle().WindowPadding.x - 22 );
-            InlineString<256> filterCopy( m_filterBuffer );
+            InlineString filterCopy( m_filterBuffer );
 
             if ( m_initializeFocus )
             {
@@ -443,7 +443,7 @@ namespace KRG::EntityModel
             auto pItem = static_cast<EntityInternalItem*>( pBaseItem );
             if ( pItem->IsComponent() )
             {
-                InlineString<100> typeName( pItem->GetTypeInstance()->GetTypeInfo()->GetTypeName() + 5 );
+                TInlineString<100> typeName( pItem->GetTypeInstance()->GetTypeInfo()->GetTypeName() + 5 );
                 ImGui::Text( typeName.c_str() );
             }
         }
@@ -814,7 +814,7 @@ namespace KRG::EntityModel
     {
         if ( BeginViewportToolbarGroup( "SpatialControls", ImVec2(80, 22 ) ) )
         {
-            InlineString<10> const coordinateSpaceSwitcherLabel( InlineString<10>::CtorSprintf(), "%s##CoordinateSpace", m_gizmo.IsInWorldSpace() ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
+            TInlineString<10> const coordinateSpaceSwitcherLabel( TInlineString<10>::CtorSprintf(), "%s##CoordinateSpace", m_gizmo.IsInWorldSpace() ? KRG_ICON_GLOBE : KRG_ICON_DOT_CIRCLE_O );
             if ( ImGui::Selectable( coordinateSpaceSwitcherLabel.c_str(), false, 0, ImVec2( 14, 0 ) ) )
             {
                 m_gizmo.SetCoordinateSystemSpace( m_gizmo.IsInWorldSpace() ? CoordinateSpace::Local : CoordinateSpace::World );
@@ -1051,7 +1051,7 @@ namespace KRG::EntityModel
                 ImGui::BeginDisabled( !HasLoadedMap() );
                 if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, "CREATE ENTITY", ImVec2( -1, 0 ) ) )
                 {
-                    InlineString<128> entityName( "New Entity" );
+                    InlineString entityName( "New Entity" );
                     StringID entityNameID( entityName.c_str() );
                     for ( auto pEntity : m_pWorld->GetMap( m_loadedMap )->GetEntities() )
                     {

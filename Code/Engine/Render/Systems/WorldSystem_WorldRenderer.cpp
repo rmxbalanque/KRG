@@ -1,6 +1,6 @@
 #include "WorldSystem_WorldRenderer.h"
 #include "Engine/Core/Entity/Entity.h"
-#include "Engine/Core/Entity/EntityUpdateContext.h"
+#include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Render/Components/Component_StaticMesh.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Render/Components/Component_Lights.h"
@@ -232,7 +232,7 @@ namespace KRG::Render
 
     //-------------------------------------------------------------------------
 
-    void RendererWorldSystem::UpdateSystem( EntityUpdateContext const& ctx )
+    void RendererWorldSystem::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
         KRG_PROFILE_FUNCTION_RENDER();
 

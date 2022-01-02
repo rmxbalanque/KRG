@@ -51,6 +51,8 @@ namespace KRG
         KRG_FORCE_INLINE float Sqr( float value ) { return value * value; }
         KRG_FORCE_INLINE float Sqrt( float value ) { return sqrtf( value ); }
 
+        KRG_FORCE_INLINE float Log( float value ) { return log( value ); }
+
         KRG_FORCE_INLINE float AddToMovingAverage( float currentAverage, uint64 numCurrentSamples, float newValue )
         {
             return currentAverage + ( ( newValue - currentAverage ) / ( numCurrentSamples + 1 ) );
@@ -240,9 +242,9 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    enum NoInit { SkipInit };
-    enum ZeroInit { InitToZero };
-    enum IdentityInit { InitToIdentity };
+    enum NoInit_t { NoInit };
+    enum ZeroInit_t { ZeroInit };
+    enum IdentityInit_t { IdentityInit };
 
     //-------------------------------------------------------------------------
 
@@ -273,7 +275,7 @@ namespace KRG
     public:
 
         inline Int2() {}
-        inline Int2( ZeroInit ) : m_x( 0 ), m_y( 0 ) {}
+        inline Int2( ZeroInit_t ) : m_x( 0 ), m_y( 0 ) {}
         inline Int2( Float2 const& v );
         inline explicit Int2( int32 v ) : m_x( v ), m_y( v ) {}
         inline explicit Int2( int32 ix, int32 iy ) : m_x( ix ), m_y( iy ) {}
@@ -321,7 +323,7 @@ namespace KRG
     public:
 
         inline Int4() {}
-        inline Int4( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
+        inline Int4( ZeroInit_t ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
         inline explicit Int4( int32 v ) : m_x( v ), m_y( v ), m_z( v ), m_w( v ) {}
         inline explicit Int4( int32 ix, int32 iy, int32 iz, int32 iw ) : m_x( ix ), m_y( iy ), m_z( iz ), m_w( iw ) {}
 
@@ -371,7 +373,7 @@ namespace KRG
     public:
 
         inline Float2() {}
-        KRG_FORCE_INLINE Float2( ZeroInit ) : m_x( 0 ), m_y( 0 ) {}
+        KRG_FORCE_INLINE Float2( ZeroInit_t ) : m_x( 0 ), m_y( 0 ) {}
         KRG_FORCE_INLINE explicit Float2( float v ) : m_x( v ), m_y( v ) {}
         KRG_FORCE_INLINE explicit Float2( float ix, float iy ) : m_x( ix ), m_y( iy ) {}
         inline explicit Float2( Int2 const& v ) : m_x( (float) v.m_x ), m_y( (float) v.m_y ) {}
@@ -426,7 +428,7 @@ namespace KRG
     public:
 
         inline Float3() {}
-        KRG_FORCE_INLINE Float3( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ) {}
+        KRG_FORCE_INLINE Float3( ZeroInit_t ) : m_x( 0 ), m_y( 0 ), m_z( 0 ) {}
         KRG_FORCE_INLINE explicit Float3( float v ) : m_x( v ), m_y( v ), m_z( v ) {}
         KRG_FORCE_INLINE explicit Float3( float ix, float iy, float iz ) : m_x( ix ), m_y( iy ), m_z( iz ) {}
         inline explicit Float3( Float2 const& v, float iz = 0.0f ) : m_x( v.m_x ), m_y( v.m_y ), m_z( iz ) {}
@@ -483,7 +485,7 @@ namespace KRG
     public:
 
         Float4() {}
-        KRG_FORCE_INLINE Float4( ZeroInit ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
+        KRG_FORCE_INLINE Float4( ZeroInit_t ) : m_x( 0 ), m_y( 0 ), m_z( 0 ), m_w( 0 ) {}
         KRG_FORCE_INLINE explicit Float4( float v ) : m_x( v ), m_y( v ), m_z( v ), m_w( v ) {}
         KRG_FORCE_INLINE explicit Float4( float ix, float iy, float iz, float iw ) : m_x( ix ), m_y( iy ), m_z( iz ), m_w( iw ) {}
         explicit Float4( Float2 const& v, float iz = 0.0f, float iw = 0.0f ) : m_x( v.m_x ), m_y( v.m_y ), m_z( iz ), m_w( iw ) {}

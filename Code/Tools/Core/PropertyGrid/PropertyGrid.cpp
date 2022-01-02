@@ -175,7 +175,7 @@ namespace KRG
         ImGui::TableNextColumn();
         ImGui::AlignTextToFramePadding();
 
-        InlineString<255> propertyName;
+        InlineString propertyName;
         if ( arrayIdx != InvalidIndex )
         {
             propertyName.sprintf( "%d", arrayIdx );

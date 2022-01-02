@@ -23,10 +23,10 @@ namespace KRG::AI
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawMenu( EntityUpdateContext const& context );
-        void DrawOverviewWindow( EntityUpdateContext const& context );
+        void DrawMenu( EntityWorldUpdateContext const& context );
+        void DrawOverviewWindow( EntityWorldUpdateContext const& context );
 
     private:
 

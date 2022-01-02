@@ -20,7 +20,7 @@ namespace KRG::Animation
     }
 
     #if KRG_DEVELOPMENT_TOOLS
-    InlineString<100> FootEvent::GetDisplayText() const
+    InlineString FootEvent::GetDisplayText() const
     {
         return g_phaseNames[(int32) m_phase];
     }

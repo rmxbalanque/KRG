@@ -2,9 +2,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation
 {
-    SampledEvent::SampledEvent( NodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough )
+    SampledEvent::SampledEvent( GraphNodeIndex sourceNodeIdx, Event const* pEvent, Percentage percentageThrough )
         : m_eventData( pEvent )
         , m_percentageThrough( percentageThrough.GetClamped( false ) )
         , m_sourceNodeIdx( sourceNodeIdx )
@@ -12,7 +12,7 @@ namespace KRG::Animation::Graph
         KRG_ASSERT( pEvent != nullptr && sourceNodeIdx != InvalidIndex );
     }
 
-    SampledEvent::SampledEvent( NodeIndex sourceNodeIdx, Flags stateEventType, StringID ID, Percentage percentageThrough )
+    SampledEvent::SampledEvent( GraphNodeIndex sourceNodeIdx, Flags stateEventType, StringID ID, Percentage percentageThrough )
         : m_eventData( ID )
         , m_percentageThrough( percentageThrough.GetClamped( false ) )
         , m_flags( stateEventType )

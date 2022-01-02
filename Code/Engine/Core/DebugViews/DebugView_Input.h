@@ -25,9 +25,9 @@ namespace KRG::Input
 
         virtual void Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld ) override;
         virtual void Shutdown() override;
-        virtual void DrawWindows( EntityUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
 
-        void DrawControllerMenu( EntityUpdateContext const& context );
+        void DrawControllerMenu( EntityWorldUpdateContext const& context );
         void DrawControllerState( ControllerInputDevice const& controllerState );
 
     private:

@@ -4,16 +4,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
     void AnimationClipEditorNode::Initialize( VisualGraph::BaseGraph* pParent )
     {
         DataSlotEditorNode::Initialize( pParent );
-        CreateOutputPin( "Pose", ValueType::Pose );
-        CreateInputPin( "Play In Reverse", ValueType::Bool );
+        CreateOutputPin( "Pose", GraphValueType::Pose );
+        CreateInputPin( "Play In Reverse", GraphValueType::Bool );
     }
 
-    NodeIndex AnimationClipEditorNode::Compile( EditorGraphCompilationContext& context ) const
+    GraphNodeIndex AnimationClipEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
         AnimationClipNode::Settings* pSettings = nullptr;
         NodeCompilationState const state = context.GetSettings<AnimationClipNode>( this, pSettings );

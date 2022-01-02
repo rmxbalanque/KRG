@@ -496,13 +496,13 @@ namespace KRG::ImGuiX
         ImGui::PopStyleColor();
     }
 
-    void DisplayVector2( Vector const& v, float width )
+    void DisplayVector2( ImGuiID ID, Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 2 );
 
-        ImGui::PushID( &v );
+        ImGui::PushID( ID );
         if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
             if ( BeginItemFrame() )
@@ -528,13 +528,13 @@ namespace KRG::ImGuiX
         ImGui::PopID();
     }
 
-    void DisplayVector3( Vector const& v, float width )
+    void DisplayVector3( ImGuiID ID, Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 3 );
 
-        ImGui::PushID( &v );
+        ImGui::PushID( ID );
         if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
             if ( BeginItemFrame() )
@@ -571,13 +571,13 @@ namespace KRG::ImGuiX
         ImGui::PopID();
     }
 
-    void DisplayVector4( Vector const& v, float width )
+    void DisplayVector4( ImGuiID ID, Vector const& v, float width )
     {
         float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
         float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
         float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 4 );
 
-        ImGui::PushID( &v );
+        ImGui::PushID( ID );
         if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
             if ( BeginItemFrame() )
@@ -626,16 +626,17 @@ namespace KRG::ImGuiX
         ImGui::PopID();
     }
 
-    void DisplayRotation( Quaternion const& q, float width )
+    void DisplayRotation( ImGuiID ID, Quaternion const& q, float width )
     {
         Float3 const rotation = q.ToEulerAngles().GetAsDegrees();
-        DisplayVector3( rotation, width );
+        DisplayVector3( ID, rotation, width );
     }
 
-    void DisplayTransform( Transform const& t, float width )
+    void DisplayTransform( ImGuiID ID, Transform const& t, float width )
     {
         constexpr float const tableLabelRowWidth = 24;
 
+        ImGui::PushID( ID );
         if ( ImGui::BeginTable( "Transform", 2, 0, ImVec2( width, 0 ) ) )
         {
             ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, tableLabelRowWidth );
@@ -670,5 +671,6 @@ namespace KRG::ImGuiX
 
             ImGui::EndTable();
         }
+        ImGui::PopID();
     }
 }

@@ -237,7 +237,7 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
-            InlineString<255> propertyTypeName = propertyDesc.m_typeName.c_str();
+            InlineString propertyTypeName = propertyDesc.m_typeName.c_str();
             if ( !propertyDesc.m_templateArgTypeName.empty() )
             {
                 propertyTypeName += "<";

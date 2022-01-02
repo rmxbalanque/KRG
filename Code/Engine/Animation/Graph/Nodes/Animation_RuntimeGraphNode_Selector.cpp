@@ -3,9 +3,9 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation::Graph
+namespace KRG::Animation::GraphNodes
 {
-    void SelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void SelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<SelectorNode>( nodePtrs, options );
 
@@ -108,11 +108,11 @@ namespace KRG::Animation::Graph
         PoseNode::ShutdownInternal( context );
     }
 
-    PoseNodeResult SelectorNode::Update( GraphContext& context )
+    GraphPoseNodeResult SelectorNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -132,11 +132,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult SelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult SelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -167,7 +167,7 @@ namespace KRG::Animation::Graph
 
     //-------------------------------------------------------------------------
 
-    void AnimationSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, AnimationGraphDataSet const* pDataSet, InitOptions options ) const
+    void AnimationSelectorNode::Settings::InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const
     {
         auto pNode = CreateNode<AnimationSelectorNode>( nodePtrs, options );
 
@@ -269,11 +269,11 @@ namespace KRG::Animation::Graph
         PoseNode::ShutdownInternal( context );
     }
 
-    PoseNodeResult AnimationSelectorNode::Update( GraphContext& context )
+    GraphPoseNodeResult AnimationSelectorNode::Update( GraphContext& context )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );
@@ -293,11 +293,11 @@ namespace KRG::Animation::Graph
         return result;
     }
 
-    PoseNodeResult AnimationSelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
+    GraphPoseNodeResult AnimationSelectorNode::Update( GraphContext& context, SyncTrackTimeRange const& updateRange )
     {
         KRG_ASSERT( context.IsValid() );
 
-        PoseNodeResult result;
+        GraphPoseNodeResult result;
         if ( IsValid() )
         {
             MarkNodeActive( context );

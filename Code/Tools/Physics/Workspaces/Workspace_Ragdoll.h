@@ -89,8 +89,10 @@ namespace KRG::Physics
         //-------------------------------------------------------------------------
 
         void DrawProfileEditorWindow( UpdateContext const& context );
+        void DrawProfileManager();
+        void DrawRootBodySettings( UpdateContext const& context, RagdollDefinition::Profile* pProfile );
         void DrawJointSettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile );
-        void DrawBodySettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile );
+        void DrawMaterialSettingsTable( UpdateContext const& context, RagdollDefinition::Profile* pProfile );
 
         //-------------------------------------------------------------------------
 
@@ -112,7 +114,7 @@ namespace KRG::Physics
         inline bool IsPreviewing() const { return m_pRagdoll != nullptr; }
         void StartPreview( UpdateContext const& context );
         void StopPreview();
-        virtual void Update( UpdateContext const& updateContext ) override;
+        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
 
         void DrawPreviewControlsWindow( UpdateContext const& context );
 
@@ -151,6 +153,7 @@ namespace KRG::Physics
         Resource::ResourceFilePicker                    m_resourceFilePicker;
         TResourcePtr<Animation::AnimationClip>          m_pPreviewAnimation;
         Animation::Pose*                                m_pPose = nullptr;
+        Animation::Pose*                                m_pFinalPose = nullptr;
         Percentage                                      m_animTime = 0.0f;
         bool                                            m_enablePoseFollowing = true;
         bool                                            m_enableGravity = true;
@@ -158,9 +161,14 @@ namespace KRG::Physics
         bool                                            m_enableAnimationLooping = true;
         bool                                            m_autoPlayAnimation = true;
         bool                                            m_drawAnimationPose = false;
+        bool                                            m_drawRagdoll = true;
+        bool                                            m_initializeRagdollPose = false;
+        float                                           m_physicsBlendWeight = 1.0f;
         Ragdoll*                                        m_pRagdoll = nullptr;
         Entity*                                         m_pPreviewEntity = nullptr;
         Render::SkeletalMeshComponent*                  m_pMeshComponent = nullptr;
+        ImGuiX::Gizmo                                   m_previewGizmo;
+        Transform                                       m_previewGizmoTransform;
 
         // PVD connection
         PhysicsSystem*                                  m_pPhysicsSystem = nullptr;

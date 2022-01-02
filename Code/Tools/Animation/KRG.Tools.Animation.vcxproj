@@ -16,6 +16,7 @@
     <ClInclude Include="GraphEditor\AnimationGraphEditor_VariationEditor.h" />
     <ClInclude Include="Events\AnimationEventEditor.h" />
     <ClInclude Include="Events\AnimationEventData.h" />
+    <ClInclude Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Ragdoll.h" />
     <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Common.h" />
     <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Compilation.h" />
     <ClInclude Include="GraphEditor\EditorGraph\Animation_EditorGraph_Definition.h" />
@@ -56,6 +57,7 @@
     <ClCompile Include="GraphEditor\AnimationGraphEditor_VariationEditor.cpp" />
     <ClCompile Include="Events\AnimationEventData.cpp" />
     <ClCompile Include="Events\AnimationEventEditor.cpp" />
+    <ClCompile Include="GraphEditor\EditorGraph\Nodes\Animation_EditorGraphNode_Ragdoll.cpp" />
     <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Common.cpp" />
     <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Compilation.cpp" />
     <ClCompile Include="GraphEditor\EditorGraph\Animation_EditorGraph_Definition.cpp" />
@@ -93,6 +95,9 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Engine\Core\KRG.Engine.Core.vcxproj">
       <Project>{2cfadbdc-ee40-4484-94d0-62a90206209e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Engine\Physics\KRG.Engine.Physics.vcxproj">
+      <Project>{bb1a9d99-f719-49f6-9fa5-bce50ac60f02}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Engine\Render\KRG.Engine.Render.vcxproj">
       <Project>{88bbae2e-f1b2-4157-ba64-3e5c7ebd2a9c}</Project>
