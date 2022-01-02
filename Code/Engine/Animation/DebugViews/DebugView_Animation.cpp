@@ -193,6 +193,12 @@ namespace KRG::Animation
 
     void AnimationDebugView::DrawGraphActiveTasksDebugView( AnimationGraphComponent* pGraphComponent )
     {
+        if ( !pGraphComponent->IsInitialized() )
+        {
+            ImGui::Text( "Uninitialized Graph Component" );
+            return;
+        }
+
         auto pTaskSystem = pGraphComponent->m_pTaskSystem;
         if ( !pTaskSystem->HasTasks() )
         {
@@ -227,6 +233,14 @@ namespace KRG::Animation
 
     void AnimationDebugView::DrawGraphSampledEventsView( AnimationGraphComponent* pGraphComponent )
     {
+        if ( !pGraphComponent->IsInitialized() )
+        {
+            ImGui::Text( "Uninitialized Graph Component" );
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
         if ( ImGui::BeginTable( "OverlayActionsTable", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
         {
             ImGui::TableSetupColumn( "##Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 14 );
@@ -383,30 +397,30 @@ namespace KRG::Animation
 
                 if ( ImGui::BeginMenu( "Visualization" ) )
                 {
-                    auto pTaskSystem = pGraphComponent->m_pTaskSystem;
+                    TaskSystem::DebugMode const debugMode = pGraphComponent->GetTaskSystemDebugMode();
 
-                    bool const isVisualizationOff = pTaskSystem->GetDebugMode() == TaskSystem::DebugMode::Off;
+                    bool const isVisualizationOff = debugMode == TaskSystem::DebugMode::Off;
                     if ( ImGui::RadioButton( "No Visualization", isVisualizationOff ) )
                     {
-                        pTaskSystem->SetDebugMode( TaskSystem::DebugMode::Off );
+                        pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::Off );
                     }
 
-                    bool const isFinalPoseEnabled = pTaskSystem->GetDebugMode() == TaskSystem::DebugMode::FinalPose;
+                    bool const isFinalPoseEnabled = debugMode == TaskSystem::DebugMode::FinalPose;
                     if ( ImGui::RadioButton( "FinalPose", isFinalPoseEnabled ) )
                     {
-                        pTaskSystem->SetDebugMode( TaskSystem::DebugMode::FinalPose );
+                        pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::FinalPose );
                     }
 
-                    bool const isPoseTreeEnabled = pTaskSystem->GetDebugMode() == TaskSystem::DebugMode::PoseTree;
+                    bool const isPoseTreeEnabled = debugMode == TaskSystem::DebugMode::PoseTree;
                     if ( ImGui::RadioButton( "Pose Tree", isPoseTreeEnabled ) )
                     {
-                        pTaskSystem->SetDebugMode( TaskSystem::DebugMode::PoseTree );
+                        pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::PoseTree );
                     }
 
-                    bool const isDetailedPoseTreeEnabled = pTaskSystem->GetDebugMode() == TaskSystem::DebugMode::DetailedPoseTree;
+                    bool const isDetailedPoseTreeEnabled = debugMode == TaskSystem::DebugMode::DetailedPoseTree;
                     if ( ImGui::RadioButton( "Detailed Pose Tree", isDetailedPoseTreeEnabled ) )
                     {
-                        pTaskSystem->SetDebugMode( TaskSystem::DebugMode::DetailedPoseTree );
+                        pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::DetailedPoseTree );
                     }
 
                     ImGui::EndMenu();
@@ -516,8 +530,7 @@ namespace KRG::Animation
             if ( ppFoundComponent != nullptr )
             {
                 auto pGraphComponent = *ppFoundComponent;
-                auto pTaskSystem = pGraphComponent->m_pTaskSystem;
-                pTaskSystem->DrawDebug( drawingCtx, pGraphComponent->m_graphContext.m_worldTransform );
+                pGraphComponent->DrawDebug( drawingCtx );
             }
         }
     }

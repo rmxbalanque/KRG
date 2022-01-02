@@ -2239,10 +2239,6 @@ namespace KRG::Physics
                 }
             }
 
-            ImGui::BeginDisabled( IsPreviewing() );
-            ImGui::Checkbox( "Auto Connect to PVD", &m_autoConnectToPVD );
-            ImGui::EndDisabled();
-
             ImGui::BeginDisabled( !IsPreviewing() );
             if ( ImGui::Button( "Reset Ragdoll State", ImVec2( -1, 0 ) ) )
             {
@@ -2256,6 +2252,33 @@ namespace KRG::Physics
             ImGui::SameLine();
             ImGui::SetNextItemWidth( -1 );
             ImGui::SliderFloat( "##PhysicsWeight", &m_physicsBlendWeight, 0, 1, "%.3f", ImGuiSliderFlags_NoInput );
+
+            //-------------------------------------------------------------------------
+            // PVD
+            //-------------------------------------------------------------------------
+
+            ImGuiX::TextSeparator( "PhysX Visual Debugger" );
+
+            ImGui::BeginDisabled( IsPreviewing() );
+            ImGui::Checkbox( "Auto Connect to PVD", &m_autoConnectToPVD );
+            ImGui::EndDisabled();
+
+            ImGui::BeginDisabled( !IsPreviewing() );
+            if ( m_pPhysicsSystem != nullptr && m_pPhysicsSystem->IsConnectedToPVD() )
+            {
+                if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->DisconnectFromPVD();
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( "Connect To PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->ConnectToPVD();
+                }
+            }
+            ImGui::EndDisabled();
 
             //-------------------------------------------------------------------------
             // Animation
@@ -2341,14 +2364,13 @@ namespace KRG::Physics
 
         //-------------------------------------------------------------------------
 
-        auto pPhysicsWorldSystem = m_pWorld->GetWorldSystem<PhysicsWorldSystem>();
-
+        m_pPhysicsSystem = context.GetSystem<PhysicsSystem>();
         if ( m_autoConnectToPVD )
         {
-            m_pPhysicsSystem = context.GetSystem<PhysicsSystem>();
             m_pPhysicsSystem->ConnectToPVD();
         }
 
+        auto pPhysicsWorldSystem = m_pWorld->GetWorldSystem<PhysicsWorldSystem>();
         m_pRagdoll = pPhysicsWorldSystem->GetScene()->CreateRagdoll( pRagdollDefinition, m_activeProfileID, 0 );
         m_pRagdoll->SetGravityEnabled( m_enableGravity );
         m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
@@ -2371,11 +2393,12 @@ namespace KRG::Physics
     {
         KRG_ASSERT( m_pRagdoll != nullptr );
 
-        if ( m_autoConnectToPVD )
+        KRG_ASSERT( m_pPhysicsSystem != nullptr );
+        if ( m_pPhysicsSystem->IsConnectedToPVD() )
         {
-            KRG_ASSERT( m_pPhysicsSystem != nullptr );
             m_pPhysicsSystem->DisconnectFromPVD();
         }
+        m_pPhysicsSystem = nullptr;
 
         //-------------------------------------------------------------------------
 

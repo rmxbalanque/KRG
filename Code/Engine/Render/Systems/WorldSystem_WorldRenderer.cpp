@@ -160,6 +160,10 @@ namespace KRG::Render
 
     void RendererWorldSystem::UnregisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
+        // Unregistrations occur at the start of the frame
+        // The world might be paused so we might leave an invalid component in this array
+        m_visibleStaticMeshComponents.clear();
+
         auto const pRecord = m_registeredStaticMeshComponents.Get( pMeshComponent->GetID() );
 
         if ( pMeshComponent->HasMeshResourceSet() )
@@ -212,6 +216,10 @@ namespace KRG::Render
 
     void RendererWorldSystem::UnregisterSkeletalMeshComponent( Entity const* pEntity, SkeletalMeshComponent* pMeshComponent )
     {
+        // Unregistrations occur at the start of the frame
+        // The world might be paused so we might leave an invalid component in this array
+        m_visibleSkeletalMeshComponents.clear();
+
         // Remove component from mesh group
         if ( pMeshComponent->HasMeshResourceSet() )
         {

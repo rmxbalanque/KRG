@@ -268,18 +268,15 @@ namespace KRG::Player
 
         PlayerController* pPlayerController = nullptr;
 
-        if ( true || m_isActionDebuggerWindowOpen || m_isPhysicsStateDebuggerWindowOpen )
+        if ( m_pPlayerManager->HasPlayer() )
         {
-            if ( m_pPlayerManager->HasPlayer() )
+            auto pPlayerEntity = m_pWorld->GetPersistentMap()->FindEntity( m_pPlayerManager->GetPlayerEntityID() );
+            for ( auto pSystem : pPlayerEntity->GetSystems() )
             {
-                auto pPlayerEntity = m_pWorld->GetPersistentMap()->FindEntity( m_pPlayerManager->GetPlayerEntityID() );
-                for ( auto pSystem : pPlayerEntity->GetSystems() )
+                pPlayerController = TryCast<PlayerController>( pSystem );
+                if ( pPlayerController != nullptr )
                 {
-                    pPlayerController = TryCast<PlayerController>( pSystem );
-                    if ( pPlayerController != nullptr )
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
         }
@@ -291,9 +288,17 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
+        if ( !m_pPlayerManager->IsDebugCameraEnabled() )
+        {
+            HACK_DrawPlayerHUD( context, pPlayerController );
+        }
+    }
+
+    void PlayerDebugView::HACK_DrawPlayerHUD( EntityWorldUpdateContext const& context, PlayerController* pController )
+    {
         InlineString statusString;
 
-        bool const isChargedJumpReady = static_cast<JumpAction const*>( pPlayerController->m_actionStateMachine.m_baseActions[ActionStateMachine::Jump] )->IsChargedJumpReady();
+        bool const isChargedJumpReady = static_cast<JumpAction const*>( pController->m_actionStateMachine.m_baseActions[ActionStateMachine::Jump] )->IsChargedJumpReady();
         if ( isChargedJumpReady )
         {
             statusString += "Charged Jump Ready";

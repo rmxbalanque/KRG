@@ -59,27 +59,22 @@ namespace KRG::Input
 
     //-------------------------------------------------------------------------
 
-    template<uint32 NumButtons>
+    template<uint32 numButtons>
     class ButtonStates
     {
         friend class InputDevice;
 
     public:
 
-        inline ButtonStates()
-        {
-            m_buttons.resize( NumButtons );
-        }
-
         inline bool WasPressed( uint32 buttonIdx ) const
         {
-            KRG_ASSERT( buttonIdx < NumButtons );
+            KRG_ASSERT( buttonIdx < numButtons );
             return ( m_buttons[buttonIdx].WasPressed() );
         }
 
         inline bool WasReleased( uint32 buttonIdx, Seconds* pHeldDownDuration = nullptr ) const
         {
-            KRG_ASSERT( buttonIdx < NumButtons );
+            KRG_ASSERT( buttonIdx < numButtons );
             if ( m_buttons[buttonIdx].WasReleased() )
             {
                 if ( pHeldDownDuration != nullptr )
@@ -105,7 +100,7 @@ namespace KRG::Input
 
         inline Seconds GetHeldDuration( uint32 buttonIdx ) const
         {
-            KRG_ASSERT( buttonIdx < NumButtons );
+            KRG_ASSERT( buttonIdx < numButtons );
             return m_buttons[buttonIdx].IsHeldDown() ? m_buttons[buttonIdx].GetTimeHeld() : 0.0f;
         }
 
@@ -118,7 +113,7 @@ namespace KRG::Input
 
         inline void Update()
         {
-            for ( auto i = 0; i < NumButtons; i++ )
+            for ( auto i = 0; i < numButtons; i++ )
             {
                 // If the state changed this frame, register the button for an update on the next frame
                 if ( m_buttons[i].m_stateChangedThisFrame )
@@ -157,6 +152,6 @@ namespace KRG::Input
 
     private:
 
-        TInlineVector<Button, NumButtons>   m_buttons;
+        TArray<Button, numButtons>   m_buttons;
     };
 }

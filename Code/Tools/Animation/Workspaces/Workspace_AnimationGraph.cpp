@@ -6,8 +6,10 @@
 #include "Engine/Animation/Systems/EntitySystem_Animation.h"
 #include "Engine/Animation/Components/Component_AnimationGraph.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
+#include "Engine/Physics/PhysicsSystem.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldUpdateContext.h"
+#include "Engine/Animation/DebugViews/DebugView_Animation.h"
 
 //-------------------------------------------------------------------------
 
@@ -189,18 +191,21 @@ namespace KRG::Animation
         m_graphViewWindowName.sprintf( "Graph View##%u", GetID() );
         m_propertyGridWindowName.sprintf( "Properties##%u", GetID() );
         m_variationEditorWindowName.sprintf( "Variation Editor##%u", GetID() );
+        m_debuggerWindowName.sprintf( "Debugger##%u", GetID() );
     }
 
     void AnimationGraphWorkspace::InitializeDockingLayout( ImGuiID dockspaceID ) const
     {
-        ImGuiID topLeftDockID = 0, bottomLeftDockID = 0, centerDockID = 0, rightDockID = 0;
+        ImGuiID topLeftDockID = 0, bottomLeftDockID = 0, centerDockID = 0, rightDockID = 0, bottomRightDockID;
 
         ImGui::DockBuilderSplitNode( dockspaceID, ImGuiDir_Left, 0.2f, &topLeftDockID, &centerDockID );
         ImGui::DockBuilderSplitNode( topLeftDockID, ImGuiDir_Down, 0.33f, &bottomLeftDockID, &topLeftDockID );
         ImGui::DockBuilderSplitNode( centerDockID, ImGuiDir_Left, 0.66f, &centerDockID, &rightDockID );
+        ImGui::DockBuilderSplitNode( rightDockID, ImGuiDir_Down, 0.66f, &bottomRightDockID, &rightDockID );
 
         // Dock windows
         ImGui::DockBuilderDockWindow( GetViewportWindowID(), rightDockID );
+        ImGui::DockBuilderDockWindow( m_debuggerWindowName.c_str(), bottomRightDockID );
         ImGui::DockBuilderDockWindow( m_controlParametersWindowName.c_str(), topLeftDockID );
         ImGui::DockBuilderDockWindow( m_propertyGridWindowName.c_str(), bottomLeftDockID );
         ImGui::DockBuilderDockWindow( m_graphViewWindowName.c_str(), centerDockID );
@@ -242,6 +247,11 @@ namespace KRG::Animation
             m_propertyGrid.DrawGrid();
         }
         ImGui::End();
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetNextWindowClass( pWindowClass );
+        DrawDebuggerWindow( context );
     }
 
     void AnimationGraphWorkspace::DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport )
@@ -252,14 +262,62 @@ namespace KRG::Animation
         {
             ImGui::MenuItem( "Apply Root Motion", nullptr, &m_applyRootMotion );
 
+            //-------------------------------------------------------------------------
+
             ImGuiX::TextSeparator( "Visualization" );
+
             ImGui::MenuItem( "Draw Root", nullptr, &m_drawRoot );
             ImGui::MenuItem( "Draw Recorded Root Motion", nullptr, &m_drawRecordedRootMotion );
 
+            //-------------------------------------------------------------------------
+
             ImGuiX::TextSeparator( "Pose Debug" );
-            //stateUpdated |= ImGui::RadioButton( "None", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Lighting );
-            //stateUpdated |= ImGui::RadioButton( "Final Pose", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Albedo );
-            //stateUpdated |= ImGui::RadioButton( "Pose Tree", &debugMode, (int32) RendererWorldSystem::VisualizationMode::Normals );
+
+            bool const isVisualizationOff = m_taskSystemDebugMode == TaskSystem::DebugMode::Off;
+            if ( ImGui::RadioButton( "No Visualization", isVisualizationOff ) )
+            {
+                m_taskSystemDebugMode = TaskSystem::DebugMode::Off;
+            }
+
+            bool const isFinalPoseEnabled = m_taskSystemDebugMode == TaskSystem::DebugMode::FinalPose;
+            if ( ImGui::RadioButton( "FinalPose", isFinalPoseEnabled ) )
+            {
+                m_taskSystemDebugMode = TaskSystem::DebugMode::FinalPose;
+            }
+
+            bool const isPoseTreeEnabled = m_taskSystemDebugMode == TaskSystem::DebugMode::PoseTree;
+            if ( ImGui::RadioButton( "Pose Tree", isPoseTreeEnabled ) )
+            {
+                m_taskSystemDebugMode = TaskSystem::DebugMode::PoseTree;
+            }
+
+            bool const isDetailedPoseTreeEnabled = m_taskSystemDebugMode == TaskSystem::DebugMode::DetailedPoseTree;
+            if ( ImGui::RadioButton( "Detailed Pose Tree", isDetailedPoseTreeEnabled ) )
+            {
+                m_taskSystemDebugMode = TaskSystem::DebugMode::DetailedPoseTree;
+            }
+
+            //-------------------------------------------------------------------------
+
+            ImGuiX::TextSeparator( "Physics" );
+            ImGui::BeginDisabled( !m_isPreviewing );
+            if ( m_pPhysicsSystem != nullptr && m_pPhysicsSystem->IsConnectedToPVD() )
+            {
+                if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->DisconnectFromPVD();
+                }
+            }
+            else
+            {
+                if ( ImGui::Button( "Connect To PVD", ImVec2( -1, 0 ) ) )
+                {
+                    m_pPhysicsSystem->ConnectToPVD();
+                }
+            }
+            ImGui::EndDisabled();
+
+            //-------------------------------------------------------------------------
 
             ImGui::EndCombo();
         }
@@ -271,16 +329,16 @@ namespace KRG::Animation
 
         if ( IsPreviewing() )
         {
-            if ( ImGui::Button( KRG_ICON_STOP"Stop Preview" ) )
+            if ( ImGui::Button( KRG_ICON_STOP" Stop Preview" ) )
             {
                 StopPreview();
             }
         }
         else
         {
-            if ( ImGui::Button( KRG_ICON_PLAY"Start Preview" ) )
+            if ( ImGui::Button( KRG_ICON_PLAY" Start Preview" ) )
             {
-                StartPreview();
+                StartPreview( context );
             }
         }
     }
@@ -332,7 +390,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void AnimationGraphWorkspace::StartPreview()
+    void AnimationGraphWorkspace::StartPreview( UpdateContext const& context )
     {
         // Try to compile the graph
         //-------------------------------------------------------------------------
@@ -410,14 +468,29 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
         
         AddEntityToWorld( m_pPreviewEntity );
+
+        // Physics
+        //-------------------------------------------------------------------------
+
+        KRG_ASSERT( m_pPhysicsSystem == nullptr );
+        m_pPhysicsSystem = context.GetSystem<Physics::PhysicsSystem>();
+
         m_isPreviewing = true;
     }
 
     void AnimationGraphWorkspace::StopPreview()
     {
+        KRG_ASSERT( m_pPhysicsSystem != nullptr );
+        if ( m_pPhysicsSystem->IsConnectedToPVD() )
+        {
+            m_pPhysicsSystem->DisconnectFromPVD();
+        }
+        m_pPhysicsSystem = nullptr;
+
+        //-------------------------------------------------------------------------
+
         KRG_ASSERT( m_pPreviewEntity != nullptr );
         DestroyEntityInWorld( m_pPreviewEntity );
-
         m_pPreviewEntity = nullptr;
         m_pGraphComponent = nullptr;
 
@@ -430,7 +503,7 @@ namespace KRG::Animation
     void AnimationGraphWorkspace::Update( EntityWorldUpdateContext const& updateContext )
     {
         bool const isWorldPaused = updateContext.GetDeltaTime() <= 0.0f;
-        if ( !m_isPreviewing || isWorldPaused )
+        if ( !m_isPreviewing || !m_pGraphComponent->IsInitialized() )
         {
             return;
         }
@@ -439,12 +512,41 @@ namespace KRG::Animation
 
         if ( updateContext.GetUpdateStage() == UpdateStage::FrameEnd )
         {
-            if ( m_applyRootMotion )
+            if ( !updateContext.IsWorldPaused() )
             {
-                Transform const& WT = m_pPreviewEntity->GetWorldTransform();
-                Transform const& RMD = m_pGraphComponent->GetRootMotionDelta();
-                m_pPreviewEntity->SetWorldTransform( RMD * WT );
+                if ( m_applyRootMotion )
+                {
+                    Transform const& WT = m_pPreviewEntity->GetWorldTransform();
+                    Transform const& RMD = m_pGraphComponent->GetRootMotionDelta();
+                    m_pPreviewEntity->SetWorldTransform( RMD * WT );
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            auto drawingContext = updateContext.GetDrawingContext();
+            m_pGraphComponent->SetTaskSystemDebugMode( m_taskSystemDebugMode );
+            m_pGraphComponent->DrawDebug( drawingContext );
+        }
+    }
+
+    void AnimationGraphWorkspace::DrawDebuggerWindow( UpdateContext const& context )
+    {
+        if ( ImGui::Begin( m_debuggerWindowName.c_str() ) )
+        {
+            if ( m_isPreviewing && m_pGraphComponent->IsInitialized() )
+            {
+                AnimationDebugView::DrawGraphActiveTasksDebugView( m_pGraphComponent );
+
+                ImGui::NewLine();
+                ImGuiX::TextSeparator( "Events" );
+                AnimationDebugView::DrawGraphSampledEventsView( m_pGraphComponent );
+            }
+            else
+            {
+                ImGui::Text( "Nothing to Debug" );
             }
         }
+        ImGui::End();
     }
 }

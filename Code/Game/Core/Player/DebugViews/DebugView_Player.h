@@ -33,8 +33,10 @@ namespace KRG::Player
         void DrawActionDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pController );
         void DrawPhysicsStateDebuggerWindow( EntityWorldUpdateContext const& context, PlayerController const* pController );
 
-        // HACK since we dont have a UI system yet
         virtual void DrawOverlayElements( EntityWorldUpdateContext const& context ) override;
+
+        // HACK since we dont have a UI system yet
+        void HACK_DrawPlayerHUD( EntityWorldUpdateContext const& context, PlayerController* pController );
 
     private:
 

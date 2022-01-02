@@ -7,7 +7,7 @@ namespace KRG::Player
 {
     bool ShootOverlayAction::TryStartInternal( ActionContext const& ctx )
     {
-        if ( ctx.m_pInputSystem->GetControllerState()->GetRightTriggerValue() >= 0.2f )
+        if ( ctx.m_pInputState->GetControllerState()->GetRightTriggerValue() >= 0.2f )
         {
             auto drawingCtx = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
             return true;
@@ -18,7 +18,7 @@ namespace KRG::Player
 
     Action::Status ShootOverlayAction::UpdateInternal( ActionContext const& ctx )
     {
-        if ( ctx.m_pInputSystem->GetControllerState()->GetRightTriggerValue() < 0.2f )
+        if ( ctx.m_pInputState->GetControllerState()->GetRightTriggerValue() < 0.2f )
         {
             return Status::Completed;
         }

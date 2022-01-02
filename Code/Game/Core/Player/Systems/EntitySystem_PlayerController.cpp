@@ -130,14 +130,18 @@ namespace KRG::Player
 
     void PlayerController::Update( EntityWorldUpdateContext const& ctx )
     {
+        Input::InputState frameInputState( ctx.GetSystem<Input::InputSystem>() );
+
         TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityWorldUpdateContext, &ctx );
-        TScopedGuardValue const inputSystemGuardValue( m_actionContext.m_pInputSystem, ctx.GetSystem<Input::InputSystem>() );
         TScopedGuardValue const physicsSystemGuard( m_actionContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
+        TScopedGuardValue const inputStateGuardValue( m_actionContext.m_pInputState, &frameInputState );
 
         if ( !m_actionContext.IsValid() )
         {
             return;
         }
+
+        frameInputState.SetInputEnabled( m_actionContext.m_pPlayerComponent->IsPlayerEnabled() );
 
         //-------------------------------------------------------------------------
 

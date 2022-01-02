@@ -9,15 +9,16 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG::Animation
+namespace KRG::Physics
 {
-    class AnimationGraphComponent;
+    class PhysicsSystem;
 }
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
+    class AnimationGraphComponent;
     class GraphUndoableAction;
 
     //-------------------------------------------------------------------------
@@ -33,10 +34,11 @@ namespace KRG::Animation
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
+        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void OnUndoRedo() override;
         virtual bool IsDirty() const override;
         virtual bool AlwaysAllowSaving() const override { return true; }
@@ -48,10 +50,10 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         inline bool IsPreviewing() const { return m_isPreviewing; }
-        void StartPreview();
+        void StartPreview( UpdateContext const& context );
         void StopPreview();
 
-        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
+        void DrawDebuggerWindow( UpdateContext const& context );
 
     private:
 
@@ -59,6 +61,7 @@ namespace KRG::Animation
         String                              m_graphViewWindowName;
         String                              m_propertyGridWindowName;
         String                              m_variationEditorWindowName;
+        String                              m_debuggerWindowName;
 
         GraphControlParameterEditor*        m_pControlParameterEditor = nullptr;
         GraphVariationEditor*               m_pVariationEditor = nullptr;
@@ -78,6 +81,7 @@ namespace KRG::Animation
         StringID                            m_selectedVariationID = GraphVariation::DefaultVariationID;
 
         // Preview
+        Physics::PhysicsSystem*             m_pPhysicsSystem = nullptr;
         Entity*                             m_pPreviewEntity = nullptr;
         AnimationGraphComponent*            m_pGraphComponent = nullptr;
         DebugContext                        m_debugContext;
@@ -85,5 +89,6 @@ namespace KRG::Animation
         bool                                m_applyRootMotion = true;
         bool                                m_drawRoot = false;
         bool                                m_drawRecordedRootMotion = false;
+        TaskSystem::DebugMode               m_taskSystemDebugMode = TaskSystem::DebugMode::Off;
     };
 }

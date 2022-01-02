@@ -25,7 +25,7 @@ namespace KRG::Player
 
     bool JumpAction::TryStartInternal( ActionContext const& ctx )
     {
-        if( ctx.m_pInputSystem->GetControllerState()->WasReleased( Input::ControllerButton::FaceButtonDown ) )
+        if( ctx.m_pInputState->GetControllerState()->WasReleased( Input::ControllerButton::FaceButtonDown ) )
         {
             ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Ability );
             auto pAbilityAnimController = ctx.GetAnimSubGraphController<AbilityGraphController>();
@@ -40,7 +40,7 @@ namespace KRG::Player
         {
             m_isChargedJumpReady = false;
             Seconds jumpHoldTime = 0.0f;
-            if( ctx.m_pInputSystem->GetControllerState()->IsHeldDown( Input::ControllerButton::FaceButtonDown, &jumpHoldTime ) )
+            if( ctx.m_pInputState->GetControllerState()->IsHeldDown( Input::ControllerButton::FaceButtonDown, &jumpHoldTime ) )
             {
                 if( jumpHoldTime > g_bigJumpHoldTime )
                 {
@@ -61,7 +61,7 @@ namespace KRG::Player
         }
         else
         {
-            auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+            auto const pControllerState = ctx.m_pInputState->GetControllerState();
             KRG_ASSERT( pControllerState != nullptr );
 
             // Calculate desired player displacement

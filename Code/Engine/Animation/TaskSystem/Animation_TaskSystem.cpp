@@ -137,8 +137,10 @@ namespace KRG::Animation
         }
     }
 
-    void TaskSystem::UpdatePostPhysics( Pose& outPose )
+    void TaskSystem::UpdatePostPhysics( Pose& outPose, Transform const& worldTransform, Transform const& worldTransformInverse )
     {
+        m_taskContext.m_worldTransform = worldTransform;
+        m_taskContext.m_worldTransformInverse = worldTransformInverse;
         m_taskContext.m_updateStage = TaskUpdateStage::PostPhysics;
 
         // If we detected co-dependent tasks in the pre-physics update, there's nothing to do here
@@ -249,7 +251,7 @@ namespace KRG::Animation
         }
     }
 
-    void TaskSystem::DrawDebug( Drawing::DrawContext& drawingContext, Transform const& worldTransform)
+    void TaskSystem::DrawDebug( Drawing::DrawContext& drawingContext )
     {
         if ( m_debugMode == DebugMode::Off )
         {
@@ -271,32 +273,42 @@ namespace KRG::Animation
             auto const& pFinalTask = m_tasks.back();
             KRG_ASSERT( pFinalTask->IsComplete() );
             auto pPoseBuffer = m_posePool.GetRecordedPose( (int8) m_tasks.size() - 1 );
-            pPoseBuffer->m_pose.DrawDebug( drawingContext, worldTransform );
+            pPoseBuffer->m_pose.DrawDebug( drawingContext, m_taskContext.m_worldTransform );
             return;
         }
 
-        // Calculate task tree offset
+        // Calculate task tree offsets
         //-------------------------------------------------------------------------
 
         TInlineVector<Float2, 16> taskTreeOffsets;
         taskTreeOffsets.resize( m_tasks.size(), Float2::Zero );
         CalculateTaskOffset( (TaskIndex) m_tasks.size() - 1, Float2::Zero, taskTreeOffsets );
 
-        // Draw tree
-        //-------------------------------------------------------------------------
+        Vector const offsetVectorX = m_taskContext.m_worldTransform.GetAxisX().GetNegated() * 2.0f;
+        Vector const offsetVectorY = m_taskContext.m_worldTransform.GetAxisY().GetNegated() * 1.5f;
 
-        Transform offsetTransform = worldTransform;
-        Vector const offsetVectorX = worldTransform.GetAxisX().GetNegated() * 2.0f;
-        Vector const offsetVectorY = worldTransform.GetAxisY().GetNegated() * 1.5f;
+        TInlineVector<Transform, 16> taskTransforms;
+        taskTransforms.resize( m_tasks.size(), m_taskContext.m_worldTransform );
 
         for ( int8 i = (int8) m_tasks.size() - 1; i >= 0; i-- )
         {
             Vector const offset = ( offsetVectorX * taskTreeOffsets[i].m_x ) + ( offsetVectorY * taskTreeOffsets[i].m_y );
-            offsetTransform.SetTranslation( worldTransform.GetTranslation() + offset );
+            taskTransforms[i].SetTranslation( m_taskContext.m_worldTransform.GetTranslation() + offset );
+        }
 
+        // Draw tree
+        //-------------------------------------------------------------------------
+
+        for ( int8 i = (int8) m_tasks.size() - 1; i >= 0; i-- )
+        {
             auto pPoseBuffer = m_posePool.GetRecordedPose( i );
-            pPoseBuffer->m_pose.DrawDebug( drawingContext, offsetTransform, m_tasks[i]->GetDebugColor() );
-            drawingContext.DrawText3D( offsetTransform.GetTranslation(), m_tasks[i]->GetDebugText().c_str(), m_tasks[i]->GetDebugColor(), Drawing::FontSmall, Drawing::AlignMiddleCenter );
+            pPoseBuffer->m_pose.DrawDebug( drawingContext, taskTransforms[i], m_tasks[i]->GetDebugColor() );
+            drawingContext.DrawText3D( taskTransforms[i].GetTranslation(), m_tasks[i]->GetDebugText().c_str(), m_tasks[i]->GetDebugColor(), Drawing::FontSmall, Drawing::AlignMiddleCenter );
+
+            for ( auto& dependencyIdx : m_tasks[i]->GetDependencyIndices() )
+            {
+                drawingContext.DrawLine( taskTransforms[i].GetTranslation(), taskTransforms[dependencyIdx].GetTranslation(), m_tasks[i]->GetDebugColor(), 2.0f );
+            }
         }
     }
     #endif

@@ -26,11 +26,11 @@ namespace KRG::Animation::Tasks
     {
         if ( m_pAnimation->IsAdditive() )
         {
-            return String( String::CtorSprintf(), "Sample Task (Additive): %s, %.2f%%%%", m_pAnimation->GetResourceID().c_str(), (float) m_time * 100 );
+            return String( String::CtorSprintf(), "Sample (Additive): %s, %.2f%%%%", m_pAnimation->GetResourceID().GetFileNameWithoutExtension().c_str(), (float) m_time * 100);
         }
         else
         {
-            return String( String::CtorSprintf(), "Sample Task: %s, %.2f%%%%", m_pAnimation->GetResourceID().c_str(), (float) m_time * 100 );
+            return String( String::CtorSprintf(), "Sample: %s, %.2f%%%%", m_pAnimation->GetResourceID().GetFileNameWithoutExtension().c_str(), (float) m_time * 100 );
         }
     }
     #endif

@@ -12,7 +12,7 @@ namespace KRG
 {
     class EntityComponent;
     namespace Physics { class CharacterComponent; class Scene; }
-    namespace Input { class InputSystem; }
+    namespace Input { class InputState; }
     namespace Animation { class GraphController; }
 }
 
@@ -63,7 +63,7 @@ namespace KRG::Player
     public:
 
         EntityWorldUpdateContext const*             m_pEntityWorldUpdateContext = nullptr;
-        Input::InputSystem*                         m_pInputSystem = nullptr;
+        Input::InputState*                          m_pInputState = nullptr;
         Physics::Scene*                             m_pPhysicsScene = nullptr;
 
         MainPlayerComponent*                        m_pPlayerComponent = nullptr;

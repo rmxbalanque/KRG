@@ -71,6 +71,13 @@ namespace KRG::Animation
     void AnimationGraphComponent::PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
-        m_pTaskSystem->UpdatePostPhysics( *m_pPose );
+        m_pTaskSystem->UpdatePostPhysics( *m_pPose, characterTransform, characterTransform.GetInverse() );
     }
+
+    #if KRG_DEVELOPMENT_TOOLS
+    void AnimationGraphComponent::DrawDebug( Drawing::DrawContext& drawingContext )
+    {
+        m_pTaskSystem->DrawDebug( drawingContext );
+    }
+    #endif
 }

@@ -34,7 +34,7 @@ namespace KRG::Animation
 
         inline bool HasPhysicsDependency() const { return m_hasPhysicsDependency; }
         void UpdatePrePhysics( float deltaTime, Transform const& worldTransform, Transform const& worldTransformInverse );
-        void UpdatePostPhysics( Pose& outPose );
+        void UpdatePostPhysics( Pose& outPose, Transform const& worldTransform, Transform const& worldTransformInverse );
 
         // Cached Pose storage
         //-------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace KRG::Animation
         #if KRG_DEVELOPMENT_TOOLS
         void SetDebugMode( DebugMode mode );
         DebugMode GetDebugMode() const { return m_debugMode; }
-        void DrawDebug( Drawing::DrawContext& drawingContext, Transform const& worldTransform );
+        void DrawDebug( Drawing::DrawContext& drawingContext );
         #endif
 
     private:

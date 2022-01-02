@@ -24,13 +24,13 @@ namespace KRG::Player
 
     bool DashAction::TryStartInternal( ActionContext const& ctx )
     {
-        if( ctx.m_pInputSystem->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
+        if( ctx.m_pInputState->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
         {
             if( m_isFirstUse || m_timer.GetElapsedTimeSeconds() > g_dashCooldown )
             {
                 ctx.m_pCharacterController->DisableGravity();
 
-                auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+                auto const pControllerState = ctx.m_pInputState->GetControllerState();
                 KRG_ASSERT( pControllerState != nullptr );
 
                 // Use last frame camera orientation
@@ -69,7 +69,7 @@ namespace KRG::Player
 
     Action::Status DashAction::UpdateInternal( ActionContext const& ctx )
     {
-        auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+        auto const pControllerState = ctx.m_pInputState->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );
 
         // Calculate desired player displacement

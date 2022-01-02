@@ -32,7 +32,7 @@ namespace KRG::Player
 
     Action::Status FallingAction::UpdateInternal( ActionContext const& ctx )
     {
-        auto const pControllerState = ctx.m_pInputSystem->GetControllerState();
+        auto const pControllerState = ctx.m_pInputState->GetControllerState();
         KRG_ASSERT( pControllerState != nullptr );
 
         // Calculate desired player displacement

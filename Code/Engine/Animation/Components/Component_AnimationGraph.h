@@ -55,7 +55,6 @@ namespace KRG::Animation
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-
         inline bool IsNodeActive( GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( m_pGraphInstance != nullptr );
@@ -67,6 +66,10 @@ namespace KRG::Animation
             KRG_ASSERT( m_pGraphInstance != nullptr );
             return m_pGraphInstance->GetPoseNodeDebugInfo( const_cast<GraphContext&>( m_graphContext ), nodeIdx );
         }
+
+        inline void SetTaskSystemDebugMode( TaskSystem::DebugMode mode ) { m_pTaskSystem->SetDebugMode( mode ); }
+        inline TaskSystem::DebugMode GetTaskSystemDebugMode() const { return m_pTaskSystem->GetDebugMode(); }
+        void DrawDebug( Drawing::DrawContext& drawingContext );
         #endif
 
     protected:

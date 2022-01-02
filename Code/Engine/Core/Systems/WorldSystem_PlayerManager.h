@@ -77,9 +77,13 @@ namespace KRG
         inline CameraComponent* GetPlayerCamera() const { return m_player.m_pCameraComponent; }
         void SetPlayerControllerState( bool isEnabled );
 
+        // Debug
+        //-------------------------------------------------------------------------
+
         #if KRG_DEVELOPMENT_TOOLS
         void SetDebugMode( DebugMode mode );
         inline DebugMode GetDebugMode() const { return m_debugMode; }
+        inline bool IsDebugCameraEnabled() const { return m_debugMode != DebugMode::None; }
         inline FreeLookCameraComponent* GetDebugCamera() const { return m_pDebugCameraComponent; }
         inline void ResetDebugCameraSpeed() { m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed; }
         inline void SetDebugCameraSpeed( float speed ) { m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( speed ); }
