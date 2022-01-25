@@ -1,0 +1,4 @@
+{
+    "TypeID": "KRG::Render::CubemapTextureResourceDescriptor",
+    "m_path" : "data://Editor/Skybox/SkyBoxPanorama_cube_radiance.dds"
+}

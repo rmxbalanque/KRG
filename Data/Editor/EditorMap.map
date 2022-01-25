@@ -1,0 +1,56 @@
+{
+    "Entities": [
+        {
+            "Name": "Floor",
+            "Components": [
+                {
+                    "Name": "FloorCollision",
+                    "TypeData": {
+                        "TypeID": "KRG::Physics::PhysicsMeshComponent",
+                        "m_name": "FloorCollision",
+                        "m_pPhysicsMesh": "data://editor/floor/floor.pmsh"
+                    }
+                },
+                {
+                    "Name": "FloorMesh",
+                    "SpatialParent": "FloorCollision",
+                    "TypeData": {
+                        "TypeID": "KRG::Render::StaticMeshComponent",
+                        "m_name": "FloorMesh",
+                        "m_pMesh": "data://editor/floor/floor.msh"
+                    }
+                }
+            ]
+        },
+        {
+            "Name": "DirectionalLight",
+            "Components": [
+                {
+                    "Name": "DirectionalLight",
+                    "TypeData": {
+                        "TypeID": "KRG::Render::DirectionalLightComponent",
+                        "m_name": "DirectionalLight",
+                        "m_transform": "135.000000,-0.000000,0.000000,0.000000,0.000000,10.000000,1.000000,1.000000,1.000000",
+                        "m_intensity": "20.000000",
+                        "m_shadowed": "True"
+                    }
+                }
+            ]
+        },
+        {
+            "Name": "GlobalEnvMap",
+            "Components": [
+                {
+                    "Name": "GlobalEnvMapComp",
+                    "TypeData": {
+                        "TypeID": "KRG::Render::GlobalEnvironmentMapComponent",
+                        "m_name": "GlobalEnvMapComp",
+                        "m_skyboxTexture": "data://editor/skybox/editorskybox.cbmp",
+                        "m_skyboxRadianceTexture": "data://editor/skybox/editorskybox.cbmp",
+                        "m_skyboxIntensity": "1.500000"
+                    }
+                }
+            ]
+        }
+    ]
+}
