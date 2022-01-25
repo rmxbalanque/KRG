@@ -2,23 +2,17 @@
 
 ## Building Kruger
 
-1. Open the KRG.sln
-2. Build "KRG.Scripts.Reflect" - this will generate all the kruger reflection data
-3. Build the "Application" solution folder - this will build all the applications needed for KRG to run.
+1. Download the external dependencies (<https://drive.google.com/file/d/1whDvXeZKd3P4nbxTmmukPds4SG3saYra/view?usp=sharing>) and extract into the KRG external folder ( X:/Path/KRG/External )
+2. Open the KRG.sln
+3. REBUILD the "KRG.Scripts.Reflect" project - this will generate all the kruger reflection data
+4. Build the "Application" solution folder - this will build all the applications needed for KRG to run.
 
-## Quick Start
+## Basic Info
 
-There are several demo maps in KRG, to launch the engine into one of these maps, start the engine ("KrugerEngine.exe") with either of the following commandlines:
-
-* -map data://maps/BR_minimal.map
-* -map data://maps/BR_full.map
-* -map data://maps/AnimTest_minimal.map
-* -map data://maps/AnimTest_full.map
-
-## Applications
+### Applications
 
 * Engine - this is the standalone engine client
-* Resource Editor - This is a editor for previewing and editor various KRG resources
+* Editor - This is the Kruger editor
 * Resource Server - This is a standalone application that will compile and provide resources to the various KRG applications
 * Reflector - This generates the KRG reflection data
 * Resource Compiler - This processes resource compilation requests
