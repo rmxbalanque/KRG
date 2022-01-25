@@ -10,7 +10,7 @@
       <AdditionalIncludeDirectories>$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(NAVPOWER_BUILDER_LIB_DIR)\bfxSystem.lib;$(NAVPOWER_BUILDER_LIB_DIR)\bfxBuilder.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      
     </Link>
   </ItemDefinitionGroup>
 </Project>

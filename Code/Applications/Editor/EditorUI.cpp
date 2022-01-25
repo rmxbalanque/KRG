@@ -1,6 +1,6 @@
 #include "EditorUI.h"
-#include "MapEditor/Workspace_MapEditor.h"
-#include "MapEditor/Workspace_GamePreviewer.h"
+#include "Tools/Entity/Workspaces/Workspace_MapEditor.h"
+#include "Tools/Entity/Workspaces/Workspace_GamePreviewer.h"
 #include "Tools/Core/Workspaces/EditorWorkspace.h"
 #include "Engine/Render/Systems/WorldSystem_WorldRenderer.h"
 #include "Engine/Physics/Debug/DebugView_Physics.h"
@@ -20,12 +20,33 @@ namespace KRG
         KRG_ASSERT( m_pResourceBrowser == nullptr );
     }
 
+    void EditorUI::SetStartupMap( ResourceID const& mapID )
+    {
+        KRG_ASSERT( mapID.IsValid() );
+
+        if ( mapID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() )
+        {
+            m_startupMap = mapID;
+        }
+        else
+        {
+            KRG_LOG_ERROR( "Editor", "Invalid startup map resource supplied: %s", m_startupMap.c_str() );
+        }
+    }
+
     void EditorUI::Initialize( UpdateContext const& context )
     {
         m_context.Initialize( context );
         m_pResourceBrowser = KRG::New<ResourceBrowser>( m_context );
 
         m_resourceDatabaseUpdateEventBindingID = m_context.GetResourceDatabase()->OnDatabaseUpdated().Bind( [this] () { m_pResourceBrowser->RebuildBrowserTree(); } );
+
+        //-------------------------------------------------------------------------
+
+        if ( m_startupMap.IsValid() )
+        {
+            m_context.LoadMap( m_startupMap );
+        }
     }
 
     void EditorUI::Shutdown( UpdateContext const& context )
@@ -142,6 +163,54 @@ namespace KRG
             ImGui::ShowDemoWindow( &m_isImguiDemoWindowOpen );
         }
 
+        if ( m_isFontTestWindowOpen )
+        {
+            if ( ImGui::Begin( "Font Test", &m_isFontTestWindowOpen ) )
+            {
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::TinyBold );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Small );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::SmallBold );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Medium );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::MediumBold );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Large );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::LargeBold );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::Huge );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+                {
+                    ImGuiX::ScopedFont sf( ImGuiX::Font::HugeBold );
+                    ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"ADD" );
+                }
+            }
+            ImGui::End();
+        }
+
         //-------------------------------------------------------------------------
         // Draw open workspaces
         //-------------------------------------------------------------------------
@@ -172,10 +241,14 @@ namespace KRG
         }
 
         //-------------------------------------------------------------------------
-        // Pop-ups
+        // Handle Warnings/Errors
         //-------------------------------------------------------------------------
 
-        DrawPopups( context );
+        auto const unhandledWarningsAndErrors = Log::GetUnhandledWarningsAndErrors();
+        if ( !unhandledWarningsAndErrors.empty() )
+        {
+            m_isSystemLogWindowOpen = true;
+        }
     }
 
     void EditorUI::EndFrame( UpdateContext const& context )
@@ -196,7 +269,7 @@ namespace KRG
         for ( auto pWorkspace : m_context.GetWorkspaces() )
         {
             EntityWorldUpdateContext updateContext( context, pWorkspace->GetWorld() );
-            pWorkspace->Update( updateContext );
+            pWorkspace->UpdateWorld( updateContext );
         }
     }
 
@@ -249,6 +322,7 @@ namespace KRG
 
             ImGui::Separator();
 
+            ImGui::MenuItem( "Imgui Font Test Window", nullptr, &m_isFontTestWindowOpen );
             ImGui::MenuItem( "Imgui Demo Window", nullptr, &m_isImguiDemoWindowOpen );
 
             ImGui::EndMenu();
@@ -289,93 +363,6 @@ namespace KRG
         TInlineString<100> const perfStats( TInlineString<100>::CtorSprintf(), "FPS: %3.0f | MEM: %.2fMB", currentFPS, allocatedMemory );
         ImGui::SameLine( menuDimensions.x - 8 - ImGui::CalcTextSize( perfStats.c_str() ).x );
         ImGui::Text( perfStats.c_str() );
-    }
-
-    void EditorUI::DrawPopups( UpdateContext const& context )
-    {
-        // Get any new warnings/errors and create pop-ups for them
-        //-------------------------------------------------------------------------
-
-        auto const unhandledWarningsAndErrors = Log::GetUnhandledWarningsAndErrors();
-        for ( auto const& entry : unhandledWarningsAndErrors )
-        {
-            auto& popupMessage = m_modalPopups.emplace_back( ModalPopupMessage() );
-
-            UUID const ID = UUID::GenerateID();
-            popupMessage.m_ID = ( entry.m_severity == Log::Severity::Warning ) ? "Warning##" : "Error##";
-            popupMessage.m_ID += ID.ToString().c_str();
-            popupMessage.m_channel = entry.m_channel;
-            popupMessage.m_severity = entry.m_severity;
-            popupMessage.m_message = entry.m_message;
-        }
-
-        // Remove closed warnings/errors
-        //-------------------------------------------------------------------------
-
-        for ( auto i = 0; i < m_modalPopups.size(); i++ )
-        {
-            if ( !m_modalPopups[i].m_isOpen )
-            {
-                m_modalPopups.erase( m_modalPopups.begin() + i );
-                i--;
-            }
-        }
-
-        // Draw pop-ups
-        //-------------------------------------------------------------------------
-
-        if ( !m_modalPopups.empty() )
-        {
-            // Always draw latest first
-            auto& message = m_modalPopups.back();
-
-            ImVec4 const titleBarColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Yellow ) : ImGuiX::ConvertColor( Colors::Red );
-            ImVec4 const titleBarTextColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Black ) : ImGuiX::ConvertColor( Colors::Black );
-
-            ImGui::OpenPopup( message.m_ID.c_str() );
-            ImGui::PushStyleColor( ImGuiCol_Text, titleBarTextColor );
-            ImGui::PushStyleColor( ImGuiCol_TitleBgActive, titleBarColor );
-            if ( ImGui::BeginPopupModal( message.m_ID.c_str(), &message.m_isOpen, ImGuiWindowFlags_NoSavedSettings ) )
-            {
-                ImGui::PopStyleColor( 2 );
-
-                ImGui::BeginGroup();
-                {
-                    ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
-                    ImGuiX::ScopedFont font( ImGuiX::Font::LargeBold );
-                    ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
-                    ImGui::PopStyleColor( 1 );
-                }
-                ImGui::EndGroup();
-
-                ImGui::SameLine();
-
-                ImGui::BeginGroup();
-                {
-                    ImGui::Text( "Channel: %s", message.m_channel.c_str() );
-                    ImGui::Text( "Message: %s", message.m_message.c_str() );
-                }
-                ImGui::EndGroup();
-
-                //-------------------------------------------------------------------------
-
-                ImGui::NewLine();
-                ImGui::NewLine();
-                ImGui::SameLine( ( ImGui::GetWindowWidth() - 100 ) / 2 );
-                if ( ImGui::Button( "Ok", ImVec2( 100, 0 ) ) )
-                {
-                    message.m_isOpen = false;
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::EndPopup();
-            }
-            else
-            {
-                ImGui::PopStyleColor( 2 );
-            }
-        }
     }
 
     bool EditorUI::DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace )
@@ -465,7 +452,7 @@ namespace KRG
                 enableInputForWorld = pWorkspace->DrawViewport( context, viewportInfo, &workspaceWindowClass );
             }
 
-            pWorkspace->DrawUI( context, &workspaceWindowClass );
+            pWorkspace->UpdateWorkspace( context, &workspaceWindowClass );
         }
         else // If the workspace window is hidden suspend world updates
         {

@@ -16,6 +16,8 @@ namespace KRG
     namespace EntityModel
     {
         struct ActivationContext;
+        struct EntityDescriptor;
+        class EntityCollectionDescriptor;
     }
 
     //-------------------------------------------------------------------------
@@ -36,11 +38,11 @@ namespace KRG
 
         friend class EntityWorld;
         friend EntityModel::EntityMap;
-        friend EntityModel::EntityCollection;
+        friend EntityModel::EntityCollectionDescriptor;
         friend EntityModel::EntityMapEditor;
-        template<typename T> friend struct TEntityToolAccessor;
+        template<typename T> friend struct TEntityAccessor;
 
-        using SystemUpdateList = TInlineVector<EntitySystem*, 5>;
+        using SystemUpdateList = TVector<EntitySystem*>;
 
         // Entity internal state change actions
         struct EntityInternalStateAction
@@ -87,6 +89,9 @@ namespace KRG
             Activated,
         };
 
+        // Create a new entity from an entity descriptor
+        static Entity* CreateFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityModel::EntityDescriptor const& entityDesc );
+
         // Event that's fired whenever a component/system is actually added or removed
         static TEventHandle<Entity*> OnEntityUpdated() { return s_entityUpdatedEvent; }
 
@@ -107,29 +112,48 @@ namespace KRG
 
         inline EntityID const& GetID() const { return m_ID; }
         inline StringID GetName() const { return m_name; }
-        inline EntityCollectionID const& GetCollectionID() const { return m_collectionID; }
+        inline EntityMapID const& GetMapID() const { return m_mapID; }
         inline uint32 GetNumComponents() const { return (uint32) m_components.size(); }
         inline uint32 GetNumSystems() const { return (uint32) m_systems.size(); }
+
+        // Creates a descriptor for this entity
+        bool CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityModel::EntityDescriptor& outDesc ) const;
 
         // Spatial Info
         //-------------------------------------------------------------------------
 
+        // Does this entity have any spatial components
         inline bool IsSpatialEntity() const { return m_pRootSpatialComponent != nullptr; }
+        
         inline SpatialEntityComponent const* GetRootSpatialComponent() const { return m_pRootSpatialComponent; }
+        inline SpatialEntityComponent* GetRootSpatialComponent() { return m_pRootSpatialComponent; }
         inline ComponentID const& GetRootSpatialComponentID() const { return m_pRootSpatialComponent->GetID(); }
+        inline OBB const& GetRootSpatialComponentWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
+
+        // Get the world transform for this entity i.e. the transform of the root spatial component
         inline Transform const& GetWorldTransform() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetLocalTransform(); }
+        
+        // Set the world transform for this entity i.e. the transform of the root spatial component
         inline void SetWorldTransform( Transform const& worldTransform ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->SetLocalTransform( worldTransform ); }
-        inline OBB const& GetWorldBounds() const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetWorldBounds(); }
+        
         inline bool HasSpatialParent() const { return m_pParentSpatialEntity != nullptr; }
+        inline Entity* GetSpatialParent() const { return m_pParentSpatialEntity; }
         inline EntityID const& GetSpatialParentID() const { KRG_ASSERT( HasSpatialParent() ); return m_pParentSpatialEntity->GetID(); }
+        
         inline StringID const& GetAttachmentSocketID() const { KRG_ASSERT( HasSpatialParent() ); return m_parentAttachmentSocketID; }
         inline bool HasAttachedEntities() const { return !m_attachedEntities.empty(); }
         inline Transform GetAttachmentSocketTransform( StringID socketID ) const { KRG_ASSERT( IsSpatialEntity() ); return m_pRootSpatialComponent->GetAttachmentSocketTransform( socketID ); }
 
+        #if KRG_DEVELOPMENT_TOOLS
+        // Get the world bounds for this entity i.e. the combined bounds of all spatial components
+        // Warning!!! This is incredibly expensive
+        OBB GetCombinedWorldBounds() const;
+        #endif
+
         // Status
         //-------------------------------------------------------------------------
 
-        inline bool IsInCollection() const { return m_collectionID.IsValid(); }
+        inline bool IsAddedToMap() const { return m_mapID.IsValid(); }
         inline bool IsActivated() const { return m_status == Status::Activated; }
         inline bool IsRegisteredForUpdates() const { return m_updateRegistrationStatus == RegistrationStatus::Registered; }
         inline bool HasRequestedComponentLoad() const { return m_status != Status::Unloaded; }
@@ -144,6 +168,12 @@ namespace KRG
         inline TVector<EntityComponent*> const& GetComponents() const { return m_components; }
 
         inline EntityComponent* FindComponent( ComponentID const& componentID )
+        {
+            auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, ComponentID const& ID ) { return pComponent->GetID() == ID; } );
+            return ( foundIter != m_components.end() ) ? *foundIter : nullptr;
+        }
+
+        inline EntityComponent const* FindComponent( ComponentID const& componentID ) const
         {
             auto foundIter = eastl::find( m_components.begin(), m_components.end(), componentID, [] ( EntityComponent* pComponent, ComponentID const& ID ) { return pComponent->GetID() == ID; } );
             return ( foundIter != m_components.end() ) ? *foundIter : nullptr;
@@ -213,9 +243,6 @@ namespace KRG
         // Clear attachment info - Assumes spatial attachment has not been created
         void ClearSpatialParent();
 
-        // Return the spatial parent if set
-        inline Entity const* GetSpatialParent() const { return m_pParentSpatialEntity; }
-
         // Create the component-to-component attachment between this entity and the parent entity
         void CreateSpatialAttachment();
 
@@ -271,6 +298,8 @@ namespace KRG
         void AddComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent, SpatialEntityComponent* pParentSpatialComponent );
         void DestroyComponentDeferred( EntityModel::EntityLoadingContext const& loadingContext, EntityComponent* pComponent );
 
+        //-------------------------------------------------------------------------
+
         #if KRG_DEVELOPMENT_TOOLS
         // This will deactivate the specified component to allow for its property state to be edited safely. Can be called multiple times (once per component edited)
         void ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, ComponentID const& componentID );
@@ -280,13 +309,19 @@ namespace KRG
 
         // This will end any component editing for this frame and load all unloaded components, should only be called once per frame when needed!
         void EndComponentEditing( EntityModel::EntityLoadingContext const& loadingContext );
+
+        // Generates a unique component name based on the desired name
+        StringID GenerateUniqueComponentName( EntityComponent* pComponent, StringID desiredNameID ) const;
+
+        // Rename an existing component - this ensures that component names remain unique
+        void RenameComponent( EntityComponent* pComponent, StringID newNameID );
         #endif
 
     protected:
 
-        EntityID                                        m_ID = EntityID( this );                                            // The unique ID of this entity
-        EntityCollectionID                              m_collectionID;                                                     // The ID of the collection/map that this entity is part of
-        KRG_EXPOSE StringID                             m_name;
+        EntityID                                        m_ID = EntityID( this );                                            // The unique ID of this entity ( globally unique and generated at runtime )
+        EntityMapID                                     m_mapID;                                                            // The ID of the map that owns this entity
+        KRG_REGISTER StringID                           m_name;                                                             // The name of the entity, only unique within the context of a map
         Status                                          m_status = Status::Unloaded;
         RegistrationStatus                              m_updateRegistrationStatus = RegistrationStatus::Unregistered;      // Is this entity registered for frame updates
 

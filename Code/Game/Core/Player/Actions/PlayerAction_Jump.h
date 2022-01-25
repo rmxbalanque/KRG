@@ -21,11 +21,10 @@ namespace KRG::Player
 
     private:
 
-        virtual void DrawDebugUI() override;
+        ManualTimer             m_jumpTimer;
+        bool                    m_isChargedJumpReady = false;
 
-    private:
-
-        EngineTimer     m_timer;
-        bool            m_isChargedJumpReady = false;
+        float                   m_maxHeight = 6.0f;
+        float                   m_previousHeight = 0.0f;
     };
 }

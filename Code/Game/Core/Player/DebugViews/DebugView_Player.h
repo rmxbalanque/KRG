@@ -41,7 +41,7 @@ namespace KRG::Player
     private:
 
         EntityWorld const*              m_pWorld = nullptr;
-        PlayerManager const*            m_pPlayerManager = nullptr;
+        PlayerManager*                  m_pPlayerManager = nullptr;
         bool                            m_isActionDebuggerWindowOpen = false;
         bool                            m_isPhysicsStateDebuggerWindowOpen = false;
     };

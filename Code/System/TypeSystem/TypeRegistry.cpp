@@ -118,7 +118,7 @@ namespace KRG::TypeSystem
     }
 
 
-    TVector<TypeInfo const*> TypeRegistry::GetAllTypes( bool includeAbstractTypes ) const
+    TVector<TypeInfo const*> TypeRegistry::GetAllTypes( bool includeAbstractTypes, bool sortAlphabetically ) const
     {
         TVector<TypeInfo const*> types;
 
@@ -132,10 +132,24 @@ namespace KRG::TypeSystem
             types.emplace_back( typeInfoPair.second );
         }
 
+        if ( sortAlphabetically )
+        {
+            auto sortPredicate = [] ( TypeSystem::TypeInfo const* const& pTypeInfoA, TypeSystem::TypeInfo const* const& pTypeInfoB )
+            {
+                #if KRG_DEVELOPMENT_TOOLS
+                return pTypeInfoA->m_friendlyName < pTypeInfoB->m_friendlyName;
+                #else
+                return strcmp( pTypeInfoA->m_ID.c_str(), pTypeInfoB->m_ID.c_str() );
+                #endif
+            };
+
+            eastl::sort( types.begin(), types.end(), sortPredicate );
+        }
+
         return types;
     }
 
-    TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults, bool includeAbstractTypes ) const
+    TVector<TypeInfo const*> TypeRegistry::GetAllDerivedTypes( TypeID parentTypeID, bool includeParentTypeInResults, bool includeAbstractTypes, bool sortAlphabetically ) const
     {
         TVector<TypeInfo const*> matchingTypes;
 
@@ -155,6 +169,20 @@ namespace KRG::TypeSystem
             {
                 matchingTypes.emplace_back( typeInfoPair.second );
             }
+        }
+
+        if ( sortAlphabetically )
+        {
+            auto sortPredicate = [] ( TypeSystem::TypeInfo const* const& pTypeInfoA, TypeSystem::TypeInfo const* const& pTypeInfoB )
+            {
+                #if KRG_DEVELOPMENT_TOOLS
+                return pTypeInfoA->m_friendlyName < pTypeInfoB->m_friendlyName;
+                #else
+                return strcmp( pTypeInfoA->m_ID.c_str(), pTypeInfoB->m_ID.c_str() );
+                #endif
+            };
+
+            eastl::sort( matchingTypes.begin(), matchingTypes.end(), sortPredicate );
         }
 
         return matchingTypes;

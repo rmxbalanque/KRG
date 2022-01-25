@@ -68,9 +68,18 @@ namespace KRG::Render
 
         struct alignas(16) PickingData
         {
-            uint32 m_ID[2];
-            uint32 m_padding0[2];
-            Float4 m_padding1;
+            PickingData() = default;
+
+            inline PickingData( uint64 v0, uint64 v1 )
+            {
+                m_ID[0] = (uint32) ( v0 & 0x00000000FFFFFFFF );
+                m_ID[1] = (uint32) ( ( v0 >> 32 ) & 0x00000000FFFFFFFF );
+                m_ID[2] = (uint32) ( v1 & 0x00000000FFFFFFFF );
+                m_ID[3] = (uint32) ( ( v1 >> 32 ) & 0x00000000FFFFFFFF );
+            }
+
+            uint32 m_ID[4];
+            Float4 m_padding;
         };
 
         struct MaterialData

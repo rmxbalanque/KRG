@@ -1,5 +1,6 @@
 #include "EntitySystem_Animation.h"
-#include "Engine/Animation/Components/Component_Animation.h"
+#include "Engine/Animation/Components/Component_AnimationClipPlayer.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 #include "Engine/Render/Components/Component_SkeletalMesh.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
 #include "Engine/Core/Entity/EntityWorldUpdateContext.h"
@@ -13,7 +14,7 @@ namespace KRG::Animation
 {
     AnimationSystem::~AnimationSystem()
     {
-        KRG_ASSERT( m_pAnimComponent == nullptr && m_meshComponents.empty() );
+        KRG_ASSERT( m_animGraphs.empty() && m_animPlayers.empty() && m_meshComponents.empty());
     }
 
     //-------------------------------------------------------------------------
@@ -25,16 +26,13 @@ namespace KRG::Animation
             KRG_ASSERT( !VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.push_back( pMeshComponent );
         }
-        else if ( auto pAnimComponent = TryCast<AnimationComponent>( pComponent ) )
+        else if ( auto pAnimPlayerComponent = TryCast<AnimationClipPlayerComponent>( pComponent ) )
         {
-            if ( m_pAnimComponent == nullptr )
-            {
-                m_pAnimComponent = pAnimComponent;
-            }
-            else // For now we dont support multiple animation components on one character
-            {
-                KRG_LOG_WARNING( "Animation", "Multiple animation components detected for entity: %u", pAnimComponent->GetEntityID() );
-            }
+            m_animPlayers.emplace_back( pAnimPlayerComponent );
+        }
+        else if ( auto pGraphComponent = TryCast<AnimationGraphComponent>( pComponent ) )
+        {
+            m_animGraphs.emplace_back( pGraphComponent );
         }
     }
 
@@ -45,12 +43,13 @@ namespace KRG::Animation
             KRG_ASSERT( VectorContains( m_meshComponents, pMeshComponent ) );
             m_meshComponents.erase_first( pMeshComponent );
         }
-        else if ( auto pAnimComponent = TryCast<AnimationComponent>( pComponent ) )
+        else if ( auto pAnimPlayerComponent = TryCast<AnimationClipPlayerComponent>( pComponent ) )
         {
-            if ( pAnimComponent == m_pAnimComponent )
-            {
-                m_pAnimComponent = nullptr;
-            }
+            m_animPlayers.erase_first_unsorted( pAnimPlayerComponent );
+        }
+        else if ( auto pGraphComponent = TryCast<AnimationGraphComponent>( pComponent ) )
+        {
+            m_animGraphs.erase_first_unsorted( pGraphComponent );
         }
     }
 
@@ -60,64 +59,116 @@ namespace KRG::Animation
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
 
-        if ( m_pAnimComponent == nullptr )
+        if ( m_animPlayers.empty() && m_animGraphs.empty() )
         {
             return;
         }
 
         //-------------------------------------------------------------------------
 
-        auto GetMeshWorldTransform = [this] ()
+        Transform characterWorldTransform( NoInit );
+        if ( m_meshComponents.empty() )
         {
-            if ( m_meshComponents.empty() )
-            {
-                return Transform::Identity;
-            }
-            else
-            {
-                return m_meshComponents[0]->GetWorldTransform();
-            }
-        };
+            characterWorldTransform = Transform::Identity;
+        }
+        else
+        {
+            characterWorldTransform = m_meshComponents[0]->GetWorldTransform();
+        }
 
         //-------------------------------------------------------------------------
 
-        auto pPhysicsWorldSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+        UpdateAnimPlayers( ctx, characterWorldTransform );
+        UpdateAnimGraphs( ctx, characterWorldTransform );
 
+        //-------------------------------------------------------------------------
+
+        for ( auto pMeshComponent : m_meshComponents )
+        {
+            pMeshComponent->FinalizePose();
+        }
+    }
+
+    void AnimationSystem::UpdateAnimPlayers( EntityWorldUpdateContext const& ctx, Transform const& characterWorldTransform )
+    {
         UpdateStage const updateStage = ctx.GetUpdateStage();
         if ( updateStage == UpdateStage::PrePhysics )
         {
-            if ( !m_pAnimComponent->RequiresManualUpdate() )
+            for ( auto pAnimComponent : m_animPlayers )
             {
-                m_pAnimComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform(), pPhysicsWorldSystem->GetScene() );
+                if ( !pAnimComponent->RequiresManualUpdate() )
+                {
+                    pAnimComponent->Update( ctx.GetDeltaTime(), characterWorldTransform );
+                }
+
+                //-------------------------------------------------------------------------
+
+                auto const* pPose = pAnimComponent->GetPose();
+                KRG_ASSERT( pPose->HasGlobalTransforms() );
+
+                for ( auto pMeshComponent : m_meshComponents )
+                {
+                    if ( !pMeshComponent->HasMeshResourceSet() )
+                    {
+                        continue;
+                    }
+
+                    if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
+                    {
+                        continue;
+                    }
+
+                    pMeshComponent->SetPose( pPose );
+                }
+            }
+        }
+    }
+
+    void AnimationSystem::UpdateAnimGraphs( EntityWorldUpdateContext const& ctx, Transform const& characterWorldTransform )
+    {
+        UpdateStage const updateStage = ctx.GetUpdateStage();
+        if ( updateStage == UpdateStage::PrePhysics )
+        {
+            auto pPhysicsWorldSystem = ctx.GetWorldSystem<Physics::PhysicsWorldSystem>();
+
+            for ( auto pAnimComponent : m_animGraphs )
+            {
+                if ( !pAnimComponent->RequiresManualUpdate() )
+                {
+                    pAnimComponent->EvaluateGraph( ctx.GetDeltaTime(), characterWorldTransform, pPhysicsWorldSystem->GetScene() );
+                    // TODO: apply root motion here!
+                    pAnimComponent->ExecutePrePhysicsTasks( characterWorldTransform );
+                }
             }
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            if ( !m_pAnimComponent->RequiresManualUpdate() )
+            for ( auto pAnimComponent : m_animGraphs )
             {
-                m_pAnimComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), GetMeshWorldTransform(), pPhysicsWorldSystem->GetScene() );
-            }
-
-            // Transfer Pose
-            //-------------------------------------------------------------------------
-
-            auto const* pPose = m_pAnimComponent->GetPose();
-            KRG_ASSERT( pPose->HasGlobalTransforms() );
-
-            for ( auto pMeshComponent : m_meshComponents )
-            {
-                if ( !pMeshComponent->HasMeshResourceSet() )
+                if ( !pAnimComponent->RequiresManualUpdate() )
                 {
-                    continue;
+                    pAnimComponent->ExecutePostPhysicsTasks();
                 }
 
-                if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
-                {
-                    continue;
-                }
+                //-------------------------------------------------------------------------
 
-                pMeshComponent->SetPose( pPose );
-                pMeshComponent->FinalizePose();
+                auto const* pPose = pAnimComponent->GetPose();
+                KRG_ASSERT( pPose->HasGlobalTransforms() );
+
+                for ( auto pMeshComponent : m_meshComponents )
+                {
+                    if ( !pMeshComponent->HasMeshResourceSet() )
+                    {
+                        continue;
+                    }
+
+                    if ( pPose->GetSkeleton() != pMeshComponent->GetSkeleton() )
+                    {
+                        continue;
+                    }
+
+                    pMeshComponent->SetPose( pPose );
+                }
             }
         }
     }

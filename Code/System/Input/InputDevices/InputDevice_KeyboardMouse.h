@@ -6,35 +6,32 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Input
 {
-    namespace Input
+    class KeyboardMouseInputDevice : public InputDevice
     {
-        class KeyboardMouseInputDevice : public InputDevice
-        {
 
-        public:
+    public:
 
-            KeyboardMouseInputDevice() = default;
+        KeyboardMouseInputDevice() = default;
 
-            inline MouseInputState const& GetMouseState() const { return m_mouseState; }
-            inline KeyboardInputState const& GetKeyboardState() const { return m_keyboardState; }
-     
-        private:
+        inline MouseInputState const& GetMouseState() const { return m_mouseState; }
+        inline KeyboardInputState const& GetKeyboardState() const { return m_keyboardState; }
 
-            virtual DeviceCategory GetDeviceCategory() const override final { return DeviceCategory::KeyboardMouse; }
+    private:
 
-            virtual void Initialize() override final;
-            virtual void Shutdown() override final;
+        virtual DeviceCategory GetDeviceCategory() const override final { return DeviceCategory::KeyboardMouse; }
 
-            virtual void UpdateState() override final;
-            virtual void ClearFrameState( ResetType resetType = ResetType::Partial ) override final;
-            virtual void ProcessMessage( GenericMessage const& message ) override final;
+        virtual void Initialize() override final;
+        virtual void Shutdown() override final;
 
-        private:
+        virtual void UpdateState( Seconds deltaTime ) override final;
+        virtual void ClearFrameState( ResetType resetType = ResetType::Partial ) override final;
+        virtual void ProcessMessage( GenericMessage const& message ) override final;
 
-            MouseInputState                                         m_mouseState;
-            KeyboardInputState                                      m_keyboardState;
-        };
-    }
+    private:
+
+        MouseInputState                                         m_mouseState;
+        KeyboardInputState                                      m_keyboardState;
+    };
 }

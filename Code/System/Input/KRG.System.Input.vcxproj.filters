@@ -27,6 +27,7 @@
     <ClCompile Include="InputDevices\Platform\InputDevice_KeyboardMouse_Win32.cpp">
       <Filter>InputDevices\Platform</Filter>
     </ClCompile>
+    <ClCompile Include="InputSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputDevices\InputDevice.h">
@@ -53,6 +54,7 @@
     <ClInclude Include="InputStates\InputState_Mouse.h">
       <Filter>InputStates</Filter>
     </ClInclude>
+    <ClInclude Include="InputSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="_Module\API.h">

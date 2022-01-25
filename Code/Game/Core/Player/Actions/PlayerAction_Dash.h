@@ -19,17 +19,15 @@ namespace KRG::Player
 
     private:
 
-        void DrawDebugUI() override;
-
-    private:
-
-        EngineTimer                 m_timer;
-        EngineTimer                 m_settleTimer;
+        ManualCountdownTimer        m_cooldownTimer;
+        ManualTimer                 m_dashDurationTimer;
+        ManualTimer                 m_hackSettleTimer;
         Vector                      m_dashDirection = Vector::Zero;
         Vector                      m_initialVelocity = Vector::Zero;
-        bool                        m_isFirstUse = true;
         bool                        m_isInSettle = false;
 
+        #if KRG_DEVELOPMENT_TOOLS
         Vector                      m_debugStartPosition = Vector::Zero;
+        #endif
     };
 }

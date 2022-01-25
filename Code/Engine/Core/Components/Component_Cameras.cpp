@@ -80,15 +80,16 @@ namespace KRG
     void OrbitCameraComponent::Initialize()
     {
         CameraComponent::Initialize();
-        ResetToDefaults();
+        ResetCamera();
     }
 
     void OrbitCameraComponent::FinalizeCameraPosition()
     {
         Transform const& parentTransform = GetSpatialParentWorldTransform();
         Transform camWorldTransform = m_orbitTransform;
-        // rotation offset is relative to camera to avoid pops when target rotates
-		Vector const orbitTarget = parentTransform.GetTranslation() + camWorldTransform.RotateVector( m_orbitTargetOffset );
+
+        // Rotation offset is relative to camera to avoid pops when target rotates
+        Vector const orbitTarget = parentTransform.GetTranslation() + camWorldTransform.RotateVector( m_orbitTargetOffset );
 
         camWorldTransform.AddTranslation( orbitTarget );
         SetWorldTransform( camWorldTransform );
@@ -107,13 +108,8 @@ namespace KRG
 
         m_pitch += deltaVerticalAngle;
         m_pitch.Clamp( Degrees( -45 ), Degrees( 45 ) );
-        
-        auto const rotZ = Quaternion( Float3::WorldUp, m_yaw );
-        auto const rotX = Quaternion( Float3::WorldRight, m_pitch );
-        auto const rotTotal = rotX * rotZ;
 
-        m_orbitTransform.SetRotation( rotTotal );
-        UpdateOrbitLocalPosition();
+        CalculateCameraTransform();
     }
 
     void OrbitCameraComponent::AdjustOrbitTargetOffset( Float3 newTargetOffset )
@@ -124,16 +120,38 @@ namespace KRG
     void OrbitCameraComponent::AdjustOrbitDistance( float newDistance )
     {
         m_orbitDistance = newDistance;
-        UpdateOrbitLocalPosition();
+        Vector const newCameraPosition = m_orbitTransform.GetRotation().RotateVector( Vector::WorldBackward ) * m_orbitDistance;
+        m_orbitTransform.SetTranslation( newCameraPosition );
     }
 
-    void OrbitCameraComponent::ResetToDefaults()
+    void OrbitCameraComponent::ResetCamera()
     {
         m_orbitTargetOffset = m_defaultOrbitTargetOffset;
         m_orbitDistance = m_defaultOrbitDistance;
 
-        m_pitch = m_yaw = 0.0f;
-        m_orbitTransform.SetRotation( Quaternion::Identity );
-        m_orbitTransform.SetTranslation( Vector::WorldBackward * m_orbitDistance );
+        // Align to parent orientation
+        if ( HasSpatialParent() )
+        {
+            Transform const& parentWorldTransform = GetSpatialParentWorldTransform();
+            m_yaw = parentWorldTransform.GetRotation().ToEulerAngles().GetYaw();
+            m_pitch = 0.0f;
+
+        }
+        else // Just align to world forward
+        {
+            m_pitch = m_yaw = 0.0f;
+        }
+
+        CalculateCameraTransform();
+    }
+
+    void OrbitCameraComponent::CalculateCameraTransform()
+    {
+        auto const rotZ = Quaternion( Float3::WorldUp, m_yaw );
+        auto const rotX = Quaternion( Float3::WorldRight, m_pitch );
+        auto const rotTotal = rotX * rotZ;
+
+        Vector const orbitCameraPosition = rotTotal.RotateVector( Vector::WorldBackward ) * m_orbitDistance;
+        m_orbitTransform = Transform( rotTotal, orbitCameraPosition );
     }
 }

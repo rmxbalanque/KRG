@@ -2,6 +2,7 @@
 #include "Engine_Win32.h"
 #include "Resource.h"
 #include "iniparser/krg_ini.h"
+#include "Applications/Shared/cmdParser/krg_cmdparser.h"
 #include "Applications/Shared/Win32/SharedHelpers_Win32.h"
 #include "System/Input/InputSystem.h"
 #include "System/Core/FileSystem/FileSystem.h"
@@ -12,7 +13,6 @@
 #if LIVEPP_ENABLED
 #include "LPP_API.h"
 #endif
-#include "EASTL/internal/move_help.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,6 +24,16 @@ namespace KRG
         //m_module_engine_core.EnableImguiViewports();
     }
 
+    void EditorEngine::CreateToolsUI()
+    {
+        auto pEditorUI = KRG::New<EditorUI>();
+        if ( m_editorStartupMap.IsValid() )
+        {
+            pEditorUI->SetStartupMap( m_editorStartupMap );
+        }
+        m_pToolsUI = pEditorUI;
+    }
+
     //-------------------------------------------------------------------------
 
     EditorApplication::EditorApplication( HINSTANCE hInstance )
@@ -33,6 +43,25 @@ namespace KRG
 
     bool EditorApplication::ReadSettings( int32 argc, char** argv )
     {
+        // Get command line settings
+        //-------------------------------------------------------------------------
+
+        {
+            cli::Parser cmdParser( argc, argv );
+            cmdParser.set_optional<std::string>( "map", "map", "", "The startup map." );
+
+            if ( !cmdParser.run() )
+            {
+                return FatalError( "Invalid command line arguments!" );
+            }
+
+            std::string const map = cmdParser.get<std::string>( "map" );
+            if ( !map.empty() )
+            {
+                m_editorEngine.m_editorStartupMap = ResourcePath( map.c_str() );
+            }
+        }
+
         // Read configuration settings from ini
         //-------------------------------------------------------------------------
 

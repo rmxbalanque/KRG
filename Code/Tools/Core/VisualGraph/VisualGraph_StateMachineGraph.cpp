@@ -62,7 +62,7 @@ namespace KRG::VisualGraph
         auto pStateNode = TryCast<SM::State>( pNodeAboutToBeDestroyed );
         if ( pStateNode != nullptr )
         {
-            auto const transitions = FindAllNodesOfType<SM::TransitionConduit>();
+            auto const transitions = FindAllNodesOfType<SM::TransitionConduit>( SearchMode::Localized, SearchTypeMatch::Derived );
             for ( auto pTransition : transitions )
             {
                 if ( pTransition->m_startStateID == pStateNode->m_ID || pTransition->m_endStateID == pStateNode->m_ID )
@@ -128,5 +128,21 @@ namespace KRG::VisualGraph
         }
 
         return originalID;
+    }
+
+    ImColor SM::TransitionConduit::GetNodeBorderColor( VisualGraph::DrawContext const& ctx, NodeVisualState visualState ) const
+    {
+        if ( visualState == NodeVisualState::Hovered )
+        {
+            return VisualSettings::s_connectionColorHovered;
+        }
+        else if ( visualState == NodeVisualState::Selected )
+        {
+            return VisualSettings::s_genericSelectionColor;
+        }
+        else
+        {
+            return VisualSettings::s_connectionColor;
+        }
     }
 }

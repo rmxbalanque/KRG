@@ -112,6 +112,7 @@ namespace KRG::Physics
             {
                 physx::PxDebugLine const& line = pLines[currentLineIdx + l];
                 pData[bufferVertexIdx].m_startPosition = Float3( line.pos0.x, line.pos0.y, line.pos0.z );
+                pData[bufferVertexIdx].m_startThickness = 1.0f;
                 pData[bufferVertexIdx].m_startColor = Physics::FromPxColor( line.color0 );
                 pData[bufferVertexIdx].m_endPosition = Float3( line.pos1.x, line.pos1.y, line.pos1.z );
                 pData[bufferVertexIdx].m_endThickness = 1.0f;

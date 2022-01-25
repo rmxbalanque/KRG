@@ -125,6 +125,9 @@ namespace KRG::TypeSystem::Reflection
 
         CXTranslationUnit*                  m_pTU;
 
+        // Should we do a full pass or just update the flags?
+        bool                                m_detectDevOnlyTypesAndProperties = false;
+
         // Per solution
         SolutionInfo*                       m_pSolution;
         ReflectionDatabase*                 m_pDatabase;

@@ -21,4 +21,10 @@ namespace KRG::Player
         static StringID const dashID( "Dash" );
         m_abilityID.Set( this, dashID );
     }
+
+    void AbilityGraphController::StartSlide()
+    {
+        static StringID const dashID( "Slide" );
+        m_abilityID.Set( this, dashID );
+    }
 }

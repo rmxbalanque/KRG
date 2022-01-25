@@ -27,7 +27,6 @@ namespace KRG
     public:
 
         TreeListViewItem() = default;
-
         virtual ~TreeListViewItem() = default;
 
         //-------------------------------------------------------------------------
@@ -69,7 +68,14 @@ namespace KRG
         // Update visibility for this branch based on a user-supplied delegate
         void UpdateVisibility( TFunction<bool( TreeListViewItem const* pItem )> const& isVisibleFunction, bool showParentItemsWithNoVisibleChildren = false );
 
-        // Children
+        // Drag and drop
+        //-------------------------------------------------------------------------
+
+        virtual bool SupportsDragAndDrop() { return false; }
+        virtual char const* GetDragAndDropPayloadID() { return nullptr; }
+        virtual TPair<void*, size_t> GetDragAndDropPayload() const { return TPair<void*, size_t>( nullptr, 0 ); }
+
+        // Hierarchy
         //-------------------------------------------------------------------------
 
         inline bool HasChildren() const { return !m_children.empty(); }
@@ -86,8 +92,17 @@ namespace KRG
             return static_cast<T*>( pAddedItem );
         }
 
-        // Destroys all child for this branch
+        // Destroy specific child - be careful when calling this, you need to make sure the visual tree is kept in sync
+        void DestroyChild( uint64 uniqueItemID );
+
+        // Destroys all child for this branch - be careful when calling this, you need to make sure the visual tree is kept in sync
         void DestroyChildren();
+
+        // Find a specific child
+        TreeListViewItem const* FindChild( uint64 uniqueID ) const;
+
+        // Find a specific child
+        TreeListViewItem* FindChild( uint64 uniqueID ) { return const_cast<TreeListViewItem*>( const_cast<TreeListViewItem const*>( this )->FindChild( uniqueID ) ); }
 
         // Find a specific child
         TreeListViewItem* FindChild( TFunction<bool( TreeListViewItem const* )> const& searchPredicate );
@@ -192,12 +207,11 @@ namespace KRG
         // Selection, Activation and Events
         //-------------------------------------------------------------------------
 
-        inline void ClearSelection() { m_pSelectedItem = nullptr; m_onSelectionChanged.Execute(); }
+        // Clear the current selection
+        inline void ClearSelection() { m_selection.clear(); m_onSelectionChanged.Execute(); }
 
-        inline TreeListViewItem* GetSelectedItem() const { return m_pSelectedItem; }
-
-        template<typename T>
-        inline T* GetSelectedItem() const { return static_cast<T*>( m_pSelectedItem ); }
+        // Get the current selection
+        inline TVector<TreeListViewItem*> GetSelection() const { return m_selection; }
 
         // Fire whenever the selection changes
         inline TEventHandle<> OnSelectedChanged() { return m_onSelectionChanged; }
@@ -241,6 +255,12 @@ namespace KRG
 
         inline int32 GetNumItems() const { return (int32) m_visualTree.size(); }
 
+        TreeListViewItem* FindItem( uint64 uniqueID );
+
+        void DestroyItem( uint64 uniqueID );
+
+        //-------------------------------------------------------------------------
+
         // User overrideable function to draw any addition windows/dialogs that might be needed
         virtual void DrawAdditionalUI() {}
 
@@ -254,7 +274,7 @@ namespace KRG
         virtual void DrawItemExtraColumns( TreeListViewItem* pBaseItem, int32 extraColumnIdx ) {}
 
         // Draw any custom item context menus you might need
-        virtual void DrawItemContextMenu( TreeListViewItem* pBaseItem ) {}
+        virtual void DrawItemContextMenu( TVector<TreeListViewItem*> const& selectedItemsWithContextMenus ) {}
 
         // Call this function to rebuild the tree contents - This will in turn call the user supplied "RebuildTreeInternal" function
         void RebuildTree( bool maintainExpansionAndSelection = true );
@@ -263,13 +283,33 @@ namespace KRG
         // DO NOT CALL THIS DIRECTLY!
         virtual void RebuildTreeInternal() = 0;
 
+        // Select just this item
+        void SelectItem( TreeListViewItem* pItem );
+
+        // Add to the current selection
+        void AddToSelection( TreeListViewItem* pItem );
+
+        // Remove an item from the current selection
+        void RemoveFromSelection( TreeListViewItem* pItem );
+
+        // Override this to handle selection changes
+        virtual void OnSelectionChangedInternal() {}
+
     private:
+
+        void HandleItemSelection( TreeListViewItem* pItem, bool isSelected );
 
         void DrawVisualItem( VisualTreeItem& visualTreeItem );
         void TryAddItemToVisualTree( TreeListViewItem* pItem, int32 hierarchyLevel );
 
         void RebuildVisualTree();
         void OnItemDoubleClickedInternal( TreeListViewItem* pItem );
+
+        void NotifySelectionChanged()
+        {
+            OnSelectionChangedInternal();
+            m_onSelectionChanged.Execute();
+        }
 
     protected:
 
@@ -284,11 +324,11 @@ namespace KRG
         TreeListViewItem*                                       m_pActiveItem = nullptr;
 
         // The currently selected item (changes frequently due to clicks/focus/etc...)
-        TreeListViewItem*                                       m_pSelectedItem = nullptr;
+        TVector<TreeListViewItem*>                              m_selection;
 
         // Control tree view behavior
-        bool                                                    m_activateOnDoubleClick = true;
         bool                                                    m_expandItemsOnlyViaArrow = false;
+        bool                                                    m_multiSelectionAllowed = false;
 
     private:
 

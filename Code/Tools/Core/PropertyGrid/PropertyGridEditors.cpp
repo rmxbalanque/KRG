@@ -6,6 +6,7 @@
 #include "System/Render/Imgui/ImguiX.h"
 #include "System/TypeSystem/PropertyInfo.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Types/String.h"
 
 //-------------------------------------------------------------------------
 
@@ -725,7 +726,7 @@ namespace KRG::TypeSystem
             ImGui::InputText( "##ue", m_stringValue.data(), m_stringValue.length(), ImGuiInputTextFlags_ReadOnly );
 
             ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
-            if ( ImGui::Button( KRG_ICON_REFRESH "##Generate", ImVec2( g_iconButtonWidth, 0 ) ) )
+            if ( ImGui::Button( KRG_ICON_SYNC"##Generate", ImVec2( g_iconButtonWidth, 0 ) ) )
             {
                 m_value_imgui = UUID::GenerateID();
                 m_stringValue = m_value_imgui.ToString();
@@ -935,7 +936,7 @@ namespace KRG::TypeSystem
         {
             bool transformUpdated = false;
 
-            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 1, 2 ) );
+            ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 2 ) );
             if ( ImGui::BeginTable( "Transform", 2, ImGuiTableFlags_None ) )
             {
                 ImGui::TableSetupColumn( "Header", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 24 );
@@ -1545,7 +1546,12 @@ namespace KRG::TypeSystem
         {
             ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - 60 );
             ImGui::InputText( "##StringInput", m_buffer_imgui, s_bufferSize );
+            
             bool const itemEdited = ImGui::IsItemDeactivatedAfterEdit();
+            if ( itemEdited )
+            {
+                StringUtils::StripTrailingWhitespace( m_buffer_imgui );
+            }
 
             ImGui::SameLine();
 
@@ -1852,7 +1858,7 @@ namespace KRG::TypeSystem
             //-------------------------------------------------------------------------
 
             ImGui::SameLine( 0, ImGui::GetStyle().ItemSpacing.x );
-            if ( ImGui::Button( KRG_ICON_PENCIL "##OpenCurveEditor" ) )
+            if ( ImGui::Button( KRG_ICON_EDIT"##OpenCurveEditor" ) )
             {
                 ImGui::OpenPopup( "CurveEditor" );
             }

@@ -30,6 +30,12 @@ namespace KRG
 
         Transform() = default;
 
+        explicit Transform( NoInit_t )
+            : m_rotation( NoInit )
+            , m_translation( NoInit )
+            , m_scale( NoInit )
+        {}
+
         explicit inline Transform( Matrix const& m )
         {
             m.Decompose( m_rotation, m_translation, m_scale );

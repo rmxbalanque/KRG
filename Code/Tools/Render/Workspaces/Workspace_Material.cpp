@@ -49,7 +49,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_materialDetailsWindowName.c_str(), bottomDockID );
     }
 
-    void MaterialWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void MaterialWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_materialDetailsWindowName.c_str() ) )

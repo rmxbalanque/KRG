@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Component_Animation.h"
 #include "Engine/Animation/AnimationClip.h"
+#include "Engine/Core/Entity/EntityComponent.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
-    class KRG_ENGINE_ANIMATION_API AnimationClipPlayerComponent final : public AnimationComponent
+    class KRG_ENGINE_ANIMATION_API AnimationClipPlayerComponent final : public EntityComponent
     {
         KRG_REGISTER_ENTITY_COMPONENT( AnimationClipPlayerComponent );
 
@@ -26,14 +26,16 @@ namespace KRG::Animation
     public:
 
         inline AnimationClipPlayerComponent() = default;
-        inline AnimationClipPlayerComponent( StringID name ) : AnimationComponent( name ) {}
+        inline AnimationClipPlayerComponent( StringID name ) : EntityComponent( name ) {}
+
+        void Update( Seconds deltaTime, Transform const& characterTransform );
 
         //-------------------------------------------------------------------------
 
-        virtual Skeleton const* GetSkeleton() const override;
-        virtual Pose const* GetPose() const override { return m_pPose; }
-        virtual void PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override;
-        virtual void PostPhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene ) override {}
+        Skeleton const* GetSkeleton() const;
+        Pose const* GetPose() const { return m_pPose; }
+        inline Transform const& GetRootMotionDelta() const { return m_rootMotionDelta; }
+        inline bool RequiresManualUpdate() const { return m_requiresManualUpdate; }
 
         //-------------------------------------------------------------------------
 
@@ -67,8 +69,10 @@ namespace KRG::Animation
         KRG_EXPOSE TResourcePtr<AnimationClip>          m_pAnimation = nullptr;
         KRG_EXPOSE PlayMode                             m_playMode = PlayMode::Loop;
 
+        Transform                                       m_rootMotionDelta = Transform::Identity;
         Pose*                                           m_pPose = nullptr;
         Percentage                                      m_previousAnimTime = Percentage( 0.0f );
         Percentage                                      m_animTime = Percentage( 0.0f );
+        KRG_EXPOSE bool                                 m_requiresManualUpdate = false;
     };
 }

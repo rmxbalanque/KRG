@@ -307,10 +307,28 @@ namespace KRG::TypeSystem::Reflection
         }
     }
 
-    void ReflectionDatabase::RegisterType( ReflectedType const* pType )
+    void ReflectionDatabase::RegisterType( ReflectedType const* pType, bool onlyUpdateDevFlag )
     {
-        KRG_ASSERT( pType != nullptr && !IsTypeRegistered( pType->m_ID ) );
-        m_reflectedTypes.push_back( *pType );
+        if ( onlyUpdateDevFlag )
+        {
+            auto pRegisteredType = GetType( pType->m_ID );
+            KRG_ASSERT( pRegisteredType != nullptr );
+            pRegisteredType->m_isDevOnly = false;
+
+            for ( auto const& property : pType->m_properties )
+            {
+                auto foundIter = VectorFind( pRegisteredType->m_properties, property );
+                if ( foundIter != pRegisteredType->m_properties.end() )
+                {
+                    foundIter->m_isDevOnly = false;
+                }
+            }
+        }
+        else
+        {
+            KRG_ASSERT( pType != nullptr && !IsTypeRegistered( pType->m_ID ) );
+            m_reflectedTypes.push_back( *pType );
+        }
     }
 
     KRG::TypeSystem::Reflection::ReflectedProperty const* ReflectionDatabase::GetPropertyTypeDescriptor( TypeID typeID, PropertyPath const& pathID ) const
@@ -665,23 +683,6 @@ namespace KRG::TypeSystem::Reflection
         //-------------------------------------------------------------------------
 
         EndTransaction();
-
-        return Disconnect();
-    }
-
-    bool ReflectionDatabase::CleanDatabase( FileSystem::Path const& databasePath )
-    {
-        KRG_ASSERT( databasePath.IsFile() );
-
-        if ( !Connect( databasePath, false ) )
-        {
-            return false;
-        }
-
-        if ( !DropTables() )
-        {
-            return false;
-        }
 
         return Disconnect();
     }

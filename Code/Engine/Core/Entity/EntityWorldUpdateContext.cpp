@@ -49,6 +49,16 @@ namespace KRG
         return m_pWorld->GetViewport();
     }
 
+    Input::InputState const* EntityWorldUpdateContext::GetInputState() const
+    {
+        return m_pWorld->GetInputState();
+    }
+
+    float EntityWorldUpdateContext::GetTimeScale() const
+    {
+        return m_pWorld->GetTimeScale();
+    }
+
     EntityWorldID const& EntityWorldUpdateContext::GetWorldID() const
     {
         return m_pWorld->GetID();

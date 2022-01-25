@@ -89,6 +89,7 @@ namespace KRG::Physics
         m_pErrorCallback = KRG::New<PhysXUserErrorCallback>();
 
         m_pFoundation = PxCreateFoundation( PX_PHYSICS_VERSION, *m_pAllocatorCallback, *m_pErrorCallback );
+        KRG_ASSERT( m_pFoundation != nullptr );
         m_pDispatcher = KRG::New<PhysXTaskDispatcher>();
         m_pSimulationFilterCallback = KRG::New<SimulationFilter>();
 

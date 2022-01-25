@@ -28,7 +28,6 @@ namespace KRG::TypeSystem::Reflection
 
         bool ReadDatabase( FileSystem::Path const& databasePath );
         bool WriteDatabase( FileSystem::Path const& databasePath );
-        bool CleanDatabase( FileSystem::Path const& databasePath );
 
         // Module functions
         //-------------------------------------------------------------------------
@@ -46,12 +45,13 @@ namespace KRG::TypeSystem::Reflection
         //-------------------------------------------------------------------------
 
         ReflectedType const* GetType( TypeID typeID ) const;
+        ReflectedType* GetType( TypeID typeID ) { return const_cast<ReflectedType*>( const_cast<ReflectionDatabase const*>( this )->GetType( typeID ) ); }
         TVector<ReflectedType> const& GetAllTypes() const { return m_reflectedTypes; }
         bool IsTypeRegistered( TypeID typeID ) const;
         bool IsTypeDerivedFrom( TypeID typeID, TypeID parentTypeID ) const;
         void GetAllTypesForHeader( HeaderID headerID, TVector<ReflectedType>& types ) const;
         void GetAllTypesForProject( ProjectID projectID, TVector<ReflectedType>& types ) const;
-        void RegisterType( ReflectedType const* pType );
+        void RegisterType( ReflectedType const* pType, bool onlyUpdateDevFlag );
 
         // Property functions
         //-------------------------------------------------------------------------

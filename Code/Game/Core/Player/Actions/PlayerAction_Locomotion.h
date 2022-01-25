@@ -19,11 +19,9 @@ namespace KRG::Player
 
     private:
 
-        virtual void DrawDebugUI() override;
-
-    private:
-
-        EngineCooldownTimer         m_timer;
-        float                       m_debugSpeed = 0.0f;
+        ManualCountdownTimer        m_sprintTimer;
+        ManualCountdownTimer        m_crouchTimer;
+        ManualTimer                 m_slideTimer;
+        bool                        m_crouchToggled = false;
     };
 }

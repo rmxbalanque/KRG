@@ -111,6 +111,13 @@ namespace KRG::AI
         TScopedGuardValue const navmeshSystemGuardValue( m_behaviorContext.m_pNavmeshSystem, ctx.GetWorldSystem<Navmesh::NavmeshWorldSystem>() );
         TScopedGuardValue const physicsSystemGuard( m_behaviorContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
 
+        #ifndef KRG_NAVPOWER
+        if ( true )
+        {
+            return;
+        }
+        #endif
+
         if ( !m_behaviorContext.IsValid() )
         {
             return;
@@ -124,17 +131,19 @@ namespace KRG::AI
             m_behaviorSelector.Update();
 
             // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
-            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_behaviorContext.m_pPhysicsScene );
+            m_pAnimGraphComponent->EvaluateGraph( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_behaviorContext.m_pPhysicsScene );
             Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
             m_behaviorContext.m_pCharacterController->TryMoveCapsule( ctx, m_behaviorContext.m_pPhysicsScene, deltaTranslation, deltaRotation );
 
+            // Run animation pose tasks
+            m_pAnimGraphComponent->ExecutePrePhysicsTasks( m_pCharacterMeshComponent->GetWorldTransform() );
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_behaviorContext.m_pPhysicsScene );
+            m_pAnimGraphComponent->ExecutePostPhysicsTasks();
         }
         else
         {

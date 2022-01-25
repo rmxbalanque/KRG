@@ -14,8 +14,6 @@
 namespace KRG
 {
     constexpr static float const g_menuHeight = 19.0f;
-    constexpr static float const g_statusBarHeight = 21.0f;
-
     constexpr static float const g_minTimeScaleValue = 0.1f;
     constexpr static float const g_maxTimeScaleValue = 3.5f;
 
@@ -47,11 +45,6 @@ namespace KRG
         UpdateStage const updateStage = context.GetUpdateStage();
         KRG_ASSERT( updateStage == UpdateStage::FrameEnd );
 
-        //-------------------------------------------------------------------------
-
-        auto pInputSystem = context.GetSystem<Input::InputSystem>();
-        KRG_ASSERT( pInputSystem != nullptr );
-
         // Update internal state
         //-------------------------------------------------------------------------
 
@@ -76,46 +69,12 @@ namespace KRG
             return;
         }
 
-        // Enable/disable debug overlay
+        // Process user input
         //-------------------------------------------------------------------------
 
-        auto const pKeyboardState = pInputSystem->GetKeyboardState();
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Tilde ) )
-        {
-            m_debugOverlayEnabled = !m_debugOverlayEnabled;
+        HandleUserInput( context, pGameWorld );
 
-            auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
-            pPlayerManager->SetDebugMode( m_debugOverlayEnabled ? PlayerManager::DebugMode::FullDebug : PlayerManager::DebugMode::None );
-        }
-
-        // Time Controls
-        //-------------------------------------------------------------------------
-
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Pause ) )
-        {
-            ToggleWorldPause( pGameWorld );
-        }
-
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageUp ) )
-        {
-            SetWorldTimeScale( pGameWorld, m_timeScale + 0.1f );
-        }
-
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageDown ) )
-        {
-            SetWorldTimeScale( pGameWorld, m_timeScale - 0.1f );
-        }
-
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Home ) )
-        {
-            ResetWorldTimeScale( pGameWorld );
-        }
-
-        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_End ) )
-        {
-            RequestWorldTimeStep( pGameWorld );
-        }
-
+        // Draw overlay window
         //-------------------------------------------------------------------------
 
         Render::Viewport const* pViewport = pGameWorld->GetViewport();
@@ -157,131 +116,129 @@ namespace KRG
 
             if ( m_debugOverlayEnabled )
             {
-                if ( ImGui::BeginMenuBar() )
-                {
-                    DrawMenu( context );
-
-                    // Draw Performance Stats
-                    //-------------------------------------------------------------------------
-
-                    float const currentFPS = 1.0f / context.GetDeltaTime();
-                    float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
-                    InlineString const perfStatStr( InlineString::CtorSprintf(), "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
-
-                    ImVec2 const availableSpace = ImGui::GetContentRegionAvail();
-                    ImVec2 const textSize = ImGui::CalcTextSize( perfStatStr.c_str() );
-
-                    ImGui::SameLine( 0, availableSpace.x - textSize.x - 8.0f );
-                    ImGui::Text( perfStatStr.c_str() );
-
-                    ImGui::EndMenuBar();
-                }
-
-                DrawStatusBar( context, pGameWorld );
+                DrawMenu( context, pGameWorld );
             }
         }
         ImGui::End();
 
         // The debug windows should be always be drawn if enabled
-        DrawWindows( context );
+        DrawWindows( context, pGameWorld );
 
-        // The pop-ups should be always be drawn if enabled
-        DrawPopups( context );
-
-        //-------------------------------------------------------------------------
+        // Always show the log if any errors/warnings occurred
+        auto const unhandledWarningsAndErrors = Log::GetUnhandledWarningsAndErrors();
+        if ( !unhandledWarningsAndErrors.empty() )
+        {
+            m_isLogWindowOpen = true;
+        }
     }
 
     //-------------------------------------------------------------------------
     // Drawing
     //-------------------------------------------------------------------------
 
-    void EngineToolsUI::DrawPopups( UpdateContext const& context )
+    void EngineToolsUI::DrawMenu( UpdateContext const& context, EntityWorld* pGameWorld )
     {
-        // Get any new warnings/errors and create pop-ups for them
-        //-------------------------------------------------------------------------
-
-        auto const unhandledWarningsAndErrors = Log::GetUnhandledWarningsAndErrors();
-        for ( auto const& entry : unhandledWarningsAndErrors )
+        if ( ImGui::BeginMenuBar() )
         {
-            auto& popupMessage = m_modalPopups.emplace_back( ModalPopupMessage() );
+            ImVec2 const totalAvailableSpace = ImGui::GetContentRegionAvail();
 
-            UUID const ID = UUID::GenerateID();
-            popupMessage.m_ID = ( entry.m_severity == Log::Severity::Warning ) ? "Warning##" : "Error##";
-            popupMessage.m_ID += ID.ToString().c_str();
-            popupMessage.m_channel = entry.m_channel;
-            popupMessage.m_severity = entry.m_severity;
-            popupMessage.m_message = entry.m_message;
-        }
+            float const currentFPS = 1.0f / context.GetDeltaTime();
+            float const allocatedMemory = Memory::GetTotalAllocatedMemory() / 1024.0f / 1024.0f;
 
-        // Remove closed warnings/errors
-        //-------------------------------------------------------------------------
+            TInlineString<10> const warningsStr( TInlineString<10>::CtorSprintf(), KRG_ICON_QUESTION_CIRCLE" %d", Log::GetNumWarnings() );
+            TInlineString<10> const errorsStr( TInlineString<10>::CtorSprintf(), KRG_ICON_EXCLAMATION_CIRCLE" %d", Log::GetNumErrors() );
+            TInlineString<40> const perfStatsStr( TInlineString<40>::CtorSprintf(), "FPS: %3.0f Mem: %.2fMB", currentFPS, allocatedMemory );
 
-        for ( auto i = 0; i < m_modalPopups.size(); i++ )
-        {
-            if ( !m_modalPopups[i].m_isOpen )
+            ImVec2 const warningsTextSize = ImGui::CalcTextSize( warningsStr.c_str() );
+            ImVec2 const errorTextSize = ImGui::CalcTextSize( errorsStr.c_str() );
+            ImVec2 const perfStatsTextSize = ImGui::CalcTextSize( perfStatsStr.c_str() );
+
+            float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+            float const framePadding = ImGui::GetStyle().FramePadding.x;
+            float const perfStatsOffset = totalAvailableSpace.x - perfStatsTextSize.x - ( itemSpacing * 2 );
+            float const warningsAndErrorsOffset = perfStatsOffset - warningsTextSize.x - errorTextSize.x - ( itemSpacing * 3 ) - ( framePadding * 4 );
+            float const debugCameraOffset = warningsAndErrorsOffset - 30;
+
+            //-------------------------------------------------------------------------
+
+            ImGui::PushStyleColor( ImGuiCol_Text, Colors::LimeGreen.ToFloat4() );
+            bool const drawDebugMenu = ImGui::BeginMenu( KRG_ICON_BUG );
+            ImGui::PopStyleColor();
+            if ( drawDebugMenu )
             {
-                m_modalPopups.erase( m_modalPopups.begin() + i );
-                i--;
+                if ( ImGui::MenuItem( KRG_ICON_SLIDERS_H" Show Debug Settings", nullptr, &m_isDebugSettingsWindowOpen ) )
+                {
+                    m_isDebugSettingsWindowOpen = true;
+                }
+
+                if ( ImGui::MenuItem( KRG_ICON_CLOCK" Show Time Controls", nullptr, &m_isTimeControlWindowOpen ) )
+                {
+                    m_isTimeControlWindowOpen = true;
+                }
+
+                ImGui::EndMenu();
             }
-        }
 
-        // Draw pop-ups
-        //-------------------------------------------------------------------------
+            // Draw world debuggers
+            //-------------------------------------------------------------------------
 
-        if( !m_modalPopups.empty() )
-        {
-            // Always draw latest first
-            auto& message = m_modalPopups.back();
+            m_pWorldDebugger->DrawMenu( context );
 
-            ImVec4 const titleBarColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Yellow ) : ImGuiX::ConvertColor( Colors::Red );
-            ImVec4 const titleBarTextColor = ( message.m_severity == Log::Severity::Warning ) ? ImGuiX::ConvertColor( Colors::Black ) : ImGuiX::ConvertColor( Colors::Black );
+            // Camera controls
+            //-------------------------------------------------------------------------
 
-            ImGui::OpenPopup( message.m_ID.c_str() );
-            ImGui::PushStyleColor( ImGuiCol_Text, titleBarTextColor );
-            ImGui::PushStyleColor( ImGuiCol_TitleBgActive, titleBarColor );
-            if ( ImGui::BeginPopupModal( message.m_ID.c_str(), &message.m_isOpen, ImGuiWindowFlags_NoSavedSettings ) )
+            ImGui::SameLine( debugCameraOffset, 0 );
+
+            auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
+            bool const debugCamEnabled = pPlayerManager->GetDebugMode() == PlayerManager::DebugMode::OnlyDebugCamera;
+            if ( debugCamEnabled )
             {
-                ImGui::PopStyleColor( 2 );
-
-                ImGui::BeginGroup();
+                if ( ImGuiX::FlatButton( KRG_ICON_VIDEO"##DisableDebugCam" ) )
                 {
-                    ImGui::PushStyleColor( ImGuiCol_Text, titleBarColor );
-                    ImGuiX::ScopedFont font( ImGuiX::Font::Huge );
-                    ImGui::Text( KRG_ICON_EXCLAMATION_TRIANGLE );
-                    ImGui::PopStyleColor( 1 );
+                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::PlayerWithDebugCamera );
                 }
-                ImGui::EndGroup();
-
-                ImGui::SameLine();
-
-                ImGui::BeginGroup();
-                {
-                    ImGui::Text( "Channel: %s", message.m_channel.c_str() );
-                    ImGui::Text( "Message: %s", message.m_message.c_str() );
-                }
-                ImGui::EndGroup();
-
-                //-------------------------------------------------------------------------
-
-                ImGui::NewLine();
-                ImGui::NewLine();
-                ImGui::SameLine( ( ImGui::GetWindowWidth() - 100 ) / 2 );
-                if ( ImGui::Button( "Ok", ImVec2( 100, 0 ) ) )
-                {
-                    message.m_isOpen = false;
-                }
-
-                //-------------------------------------------------------------------------
-
-                ImGui::EndPopup();
             }
-        }
-    }
+            else
+            {
+                if ( ImGuiX::FlatButton( KRG_ICON_VIDEO_SLASH"##EnableDebugCam") )
+                {
+                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::OnlyDebugCamera );
+                }
+            }
 
-    void EngineToolsUI::DrawMenu( UpdateContext const& context )
-    {
-        ImGui::TextColored( ImGuiX::ConvertColor( Colors::LimeGreen ), KRG_ICON_BUG );
-        m_pWorldDebugger->DrawMenu( context );
+            // Log
+            //-------------------------------------------------------------------------
+
+            ImGuiX::VerticalSeparator();
+
+            if ( ImGuiX::FlatButton( warningsStr.c_str() ) )
+            {
+                m_isLogWindowOpen = true;
+                m_systemLogView.m_showLogMessages = false;
+                m_systemLogView.m_showLogWarnings = true;
+                m_systemLogView.m_showLogErrors = false;
+            }
+
+            ImGuiX::VerticalSeparator();
+
+            if ( ImGuiX::FlatButton( errorsStr.c_str() ) )
+            {
+                m_isLogWindowOpen = true;
+                m_systemLogView.m_showLogMessages = false;
+                m_systemLogView.m_showLogWarnings = false;
+                m_systemLogView.m_showLogErrors = true;
+            }
+
+            ImGuiX::VerticalSeparator();
+
+            // Draw Performance Stats
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine( 0, 8 );
+            ImGui::Text( perfStatsStr.c_str() );
+
+            ImGui::EndMenuBar();
+        }
     }
 
     void EngineToolsUI::DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport )
@@ -290,12 +247,12 @@ namespace KRG
 
         if ( m_debugOverlayEnabled )
         {
-            ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ImVec2( 0, g_statusBarHeight ) - ( ImGuiX::OrientationGuide::GetSize() / 2 );
+            ImVec2 const guidePosition = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax() - ( ImGuiX::OrientationGuide::GetSize() / 2 );
             ImGuiX::OrientationGuide::Draw( guidePosition, *pViewport );
         }
     }
 
-    void EngineToolsUI::DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void EngineToolsUI::DrawWindows( UpdateContext const& context, EntityWorld* pGameWorld, ImGuiWindowClass* pWindowClass )
     {
         m_pWorldDebugger->DrawWindows( context, pWindowClass );
 
@@ -312,57 +269,21 @@ namespace KRG
             ImGui::SetNextWindowBgAlpha( 0.75f );
             m_isDebugSettingsWindowOpen = SystemDebugView::DrawDebugSettingsView( context );
         }
-    }
 
-    void EngineToolsUI::DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld )
-    {
-        KRG_ASSERT( pGameWorld != nullptr );
-        auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
+        //-------------------------------------------------------------------------
 
-        ImVec2 const parentWindowPos = ImGui::GetWindowPos();
-        ImVec2 const totalSpace = ImGui::GetContentRegionMax();
-        ImVec2 const windowPos( parentWindowPos.x, parentWindowPos.y + totalSpace.y - g_statusBarHeight );
-        ImVec2 const windowSize( totalSpace.x, g_statusBarHeight );
-
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 2.0f ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4.0f, 1.0f ) );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowBorderSize, 0.0f );
-
-        ImGui::SetNextWindowBgAlpha( 0.85f );
-        ImGui::SetNextWindowPos( windowPos );
-        if ( ImGui::BeginChild( "Stats", windowSize, false, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar ) )
+        if ( m_isTimeControlWindowOpen )
         {
-            TInlineString<100> tempStr;
-
-            // Player Control
-            //-------------------------------------------------------------------------
-
-            if ( pPlayerManager->GetDebugMode() != PlayerManager::DebugMode::UseDebugCamera )
+            ImGui::SetNextWindowSizeConstraints( ImVec2( 100, 54 ), ImVec2( FLT_MAX, 54 ) );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            if ( ImGui::Begin( "Time Controls", &m_isTimeControlWindowOpen, ImGuiWindowFlags_NoScrollbar ) )
             {
-                if ( ImGui::Button( KRG_ICON_GAMEPAD" Player Control = Off" ) )
-                {
-                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::UseDebugCamera );
-                }
-            }
-            else
-            {
-                if ( ImGui::Button( KRG_ICON_GAMEPAD" Player Control = On" ) )
-                {
-                    pPlayerManager->SetDebugMode( PlayerManager::DebugMode::FullDebug );
-                }
-            }
-
-            // Time Scaling
-            //-------------------------------------------------------------------------
-
-            ImGuiX::VerticalSeparator();
-            {
-                ImGuiX::ScopedFont sf( ImGuiX::Font::Small );
+                ImVec2 const buttonSize( 24, 0 );
 
                 // Play/Pause
                 if ( pGameWorld->IsPaused() )
                 {
-                    if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld" ) )
+                    if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld", buttonSize ) )
                     {
                         ToggleWorldPause( pGameWorld );
                     }
@@ -370,7 +291,7 @@ namespace KRG
                 }
                 else
                 {
-                    if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld" ) )
+                    if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld", buttonSize ) )
                     {
                         ToggleWorldPause( pGameWorld );
                     }
@@ -378,9 +299,9 @@ namespace KRG
                 }
 
                 // Step
-                ImGui::SameLine( 0, 0 );
+                ImGui::SameLine();
                 ImGui::BeginDisabled( !pGameWorld->IsPaused() );
-                if ( ImGui::Button( KRG_ICON_STEP_FORWARD"##StepFrame" ) )
+                if ( ImGui::Button( KRG_ICON_STEP_FORWARD"##StepFrame", buttonSize ) )
                 {
                     RequestWorldTimeStep( pGameWorld );
                 }
@@ -388,8 +309,8 @@ namespace KRG
                 ImGui::EndDisabled();
 
                 // Slider
-                ImGui::SameLine( 0, 0 );
-                ImGui::SetNextItemWidth( 100 );
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - buttonSize.x - ImGui::GetStyle().ItemSpacing.x );
                 float currentTimeScale = m_timeScale;
                 if ( ImGui::SliderFloat( "##TimeScale", &currentTimeScale, g_minTimeScaleValue, g_maxTimeScaleValue, "%.2f", ImGuiSliderFlags_NoInput ) )
                 {
@@ -398,60 +319,64 @@ namespace KRG
                 ImGuiX::ItemTooltip( "Time Scale" );
 
                 // Reset
-                ImGui::SameLine( 0, 0 );
-                if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
+                ImGui::SameLine();
+                if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale", buttonSize ) )
                 {
                     ResetWorldTimeScale( pGameWorld );
                 }
                 ImGuiX::ItemTooltip( "Reset TimeScale" );
             }
-
-            // Spacer
-            //-------------------------------------------------------------------------
-
-            ImGui::SameLine( 0, 0 );
-            ImGui::Dummy( ImVec2( ImGui::GetContentRegionAvail().x - 230, 1 ) );
-
-            // Debug Settings
-            //-------------------------------------------------------------------------
-
-            ImGuiX::VerticalSeparator();
-
-            if ( ImGui::Button( KRG_ICON_SLIDERS" Debug Settings", ImVec2( 130, 0 ) ) )
-            {
-                m_isDebugSettingsWindowOpen = true;
-            }
-
-            // Log
-            //-------------------------------------------------------------------------
-
-            ImGuiX::VerticalSeparator();
-
-            tempStr.sprintf( KRG_ICON_QUESTION_CIRCLE" %d", Log::GetNumWarnings(), ImVec2( 45, 0 ) );
-            if ( ImGui::Button( tempStr.c_str() ) )
-            {
-                m_isLogWindowOpen = true;
-                m_systemLogView.m_showLogMessages = false;
-                m_systemLogView.m_showLogWarnings = true;
-                m_systemLogView.m_showLogErrors = false;
-            }
-            
-            ImGuiX::VerticalSeparator();
-
-            tempStr.sprintf( KRG_ICON_EXCLAMATION_CIRCLE" %d", Log::GetNumErrors(), ImVec2( 45, 0 ) );
-            if ( ImGui::Button( tempStr.c_str() ) )
-            {
-                m_isLogWindowOpen = true;
-                m_systemLogView.m_showLogMessages = false;
-                m_systemLogView.m_showLogWarnings = false;
-                m_systemLogView.m_showLogErrors = true;
-            }
+            ImGui::End();
         }
-        ImGui::EndChild();
-        ImGui::PopStyleVar( 3 );
     }
 
     //-------------------------------------------------------------------------
+
+    void EngineToolsUI::HandleUserInput( UpdateContext const& context, EntityWorld* pGameWorld )
+    {
+        auto pInputSystem = context.GetSystem<Input::InputSystem>();
+        KRG_ASSERT( pInputSystem != nullptr );
+
+        // Enable/disable debug overlay
+        //-------------------------------------------------------------------------
+
+        auto const pKeyboardState = pInputSystem->GetKeyboardState();
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Tilde ) )
+        {
+            m_debugOverlayEnabled = !m_debugOverlayEnabled;
+
+            auto pPlayerManager = pGameWorld->GetWorldSystem<PlayerManager>();
+            pPlayerManager->SetDebugMode( m_debugOverlayEnabled ? PlayerManager::DebugMode::OnlyDebugCamera : PlayerManager::DebugMode::None );
+        }
+
+        // Time Controls
+        //-------------------------------------------------------------------------
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Pause ) )
+        {
+            ToggleWorldPause( pGameWorld );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageUp ) )
+        {
+            SetWorldTimeScale( pGameWorld, m_timeScale + 0.1f );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_PageDown ) )
+        {
+            SetWorldTimeScale( pGameWorld, m_timeScale - 0.1f );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_Home ) )
+        {
+            ResetWorldTimeScale( pGameWorld );
+        }
+
+        if ( pKeyboardState->WasReleased( Input::KeyboardButton::Key_End ) )
+        {
+            RequestWorldTimeStep( pGameWorld );
+        }
+    }
 
     void EngineToolsUI::ToggleWorldPause( EntityWorld* pGameWorld )
     {

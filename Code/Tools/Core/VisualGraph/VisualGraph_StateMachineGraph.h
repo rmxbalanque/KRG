@@ -40,6 +40,9 @@ namespace KRG::VisualGraph
 
             KRG_REGISTER_TYPE( TransitionConduit );
 
+            // Conduits are special since they are drawn as connections
+            virtual ImColor GetNodeBorderColor( VisualGraph::DrawContext const& ctx, NodeVisualState visualState ) const override;
+
             inline UUID const GetStartStateID() const { return m_startStateID; }
             inline UUID const GetEndStateID() const { return m_endStateID; }
 
@@ -71,6 +74,8 @@ namespace KRG::VisualGraph
         void CreateTransitionConduit( SM::State const* pStartState, SM::State const* pEndState );
 
     protected:
+
+        virtual BaseNode const* GetMostSignificantNode() const override { return FindNode( m_entryStateID ); }
 
         void UpdateEntryState();
 

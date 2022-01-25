@@ -15,7 +15,7 @@ namespace KRG
     }
 
     // Used to provide access to component private internals in tools code
-    template<typename T> struct TEntityToolAccessor;
+    template<typename T> struct TEntityAccessor;
 
     //-------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ namespace KRG
 
         ComponentID                 m_ID = ComponentID( this );;                    // The unique ID for this component
         EntityID                    m_entityID;                                     // The ID of the entity that contains this component
-        KRG_EXPOSE StringID         m_name;                                         // The name of the component
+        KRG_REGISTER StringID       m_name;                                         // The name of the component
         Status                      m_status = Status::Unloaded;                    // Component status
         bool                        m_isRegisteredWithEntity = false;               // Registered with its parent entity's local systems
         bool                        m_isRegisteredWithWorld = false;                // Registered with the global systems in it's parent world
@@ -94,7 +94,7 @@ namespace KRG
 
 #define KRG_REGISTER_ENTITY_COMPONENT( TypeName ) \
         KRG_REGISTER_TYPE( TypeName );\
-        template<typename T> friend struct TEntityToolAccessor;\
+        template<typename T> friend struct TEntityAccessor;\
         protected:\
         virtual void Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
         virtual void Unload( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\
@@ -103,7 +103,7 @@ namespace KRG
 // Use this macro to create a singleton component (and hierarchy) - Note: All derived types must use the regular registration macro
 #define KRG_REGISTER_SINGLETON_ENTITY_COMPONENT( TypeName ) \
         KRG_REGISTER_TYPE( TypeName );\
-        template<typename T> friend struct TEntityToolAccessor;\
+        template<typename T> friend struct TEntityAccessor;\
         protected:\
         virtual bool IsSingletonComponent() const override final { return true; }\
         virtual void Load( EntityModel::EntityLoadingContext const& context, Resource::ResourceRequesterID const& requesterID ) override;\

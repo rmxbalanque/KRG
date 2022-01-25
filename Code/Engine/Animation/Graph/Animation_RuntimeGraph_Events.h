@@ -58,12 +58,28 @@ namespace KRG::Animation
 
         inline Event const* GetEvent() const { KRG_ASSERT( !IsStateEvent() ); return m_eventData.m_pEvent; }
 
+        // Checks if the sampled event is of a specified runtime type
+        template<typename T>
+        inline T const* IsEventOfType() const
+        {
+            KRG_ASSERT( !IsStateEvent() );
+            return IsOfType<T>( m_eventData.m_pEvent );
+        }
+
+        // Returns the event cast to the desired type! Warning: this function assumes you know the exact type of the event!
         template<typename T>
         inline T const* GetEvent() const
         {
             KRG_ASSERT( !IsStateEvent() );
-            KRG_ASSERT( m_eventData.m_pEvent->GetTypeInfo()->IsDerivedFrom( T::s_pTypeInfo->m_ID ) );
-            return static_cast<T const*>( m_eventData.m_pEvent );
+            return Cast<T>( m_eventData.m_pEvent );
+        }
+
+        // Attempts to return the event cast to the desired type! This function will return null if the event cant be cast successfully
+        template<typename T>
+        inline T const* TryGetEvent() const
+        {
+            KRG_ASSERT( !IsStateEvent() );
+            return TryCast<T>( m_eventData.m_pEvent );
         }
 
         // Flags
@@ -79,7 +95,7 @@ namespace KRG::Animation
         float                               m_weight = 1.0f;                // The weight of the event when sampled
         Percentage                          m_percentageThrough = 1.0f;     // The percentage through the event we were when sampling
         TBitFlags<Flags>                    m_flags;                        // Misc flags
-        GraphNodeIndex                           m_sourceNodeIdx = InvalidIndex; // The index of the node that this event was sampled from
+        GraphNodeIndex                      m_sourceNodeIdx = InvalidIndex; // The index of the node that this event was sampled from
     };
 
     //-------------------------------------------------------------------------

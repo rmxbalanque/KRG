@@ -9,28 +9,13 @@ namespace KRG::Resource
 {
     bool Settings::ReadSettings( IniFile const& ini )
     {
-        #if KRG_DEVELOPMENT_TOOLS
+        String s;
+        m_workingDirectoryPath = FileSystem::GetCurrentProcessPath();
+
+        // Runtime settings
+        //-------------------------------------------------------------------------
+
         {
-            String s;
-            m_workingDirectoryPath = FileSystem::GetCurrentProcessPath();
-
-            if ( ini.TryGetString( "Paths:RawResourcePath", s ) )
-            {
-                m_rawResourcePath = m_workingDirectoryPath + s;
-                if ( !m_rawResourcePath.IsValid() )
-                {
-                    KRG_LOG_ERROR( "Engine", "Invalid source data path: %s", m_compiledResourcePath.c_str() );
-                    return false;
-                }
-            }
-            else
-            {
-                KRG_LOG_ERROR( "Engine", "Failed to read source data path from ini file" );
-                return false;
-            }
-
-            //-------------------------------------------------------------------------
-
             if ( ini.TryGetString( "Paths:CompiledResourcePath", s ) )
             {
                 m_compiledResourcePath = m_workingDirectoryPath + s;
@@ -43,6 +28,27 @@ namespace KRG::Resource
             else
             {
                 KRG_LOG_ERROR( "Engine", "Failed to read compiled data path from ini file" );
+                return false;
+            }
+        }
+
+        // Development only settings
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        {
+            if ( ini.TryGetString( "Paths:RawResourcePath", s ) )
+            {
+                m_rawResourcePath = m_workingDirectoryPath + s;
+                if ( !m_rawResourcePath.IsValid() )
+                {
+                    KRG_LOG_ERROR( "Engine", "Invalid source data path: %s", m_compiledResourcePath.c_str() );
+                    return false;
+                }
+            }
+            else
+            {
+                KRG_LOG_ERROR( "Engine", "Failed to read source data path from ini file" );
                 return false;
             }
 

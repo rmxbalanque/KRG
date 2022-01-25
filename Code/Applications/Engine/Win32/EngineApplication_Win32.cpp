@@ -62,10 +62,12 @@ namespace KRG
 
     bool EngineApplication::Initialize()
     {
+        #if KRG_DEVELOPMENT_TOOLS
         if ( !EnsureResourceServerIsRunning( m_engine.m_resourceSettings.m_resourceServerExecutablePath ) )
         {
             return FatalError( "Couldn't start resource server!" );
         }
+        #endif
 
         Int2 const windowDimensions( ( m_windowRect.right - m_windowRect.left ), ( m_windowRect.bottom - m_windowRect.top ) );
         if ( !m_engine.Initialize( m_applicationNameNoWhitespace, windowDimensions ) )

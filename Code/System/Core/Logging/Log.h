@@ -54,7 +54,7 @@ namespace KRG::Log
     KRG_SYSTEM_CORE_API bool HasFatalErrorOccurred();
     KRG_SYSTEM_CORE_API LogEntry const& GetFatalError();
 
-    // Transfers a list of unhandled warnings and errors - useful for displaying all errors for a given frame. 
+    // Transfers a list of unhandled warnings and errors - useful for displaying all errors for a given frame.
     // Calling this function will clear the list of warnings and errors.
     KRG_SYSTEM_CORE_API TVector<LogEntry> GetUnhandledWarningsAndErrors();
 }

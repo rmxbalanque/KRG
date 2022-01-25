@@ -40,20 +40,26 @@ namespace KRG::Resource
 
     void ResourceInspectorFBX::ReadFileContents()
     {
+        FbxGeometryConverter geomConverter( m_sceneContext.m_pManager );
+        geomConverter.SplitMeshesPerMaterial( m_sceneContext.m_pScene, true );
+
         //-------------------------------------------------------------------------
         // Meshes
         //-------------------------------------------------------------------------
 
-        TVector<FbxNode*> meshNodes;
-        m_sceneContext.FindAllNodesOfType( FbxNodeAttribute::eMesh, meshNodes );
-        for ( auto pNode : meshNodes )
+        TInlineVector<FbxMesh*, 20> meshes;
+        auto numGeometries = m_sceneContext.m_pScene->GetGeometryCount();
+        for ( auto i = 0; i < numGeometries; i++ )
         {
-            auto pMesh = (FbxMesh*) pNode->GetNodeAttribute();
-            KRG_ASSERT( pMesh != nullptr );
+            auto pGeometry = m_sceneContext.m_pScene->GetGeometry( i );
+            if ( pGeometry->Is<FbxMesh>() )
+            {
+                FbxMesh* pMesh = static_cast<FbxMesh*>( pGeometry );
 
-            auto& meshInfo = m_meshes.emplace_back();
-            meshInfo.m_nameID = StringID( pMesh->GetNode()->GetName() );
-            meshInfo.m_isSkinned = pMesh->GetDeformerCount( FbxDeformer::eSkin ) > 0;
+                auto& meshInfo = m_meshes.emplace_back();
+                meshInfo.m_nameID = StringID( pMesh->GetNode()->GetName() );
+                meshInfo.m_isSkinned = pMesh->GetDeformerCount( FbxDeformer::eSkin ) > 0;
+            }
         }
 
         //-------------------------------------------------------------------------
@@ -155,7 +161,7 @@ namespace KRG::Resource
 
                 for ( auto const& meshInfo : m_meshes )
                 {
-                    tmpString.sprintf( KRG_ICON_CUBE" %s", meshInfo.m_nameID.c_str() );
+                    tmpString.sprintf( KRG_ICON_CUBE" %s##StaticMesh", meshInfo.m_nameID.c_str() );
                     bool isSelected = ( m_selectedItemType == InfoType::StaticMesh ) && meshInfo.m_nameID == m_selectedItemID;
                     if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
                     {
@@ -171,8 +177,8 @@ namespace KRG::Resource
 
                 for ( auto const& meshInfo : m_meshes )
                 {
-                    tmpString.sprintf( KRG_ICON_CUBES" %s", meshInfo.m_nameID.c_str() );
-                    bool isSelected = ( m_selectedItemType == InfoType::StaticMesh ) && meshInfo.m_nameID == m_selectedItemID;
+                    tmpString.sprintf( KRG_ICON_CUBES" %s##PhysicsMesh", meshInfo.m_nameID.c_str() );
+                    bool isSelected = ( m_selectedItemType == InfoType::PhysicsMesh ) && meshInfo.m_nameID == m_selectedItemID;
                     if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
                     {
                         m_selectedItemType = InfoType::PhysicsMesh;

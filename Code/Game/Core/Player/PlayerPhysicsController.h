@@ -1,19 +1,21 @@
 #pragma once
+
 #include "System/Core/Time/Time.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Containers.h"
 #include "Engine/Core/Entity/EntityIDs.h"
 #include "Engine/Physics/PhysicsLayers.h"
 #include "Engine/Physics/PhysicsQuery.h"
+#include "System/Core/Time/Timers.h"
 
 //-------------------------------------------------------------------------
 
-namespace KRG 
+namespace KRG
 {
     class EntityWorldUpdateContext;
 }
 
-namespace KRG::Physics 
+namespace KRG::Physics
 {
     class CharacterComponent;
     class Scene;
@@ -54,32 +56,32 @@ namespace KRG::Player
             inline float GetRemainingDistance() const { return m_remainingDistance; }
             inline Physics::SweepResults const& GetSweepResults() const { return m_sweepResults; }
 
-            inline void FinalisePosition( Physics::SweepResults sweepResults, Vector Offset = Vector::Zero )
+            inline void FinalizePosition( Physics::SweepResults sweepResults, Vector offset = Vector::Zero )
             {
                 m_sweepResults = sweepResults;
                 if( sweepResults.hasBlock )
                 {
-                    m_finalPosition = sweepResults.GetShapePosition() + Offset;
+                    m_finalPosition = sweepResults.GetShapePosition() + offset;
                     m_remainingDistance = sweepResults.GetRemainingDistance();
                 }
                 else
                 {
-                    m_finalPosition = sweepResults.m_sweepEnd + Offset;
+                    m_finalPosition = sweepResults.m_sweepEnd + offset;
                     m_remainingDistance = 0.0f;
                 }
             }
 
-            inline void ApplyCorrectiveMove( MoveResult const& CorrectiveMove )
+            inline void ApplyCorrectiveMove( MoveResult const& correctiveMove )
             {
-                m_correctedPosition     = CorrectiveMove.m_correctedPosition;
-                m_finalPosition         = CorrectiveMove.m_finalPosition;
-                m_remainingDistance     = CorrectiveMove.m_remainingDistance;
-                m_sweepResults          = CorrectiveMove.m_sweepResults;
+                m_correctedPosition     = correctiveMove.m_correctedPosition;
+                m_finalPosition         = correctiveMove.m_finalPosition;
+                m_remainingDistance     = correctiveMove.m_remainingDistance;
+                m_sweepResults          = correctiveMove.m_sweepResults;
             }
 
-            inline void ApplySubsequentMove( MoveResult const& SubsequentMove, Vector Offset = Vector::Zero )
+            inline void ApplySubsequentMove( MoveResult const& SubsequentMove, Vector offset = Vector::Zero )
             {
-                m_finalPosition         = SubsequentMove.m_finalPosition + Offset;
+                m_finalPosition         = SubsequentMove.m_finalPosition + offset;
                 m_remainingDistance     = SubsequentMove.m_remainingDistance;
                 m_sweepResults          = SubsequentMove.m_sweepResults;
             }
@@ -93,7 +95,30 @@ namespace KRG::Player
             Physics::SweepResults   m_sweepResults;
         };
 
+        #if KRG_DEVELOPMENT_TOOLS
+        enum class DebugSweepResultType
+        {
+            success,
+            reprojection,
+            collision,
+            initialPenetration,
+        };
+
+        enum class DebugSweepShapeType
+        {
+            capsule,
+            cylinder,
+        };
+        #endif
+
     public:
+
+        enum class FloorType
+        {
+            Navigable,
+            Unnavigable,
+            NoFloor,
+        };
 
         CharacterPhysicsController( Physics::CharacterComponent* pCharacterComponent )
             : m_pCharacterComponent( pCharacterComponent )
@@ -114,23 +139,33 @@ namespace KRG::Player
         inline void EnableStepHeight() { m_isStepHeightEnabled = true; }
         inline void DisableStepHeight() { m_isStepHeightEnabled = false; }
 
-        inline void EnableProjectionOntoFloor() { m_ProjectOntoFloor = true; }
-        inline void DisableProjectionOntoFloor() { m_ProjectOntoFloor = false; }
+        inline void EnableProjectionOntoFloor() { m_projectOntoFloor = true; }
+        inline void DisableProjectionOntoFloor() { m_projectOntoFloor = false; }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        inline void SetDebugMode( bool isInDebugMode ) { m_isInDebugMode = isInDebugMode; }
+        #endif
+
 
         // Controller Move
         //-------------------------------------------------------------------------
 
-        inline bool IsOnGround() const { return m_isOnGround; }
-
+        float GetInAirTime() const { return m_timeWithoutFloor.GetElapsedTimeSeconds(); }
+        bool HasFloor() const { return m_floorType != FloorType::NoFloor; }
+        FloorType GetFloorType() const { return m_floorType; }
         bool TryMoveCapsule( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, Vector const& deltaTranslation, Quaternion const& deltaRotation );
 
     private:
 
-        MoveResult SweepCylinder( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& Idx );
+        // Sweep function
+        //-------------------------------------------------------------------------
 
-        MoveResult SweepCylinderVertical( Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, Vector const& stepHeightOffset, int32& Idx );
+        MoveResult SweepCylinder( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, int32& idx );
+        MoveResult SweepCapsuleVertical( EntityWorldUpdateContext const& ctx, Physics::Scene* pPhysicsScene, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& deltaTranslation, float stepHeight, int32& idx );
 
-        MoveResult AdjustCapsuleToGround( Physics::Scene* pPhysicsScene, float capsuleCylinderPortionHalfHeight, float capsuleRadius, Transform const& transform, float distance );
+        #if KRG_DEVELOPMENT_TOOLS
+        void DrawDebugSweep( EntityWorldUpdateContext const& ctx, float cylinderHalfHeight, float cylinderRadius, Vector const& startPosition, Vector const& endPosition, DebugSweepResultType resultType, int32 idx, DebugSweepShapeType shapeType );
+        #endif
 
     private:
 
@@ -140,10 +175,15 @@ namespace KRG::Player
 
         bool                                m_isStepHeightEnabled = true;
         bool                                m_isGravityEnabled = true;
-        bool                                m_ProjectOntoFloor = true;
+        bool                                m_projectOntoFloor = true;
 
-        bool                                m_isOnGround = false;
-        float                               m_verticalSpeed = 0.0f;
+        FloorType                           m_floorType = FloorType::NoFloor;
         Vector                              m_floorNormal = Vector::Zero;
+        ManualTimer                         m_timeWithoutFloor;
+        float                               m_verticalSpeed = 0.0f;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        bool                                m_isInDebugMode = false;
+        #endif
     };
 }

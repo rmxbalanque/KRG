@@ -11,7 +11,7 @@ namespace KRG
     class SystemRegistry;
     class EntityWorldUpdateContext;
     class EntityComponent;
-    template<typename T> struct TEntityToolAccessor;
+    template<typename T> struct TEntityAccessor;
 
     //-------------------------------------------------------------------------
 

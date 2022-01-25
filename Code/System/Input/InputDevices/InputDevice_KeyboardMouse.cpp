@@ -6,10 +6,10 @@ namespace KRG
 {
     namespace Input
     {
-        void KeyboardMouseInputDevice::UpdateState()
+        void KeyboardMouseInputDevice::UpdateState( Seconds deltaTime )
         {
-            m_mouseState.Update();
-            m_keyboardState.Update();
+            m_mouseState.Update( deltaTime );
+            m_keyboardState.Update( deltaTime );
         }
 
         void KeyboardMouseInputDevice::ClearFrameState( ResetType resetType )

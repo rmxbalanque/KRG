@@ -411,7 +411,7 @@ namespace KRG::Resource
     {
         KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
 
-        pRequest->m_upToDateCheckTimeStarted = SystemClock::GetTime();
+        pRequest->m_upToDateCheckTimeStarted = PlatformClock::GetTime();
 
         // Read all up to date information
         //-------------------------------------------------------------------------
@@ -492,7 +492,7 @@ namespace KRG::Resource
 
         //-------------------------------------------------------------------------
 
-        pRequest->m_upToDateCheckTimeFinished = SystemClock::GetTime();
+        pRequest->m_upToDateCheckTimeFinished = PlatformClock::GetTime();
     }
 
     bool ResourceServer::TryReadCompileDependencies( FileSystem::Path const& resourceFilePath, TVector<ResourcePath>& outDependencies, String* pErrorLog ) const

@@ -21,12 +21,13 @@ namespace KRG::Resource
 
     public:
 
+        FileSystem::Path        m_workingDirectoryPath;
+        FileSystem::Path        m_compiledResourcePath;
+
         #if KRG_DEVELOPMENT_TOOLS
         String                  m_resourceServerNetworkAddress;
         uint16                  m_resourceServerPort;
-        FileSystem::Path        m_workingDirectoryPath;
         FileSystem::Path        m_rawResourcePath;
-        FileSystem::Path        m_compiledResourcePath;
         FileSystem::Path        m_compiledResourceDatabasePath;
         FileSystem::Path        m_resourceServerExecutablePath;
         FileSystem::Path        m_resourceCompilerExecutablePath;

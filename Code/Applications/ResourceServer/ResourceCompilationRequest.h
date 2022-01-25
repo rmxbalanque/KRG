@@ -18,7 +18,7 @@ namespace KRG::Resource
         enum class Status
         {
             Pending,
-            Executing,
+            Compiling,
             Succeeded,
             SucceededWithWarnings,
             Failed
@@ -38,7 +38,7 @@ namespace KRG::Resource
         // Status
         inline Status GetStatus() const { return m_status; }
         inline bool IsPending() const { return m_status == Status::Pending; }
-        inline bool IsExecuting() const { return m_status == Status::Executing; }
+        inline bool IsExecuting() const { return m_status == Status::Compiling; }
         inline bool HasSucceeded() const { return m_status == Status::Succeeded || m_status == Status::SucceededWithWarnings; }
         inline bool HasSucceededWithWarnings() const { return m_status == Status::SucceededWithWarnings; }
         inline bool HasFailed() const { return m_status == Status::Failed; }
@@ -56,7 +56,7 @@ namespace KRG::Resource
         {
             if ( !IsComplete() )
             {
-                return Milliseconds( SystemClock::GetTime() - m_compilationTimeStarted );
+                return Milliseconds( PlatformClock::GetTime() - m_compilationTimeStarted );
             }
 
             return Milliseconds( m_compilationTimeFinished - m_compilationTimeStarted );

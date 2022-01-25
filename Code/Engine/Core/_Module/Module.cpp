@@ -1,6 +1,7 @@
 #include "Module.h"
 #include "Engine/Core/Modules/EngineModuleContext.h"
 #include "System/Resource/ResourceProviders/NetworkResourceProvider.h"
+#include "System/Resource/ResourceProviders/PackagedResourceProvider.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Render/RenderSettings.h"
 #include "System/Network/NetworkSystem.h"
@@ -32,6 +33,8 @@ namespace KRG::EngineCore
 
         #if KRG_DEVELOPMENT_TOOLS
         m_pResourceProvider = KRG::New<Resource::NetworkResourceProvider>( pResourceSettings );
+        #else
+        m_pResourceProvider = KRG::New<Resource::PackagedResourceProvider>( pResourceSettings );
         #endif
 
         if ( m_pResourceProvider == nullptr )

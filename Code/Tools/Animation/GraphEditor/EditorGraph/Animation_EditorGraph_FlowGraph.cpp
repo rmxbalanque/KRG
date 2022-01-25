@@ -63,7 +63,80 @@ namespace KRG::Animation::GraphNodes
         {
             if ( pDebugContext != nullptr && pDebugContext->IsNodeActive( runtimeNodeIdx ) )
             {
-                ImGui::Text( "Value: TODO" );
+                if ( HasOutputPin() )
+                {
+                    GraphValueType const valueType = GetValueType();
+                    switch ( valueType )
+                    {
+                        case GraphValueType::Bool:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<bool>( runtimeNodeIdx );
+                            ImGui::Text( value ? "True" : "False" );
+                        }
+                        break;
+
+                        case GraphValueType::ID:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<StringID>( runtimeNodeIdx );
+                            if ( value.IsValid() )
+                            {
+                                ImGui::Text( value.c_str() );
+                            }
+                            else
+                            {
+                                ImGui::Text( "Invalid" );
+                            }
+                        }
+                        break;
+
+                        case GraphValueType::Int:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<int32>( runtimeNodeIdx );
+                            ImGui::Text( "%d", value );
+                        }
+                        break;
+
+                        case GraphValueType::Float:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<float>( runtimeNodeIdx );
+                            ImGui::Text( "%.3f", value );
+                        }
+                        break;
+
+                        case GraphValueType::Vector:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<Vector>( runtimeNodeIdx );
+                            ImGuiX::DisplayVector4( value );
+                        }
+                        break;
+
+                        case GraphValueType::Target:
+                        {
+                            auto const value = pDebugContext->GetRuntimeNodeValue<Target>( runtimeNodeIdx );
+                            if ( value.IsBoneTarget() )
+                            {
+                                if ( value.GetBoneID().IsValid() )
+                                {
+                                    ImGui::Text( value.GetBoneID().c_str() );
+                                }
+                                else
+                                {
+                                    ImGui::Text( "Invalid" );
+                                }
+                            }
+                            else
+                            {
+                                ImGui::Text( "Target TODO" );
+                            }
+                        }
+                        break;
+
+                        case GraphValueType::BoneMask:
+                        case GraphValueType::Pose:
+                        default:
+                        break;
+                    }
+                }
             }
             else
             {
@@ -287,7 +360,7 @@ namespace KRG::Animation::GraphNodes
         auto parameterReferenceNodes = pRootGraph->FindAllNodesOfType<ParameterReferenceEditorNode>( VisualGraph::SearchMode::Recursive, VisualGraph::SearchTypeMatch::Exact );
         for ( auto pReferenceNode : parameterReferenceNodes )
         {
-            EditorGraphNode const* pFoundParameterNode = nullptr;
+            EditorGraphNode* pFoundParameterNode = nullptr;
 
             for ( auto pParameter : controlParameters )
             {
@@ -430,19 +503,27 @@ namespace KRG::Animation::GraphNodes
 
         auto pParameterGraph = KRG::New<FlowGraph>( GraphType::ValueTree );
         pParameterGraph->CreateNode<ResultEditorNode>( m_type );
-        SetSecondaryGraph( pParameterGraph );
+        SetChildGraph( pParameterGraph );
     }
 
     GraphNodeIndex VirtualParameterEditorNode::Compile( EditorGraphCompilationContext& context ) const
     {
-        auto const resultNodes = GetSecondaryGraph()->FindAllNodesOfType<ResultEditorNode>();
+        auto const resultNodes = GetChildGraph()->FindAllNodesOfType<ResultEditorNode>();
         KRG_ASSERT( resultNodes.size() == 1 );
-        return GetConnectedInputNode<EditorGraphNode>( 0 )->Compile( context );
+
+        auto pConnectedNode = resultNodes[0]->GetConnectedInputNode<EditorGraphNode>( 0 );
+        if ( pConnectedNode == nullptr )
+        {
+            context.LogError( this, "Empty virtual parameter detected!" );
+            return InvalidIndex;
+        }
+
+        return resultNodes[0]->GetConnectedInputNode<EditorGraphNode>( 0 )->Compile( context );
     }
 
     //-------------------------------------------------------------------------
 
-    ParameterReferenceEditorNode::ParameterReferenceEditorNode( VirtualParameterEditorNode const* pParameter )
+    ParameterReferenceEditorNode::ParameterReferenceEditorNode( VirtualParameterEditorNode* pParameter )
         : m_pParameter( pParameter )
     {
         KRG_ASSERT( pParameter != nullptr );
@@ -450,7 +531,7 @@ namespace KRG::Animation::GraphNodes
         m_parameterValueType = pParameter->GetValueType();
     }
 
-    ParameterReferenceEditorNode::ParameterReferenceEditorNode( ControlParameterEditorNode const* pParameter )
+    ParameterReferenceEditorNode::ParameterReferenceEditorNode( ControlParameterEditorNode* pParameter )
         : m_pParameter( pParameter )
     {
         KRG_ASSERT( pParameter != nullptr );

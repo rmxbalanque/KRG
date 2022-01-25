@@ -22,6 +22,7 @@ namespace KRG::Resource
         KRG_ASSERT( IsIdle() );
         KRG_ASSERT( pRequest != nullptr && pRequest->IsPending() );
         m_pRequest = pRequest;
+        m_pRequest->m_status = CompilationRequest::Status::Compiling;
         m_status = Status::Compiling;
         m_pTaskSystem->ScheduleTask( this );
     }
@@ -35,14 +36,14 @@ namespace KRG::Resource
         // Start compiler process
         //-------------------------------------------------------------------------
 
-        m_pRequest->m_compilationTimeStarted = SystemClock::GetTime();
+        m_pRequest->m_compilationTimeStarted = PlatformClock::GetTime();
 
         int32 result = subprocess_create( processCommandLineArgs, subprocess_option_combined_stdout_stderr | subprocess_option_inherit_environment | subprocess_option_no_window, &m_subProcess );
         if ( result != 0 )
         {
             m_pRequest->m_status = CompilationRequest::Status::Failed;
             m_pRequest->m_log = "Resource compiler failed to start!";
-            m_pRequest->m_compilationTimeFinished = SystemClock::GetTime();
+            m_pRequest->m_compilationTimeFinished = PlatformClock::GetTime();
             m_status = Status::Complete;
             return;
         }
@@ -56,7 +57,7 @@ namespace KRG::Resource
         {
             m_pRequest->m_status = CompilationRequest::Status::Failed;
             m_pRequest->m_log = "Resource compiler failed to complete!";
-            m_pRequest->m_compilationTimeFinished = SystemClock::GetTime();
+            m_pRequest->m_compilationTimeFinished = PlatformClock::GetTime();
             m_status = Status::Complete;
             subprocess_destroy( &m_subProcess );
             return;
@@ -65,7 +66,7 @@ namespace KRG::Resource
         // Handle completed compilation
         //-------------------------------------------------------------------------
 
-        m_pRequest->m_compilationTimeFinished = SystemClock::GetTime();
+        m_pRequest->m_compilationTimeFinished = PlatformClock::GetTime();
 
         switch ( exitCode )
         {

@@ -1,6 +1,11 @@
 #pragma once
 
 #include "System/Core/Algorithm/Hash.h"
+
+#if !KRG_DEVELOPMENT_TOOLS
+#define USE_OPTICK 0
+#endif
+
 #include <optick.h>
 
 //-------------------------------------------------------------------------

@@ -20,7 +20,7 @@ namespace KRG
 
             virtual void Initialize() override final;
             virtual void Shutdown() override final;
-            virtual void UpdateState() override final;
+            virtual void UpdateState( Seconds deltaTime ) override final;
 
         private:
 

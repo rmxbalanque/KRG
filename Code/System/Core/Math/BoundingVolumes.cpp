@@ -1,4 +1,5 @@
 #include "BoundingVolumes.h"
+#include "EigenVectors.h"
 
 //-------------------------------------------------------------------------
 
@@ -123,17 +124,17 @@ namespace KRG
         KRG_UNIMPLEMENTED_FUNCTION();
     }
 
-    AABB::AABB( Vector const* points, uint32 numPoints )
+    AABB::AABB( Vector const* pPoints, uint32 numPoints )
     {
-        KRG_ASSERT( points != nullptr && numPoints > 0 );
+        KRG_ASSERT( pPoints != nullptr && numPoints > 0 );
 
         Vector min( FLT_MAX );
         Vector max( -FLT_MAX );
 
         for ( uint32 i = 0u; i < numPoints; i++ )
         {
-            min = Vector::Min( min, points[i] );
-            max = Vector::Max( max, points[i] );
+            min = Vector::Min( min, pPoints[i] );
+            max = Vector::Max( max, pPoints[i] );
         }
 
         SetFromMinMax( min, max );
@@ -245,6 +246,104 @@ namespace KRG
         , m_orientation( orientation )
     {
         KRG_ASSERT( m_extents.IsGreaterThanEqual3( Vector::Zero ) && m_orientation.IsNormalized() );
+    }
+
+    // Copied from DirectXMath:
+    //-----------------------------------------------------------------------------
+    // Find the approximate minimum oriented bounding box containing a set of
+    // points.  Exact computation of minimum oriented bounding box is possible but
+    // is slower and requires a more complex algorithm.
+    // The algorithm works by computing the inertia tensor of the points and then
+    // using the eigenvectors of the inertia tensor as the axes of the box.
+    // Computing the inertia tensor of the convex hull of the points will usually
+    // result in better bounding box but the computation is more complex.
+    // Exact computation of the minimum oriented bounding box is possible but the
+    // best know algorithm is O(N^3) and is significantly more complex to implement.
+    //-----------------------------------------------------------------------------
+
+    OBB::OBB( Vector const* pPoints, uint32 numPoints )
+    {
+        KRG_ASSERT( pPoints != nullptr && numPoints > 0 );
+
+        // Compute the center of mass and inertia tensor of the points.
+        Vector CenterOfMass = Vector::Zero;
+        for ( size_t i = 0; i < numPoints; ++i )
+        {
+            CenterOfMass = CenterOfMass + pPoints[i];
+        }
+
+        CenterOfMass = CenterOfMass * Vector( 1.0f / numPoints );
+
+        // Compute the inertia tensor of the points around the center of mass.
+        // Using the center of mass is not strictly necessary, but will hopefully
+        // improve the stability of finding the eigenvectors.
+        Vector XX_YY_ZZ = Vector::Zero;
+        Vector XY_XZ_YZ = Vector::Zero;
+
+        for ( size_t i = 0; i < numPoints; ++i )
+        {
+            Vector point = pPoints[i] - CenterOfMass;
+            XX_YY_ZZ = XX_YY_ZZ + ( point * point );
+
+            Vector XXY = point.Swizzle<0, 0, 1, 3>();
+            Vector YZZ = point.Swizzle<1, 2, 2, 3>();
+
+            XY_XZ_YZ = XY_XZ_YZ + ( XXY * YZZ );
+        }
+
+        // Compute the eigenvectors of the inertia tensor.
+        Vector v1, v2, v3;
+        Math::CalculateEigenVectorsFromCovarianceMatrix( XX_YY_ZZ.GetX(), XX_YY_ZZ.GetY(), XX_YY_ZZ.GetZ(), XY_XZ_YZ.GetX(), XY_XZ_YZ.GetY(), XY_XZ_YZ.GetZ(), v1, v2, v3 );
+
+        // Put them in a matrix.
+        Matrix R;
+        R.m_rows[0] = v1.GetWithW0();
+        R.m_rows[1] = v2.GetWithW0();
+        R.m_rows[2] = v3.GetWithW0();
+        R.m_rows[3] = Vector::UnitW;
+
+        // Multiply by -1 to convert the matrix into a right handed coordinate
+        // system (determinant ~= 1) in case the eigenvectors form a left handed
+        // coordinate system (determinant ~= -1) because XMQuaternionRotationMatrix only
+        // works on right handed matrices.
+        Vector det = R.GetDeterminant();
+        if ( det.IsLessThan4( Vector::Zero ) )
+        {
+            R.m_rows[0].Negate();
+            R.m_rows[1].Negate();
+            R.m_rows[2].Negate();
+        }
+
+        // Get the rotation quaternion from the matrix.
+        Quaternion vOrientation = R.GetRotation();
+
+        // Make sure it is normal (in case the vectors are slightly non-orthogonal).
+        vOrientation.Normalize();
+
+        // Rebuild the rotation matrix from the quaternion.
+        R = Matrix( vOrientation );
+
+        // Build the rotation into the rotated space.
+        Matrix InverseR = R.GetTransposed();
+
+        // Find the minimum OBB using the eigenvectors as the axes.
+        Vector vMin, vMax;
+        vMin = vMax = InverseR.RotateVector( pPoints[0] );
+        for ( size_t i = 1; i < numPoints; ++i )
+        {
+            Vector rotatedPoint = InverseR.RotateVector( pPoints[i] );
+            vMin = Vector::Min( vMin, rotatedPoint );
+            vMax = Vector::Max( vMax, rotatedPoint );
+        }
+
+        // Rotate the center into world space.
+        Vector vCenter = ( vMin + vMax ) * Vector::Half;
+        vCenter = R.RotateVector( vCenter );
+
+        // Store center, extents, and orientation.
+        m_center = vCenter;
+        m_orientation = vOrientation;
+        m_extents = ( vMax - vMin ) * Vector::Half;
     }
 
     void OBB::ApplyTransform( Transform const& transform )

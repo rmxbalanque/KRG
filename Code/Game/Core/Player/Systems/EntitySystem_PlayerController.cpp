@@ -130,18 +130,21 @@ namespace KRG::Player
 
     void PlayerController::Update( EntityWorldUpdateContext const& ctx )
     {
-        Input::InputState frameInputState( ctx.GetSystem<Input::InputSystem>() );
+        if ( !ctx.IsGameWorld() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
 
         TScopedGuardValue const contextGuardValue( m_actionContext.m_pEntityWorldUpdateContext, &ctx );
         TScopedGuardValue const physicsSystemGuard( m_actionContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
-        TScopedGuardValue const inputStateGuardValue( m_actionContext.m_pInputState, &frameInputState );
+        TScopedGuardValue const inputStateGuardValue( m_actionContext.m_pInputState, ctx.GetInputState() );
 
         if ( !m_actionContext.IsValid() )
         {
             return;
         }
-
-        frameInputState.SetInputEnabled( m_actionContext.m_pPlayerComponent->IsPlayerEnabled() );
 
         //-------------------------------------------------------------------------
 
@@ -154,20 +157,26 @@ namespace KRG::Player
             // Update player actions
             m_actionStateMachine.Update();
 
+            // Update player component state
+            m_actionContext.m_pPlayerComponent->UpdateState( m_actionContext.GetDeltaTime() );
+
             // Update animation and get root motion delta (remember that root motion is in character space, so we need to convert the displacement to world space)
-            m_pAnimGraphComponent->PrePhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_actionContext.m_pPhysicsScene );
+            m_pAnimGraphComponent->EvaluateGraph( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_actionContext.m_pPhysicsScene );
             Vector const& deltaTranslation = m_pCharacterMeshComponent->GetWorldTransform().RotateVector( m_pAnimGraphComponent->GetRootMotionDelta().GetTranslation() );
             Quaternion const& deltaRotation = m_pAnimGraphComponent->GetRootMotionDelta().GetRotation();
 
             // Move character
             m_actionContext.m_pCharacterController->TryMoveCapsule( ctx, m_actionContext.m_pPhysicsScene, deltaTranslation, deltaRotation );
 
+            // Run animation pose tasks
+            m_pAnimGraphComponent->ExecutePrePhysicsTasks( m_pCharacterMeshComponent->GetWorldTransform() );
+
             // Update camera position relative to new character position
             m_actionContext.m_pCameraController->FinalizeCamera();
         }
         else if ( updateStage == UpdateStage::PostPhysics )
         {
-            m_pAnimGraphComponent->PostPhysicsUpdate( ctx.GetDeltaTime(), m_pCharacterMeshComponent->GetWorldTransform(), m_actionContext.m_pPhysicsScene );
+            m_pAnimGraphComponent->ExecutePostPhysicsTasks();
         }
         else
         {

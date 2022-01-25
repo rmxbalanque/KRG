@@ -54,21 +54,21 @@ namespace KRG
         bool const isSavingAllowed = AlwaysAllowSaving() || IsDirty();
 
         ImGui::BeginDisabled( !isSavingAllowed );
-        if ( ImGui::MenuItem( KRG_ICON_FLOPPY_O" Save" ) )
+        if ( ImGui::MenuItem( KRG_ICON_SAVE"Save" ) )
         {
             Save();
         }
         ImGui::EndDisabled();
 
         ImGui::BeginDisabled( !CanUndo() );
-        if ( ImGui::MenuItem( KRG_ICON_UNDO" Undo" ) )
+        if ( ImGui::MenuItem( KRG_ICON_UNDO"Undo" ) )
         {
             Undo();
         }
         ImGui::EndDisabled();
 
         ImGui::BeginDisabled( !CanRedo() );
-        if ( ImGui::MenuItem( KRG_ICON_REPEAT" Redo" ) )
+        if ( ImGui::MenuItem( KRG_ICON_REDO"Redo" ) )
         {
             Redo();
         }
@@ -79,19 +79,20 @@ namespace KRG
 
     void EditorWorkspace::DrawDefaultViewportToolbarItems()
     {
-        ImGui::SetNextItemWidth( 44 );
+        ImGui::SetNextItemWidth( 46 );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
         if ( ImGui::BeginCombo( "##RenderingOptions", KRG_ICON_EYE, ImGuiComboFlags_HeightLarge ) )
         {
             Render::RenderDebugView::DrawRenderVisualizationModesMenu( GetWorld() );
             ImGui::EndCombo();
         }
+        ImGuiX::ItemTooltip( "Render Modes" );
         ImGui::PopStyleVar();
         ImGui::SameLine();
 
         //-------------------------------------------------------------------------
 
-        ImGui::SetNextItemWidth( 44 );
+        ImGui::SetNextItemWidth( 46 );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 5, 5 ) );
         if ( ImGui::BeginCombo( "##CameraOptions", KRG_ICON_CAMERA, ImGuiComboFlags_HeightLarge ) )
         {
@@ -99,6 +100,7 @@ namespace KRG
 
             ImGui::EndCombo();
         }
+        ImGuiX::ItemTooltip( "Camera Options" );
         ImGui::PopStyleVar();
         ImGui::SameLine();
 
@@ -106,7 +108,7 @@ namespace KRG
 
         if ( m_allowWorldTimeControl )
         {
-            if ( BeginViewportToolbarGroup( "TimeControls", ImVec2( 164, 0 ), ImVec2( 2, 1 ) ) )
+            if ( BeginViewportToolbarGroup( "TimeControls", ImVec2( 174, 0 ), ImVec2( 2, 1 ) ) )
             {
                 ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
 
@@ -115,7 +117,7 @@ namespace KRG
                 {
                     if ( ImGui::Button( KRG_ICON_PLAY"##ResumeWorld" ) )
                     {
-                        m_pWorld->SetTimeScale( m_worldTimeScale );
+                        SetWorldPaused( false );
                     }
                     ImGuiX::ItemTooltip( "Pause" );
                 }
@@ -123,8 +125,7 @@ namespace KRG
                 {
                     if ( ImGui::Button( KRG_ICON_PAUSE"##PauseWorld" ) )
                     {
-                        m_worldTimeScale = m_pWorld->GetTimeScale();
-                        m_pWorld->SetTimeScale( -1.0f );
+                        SetWorldPaused( true );
                     }
                     ImGuiX::ItemTooltip( "Pause" );
                 }
@@ -142,9 +143,10 @@ namespace KRG
                 // Slider
                 ImGui::SameLine( 0, 0 );
                 ImGui::SetNextItemWidth( 100 );
-                if ( ImGui::SliderFloat( "##TimeScale", &m_worldTimeScale, 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput ) )
+                float newTimeScale = m_worldTimeScale;
+                if ( ImGui::SliderFloat( "##TimeScale", &newTimeScale, 0.1f, 3.5f, "%.2f", ImGuiSliderFlags_NoInput ) )
                 {
-                    m_pWorld->SetTimeScale( m_worldTimeScale );
+                    SetWorldTimeScale( newTimeScale );
                 }
                 ImGuiX::ItemTooltip( "Time Scale" );
 
@@ -152,8 +154,7 @@ namespace KRG
                 ImGui::SameLine( 0, 0 );
                 if ( ImGui::Button( KRG_ICON_UNDO"##ResetTimeScale" ) )
                 {
-                    m_worldTimeScale = 1.0f;
-                    m_pWorld->SetTimeScale( 1.0f );
+                    ResetWorldTimeScale();
                 }
                 ImGuiX::ItemTooltip( "Reset TimeScale" );
             }
@@ -198,35 +199,36 @@ namespace KRG
     {
         KRG_ASSERT( viewportInfo.m_pViewportRenderTargetTexture != nullptr && viewportInfo.m_retrievePickingID != nullptr );
 
-        auto pWorld = GetWorld();
+        m_isViewportFocused = false;
+        m_isViewportHovered = false;
 
+        auto pWorld = GetWorld();
         Render::Viewport* pViewport = pWorld->GetViewport();
-        bool isViewportFocused = false;
-        ImGuiWindowFlags const viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
 
         // Create viewport window
+        ImGuiWindowFlags const viewportWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNavInputs;
         ImGui::SetNextWindowClass( pWindowClass );
         ImGui::SetNextWindowSizeConstraints( ImVec2( 128, 128 ), ImVec2( FLT_MAX, FLT_MAX ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
         if ( ImGui::Begin( GetViewportWindowID(), nullptr, viewportWindowFlags ) )
         {
             m_isViewportFocused = ImGui::IsWindowFocused();
+            m_isViewportHovered = ImGui::IsWindowHovered();
 
             ImGuiStyle const& style = ImGui::GetStyle();
             ImVec2 const viewportSize( Math::Max( ImGui::GetContentRegionAvail().x, 64.0f ), Math::Max( ImGui::GetContentRegionAvail().y, 64.0f ) );
 
-            isViewportFocused = ImGui::IsWindowFocused();
-            bool const isWindowHovered = ImGui::IsWindowHovered();
             ImVec2 const windowPos = ImGui::GetWindowPos();
 
             // Switch focus based on mouse input
             //-------------------------------------------------------------------------
 
-            if ( isWindowHovered )
+            if ( m_isViewportHovered )
             {
                 if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) || ImGui::IsMouseClicked( ImGuiMouseButton_Right ) || ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
                 {
                     ImGui::SetWindowFocus();
+                    m_isViewportFocused = true;
                 }
             }
 
@@ -241,6 +243,12 @@ namespace KRG
 
             ImVec2 const viewportImageCursorPos = ImGui::GetCursorPos();
             ImGui::Image( viewportInfo.m_pViewportRenderTargetTexture, viewportSize );
+
+            if ( ImGui::BeginDragDropTarget() )
+            {
+                OnDragAndDrop( pViewport );
+                ImGui::EndDragDropTarget();
+            }
 
             // Draw overlay elements
             //-------------------------------------------------------------------------
@@ -266,7 +274,7 @@ namespace KRG
             // Handle picking
             //-------------------------------------------------------------------------
 
-            if ( isWindowHovered && !ImGui::IsAnyItemHovered() )
+            if ( m_isViewportHovered && !ImGui::IsAnyItemHovered() )
             {
                 if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
                 {
@@ -275,8 +283,8 @@ namespace KRG
                     {
                         ImVec2 const mousePosWithinViewportImage = ( mousePos - windowPos ) - viewportImageCursorPos;
                         Int2 const pixelCoords = Int2( Math::RoundToInt( mousePosWithinViewportImage.x ), Math::RoundToInt( mousePosWithinViewportImage.y ) );
-                        uint64 const pickingID = viewportInfo.m_retrievePickingID( pixelCoords );
-                        if ( pickingID != 0 )
+                        Render::PickingID const pickingID = viewportInfo.m_retrievePickingID( pixelCoords );
+                        if ( pickingID.IsSet() )
                         {
                             OnMousePick( pickingID );
                         }
@@ -297,7 +305,9 @@ namespace KRG
         ImGui::End();
         ImGui::PopStyleVar();
 
-        return isViewportFocused;
+        //-------------------------------------------------------------------------
+
+        return m_isViewportFocused;
     }
 
     //-------------------------------------------------------------------------
@@ -314,6 +324,40 @@ namespace KRG
         KRG_ASSERT( m_pWorld != nullptr );
         auto pPlayerManager = m_pWorld->GetWorldSystem<PlayerManager>();
         pPlayerManager->SetDebugCameraView( cameraTransform );
+    }
+
+    void EditorWorkspace::SetWorldPaused( bool newPausedState )
+    {
+        bool const currentPausedState = m_pWorld->IsPaused();
+
+        if ( currentPausedState == newPausedState )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        if ( m_pWorld->IsPaused() )
+        {
+            m_pWorld->SetTimeScale( m_worldTimeScale );
+        }
+        else // Pause
+        {
+            m_worldTimeScale = m_pWorld->GetTimeScale();
+            m_pWorld->SetTimeScale( -1.0f );
+        }
+    }
+
+    void EditorWorkspace::SetWorldTimeScale( float newTimeScale )
+    {
+        m_worldTimeScale = Math::Clamp( newTimeScale, 0.1f, 3.5f );
+        m_pWorld->SetTimeScale( m_worldTimeScale );
+    }
+
+    void EditorWorkspace::ResetWorldTimeScale()
+    {
+        m_worldTimeScale = 1.0f;
+        m_pWorld->SetTimeScale( 1.0f );
     }
 
     //-------------------------------------------------------------------------
@@ -336,7 +380,7 @@ namespace KRG
 
     void EditorWorkspace::AddEntityToWorld( Entity* pEntity )
     {
-        KRG_ASSERT( pEntity != nullptr && !pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( pEntity != nullptr && !pEntity->IsAddedToMap() );
         KRG_ASSERT( !VectorContains( m_addedEntities, pEntity ) );
         m_addedEntities.emplace_back( pEntity );
         m_pWorld->GetPersistentMap()->AddEntity( pEntity );
@@ -344,7 +388,7 @@ namespace KRG
 
     void EditorWorkspace::RemoveEntityFromWorld( Entity* pEntity )
     {
-        KRG_ASSERT( pEntity != nullptr && pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( pEntity != nullptr && pEntity->GetMapID() == m_pWorld->GetPersistentMap()->GetID() );
         KRG_ASSERT( VectorContains( m_addedEntities, pEntity ) );
         m_pWorld->GetPersistentMap()->RemoveEntity( pEntity );
         m_addedEntities.erase_first_unsorted( pEntity );
@@ -352,7 +396,7 @@ namespace KRG
 
     void EditorWorkspace::DestroyEntityInWorld( Entity*& pEntity )
     {
-        KRG_ASSERT( pEntity != nullptr && pEntity->GetCollectionID().IsValid() );
+        KRG_ASSERT( pEntity != nullptr && pEntity->GetMapID() == m_pWorld->GetPersistentMap()->GetID() );
         KRG_ASSERT( VectorContains( m_addedEntities, pEntity ) );
         m_pWorld->GetPersistentMap()->DestroyEntity( pEntity );
         m_addedEntities.erase_first_unsorted( pEntity );

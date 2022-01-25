@@ -324,14 +324,40 @@ namespace KRG::Animation::GraphNodes
         return !GetSecondaryGraph()->FindAllNodesOfType<TransitionEditorNode>().empty();
     }
 
-    ImColor TransitionConduitEditorNode::GetNodeColor() const
+    ImColor TransitionConduitEditorNode::GetNodeBorderColor( VisualGraph::DrawContext const& ctx, VisualGraph::NodeVisualState visualState ) const
     {
-        if ( !HasTransitions() )
+        // Is this an blocked transition
+        if ( visualState == VisualGraph::NodeVisualState::None && !HasTransitions() )
         {
             return VisualGraph::VisualSettings::s_connectionColorInvalid;
         }
 
-        return VisualGraph::VisualSettings::s_connectionColorValid;
+        // Is this transition active?
+        auto pDebugContext = reinterpret_cast<DebugContext*>( ctx.m_pUserContext );
+        if ( pDebugContext != nullptr )
+        {
+            bool isActive = false;
+            auto childTransitions = GetSecondaryGraph()->FindAllNodesOfType<TransitionEditorNode>();
+
+            for ( auto pTransition : childTransitions )
+            {
+                auto const runtimeNodeIdx = pDebugContext->GetRuntimeGraphNodeIndex( pTransition->GetID() );
+                if ( runtimeNodeIdx != InvalidIndex && pDebugContext->IsNodeActive( runtimeNodeIdx ) )
+                {
+                    isActive = true;
+                    break;
+                }
+            }
+
+            if ( isActive )
+            {
+                return VisualGraph::VisualSettings::s_connectionColorValid;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        return VisualGraph::SM::TransitionConduit::GetNodeBorderColor( ctx, visualState );
     }
 
     //-------------------------------------------------------------------------

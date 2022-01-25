@@ -167,12 +167,13 @@ namespace KRG
 
             //-------------------------------------------------------------------------
 
-            if ( ImGui::BeginTable( "System Log Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
+            if ( ImGui::BeginTable( "System Log Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY, ImGui::GetContentRegionAvail() ) )
             {
                 ImGui::TableSetupColumn( "Time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
                 ImGui::TableSetupColumn( "Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 55 );
                 ImGui::TableSetupColumn( "Channel", ImGuiTableColumnFlags_WidthFixed, 60 );
                 ImGui::TableSetupColumn( "Message", ImGuiTableColumnFlags_WidthStretch );
+                ImGui::TableSetupScrollFreeze( 0, 1 );
 
                 //-------------------------------------------------------------------------
 
@@ -181,68 +182,82 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 auto const& logEntries = Log::GetLogEntries();
-                for ( auto const& entry : logEntries )
+
+                ImGuiListClipper clipper;
+                clipper.Begin( (int32) logEntries.size() );
+                while ( clipper.Step() )
                 {
-                    switch ( entry.m_severity )
+                    for ( int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++ )
                     {
-                        case Log::Severity::Warning:
-                        if ( !m_showLogWarnings )
-                        {
-                            continue;
-                        }
-                        break;
+                        auto const& entry = logEntries[i];
 
-                        case Log::Severity::Error:
-                        if ( !m_showLogErrors )
+                        switch ( entry.m_severity )
                         {
-                            continue;
-                        }
-                        break;
+                            case Log::Severity::Warning:
+                            if ( !m_showLogWarnings )
+                            {
+                                continue;
+                            }
+                            break;
 
-                        case Log::Severity::Message:
-                        if ( !m_showLogMessages )
-                        {
-                            continue;
+                            case Log::Severity::Error:
+                            if ( !m_showLogErrors )
+                            {
+                                continue;
+                            }
+                            break;
+
+                            case Log::Severity::Message:
+                            if ( !m_showLogMessages )
+                            {
+                                continue;
+                            }
+                            break;
                         }
-                        break;
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableNextRow();
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 0 );
+                        ImGui::Text( entry.m_timestamp.c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 1 );
+                        switch ( entry.m_severity )
+                        {
+                            case Log::Severity::Warning:
+                            ImGui::TextColored( Colors::Yellow.ToFloat4(), "Warning" );
+                            break;
+
+                            case Log::Severity::Error:
+                            ImGui::TextColored( Colors::Red.ToFloat4(), "Error" );
+                            break;
+
+                            case Log::Severity::Message:
+                            ImGui::Text( "Message" );
+                            break;
+                        }
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 2 );
+                        ImGui::Text( entry.m_channel.c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 3 );
+                        ImGui::Text( entry.m_message.c_str() );
                     }
+                }
 
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( entry.m_timestamp.c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    switch ( entry.m_severity )
-                    {
-                        case Log::Severity::Warning:
-                        ImGui::TextColored( Colors::Yellow.ToFloat4(), "Warning" );
-                        break;
-
-                        case Log::Severity::Error:
-                        ImGui::TextColored( Colors::Red.ToFloat4(), "Error" );
-                        break;
-
-                        case Log::Severity::Message:
-                        ImGui::Text( "Message" );
-                        break;
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( entry.m_channel.c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( entry.m_message.c_str() );
+                // Auto scroll the table
+                if ( ImGui::GetScrollY() >= ImGui::GetScrollMaxY() )
+                {
+                    ImGui::SetScrollHereY( 1.0f );
                 }
 
                 ImGui::EndTable();

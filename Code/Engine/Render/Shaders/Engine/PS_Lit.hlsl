@@ -24,11 +24,11 @@ cbuffer Materials : register( b1 )
 #if WITH_PICKING
 cbuffer EntityID : register( b2 )
 {
-	uint	m_entityID0;
-	uint	m_entityID1;
-	uint	m_padding0; // unused
-	uint	m_padding1; // unused
-	float4	m_padding2; // unused
+	uint	m_ID0;
+	uint	m_ID1;
+	uint	m_ID2;
+	uint	m_ID3;
+	float4	m_padding; // unused
 };
 #endif
 
@@ -65,7 +65,7 @@ SurfaceParams LoadSurfaceParams(PixelShaderInput psInput)
 
 	float3 albedo = (m_surfaceFlags&MATERIAL_USE_ALBEDO_TEXTURE) ? albedoTexture.Sample( bilinearSampler, psInput.m_uv ).rgb : m_albedo;
 	// TODFO: WTF??? implement proper sRGB decoding
-	surfaceParams.albedo = pow(albedo, 2.2f);
+	surfaceParams.albedo = pow( abs( albedo ), 2.2f);
 
 	float roughness = (m_surfaceFlags&MATERIAL_USE_ROUGHNESS_TEXTURE) ? roughnessTexture.Sample( bilinearSampler, psInput.m_uv ).r : m_roughness;
 	surfaceParams.roughness = max(roughness, 0.04);
@@ -227,7 +227,7 @@ struct PS_OUTPUT
 	float4 m_color: SV_Target0;
 
 	#if WITH_PICKING
-	uint m_ID[2] : SV_Target1;
+	uint4 m_ID : SV_Target1;
 	#endif
 };
 
@@ -236,8 +236,10 @@ PS_OUTPUT main(PixelShaderInput psInput)
 	PS_OUTPUT output;
 
 	#if WITH_PICKING
-	output.m_ID[0] = m_entityID0;
-	output.m_ID[1] = m_entityID1;
+	output.m_ID[0] = m_ID0;
+	output.m_ID[1] = m_ID1;
+	output.m_ID[2] = m_ID2;
+	output.m_ID[3] = m_ID3;
 	#endif
 
 	//-------------------------------------------------------------

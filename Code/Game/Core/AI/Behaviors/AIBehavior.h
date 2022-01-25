@@ -53,10 +53,13 @@ namespace KRG::AI
         //-------------------------------------------------------------------------
 
         KRG_FORCE_INLINE Seconds GetDeltaTime() const { return m_pEntityWorldUpdateContext->GetDeltaTime(); }
-        KRG_FORCE_INLINE Drawing::DrawContext GetDrawingContext() const { return m_pEntityWorldUpdateContext->GetDrawingContext(); }
         template<typename T> inline T* GetWorldSystem() const { return m_pEntityWorldUpdateContext->GetWorldSystem<T>(); }
         template<typename T> inline T* GetSystem() const { return m_pEntityWorldUpdateContext->GetSystem<T>(); }
         template<typename T> inline T* GetAnimSubGraphController() const { return m_pAnimationController->GetSubGraphController<T>(); }
+
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_FORCE_INLINE Drawing::DrawContext GetDrawingContext() const { return m_pEntityWorldUpdateContext->GetDrawingContext(); }
+        #endif
 
     public:
 

@@ -57,6 +57,11 @@ namespace KRG::CPP
         {
             if ( propertyDesc.IsDynamicArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        if ( ( arrayIdx + 1 ) >= pActualType->" << propertyDesc.m_name.c_str() << ".size() )\n";
@@ -64,14 +69,33 @@ namespace KRG::CPP
                 file << "                            pActualType->" << propertyDesc.m_name.c_str() << ".resize( arrayIdx + 1 );\n";
                 file << "                        }\n\n";
                 file << "                        return (Byte*) &pActualType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
             else if ( propertyDesc.IsStaticArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        return (Byte*) &pActualType->" << propertyDesc.m_name.c_str() << "[arrayIdx];\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -91,17 +115,41 @@ namespace KRG::CPP
         {
             if ( propertyDesc.IsDynamicArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        return pActualType->" << propertyDesc.m_name.c_str() << ".size();\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
             else if ( propertyDesc.IsStaticArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        return " << propertyDesc.GetArraySize() << ";\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -122,10 +170,22 @@ namespace KRG::CPP
 
             if ( propertyDesc.IsArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        return sizeof( " << propertyDesc.m_typeName.c_str() << templateSpecializationString.c_str() << " );\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -145,11 +205,23 @@ namespace KRG::CPP
         {
             if ( propertyDesc.IsDynamicArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        pActualType->" << propertyDesc.m_name.c_str() << ".clear();\n";
                 file << "                        return;\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -168,11 +240,23 @@ namespace KRG::CPP
         {
             if ( propertyDesc.IsDynamicArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        pActualType->" << propertyDesc.m_name.c_str() << ".emplace_back();\n";
                 file << "                        return;\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -191,11 +275,23 @@ namespace KRG::CPP
         {
             if ( propertyDesc.IsDynamicArrayProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 file << "                    if ( arrayID == " << propertyDesc.m_propertyID << " )\n";
                 file << "                    {\n";
                 file << "                        pActualType->" << propertyDesc.m_name.c_str() << ".erase( pActualType->" << propertyDesc.m_name.c_str() << ".begin() + arrayIdx );\n";
                 file << "                        return;\n";
-                file << "                    }\n\n";
+                file << "                    }\n";
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -218,10 +314,20 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             file << "                    if( !pTypeHelper->IsPropertyValueEqual( pType, pOtherType, " << propertyDesc.m_propertyID << " ) )\n";
             file << "                    {\n";
             file << "                       return false;\n";
             file << "                    }\n\n";
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n";
+            }
         }
 
         file << "                    return true;\n";
@@ -246,6 +352,11 @@ namespace KRG::CPP
             }
 
             //-------------------------------------------------------------------------
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
 
             file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
             file << "                    {\n";
@@ -334,7 +445,14 @@ namespace KRG::CPP
                 }
             }
 
-            file << "                    }\n\n";
+            file << "                    }\n";
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n";
+            }
+
+            file << "\n";
         }
 
         file << "                    return false;\n";
@@ -350,6 +468,11 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
             file << "                    {\n";
 
@@ -367,6 +490,11 @@ namespace KRG::CPP
 
             file << "                        return;\n";
             file << "                    }\n\n";
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n";
+            }
         }
 
         file << "                }\n\n";
@@ -384,6 +512,11 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 file << "                    if ( propertyID == " << propertyDesc.m_propertyID << " )\n";
@@ -397,6 +530,11 @@ namespace KRG::CPP
                 file << "                    {\n";
                 file << "                        return ResourceTypeID();\n";
                 file << "                    }\n\n";
+            }
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n\n";
             }
         }
 
@@ -415,6 +553,11 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
@@ -472,6 +615,11 @@ namespace KRG::CPP
                     file << "                    " << propertyDesc.m_typeName.c_str() << "::s_pTypeInfo->m_pTypeHelper->LoadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name.c_str() << " );\n\n";
                 }
             }
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n\n";
+            }
         }
 
         file << "                }\n\n";
@@ -486,6 +634,11 @@ namespace KRG::CPP
 
         for ( auto& propertyDesc : type.m_properties )
         {
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
                 if ( propertyDesc.IsArrayProperty() )
@@ -543,6 +696,11 @@ namespace KRG::CPP
                     file << "                    " << propertyDesc.m_typeName.c_str() << "::s_pTypeInfo->m_pTypeHelper->UnloadResources( pResourceSystem, requesterID, &pActualType->" << propertyDesc.m_name.c_str() << " );\n\n";
                 }
             }
+
+            if ( propertyDesc.m_isDevOnly )
+            {
+                file << "                    #endif\n\n";
+            }
         }
 
         file << "                }\n\n";
@@ -559,6 +717,11 @@ namespace KRG::CPP
         {
             if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 if ( propertyDesc.IsArrayProperty() )
                 {
                     if ( propertyDesc.IsDynamicArrayProperty() )
@@ -573,7 +736,7 @@ namespace KRG::CPP
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Loading;\n";
                         file << "                        }\n";
-                        file << "                    }\n\n";
+                        file << "                    }\n";
                     }
                     else // Static array
                     {
@@ -586,7 +749,7 @@ namespace KRG::CPP
                             file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << ".IsValid() && !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsLoaded() )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Loading;\n";
-                            file << "                    }\n\n";
+                            file << "                    }\n";
                         }
                     }
                 }
@@ -599,11 +762,23 @@ namespace KRG::CPP
                     file << "                    else if ( pActualType->" << propertyDesc.m_name.c_str() << ".IsValid() && !pActualType->" << propertyDesc.m_name.c_str() << ".IsLoaded() )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Loading;\n";
-                    file << "                    }\n\n";
+                    file << "                    }\n";
                 }
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
             else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 if ( propertyDesc.IsArrayProperty() )
                 {
                     if ( propertyDesc.IsDynamicArrayProperty() )
@@ -615,7 +790,7 @@ namespace KRG::CPP
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Loading;\n";
                         file << "                        }\n";
-                        file << "                    }\n\n";
+                        file << "                    }\n";
                     }
                     else // Static array
                     {
@@ -625,7 +800,7 @@ namespace KRG::CPP
                             file << "                    if ( status == LoadingStatus::Loading )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Loading;\n";
-                            file << "                    }\n\n";
+                            file << "                    }\n";
                         }
                     }
                 }
@@ -635,8 +810,15 @@ namespace KRG::CPP
                     file << "                    if ( status == LoadingStatus::Loading )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Loading;\n";
-                    file << "                    }\n\n";
+                    file << "                    }\n";
                 }
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -655,6 +837,11 @@ namespace KRG::CPP
         {
             if ( propertyDesc.m_typeID == CoreTypeID::TResourcePtr )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 if ( propertyDesc.IsArrayProperty() )
                 {
                     if ( propertyDesc.IsDynamicArrayProperty() )
@@ -666,7 +853,7 @@ namespace KRG::CPP
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Unloading;\n";
                         file << "                        }\n";
-                        file << "                    }\n\n";
+                        file << "                    }\n";
                     }
                     else // Static array
                     {
@@ -676,7 +863,7 @@ namespace KRG::CPP
                             file << "                    if ( !pActualType->" << propertyDesc.m_name.c_str() << "[" << i << "].IsUnloaded() )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Unloading;\n";
-                            file << "                    }\n\n";
+                            file << "                    }\n";
                         }
                     }
                 }
@@ -686,11 +873,23 @@ namespace KRG::CPP
                     file << "                    if ( !pActualType->" << propertyDesc.m_name.c_str() << ".IsUnloaded() )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Unloading;\n";
-                    file << "                    }\n\n";
+                    file << "                    }\n";
                 }
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
             else if ( !IsCoreType( propertyDesc.m_typeID ) && !propertyDesc.IsEnumProperty() && !propertyDesc.IsBitFlagsProperty() )
             {
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+                }
+
                 if ( propertyDesc.IsArrayProperty() )
                 {
                     if ( propertyDesc.IsDynamicArrayProperty() )
@@ -702,7 +901,7 @@ namespace KRG::CPP
                         file << "                        {\n";
                         file << "                            return LoadingStatus::Unloading;\n";
                         file << "                        }\n";
-                        file << "                    }\n\n";
+                        file << "                    }\n";
                     }
                     else // Static array
                     {
@@ -712,7 +911,7 @@ namespace KRG::CPP
                             file << "                    if ( status != LoadingStatus::Unloaded )\n";
                             file << "                    {\n";
                             file << "                        return LoadingStatus::Unloading;\n";
-                            file << "                    }\n\n";
+                            file << "                    }\n";
                         }
                     }
                 }
@@ -722,8 +921,15 @@ namespace KRG::CPP
                     file << "                    if ( status != LoadingStatus::Unloaded )\n";
                     file << "                    {\n";
                     file << "                        return LoadingStatus::Unloading;\n";
-                    file << "                    }\n\n";
+                    file << "                    }\n";
                 }
+
+                if ( propertyDesc.m_isDevOnly )
+                {
+                    file << "                    #endif\n";
+                }
+
+                file << "\n";
             }
         }
 
@@ -819,10 +1025,28 @@ namespace KRG::CPP
 
             file << "\n";
             file << "            //-------------------------------------------------------------------------\n\n";
+
+            if ( prop.m_isDevOnly )
+            {
+                file << "            #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             file << "            propertyInfo.m_ID = StringID( \"" << prop.m_name.c_str() << "\" );\n";
             file << "            propertyInfo.m_typeID = TypeSystem::TypeID( \"" << prop.m_typeName.c_str() << "\" );\n";
             file << "            propertyInfo.m_parentTypeID = " << type.m_ID << ";\n";
-            file << "            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( \"" << prop.m_templateArgTypeName.c_str() << "\" );\n";
+            file << "            propertyInfo.m_templateArgumentTypeID = TypeSystem::TypeID( \"" << prop.m_templateArgTypeName.c_str() << "\" );\n\n";
+
+            // Create dev tools info
+            file << "            #if KRG_DEVELOPMENT_TOOLS\n";
+            file << "            propertyInfo.m_friendlyName = \"" << prop.GetFriendlyName().c_str() << "\";\n";
+            file << "            propertyInfo.m_category = \"" << prop.GetCategory().c_str() << "\";\n";
+
+            if ( prop.m_isDevOnly )
+            {
+                file << "            propertyInfo.m_isForDevelopmentUseOnly = true;\n";
+            }
+
+            file << "            #endif\n\n";
 
             // Abstract types cannot have default values since they cannot be instantiated
             if ( type.IsAbstract() )
@@ -857,6 +1081,11 @@ namespace KRG::CPP
                 file << "            propertyInfo.m_flags.Set( " << prop.m_flags << " );\n";
                 file << "            m_properties.emplace_back( propertyInfo );\n";
                 file << "            m_propertyMap.insert( TPair<StringID, int32>( propertyInfo.m_ID, int32( m_properties.size() ) - 1 ) );\n";
+            }
+
+            if ( prop.m_isDevOnly )
+            {
+                file << "            #endif\n";
             }
         };
 
@@ -927,6 +1156,18 @@ namespace KRG::CPP
             file << "\n";
         }
 
+        // Create dev tools info
+        file << "                    #if KRG_DEVELOPMENT_TOOLS\n";
+        file << "                    typeInfo.m_friendlyName = \"" << type.GetFriendlyName().c_str() << "\";\n";
+        file << "                    typeInfo.m_category = \"" << type.GetCategory().c_str() << "\";\n";
+
+        if ( type.m_isDevOnly )
+        {
+            file << "                    typeInfo.m_isForDevelopmentUseOnly = true;\n";
+        }
+
+        file << "                    #endif\n\n";
+
         // Add interfaces
         if ( !type.m_parents.empty() )
         {
@@ -985,6 +1226,11 @@ namespace KRG::CPP
         file << "// TypeHelper: " << type.m_namespace.c_str() << type.m_name.c_str() << "\n";
         file << "//-------------------------------------------------------------------------\n\n";
 
+        if ( type.m_isDevOnly )
+        {
+            file << "#if KRG_DEVELOPMENT_TOOLS\n";
+        }
+
         file << "namespace KRG\n";
         file << "{\n";
         file << "    namespace TypeSystem\n";
@@ -1030,6 +1276,11 @@ namespace KRG::CPP
         file << "        }\n";
         file << "    }\n";
         file << "}\n";
+
+        if ( type.m_isDevOnly )
+        {
+            file << "#endif\n";
+        }
     }
 
     static void GenerateCodeFile( std::stringstream& file, ReflectedType const& type, TVector<ReflectedType> const& parentDescs )
@@ -1038,6 +1289,12 @@ namespace KRG::CPP
         file << "//-------------------------------------------------------------------------\n";
         file << "// TypeHelper: " << type.m_namespace.c_str() << type.m_name.c_str() << "\n";
         file << "//-------------------------------------------------------------------------\n\n";
+
+        if ( type.m_isDevOnly )
+        {
+            file << "#if KRG_DEVELOPMENT_TOOLS\n";
+        }
+
         file << "namespace KRG\n";
         file << "{\n";
 
@@ -1065,6 +1322,11 @@ namespace KRG::CPP
         }
 
         file << "}\n";
+
+        if ( type.m_isDevOnly )
+        {
+            file << "#endif\n";
+        }
     }
 
     //-------------------------------------------------------------------------
@@ -1079,12 +1341,32 @@ namespace KRG::CPP
 
         void GenerateRegistrationFunctionCall( std::stringstream& file, ReflectedType const& type )
         {
+            if ( type.m_isDevOnly )
+            {
+                file << "    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             file << "    TypeSystem::TypeHelpers::TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << ">::RegisterType( typeRegistry );\n";
+
+            if ( type.m_isDevOnly )
+            {
+                file << "    #endif\n";
+            }
         }
 
         void GenerateUnregistrationFunctionCall( std::stringstream& file, ReflectedType const& type )
         {
+            if ( type.m_isDevOnly )
+            {
+                file << "    #if KRG_DEVELOPMENT_TOOLS\n";
+            }
+
             file << "    TypeSystem::TypeHelpers::TTypeHelper<" << type.m_namespace.c_str() << type.m_name.c_str() << ">::UnregisterType( typeRegistry );\n";
+
+            if ( type.m_isDevOnly )
+            {
+                file << "    #endif\n";
+            }
         }
     }
 }

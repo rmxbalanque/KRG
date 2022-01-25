@@ -203,7 +203,7 @@ namespace KRG::Render
         }
 
         uint32 shaderCompileFlags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
-        #ifdef KRG_CONFIGURATION_DEBUG
+        #ifdef KRG_DEBUG
         shaderCompileFlags |= D3DCOMPILE_DEBUG;
         #endif
 

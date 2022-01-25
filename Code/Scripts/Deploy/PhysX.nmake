@@ -1,4 +1,4 @@
-PHYSX_BASE_BIN_DIR = $(EXTERNAL_DEPENDENCY_DIR)PhysX\bin\win.x86_64.vc141.md\
+PHYSX_BASE_BIN_DIR = $(EXTERNAL_DEPENDENCY_DIR)PhysX\bin\win.x86_64.vc142.md\
 
 ##########################################
 # PLATFORM CONFIG
@@ -11,6 +11,10 @@ PHYSX_BIN_DIR = $(PHYSX_BASE_BIN_DIR)\checked\
 !ELSE IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Release"
 
 PHYSX_BIN_DIR = $(PHYSX_BASE_BIN_DIR)\profile\
+
+!ELSE IF "$(PLATFORM)" == "x64" && "$(CONFIG)" == "Shipping"
+
+PHYSX_BIN_DIR = $(PHYSX_BASE_BIN_DIR)\release\
 
 !ENDIF
 

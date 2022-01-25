@@ -5,9 +5,9 @@
 
 namespace KRG::Input
 {
-    void ControllerInputDevice::UpdateState()
+    void ControllerInputDevice::UpdateState( Seconds deltaTime )
     {
-        m_controllerState.Update();
+        m_controllerState.Update( deltaTime );
     }
 
     void ControllerInputDevice::SetTriggerValues( float leftRawValue, float rightRawValue )

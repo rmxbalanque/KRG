@@ -19,6 +19,7 @@ namespace KRG::TypeSystem
 //-------------------------------------------------------------------------
 // This file contain basic facilities to convert between JSON and the various type representations we have
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::TypeSystem::Serialization
 {
     constexpr static char const* const s_typeIDKey = "TypeID";
@@ -176,3 +177,4 @@ namespace KRG::TypeSystem::Serialization
         int32                                                       m_numTypesSerialized = 0;
     };
 }
+#endif

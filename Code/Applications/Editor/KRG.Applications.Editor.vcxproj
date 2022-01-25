@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D6BDD49C-EF46-4637-844A-4FFDD6A25DC5}</ProjectGuid>
@@ -25,11 +29,18 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>KrugerEditor</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>KrugerEditor</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
     <TargetName>KrugerEditor</TargetName>
   </PropertyGroup>
   <ImportGroup Label="ExtensionSettings" />
@@ -44,6 +55,12 @@
     <Import Project="..\..\PropertySheets\FBXSDK.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+    <Import Project="..\..\PropertySheets\LivePP.props" />
+    <Import Project="..\..\PropertySheets\FBXSDK.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
     <Import Project="..\..\PropertySheets\LivePP.props" />
@@ -64,6 +81,14 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -131,20 +156,17 @@
     <ClCompile Include="EditorUI.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser.cpp" />
     <ClCompile Include="EditorContext.cpp" />
-    <ClCompile Include="MapEditor\Workspace_MapEditor.cpp" />
     <ClCompile Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.cpp" />
     <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.cpp" />
     <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.cpp" />
     <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_GLTF.cpp" />
     <ClCompile Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.cpp" />
     <ClCompile Include="Win32\EditorApplication_Win32.cpp" />
-    <ClCompile Include="MapEditor\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorUI.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser.h" />
     <ClInclude Include="EditorContext.h" />
-    <ClInclude Include="MapEditor\Workspace_MapEditor.h" />
     <ClInclude Include="ResourceBrowser\ResourceBrowser_DescriptorCreator.h" />
     <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector.h" />
     <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_FBX.h" />
@@ -152,13 +174,17 @@
     <ClInclude Include="ResourceBrowser\RawResourceInspectors\RawResourceInspector_ImageFormats.h" />
     <ClInclude Include="Win32\Resource.h" />
     <ClInclude Include="Win32\EditorApplication_Win32.h" />
-    <ClInclude Include="MapEditor\Workspace_GamePreviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Win32\Apps.Editor.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Win32\Editor.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Update="D:\Kruger\Code\Applications\Shared\cmdParser\LICENSE">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

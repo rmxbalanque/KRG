@@ -285,7 +285,7 @@ namespace KRG::FileSystem
         {
             auto& pendingEvent = m_pendingFileModificationEvents[i];
 
-            Milliseconds const elapsedTime = SystemClock::GetTimeInMilliseconds() - pendingEvent.m_startTime;
+            Milliseconds const elapsedTime = PlatformClock::GetTimeInMilliseconds() - pendingEvent.m_startTime;
             if ( elapsedTime > FileModificationBatchTimeout )
             {
                 for ( auto pChangeHandler : m_changeListeners )

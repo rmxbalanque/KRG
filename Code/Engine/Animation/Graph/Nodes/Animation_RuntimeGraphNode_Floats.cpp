@@ -182,11 +182,13 @@ namespace KRG::Animation::GraphNodes
     {
         KRG_ASSERT( context.IsValid() && m_pInputValueNode != nullptr );
 
+        auto pSettings = GetSettings<FloatEaseNode>();
+
         FloatValueNode::InitializeInternal( context );
         m_pInputValueNode->Initialize( context );
 
         m_easeRange = FloatRange( m_pInputValueNode->GetValue<float>( context ) );
-        m_currentValue = m_easeRange.m_end;
+        m_currentValue = pSettings->m_initalValue < 0.0f ? m_easeRange.m_end : pSettings->m_initalValue;
         m_currentEaseTime = 0;
     }
 

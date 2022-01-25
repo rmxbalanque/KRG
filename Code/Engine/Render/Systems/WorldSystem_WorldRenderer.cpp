@@ -10,6 +10,7 @@
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Settings/DebugSettings.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -26,10 +27,16 @@ namespace KRG::Render
 
     void RendererWorldSystem::InitializeSystem( SystemRegistry const& systemRegistry )
     {
+        m_staticMeshMobilityChangedEventBinding = StaticMeshComponent::OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMeshMobilityUpdated( pMeshComponent ); } );
+        m_staticMeshStaticTransformUpdatedEventBinding = StaticMeshComponent::OnStaticMobilityTransformUpdated().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMobilityComponentTransformUpdated( pMeshComponent ); } );
     }
 
     void RendererWorldSystem::ShutdownSystem()
     {
+        // Unbind mobility change handler and remove from various lists
+        StaticMeshComponent::OnStaticMobilityTransformUpdated().Unbind( m_staticMeshStaticTransformUpdatedEventBinding );
+        StaticMeshComponent::OnMobilityChanged().Unbind( m_staticMeshMobilityChangedEventBinding );
+
         KRG_ASSERT( m_registeredStaticMeshComponents.empty() );
         KRG_ASSERT( m_registeredSkeletalMeshComponents.empty() );
         KRG_ASSERT( m_skeletalMeshGroups.empty() );
@@ -136,11 +143,7 @@ namespace KRG::Render
 
     void RendererWorldSystem::RegisterStaticMeshComponent( Entity const* pEntity, StaticMeshComponent* pMeshComponent )
     {
-        RegisteredStaticMesh registeredComponent;
-        registeredComponent.m_pComponent = pMeshComponent;
-        registeredComponent.m_mobilityChangedEventBinding = pMeshComponent->OnMobilityChanged().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMeshMobilityUpdated( pMeshComponent ); } );
-        registeredComponent.m_staticMobilityTransformUpdatedEventBinding = pMeshComponent->OnStaticMobilityTransformUpdated().Bind( [this] ( StaticMeshComponent* pMeshComponent ) { OnStaticMobilityComponentTransformUpdated( pMeshComponent ); } );
-        m_registeredStaticMeshComponents.Add( eastl::move( registeredComponent ) );
+        m_registeredStaticMeshComponents.Add( pMeshComponent );
 
         //-------------------------------------------------------------------------
 
@@ -164,13 +167,11 @@ namespace KRG::Render
         // The world might be paused so we might leave an invalid component in this array
         m_visibleStaticMeshComponents.clear();
 
-        auto const pRecord = m_registeredStaticMeshComponents.Get( pMeshComponent->GetID() );
-
         if ( pMeshComponent->HasMeshResourceSet() )
         {
             // Get the real mobility of the component
-            Mobility realMobility = pRecord->m_pComponent->GetMobility();
-            int32 const mobilityListIdx = VectorFindIndex( m_mobilityUpdateList, pRecord->m_pComponent );
+            Mobility realMobility = pMeshComponent->GetMobility();
+            int32 const mobilityListIdx = VectorFindIndex( m_mobilityUpdateList, pMeshComponent );
             if ( mobilityListIdx != InvalidIndex )
             {
                 realMobility = ( realMobility == Mobility::Dynamic ) ? Mobility::Static : Mobility::Dynamic;
@@ -187,10 +188,6 @@ namespace KRG::Render
                 m_staticStaticMeshComponents.Remove( pMeshComponent->GetID() );
             }
         }
-
-        // Unbind mobility change handler and remove from various lists
-        pRecord->m_pComponent->OnStaticMobilityTransformUpdated().Unbind( pRecord->m_staticMobilityTransformUpdatedEventBinding );
-        pRecord->m_pComponent->OnMobilityChanged().Unbind( pRecord->m_mobilityChangedEventBinding );
 
         // Remove record
         m_registeredStaticMeshComponents.Remove( pMeshComponent->GetID() );
@@ -244,6 +241,13 @@ namespace KRG::Render
     {
         KRG_PROFILE_FUNCTION_RENDER();
 
+        if ( ctx.IsWorldPaused() && ctx.GetUpdateStage() != UpdateStage::Paused )
+        {
+            return;
+        }
+
+        KRG_ASSERT( ( ctx.GetUpdateStage() == UpdateStage::Paused ) ? ctx.IsWorldPaused() : true );
+
         //-------------------------------------------------------------------------
         // Mobility Updates
         //-------------------------------------------------------------------------
@@ -269,6 +273,11 @@ namespace KRG::Render
 
         for ( auto pMeshComponent : m_staticMobilityTransformUpdateList )
         {
+            if ( ctx.IsGameWorld() )
+            {
+                KRG_LOG_ERROR( "Render", "Someone moved a mesh with static mobility: %s with entity ID %u. This should not be done!", pMeshComponent->GetName().c_str(), pMeshComponent->GetEntityID().m_ID );
+            }
+
             // Right now there is nothing to do, in future we need to remove from the AABB and re-add to the AABB
         }
 
@@ -310,10 +319,10 @@ namespace KRG::Render
 
         if ( g_showStaticMeshBounds )
         {
-            for ( auto const& record : m_registeredStaticMeshComponents )
+            for ( auto const& pMeshComponent : m_registeredStaticMeshComponents )
             {
-                drawCtx.DrawWireBox( record.m_pComponent->GetWorldBounds(), Colors::Cyan );
-                drawCtx.DrawWireBox( record.m_pComponent->GetWorldBounds().GetAABB(), Colors::LimeGreen );
+                drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds(), Colors::Cyan );
+                drawCtx.DrawWireBox( pMeshComponent->GetWorldBounds().GetAABB(), Colors::LimeGreen );
             }
         }
 
@@ -344,9 +353,12 @@ namespace KRG::Render
     {
         KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
 
-        Threading::ScopeLock lock( m_mobilityUpdateListLock );
-        KRG_ASSERT( !VectorContains( m_mobilityUpdateList, pComponent ) );
-        m_mobilityUpdateList.emplace_back( pComponent );
+        if ( m_registeredStaticMeshComponents.HasItemForID( pComponent->GetID() ) )
+        {
+            Threading::ScopeLock lock( m_mobilityUpdateListLock );
+            KRG_ASSERT( !VectorContains( m_mobilityUpdateList, pComponent ) );
+            m_mobilityUpdateList.emplace_back( pComponent );
+        }
     }
 
     void RendererWorldSystem::OnStaticMobilityComponentTransformUpdated( StaticMeshComponent* pComponent )
@@ -354,10 +366,13 @@ namespace KRG::Render
         KRG_ASSERT( pComponent != nullptr && pComponent->IsInitialized() );
         KRG_ASSERT( pComponent->GetMobility() == Mobility::Static );
 
-        Threading::ScopeLock lock( m_mobilityUpdateListLock );
-        if ( !VectorContains( m_staticMobilityTransformUpdateList, pComponent ) )
+        if ( m_registeredStaticMeshComponents.HasItemForID( pComponent->GetID() ) )
         {
-            m_staticMobilityTransformUpdateList.emplace_back( pComponent );
+            Threading::ScopeLock lock( m_mobilityUpdateListLock );
+            if ( !VectorContains( m_staticMobilityTransformUpdateList, pComponent ) )
+            {
+                m_staticMobilityTransformUpdateList.emplace_back( pComponent );
+            }
         }
     }
 }

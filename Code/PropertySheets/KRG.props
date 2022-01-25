@@ -28,17 +28,21 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Code;$(KRG_CORE_THIRD_PARTY_INCLUDE_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>$(ProjectName.ToUpper().Replace('.', '_'));_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="$(Platform) == 'x64'">NDEBUG;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Configuration) == 'Debug'">KRG_DEBUG=1;KRG_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Configuration) == 'Release'">KRG_RELEASE=1;KRG_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Configuration) == 'Shipping'">KRG_SHIPPING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization Condition="$(Configuration) == 'Debug'">false</WholeProgramOptimization>
       <WholeProgramOptimization Condition="$(Configuration) == 'Release'">false</WholeProgramOptimization>
-      <PreprocessorDefinitions Condition="$(Configuration) == 'Debug'">KRG_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization Condition="$(Configuration) == 'Shipping'">true</WholeProgramOptimization>
       <DisableSpecificWarnings>4505;4251;4100;4127;4189;4101;4201;4577;4464;4668;4710;4820;5052;4619;4625;4626;5026;5027;5045;26495;</DisableSpecificWarnings>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <InlineFunctionExpansion Condition="$(Configuration) == 'Debug'">OnlyExplicitInline</InlineFunctionExpansion>
-      <InlineFunctionExpansion Condition="$(Configuration) == 'Release'">AnySuitable</InlineFunctionExpansion>
+      <InlineFunctionExpansion Condition="$(Configuration) != 'Debug'">AnySuitable</InlineFunctionExpansion>
       <MinimalRebuild>false</MinimalRebuild>
       <TreatWarningAsError>true</TreatWarningAsError>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ExceptionHandling>false</ExceptionHandling>
-      <Optimization Condition="$(Configuration) == 'Release'">MaxSpeed</Optimization>
+      <Optimization Condition="$(Configuration) != 'Debug'">MaxSpeed</Optimization>
       <Optimization Condition="$(Configuration) == 'Debug'">Disabled</Optimization>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -46,7 +50,8 @@
     </ClCompile>
     <Link>
       <LinkIncremental>true</LinkIncremental>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration Condition="$(Configuration) != 'Shipping'">Default</LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration Condition="$(Configuration) == 'Shipping'">UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <RandomizedBaseAddress Condition="$(Configuration) == 'Debug'">false</RandomizedBaseAddress>

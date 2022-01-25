@@ -152,8 +152,11 @@ namespace KRG::Animation
             return GetRootTransform( GetFrameTime( percentageThrough ) ); 
         }
 
-        // Get the delta for the root motion for the given time range
+        // Get the delta for the root motion for the given time range. Handle's looping but assumes only a single loop occurred!
         inline Transform GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const;
+
+        // Get the delta for the root motion for the given time range. DOES NOT SUPPORT LOOPING!
+        inline Transform GetRootMotionDeltaNoLooping( Percentage fromTime, Percentage toTime ) const;
 
         // Get the average linear velocity of the root for this animation
         inline float GetAverageLinearVelocity() const { return m_averageLinearVelocity; }
@@ -173,10 +176,14 @@ namespace KRG::Animation
         // Events
         //-------------------------------------------------------------------------
 
-        // Get all the events for the specified range. This function will append the results to the output array
+        // Get all the events for the specified range. This function will append the results to the output array. Handle's looping but assumes only a single loop occurred!
         inline void GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const;
 
-        inline void GetEventsForRange( Percentage fromTime, Percentage toTime, TInlineVector<Event const*, 10>& outEvents ) const
+        // Get all the events for the specified range. This function will append the results to the output array. DOES NOT SUPPORT LOOPING!
+        inline void GetEventsForRangeNoLooping( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const;
+
+        // Helper function that converts percentage times to actual anim times
+        KRG_FORCE_INLINE void GetEventsForRange( Percentage fromTime, Percentage toTime, TInlineVector<Event const*, 10>& outEvents ) const
         {
             KRG_ASSERT( fromTime >= 0.0f && fromTime <= 1.0f );
             KRG_ASSERT( toTime >= 0.0f && toTime <= 1.0f );
@@ -400,23 +407,39 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    inline Transform AnimationClip::GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const
+    inline Transform AnimationClip::GetRootMotionDeltaNoLooping( Percentage fromTime, Percentage toTime ) const
     {
-        KRG_ASSERT( fromTime <= toTime ); // Users need to handle looping externally
         Transform const startTransform = GetRootTransform( fromTime );
         Transform const endTransform = GetRootTransform( toTime );
         return Transform::DeltaNoScale( startTransform, endTransform );
     }
 
+    KRG_FORCE_INLINE Transform AnimationClip::GetRootMotionDelta( Percentage fromTime, Percentage toTime ) const
+    {
+        Transform delta( NoInit );
+        if ( fromTime <= toTime )
+        {
+            delta = GetRootMotionDeltaNoLooping( fromTime, toTime );
+        }
+        else
+        {
+            Transform const preLoopDelta = GetRootMotionDeltaNoLooping( fromTime, 1.0f );
+            Transform const postLoopDelta = GetRootMotionDeltaNoLooping( 0.0f, toTime );
+            delta = postLoopDelta * preLoopDelta;
+        }
+
+        return delta;
+    }
+
     //-------------------------------------------------------------------------
 
-    inline void AnimationClip::GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const
+    inline void AnimationClip::GetEventsForRangeNoLooping( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const
     {
         KRG_ASSERT( toTime >= fromTime );
 
         for ( auto const& pEvent : m_events )
         {
-            // Events are sorted so as soon as we reach an event after the end of the time range, we're done
+            // Events are stored sorted by time so as soon as we reach an event after the end of the time range, we're done
             if ( pEvent->GetStartTime() > toTime )
             {
                 break;
@@ -426,6 +449,19 @@ namespace KRG::Animation
             {
                 outEvents.emplace_back( pEvent );
             }
+        }
+    }
+
+    KRG_FORCE_INLINE void AnimationClip::GetEventsForRange( Seconds fromTime, Seconds toTime, TInlineVector<Event const*, 10>& outEvents ) const
+    {
+        if ( fromTime <= toTime )
+        {
+            GetEventsForRangeNoLooping( fromTime, toTime, outEvents );
+        }
+        else
+        {
+            GetEventsForRangeNoLooping( fromTime, m_duration, outEvents );
+            GetEventsForRangeNoLooping( 0, toTime, outEvents );
         }
     }
 }

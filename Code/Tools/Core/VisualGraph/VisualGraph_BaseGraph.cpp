@@ -215,6 +215,22 @@ namespace KRG::VisualGraph
         return m_ID;
     }
 
+    ImColor BaseNode::GetNodeBorderColor( DrawContext const& ctx, NodeVisualState visualState ) const
+    {
+        if ( visualState == NodeVisualState::Hovered )
+        {
+            return VisualSettings::s_genericHoverColor;
+        }
+        else if( visualState == NodeVisualState::Selected )
+        {
+            return VisualSettings::s_genericSelectionColor;
+        }
+        else
+        {
+           return ImColor( 0 );
+        }
+    }
+
     //-------------------------------------------------------------------------
 
     TEvent<BaseGraph*> BaseGraph::s_onEndModification;

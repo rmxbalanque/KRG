@@ -4,4 +4,12 @@
     <LocalDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</LocalDebuggerCommandArguments>
     <RemoteDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</RemoteDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
+    <LocalDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</RemoteDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>-s d:\Kruger\KRG.sln -rebuild</RemoteDebuggerCommandArguments>
+  </PropertyGroup>
 </Project>

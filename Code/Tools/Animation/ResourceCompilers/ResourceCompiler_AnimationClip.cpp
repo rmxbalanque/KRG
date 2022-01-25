@@ -390,13 +390,26 @@ namespace KRG::Animation
                 // Add event
                 //-------------------------------------------------------------------------
 
-                if ( !animationTimeRange.ContainsInclusive( pEvent->GetTimeRange() ) )
+                if ( !animationTimeRange.Overlaps( pEvent->GetTimeRange() ) )
                 {
                     Warning( "Event detected outside animation time range, event will be ignored" );
                     continue;
                 }
 
                 // TODO: Clamp event to animation length
+                if ( !animationTimeRange.ContainsInclusive( pEvent->GetTimeRange() ) )
+                {
+                    Warning( "Event extend outside the valid animation time range, event will be clamped to animation range" );
+
+                    FloatRange clampedRange = pEvent->GetTimeRange();
+                    clampedRange.m_start = animationTimeRange.GetClampedValue( clampedRange.m_start );
+                    clampedRange.m_end = animationTimeRange.GetClampedValue( clampedRange.m_end );
+                    KRG_ASSERT( clampedRange.IsSetAndValid() );
+
+                    pEvent->m_startTime = clampedRange.m_start;
+                    pEvent->m_duration = clampedRange.GetLength();
+                }
+
                 events.emplace_back( pEvent );
 
                 // Create sync event

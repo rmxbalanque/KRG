@@ -5,6 +5,12 @@
 
 namespace KRG::Input
 {
+    MouseInputState const InputSystem::s_emptyMouseState = MouseInputState();
+    KeyboardInputState const InputSystem::s_emptyKeyboardState = KeyboardInputState();
+    ControllerInputState const InputSystem::s_emptyControllerState = ControllerInputState();
+
+    //-------------------------------------------------------------------------
+
     bool InputSystem::Initialize()
     {
         // Create a keyboard and mouse device
@@ -37,11 +43,11 @@ namespace KRG::Input
         m_inputDevices.clear();
     }
 
-    void InputSystem::Update()
+    void InputSystem::Update( Seconds deltaTime )
     {
         for ( auto pInputDevice : m_inputDevices )
         {
-            pInputDevice->UpdateState();
+            pInputDevice->UpdateState( deltaTime );
         }
     }
 
@@ -78,7 +84,7 @@ namespace KRG::Input
 
     //-------------------------------------------------------------------------
 
-    uint32 InputSystem::GetNumConnectedControllers()
+    uint32 InputSystem::GetNumConnectedControllers() const
     {
         uint32 numControllers = 0;
         for ( auto pDevice : m_inputDevices )
@@ -119,5 +125,35 @@ namespace KRG::Input
         }
 
         return nullptr;
+    }
+
+    void InputSystem::ReflectState( Seconds const deltaTime, float timeScale, InputState& outReflectedState ) const
+    {
+        outReflectedState.m_mouseState.ReflectFrom( deltaTime, timeScale, *GetMouseState() );
+        outReflectedState.m_keyboardState.ReflectFrom( deltaTime, timeScale, *GetKeyboardState() );
+
+        int32 const numControllerStates = (int32) GetNumConnectedControllers();
+        if ( outReflectedState.m_controllerStates.size() != numControllerStates )
+        {
+            outReflectedState.m_controllerStates.resize( numControllerStates );
+        }
+
+        for ( int32 i = 0; i < numControllerStates; i++ )
+        {
+            outReflectedState.m_controllerStates[i].ReflectFrom( deltaTime, timeScale, *GetControllerState( i ) );
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void InputState::Clear()
+    {
+        m_mouseState.Clear();
+        m_keyboardState.Clear();
+
+        for ( auto& controllerState : m_controllerStates )
+        {
+            controllerState.Clear();
+        }
     }
 }

@@ -24,12 +24,12 @@ namespace KRG
 
         auto pTypeRegistry = systemsRegistry.GetSystem<TypeSystem::TypeRegistry>();
         KRG_ASSERT( pTypeRegistry != nullptr );
-        m_worldSystemTypeInfos = pTypeRegistry->GetAllDerivedTypes( IWorldEntitySystem::GetStaticTypeID(), false, false );
+        m_worldSystemTypeInfos = pTypeRegistry->GetAllDerivedTypes( IWorldEntitySystem::GetStaticTypeID(), false, false, true );
 
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        m_debugViewTypeInfos = pTypeRegistry->GetAllDerivedTypes( EntityWorldDebugView::GetStaticTypeID(), false, false );
+        m_debugViewTypeInfos = pTypeRegistry->GetAllDerivedTypes( EntityWorldDebugView::GetStaticTypeID(), false, false, true );
         #endif
 
         // Create a game world
@@ -118,7 +118,7 @@ namespace KRG
         
         if ( !pNewWorld->IsGameWorld() )
         {
-            pNewWorld->GetWorldSystem<PlayerManager>()->SetDebugMode( PlayerManager::DebugMode::FullDebug );
+            pNewWorld->GetWorldSystem<PlayerManager>()->SetDebugMode( PlayerManager::DebugMode::OnlyDebugCamera );
         }
         #endif
 
@@ -177,6 +177,26 @@ namespace KRG
                 continue;
             }
 
+            // Reflect input state
+            //-------------------------------------------------------------------------
+
+            if ( context.GetUpdateStage() == UpdateStage::FrameStart )
+            {
+                auto pPlayerManager = pWorld->GetWorldSystem<PlayerManager>();
+                auto pWorldInputState = pWorld->GetInputState();
+
+                if ( pPlayerManager->IsPlayerEnabled() )
+                {
+                    auto pInputSystem = context.GetSystem<Input::InputSystem>();
+                    pInputSystem->ReflectState( context.GetDeltaTime(), pWorld->GetTimeScale(), *pWorldInputState );
+                }
+                else
+                {
+                    pWorldInputState->Clear();
+                }
+            }
+
+            // Run world updates
             //-------------------------------------------------------------------------
 
             pWorld->Update( context );
@@ -188,10 +208,10 @@ namespace KRG
             if ( context.GetUpdateStage() == UpdateStage::PostPhysics && pWorld->GetViewport() != nullptr )
             {
                 auto pViewport = pWorld->GetViewport();
-                auto pPlayerWorldSystem = pWorld->GetWorldSystem<PlayerManager>();
-                if ( pPlayerWorldSystem->HasActiveCamera() )
+                auto pPlayerManager = pWorld->GetWorldSystem<PlayerManager>();
+                if ( pPlayerManager->HasActiveCamera() )
                 {
-                    auto pActiveCamera = pPlayerWorldSystem->GetActiveCamera();
+                    auto pActiveCamera = pPlayerManager->GetActiveCamera();
 
                     // Update camera view dimensions if needed
                     if ( pViewport->GetDimensions() != pActiveCamera->GetViewVolume().GetViewDimensions() )

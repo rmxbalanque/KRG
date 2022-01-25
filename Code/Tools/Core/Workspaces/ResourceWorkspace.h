@@ -36,11 +36,11 @@ namespace KRG
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void Shutdown( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
         virtual void DrawWorkspaceToolbar( UpdateContext const& context );
         virtual bool IsDirty() const override { return m_isDirty; }
         virtual bool Save() override;
-        virtual void OnUndoRedo() override { m_descriptorPropertyGrid.MarkDirty(); }
+        virtual void OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction ) override { m_descriptorPropertyGrid.MarkDirty(); }
 
         // Undo/Redo
         void PreEdit( PropertyEditInfo const& info );
@@ -72,10 +72,7 @@ namespace KRG
         EventBindingID                          m_postEditEventBindingID;
         ResourceDescriptorUndoableAction*       m_pActiveUndoableAction = nullptr;
         int32                                   m_beginModificationCallCount = 0;
-
         ImGuiX::Gizmo                           m_gizmo;
-        EventBindingID                          m_gizmoStartManipulationEventBindingID;
-        EventBindingID                          m_gizmoEndManipulationEventBindingID;
 
     private:
 
@@ -86,14 +83,14 @@ namespace KRG
     {
     public:
 
-        ScopedDescriptorModification( GenericResourceWorkspace* pGraph )
-            : m_pWorkspace( pGraph )
+        ScopedDescriptorModification( GenericResourceWorkspace* pWorkspace )
+            : m_pWorkspace( pWorkspace )
         {
-            KRG_ASSERT( pGraph != nullptr );
+            KRG_ASSERT( pWorkspace != nullptr );
             m_pWorkspace->BeginModification();
         }
 
-        ~ScopedDescriptorModification()
+        virtual ~ScopedDescriptorModification()
         {
             m_pWorkspace->EndModification();
         }

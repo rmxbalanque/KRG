@@ -4,6 +4,36 @@
 
 namespace KRG::TypeSystem::Reflection
 {
+    static void GenerateFriendlyName( String& name )
+    {
+        if ( name.size() <= 1 )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        StringUtils::ReplaceAllOccurrencesInPlace( name, "_", " " );
+
+        name[0] = (char) toupper( name[0] );
+
+        int32 i = 1;
+        while ( i < name.length() )
+        {
+            // Only insert a space before a Capital letter, if it isnt the last letter and if it isnt followed or preceded by a capital letter
+            bool const shouldInsertSpace = isupper( name[i] ) && i != name.length() - 1 && !isupper( name[i - 1] ) && !isupper( name[i + 1] );
+            if ( shouldInsertSpace )
+            {
+                name.insert( name.begin() + i, 1, ' ' );
+                i++;
+            }
+
+            i++;
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     ReflectedProperty const* ReflectedType::GetPropertyDescriptor( StringID propertyID ) const
     {
         KRG_ASSERT( m_ID.IsValid() && !IsAbstract() && !IsEnum() );
@@ -16,6 +46,26 @@ namespace KRG::TypeSystem::Reflection
         }
 
         return nullptr;
+    }
+
+    String ReflectedProperty::GetFriendlyName() const
+    {
+        String name = m_name;
+        StringUtils::ReplaceAllOccurrencesInPlace( name, "m_", "" );
+
+        if ( name.empty() )
+        {
+            return m_name;
+        }
+
+        if ( name.length() > 1 && name[0] == 'p' && isupper( name[1] ) )
+        {
+            name = name.substr( 1, name.length() - 1 );
+        }
+
+        GenerateFriendlyName( name );
+
+        return name;
     }
 
     //-------------------------------------------------------------------------
@@ -41,6 +91,28 @@ namespace KRG::TypeSystem::Reflection
         }
 
         return false;
+    }
+
+    String ReflectedType::GetFriendlyName() const
+    {
+        String friendlyName = m_name;
+        GenerateFriendlyName( friendlyName );
+        return friendlyName;
+    }
+
+    String ReflectedType::GetCategory() const
+    {
+        String category = m_namespace;
+        StringUtils::ReplaceAllOccurrencesInPlace( category, "KRG::", "" );
+        StringUtils::ReplaceAllOccurrencesInPlace( category, "::", "/" );
+
+        // Remove trailing slash
+        if ( !category.empty() && category.back() == '/' )
+        {
+            category.pop_back();
+        }
+
+        return category;
     }
 
     //-------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "System/Render/RenderViewport.h"
 #include "System/Core/Types/Containers.h"
 #include "System/Core/Drawing/DebugDrawingSystem.h"
+#include "System/Input/InputSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -64,6 +65,25 @@ namespace KRG
         void UpdateLoading();
 
         //-------------------------------------------------------------------------
+        // Systems
+        //-------------------------------------------------------------------------
+
+        IWorldEntitySystem* GetWorldSystem( uint32 worldSystemID ) const;
+
+        template<typename T>
+        inline T* GetWorldSystem() const { return static_cast<T*>( GetWorldSystem( T::s_entitySystemID ) ); }
+
+        //-------------------------------------------------------------------------
+        // Input
+        //-------------------------------------------------------------------------
+        // Each world has it's own input state which is affected by the state of the player controller as well the time scale/pause/etc...
+        // Each system can choose whether to use the global input state or the per world state depending on the needs
+        // e.g., gameplay will likely need to use the world input state, whereas UI and menus will use the global input state
+
+        Input::InputState const* GetInputState() const { return &m_inputState; }
+        Input::InputState* GetInputState() { return &m_inputState; }
+
+        //-------------------------------------------------------------------------
         // Time Management
         //-------------------------------------------------------------------------
 
@@ -83,15 +103,6 @@ namespace KRG
         inline bool IsTimeStepRequested() const { return m_timeStepRequested; }
 
         //-------------------------------------------------------------------------
-        // Systems
-        //-------------------------------------------------------------------------
-
-        IWorldEntitySystem* GetWorldSystem( uint32 worldSystemID ) const;
-
-        template<typename T>
-        inline T* GetWorldSystem() const { return static_cast<T*>( GetWorldSystem( T::s_entitySystemID ) ); }
-
-        //-------------------------------------------------------------------------
         // Viewport
         //-------------------------------------------------------------------------
 
@@ -102,18 +113,36 @@ namespace KRG
         // Map Management
         //-------------------------------------------------------------------------
 
-        // Get the persistent map
+        // Get the persistent map - this is a transient map that's always presents - be very careful with what you add to this map
         EntityModel::EntityMap* GetPersistentMap() { return &m_maps[0]; }
         EntityModel::EntityMap const* GetPersistentMap() const { return &m_maps[0]; }
 
-        // Do we have any loaded maps (maps can be either loaded or still loading)
-        inline bool HasLoadedMaps() const { return !m_maps.empty(); }
+        // Create a transient map (one that is managed programatically)
+        EntityModel::EntityMap* CreateTransientMap();
+
+        // Get a specific map
+        EntityModel::EntityMap const* GetMap( ResourceID const& mapResourceID ) const;
+
+        // Get a specific map
+        EntityModel::EntityMap* GetMap( ResourceID const& mapResourceID ) { return const_cast<EntityModel::EntityMap*>( const_cast<EntityWorld const*>( this )->GetMap( mapResourceID ) ); }
+
+        // Get a specific map
+        EntityModel::EntityMap const* GetMap( EntityMapID const& mapID ) const;
+
+        // Get a specific map
+        EntityModel::EntityMap* GetMap( EntityMapID const& mapID ) { return const_cast<EntityModel::EntityMap*>( const_cast<EntityWorld const*>( this )->GetMap( mapID ) ); }
 
         // Are we currently loading anything
         bool IsBusyLoading() const;
 
-        // Have we requested this map to be loaded (doesnt actually return the load status of the map, as that info should not be needed externally)
-        bool IsMapLoaded( ResourceID const& mapResourceID ) const;
+        // Have we added this map to the world
+        bool HasMap( ResourceID const& mapResourceID ) const;
+
+        // Does the specified map exist and is fully loaded
+        bool IsMapActive( ResourceID const& mapResourceID ) const;
+
+        // Does the specified map exist and is fully loaded
+        bool IsMapActive( EntityMapID const& mapID ) const;
 
         // These functions queue up load and unload requests to be processed during the next loading update for the world
         void LoadMap( ResourceID const& mapResourceID );
@@ -140,12 +169,9 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         #if KRG_DEVELOPMENT_TOOLS
-        
-        // Get a specific loaded map
-        EntityModel::EntityMap* GetMap( ResourceID const& mapResourceID );
 
         // This function will immediately unload the specified component so that its properties can be edited
-        void PrepareComponentForEditing( ResourceID const& mapID, EntityID const& entityID, ComponentID const& componentID );
+        void PrepareComponentForEditing( EntityMapID const& mapID, EntityID const& entityID, ComponentID const& componentID );
 
         // Get all the registered components of the specified type
         inline TVector<EntityComponent const*> const& GetAllRegisteredComponentsOfType( TypeSystem::TypeID typeID ) { return m_componentTypeLookup[typeID]; }
@@ -201,6 +227,7 @@ namespace KRG
 
         EntityWorldID                                                           m_worldID = UUID::GenerateID();
         TaskSystem*                                                             m_pTaskSystem = nullptr;
+        Input::InputState                                                       m_inputState;
         EntityModel::EntityLoadingContext                                       m_loadingContext;
         EntityModel::ActivationContext                                          m_activationContext;
         TVector<IWorldEntitySystem*>                                            m_worldSystems;

@@ -25,6 +25,8 @@ namespace KRG::Animation
 
     class AnimationGraphWorkspace final : public TResourceWorkspace<GraphDefinition>
     {
+        friend GraphUndoableAction;
+
     public:
 
         AnimationGraphWorkspace( WorkspaceInitializationContext const& context, EntityWorld* pWorld, ResourceID const& resourceID );
@@ -34,12 +36,12 @@ namespace KRG::Animation
 
         virtual void Initialize( UpdateContext const& context ) override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
+        virtual void UpdateWorld( EntityWorldUpdateContext const& updateContext ) override;
 
         virtual bool HasViewportToolbar() const override { return true; }
         virtual void DrawViewportToolbar( UpdateContext const& context, Render::Viewport const* pViewport ) override;
-        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
-        virtual void OnUndoRedo() override;
+        virtual void UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction ) override;
         virtual bool IsDirty() const override;
         virtual bool AlwaysAllowSaving() const override { return true; }
         virtual bool Save() override;
@@ -74,7 +76,6 @@ namespace KRG::Animation
         EventBindingID                      m_postEditEventBindingID;
 
         GraphUndoableAction*                m_pActiveUndoableAction = nullptr;
-        int32                               m_beginCallCount = 0;
 
         EditorGraphDefinition*              m_pGraphDefinition = nullptr;
         FileSystem::Path                    m_graphFilePath;
@@ -85,10 +86,10 @@ namespace KRG::Animation
         Entity*                             m_pPreviewEntity = nullptr;
         AnimationGraphComponent*            m_pGraphComponent = nullptr;
         DebugContext                        m_debugContext;
+        Transform                           m_previewStartTransform = Transform::Identity;
+        bool                                m_startPaused = false;
         bool                                m_isPreviewing = false;
-        bool                                m_applyRootMotion = true;
-        bool                                m_drawRoot = false;
-        bool                                m_drawRecordedRootMotion = false;
+        RootMotionRecorder::DebugMode       m_rootMotionDebugMode = RootMotionRecorder::DebugMode::Off;
         TaskSystem::DebugMode               m_taskSystemDebugMode = TaskSystem::DebugMode::Off;
     };
 }

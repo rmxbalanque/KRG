@@ -4,6 +4,11 @@
 
 namespace KRG::Render
 {
+    TEvent<StaticMeshComponent*> StaticMeshComponent::s_staticMobilityTransformUpdatedEvent;
+    TEvent<StaticMeshComponent*> StaticMeshComponent::s_mobilityChangedEvent;
+
+    //-------------------------------------------------------------------------
+
     void StaticMeshComponent::Initialize()
     {
         MeshComponent::Initialize();
@@ -19,15 +24,18 @@ namespace KRG::Render
         if ( newMobility != m_mobility )
         {
             m_mobility = newMobility;
-            m_mobilityChangedEvent.Execute( this );
+            s_mobilityChangedEvent.Execute( this );
         }
     }
 
     void StaticMeshComponent::OnWorldTransformUpdated()
     {
-        if ( m_mobility == Mobility::Static )
+        if( IsInitialized() )
         {
-            m_staticMobilityTransformUpdatedEvent.Execute( this );
+            if ( m_mobility == Mobility::Static )
+            {
+                s_staticMobilityTransformUpdatedEvent.Execute( this );
+            }
         }
     }
 

@@ -64,9 +64,6 @@ namespace KRG
         KRG_ASSERT( resourceID.IsValid() );
         m_preEditEventBindingID = m_descriptorPropertyGrid.OnPreEdit().Bind( [this] ( PropertyEditInfo const& info ) { PreEdit( info ); } );
         m_postEditEventBindingID = m_descriptorPropertyGrid.OnPostEdit().Bind( [this] ( PropertyEditInfo const& info ) { PostEdit( info ); } );
-
-        m_gizmoStartManipulationEventBindingID = m_gizmo.OnManipulationStarted().Bind( [this] () { BeginModification(); } );
-        m_gizmoEndManipulationEventBindingID = m_gizmo.OnManipulationEnded().Bind( [this] () { EndModification(); } );
     }
 
     GenericResourceWorkspace::~GenericResourceWorkspace()
@@ -76,9 +73,6 @@ namespace KRG
 
         m_descriptorPropertyGrid.OnPreEdit().Unbind( m_preEditEventBindingID );
         m_descriptorPropertyGrid.OnPostEdit().Unbind( m_postEditEventBindingID );
-
-        m_gizmo.OnManipulationStarted().Unbind( m_gizmoStartManipulationEventBindingID );
-        m_gizmo.OnManipulationEnded().Unbind( m_gizmoEndManipulationEventBindingID );
     }
 
     void GenericResourceWorkspace::Initialize( UpdateContext const& context )
@@ -136,7 +130,7 @@ namespace KRG
         ImGui::DockBuilderDockWindow( m_descriptorWindowName.c_str(), dockspaceID );
     }
 
-    void GenericResourceWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void GenericResourceWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_descriptorWindowName.c_str() ) )
@@ -160,7 +154,7 @@ namespace KRG
                 }
 
                 ImGui::BeginDisabled( !m_descriptorPropertyGrid.IsDirty() );
-                if ( ImGuiX::ColoredButton( ImGuiX::ConvertColor( Colors::ForestGreen ), ImGuiX::ConvertColor( Colors::White ), KRG_ICON_FLOPPY_O " Save", ImVec2( -1, 0 ) ) )
+                if ( ImGuiX::ColoredButton( ImGuiX::ConvertColor( Colors::ForestGreen ), ImGuiX::ConvertColor( Colors::White ), KRG_ICON_SAVE" Save", ImVec2( -1, 0 ) ) )
                 {
                     Save();
                 }

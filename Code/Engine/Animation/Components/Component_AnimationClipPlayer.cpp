@@ -36,7 +36,7 @@ namespace KRG::Animation
 
     void AnimationClipPlayerComponent::Initialize()
     {
-        AnimationComponent::Initialize();
+        EntityComponent::Initialize();
         KRG_ASSERT( m_pAnimation != nullptr && m_pAnimation.IsLoaded() );
         m_pPose = KRG::New<Pose>( m_pAnimation->GetSkeleton() );
     }
@@ -45,7 +45,7 @@ namespace KRG::Animation
     {
         KRG::Delete( m_pPose );
         m_previousAnimTime = -1.0f;
-        AnimationComponent::Shutdown();
+        EntityComponent::Shutdown();
     }
 
     //-------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace KRG::Animation
         return m_pAnimation->GetSkeleton();
     }
 
-    void AnimationClipPlayerComponent::PrePhysicsUpdate( Seconds deltaTime, Transform const& characterTransform, Physics::Scene* pPhysicsScene )
+    void AnimationClipPlayerComponent::Update( Seconds deltaTime, Transform const& characterTransform )
     {
         KRG_PROFILE_FUNCTION_ANIMATION();
         KRG_ASSERT( m_pAnimation != nullptr && m_pPose != nullptr );
@@ -105,18 +105,7 @@ namespace KRG::Animation
         {
             m_pAnimation->GetPose( m_animTime, m_pPose );
             m_pPose->CalculateGlobalTransforms();
-
-            // Check if we've looped
-            if( m_animTime < m_previousAnimTime )
-            {
-                Transform const preLoopDelta = m_pAnimation->GetRootMotionDelta( m_previousAnimTime, 1.0f );
-                Transform const postLoopDelta = m_pAnimation->GetRootMotionDelta( 0.0f, m_animTime );
-                m_rootMotionDelta = postLoopDelta * preLoopDelta;
-            }
-            else
-            {
-                m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousAnimTime, m_animTime );
-            }
+            m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousAnimTime, m_animTime );
         }
         else // Clear the root motion delta
         {

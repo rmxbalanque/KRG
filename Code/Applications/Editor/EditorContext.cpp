@@ -1,12 +1,12 @@
 #include "EditorContext.h"
 #include "RenderingSystem.h"
-#include "MapEditor/Workspace_MapEditor.h"
-#include "MapEditor/Workspace_GamePreviewer.h"
+#include "Tools/Entity/Workspaces/Workspace_MapEditor.h"
+#include "Tools/Entity/Workspaces/Workspace_GamePreviewer.h"
+#include "Tools/Entity/Workspaces/Workspace_EntityCollectionEditor.h"
 #include "Tools/Core/Workspaces/ResourceWorkspace.h"
 #include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 #include "Engine/Core/Entity/EntityWorld.h"
 #include "Engine/Core/Entity/EntityWorldManager.h"
-#include "Engine/Core/Entity/EntityMapDescriptor.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Resource/ResourceSystem.h"
 #include "System/Core/Settings/SettingsRegistry.h"
@@ -100,13 +100,27 @@ namespace KRG
     {
         ResourceTypeID const resourceTypeID = resourceID.GetResourceTypeID();
 
-        // Handle maps explicitly
+        // Handle maps/ECs explicitly
         //-------------------------------------------------------------------------
 
         if ( resourceTypeID == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() )
         {
             m_pMapEditor->LoadMap( resourceID );
             ImGuiX::MakeTabVisible( m_pMapEditor->GetWorkspaceWindowID() );
+            return true;
+        }
+        else if ( resourceTypeID == EntityModel::EntityCollectionDescriptor::GetStaticResourceTypeID() )
+        {
+            // Create preview world
+            auto pPreviewWorld = m_pWorldManager->CreateWorld( EntityWorldType::Editor );
+            pPreviewWorld->LoadMap( ResourcePath( "data://Editor/EditorMap.map" ) );
+            m_pRenderingSystem->CreateCustomRenderTargetForViewport( pPreviewWorld->GetViewport() );
+
+            // Create EC workspace
+            auto pWorkspace = KRG::New<EntityModel::EntityCollectionEditor>( m_workspaceInitContext, pPreviewWorld, resourceID );
+            pWorkspace->Initialize( context );
+            m_workspaces.emplace_back( pWorkspace );
+
             return true;
         }
 
@@ -210,6 +224,13 @@ namespace KRG
         return m_workspaceInitContext.m_pTypeRegistry->IsRegisteredResourceType( resourceTypeID );
     }
 
+    void EditorContext::LoadMap( ResourceID const& mapResourceID ) const
+    {
+        KRG_ASSERT( m_pMapEditor != nullptr );
+        KRG_ASSERT( mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
+        m_pMapEditor->LoadMap( mapResourceID );
+    }
+
     bool EditorContext::IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const
     {
         return m_pMapEditor == pWorkspace;
@@ -232,7 +253,7 @@ namespace KRG
         return (void*) &m_pRenderingSystem->GetRenderTargetTextureForViewport( pWorld->GetViewport() );
     }
 
-    uint64 EditorContext::GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const
+    Render::PickingID EditorContext::GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const
     {
         KRG_ASSERT( pWorkspace != nullptr );
         auto pWorld = pWorkspace->GetWorld();

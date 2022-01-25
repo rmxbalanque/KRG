@@ -1,7 +1,7 @@
 #pragma once
 
-#include "System\Core\Time\Timers.h"
 #include "System\Core\Types\Containers.h"
+#include "System\Core\Time\Time.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ namespace KRG::Input
     {
         template<uint32> friend class ButtonStates;
 
-        enum class State
+        enum class State : uint8
         {
             None = 0,
             Pressed,
@@ -19,42 +19,99 @@ namespace KRG::Input
             Released,
         };
 
+        enum class UpdateState : uint8
+        {
+            None, 
+            ChangedThisFrame,
+            RequiresStateProgression
+        };
+
     public:
 
-        inline bool WasPressed() const { return m_state == State::Pressed; }
-        inline bool WasReleased() const { return m_state == State::Released; }
-        inline bool IsHeldDown() const { return m_state == State::Held; }
+        KRG_FORCE_INLINE bool WasPressed() const { return m_state == State::Pressed; }
+        KRG_FORCE_INLINE bool WasReleased() const { return m_state == State::Released; }
+        KRG_FORCE_INLINE bool IsHeldDown() const { return m_state == State::Held; }
 
-        inline Seconds GetTimeHeld() const
+        KRG_FORCE_INLINE Seconds GetTimeHeld() const
         {
             KRG_ASSERT( IsHeldDown() || WasPressed() );
-            return m_holdTimer.GetElapsedTimeSeconds();
+            return m_holdTime;
+        }
+
+        void Update( Seconds deltaTime )
+        {
+            // If the state changed this frame, register the button for an update on the next frame
+            if ( m_updateState == Button::UpdateState::ChangedThisFrame )
+            {
+                m_updateState = Button::UpdateState::RequiresStateProgression;
+            }
+            // Transform the pressed and released events into their subsequent states
+            else if ( m_updateState == Button::UpdateState::RequiresStateProgression )
+            {
+                if ( m_state == Button::State::Pressed )
+                {
+                    m_state = Button::State::Held;
+                    m_holdTime = 0.0f;
+                }
+                else if ( m_state == Button::State::Released )
+                {
+                    m_state = Button::State::None;
+                    m_holdTime = 0.0f;
+                }
+
+                m_updateState = UpdateState::None;
+            }
+
+            //-------------------------------------------------------------------------
+
+            // Update hold time
+            if ( m_state == Button::State::Held )
+            {
+                m_holdTime += deltaTime;
+            }
         }
 
     private:
 
-        inline void UpdateState( State inState )
+        // Sets the state of the button and flags that the button state has changed
+        KRG_FORCE_INLINE void SetState( State inState )
         {
             m_state = inState;
 
             // Track state changes
             if ( inState == State::Pressed )
             {
-                m_stateChangedThisFrame = true;
-                m_holdTimer.Start();
+                m_updateState = UpdateState::ChangedThisFrame;
+                m_holdTime = 0.0f;
             }
             else if ( inState == State::Released )
             {
-                m_stateChangedThisFrame = true;
+                m_updateState = UpdateState::ChangedThisFrame;
+                m_holdTime = 0.0f;
+            }
+        }
+
+        KRG_FORCE_INLINE void ReflectFrom( Seconds deltaTime, Button const& sourceButton )
+        {
+            // Change button state if needed
+            if ( m_state != sourceButton.m_state )
+            {
+                m_state = sourceButton.m_state;
+                m_holdTime = 0.0f;
+            }
+
+            // Update hold time
+            if ( m_state == Button::State::Held )
+            {
+                m_holdTime += deltaTime;
             }
         }
 
     private:
 
-        EngineTimer      m_holdTimer;
-        State            m_state = State::None;
-        bool             m_stateChangedThisFrame = false;
-        bool             m_needsUpdate = false;
+        Seconds             m_holdTime;
+        State               m_state = State::None;
+        UpdateState         m_updateState = UpdateState::None;
     };
 
     //-------------------------------------------------------------------------
@@ -79,7 +136,7 @@ namespace KRG::Input
             {
                 if ( pHeldDownDuration != nullptr )
                 {
-                    *pHeldDownDuration = m_buttons[buttonIdx].m_holdTimer.GetElapsedTimeSeconds();
+                    *pHeldDownDuration = m_buttons[buttonIdx].m_holdTime;
                 }
 
                 return true;
@@ -111,43 +168,36 @@ namespace KRG::Input
             KRG::Memory::MemsetZero( m_buttons.data(), m_buttons.size() * sizeof( Button ) );
         }
 
-        inline void Update()
+        inline void Update( Seconds deltaTime )
         {
             for ( auto i = 0; i < numButtons; i++ )
             {
-                // If the state changed this frame, register the button for an update on the next frame
-                if ( m_buttons[i].m_stateChangedThisFrame )
-                {
-                    m_buttons[i].m_stateChangedThisFrame = false;
-                    m_buttons[i].m_needsUpdate = true;
-                }
-                else if ( m_buttons[i].m_needsUpdate )
-                {
-                    // Transform the pressed and released events into their subsequent states
-                    if ( m_buttons[i].m_state == Button::State::Pressed )
-                    {
-                        m_buttons[i].UpdateState( Button::State::Held );
-                    }
-                    else if ( m_buttons[i].m_state == Button::State::Released )
-                    {
-                        m_buttons[i].UpdateState( Button::State::None );
-                    }
-
-                    m_buttons[i].m_needsUpdate = false;
-                }
+                m_buttons[i].Update( deltaTime );
             }
         }
 
         // Called when we detect a pressed event for a button
         inline void Press( uint32 buttonIdx )
         {
-            m_buttons[buttonIdx].UpdateState( Button::State::Pressed );
+            m_buttons[buttonIdx].SetState( Button::State::Pressed );
         }
 
         // Called when we detect a released event for a button
         inline void Release( uint32 buttonIdx )
         {
-            m_buttons[buttonIdx].UpdateState( Button::State::Released );
+            m_buttons[buttonIdx].SetState( Button::State::Released );
+        }
+
+        // Update the state based on a reference state - taking into account the time delta and time scale
+        void ReflectFrom( Seconds const deltaTime, float timeScale, ButtonStates<numButtons> const& sourceState )
+        {
+            Seconds const scaledDeltaTime = deltaTime * Math::Max( 0.0f, timeScale );
+            for ( auto i = 0; i < numButtons; i++ )
+            {
+                auto& button = m_buttons[i];
+                auto const& sourceButton = sourceState.m_buttons[i];
+                button.ReflectFrom( scaledDeltaTime, sourceButton );
+            }
         }
 
     private:

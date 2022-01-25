@@ -68,6 +68,7 @@ namespace KRG::Math
                 Vector m_farTR;
                 Vector m_farBR;
             };
+
             Vector m_points[8] = {};
         };
 
@@ -117,7 +118,7 @@ namespace KRG::Math
 
         inline Plane const& GetViewPlane( PlaneID p ) const { return GetViewPlane( (uint32) p ); }
         inline Plane const& GetViewPlane( uint32 p ) const { KRG_ASSERT( p < 6 ); return m_viewPlanes[p]; }
-        inline VolumeCorners GetCorners() const; // The first 4 points are the near plane corners, the last 4 are the far plane corners
+        VolumeCorners GetCorners() const; // The first 4 points are the near plane corners, the last 4 are the far plane corners
 
         // Bounds and Intersection tests
         //-------------------------------------------------------------------------

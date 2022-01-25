@@ -12,7 +12,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    void UndoStack::Undo()
+    IUndoableAction const* UndoStack::Undo()
     {
         KRG_ASSERT( CanUndo() );
 
@@ -23,9 +23,10 @@ namespace KRG
         // Undo the action and place it on the undone stack
         pAction->Undo();
         m_undoneActions.emplace_back( pAction );
+        return pAction;
     }
 
-    void UndoStack::Redo()
+    IUndoableAction const* UndoStack::Redo()
     {
         KRG_ASSERT( CanRedo() );
 
@@ -36,6 +37,7 @@ namespace KRG
         // Undo the action and place it on the undone stack
         pAction->Redo();
         m_recordedActions.emplace_back( pAction );
+        return pAction;
     }
 
     //-------------------------------------------------------------------------

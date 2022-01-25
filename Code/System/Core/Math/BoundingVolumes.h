@@ -87,7 +87,7 @@ namespace KRG
     public:
 
         AABB() = default;
-        AABB( Vector const* points, uint32 numPoints );
+        AABB( Vector const* pPoints, uint32 numPoints );
         AABB( Vector const& center ) : m_center( center ), m_extents( Vector::Zero ) {}
         AABB( Vector const& center, Vector const& extents ) : m_center( center ), m_extents( extents ) { KRG_ASSERT( IsValid() ); }
         AABB( Vector const& center, float const& extents ) : m_center( center ), m_extents( extents ) { KRG_ASSERT( IsValid() ); }
@@ -191,6 +191,7 @@ namespace KRG
 
         OBB() = default;
         OBB( Vector center, Vector extents, Quaternion orientation = Quaternion::Identity );
+        OBB( Vector const* pPoints, uint32 numPoints );
         explicit OBB( AABB const& aabb );
         explicit OBB( AABB const& aabb, Transform const& transform );
 

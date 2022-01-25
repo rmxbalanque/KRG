@@ -134,24 +134,30 @@ namespace KRG::Animation
         m_virtualParameters.emplace_back( pParameter );
     }
 
-    void EditorGraphDefinition::RenameControlParameter( UUID parameterID, String newName )
+    void EditorGraphDefinition::RenameControlParameter( UUID parameterID, String const& newName, String const& category )
     {
         auto pParameter = FindControlParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
-        EnsureUniqueParameterName( newName );
+
+        String uniqueName = newName;
+        EnsureUniqueParameterName( uniqueName );
 
         VisualGraph::ScopedGraphModification gm( m_pRootGraph );
-        pParameter->m_name = newName;
+        pParameter->m_name = uniqueName;
+        pParameter->m_parameterCategory = category;
     }
 
-    void EditorGraphDefinition::RenameVirtualParameter( UUID parameterID, String newName )
+    void EditorGraphDefinition::RenameVirtualParameter( UUID parameterID, String const& newName, String const& category )
     {
         auto pParameter = FindVirtualParameter( parameterID );
         KRG_ASSERT( pParameter != nullptr );
-        EnsureUniqueParameterName( newName );
+        
+        String uniqueName = newName;
+        EnsureUniqueParameterName( uniqueName );
 
         VisualGraph::ScopedGraphModification gm( m_pRootGraph );
-        pParameter->m_name = newName;
+        pParameter->m_name = uniqueName;
+        pParameter->m_parameterCategory = category;
     }
 
     void EditorGraphDefinition::DestroyControlParameter( UUID parameterID )

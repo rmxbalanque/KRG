@@ -2,7 +2,7 @@
 
 #include "Engine/Core/_Module/API.h"
 #include "Engine/Core/Entity/EntitySpatialComponent.h"
-#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
 #include "System/Resource/ResourcePtr.h"
 
 //-------------------------------------------------------------------------

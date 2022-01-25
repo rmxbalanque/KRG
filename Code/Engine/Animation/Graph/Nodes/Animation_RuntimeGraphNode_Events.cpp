@@ -14,7 +14,7 @@ namespace KRG::Animation::GraphNodes
         for ( auto i = searchRange.m_startIdx; i != searchRange.m_endIdx; i++ )
         {
             auto const& sampledEvent = sampledEvents[i];
-            auto const pEvent = sampledEvents[i].GetEvent<T>();
+            auto const pEvent = sampledEvents[i].TryGetEvent<T>();
             if ( pEvent != nullptr )
             {
                 bool const isDominantEventSet = ( pDominantSampledEvent != nullptr );
@@ -109,13 +109,18 @@ namespace KRG::Animation::GraphNodes
         {
             auto const& sampledEvent = context.m_sampledEvents[i];
 
-            // Filter
+            //-------------------------------------------------------------------------
+
+            // Get the event ID (if possible for this event)
+            StringID eventID;
             if ( sampledEvent.IsStateEvent() )
             {
                 if ( pNodeSettings->m_searchMode == EventSearchMode::OnlySearchAnimEvents )
                 {
                     continue;
                 }
+
+                eventID = sampledEvent.GetStateEventID();
             }
             else
             {
@@ -123,25 +128,30 @@ namespace KRG::Animation::GraphNodes
                 {
                     continue;
                 }
+
+                // Check type and ID
+                auto const pEvent = sampledEvent.TryGetEvent<IDEvent>();
+                if ( pEvent != nullptr )
+                {
+                    eventID = pEvent->GetID();
+                }
             }
 
-            // Check type and ID
-            auto const pEvent = sampledEvent.GetEvent<IDEvent>();
-            if ( pEvent != nullptr )
+            //-------------------------------------------------------------------------
+
+            // Check against the set of events we need to match
+            for ( auto t = 0; t < numEventIDs; t++ )
             {
-                for ( auto t = 0; t < numEventIDs; t++ )
+                if ( pNodeSettings->m_eventIDs[t] == eventID )
                 {
-                    if ( pNodeSettings->m_eventIDs[t] == pEvent->GetID() )
+                    if ( pNodeSettings->m_operator == Operator::Or )
                     {
-                        if ( pNodeSettings->m_operator == Operator::Or )
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            foundIDs[t] = true;
-                            break;
-                        }
+                        return true;
+                    }
+                    else
+                    {
+                        foundIDs[t] = true;
+                        break;
                     }
                 }
             }

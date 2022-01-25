@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationBlender.h" />
@@ -17,7 +21,6 @@
     <ClInclude Include="AnimationEvent.h" />
     <ClInclude Include="AnimationFrameTime.h" />
     <ClInclude Include="AnimationSyncTrack.h" />
-    <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
     <ClInclude Include="DebugViews\DebugView_Animation.h" />
@@ -25,6 +28,7 @@
     <ClInclude Include="Events\AnimationEvent_Foot.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_RootMotionRecorder.h" />
     <ClInclude Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Common.h" />
     <ClInclude Include="Graph\Animation_RuntimeGraph_Contexts.h" />
@@ -83,6 +87,7 @@
     <ClCompile Include="Events\AnimationEvent_ID.cpp" />
     <ClCompile Include="Events\AnimationEvent_Foot.cpp" />
     <ClCompile Include="AnimationTarget.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_RootMotionRecorder.cpp" />
     <ClCompile Include="Graph\Nodes\Animation_RuntimeGraphNode_Ragdoll.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Common.cpp" />
     <ClCompile Include="Graph\Animation_RuntimeGraph_Contexts.cpp" />
@@ -172,6 +177,12 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -180,6 +191,10 @@
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
@@ -192,6 +207,18 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

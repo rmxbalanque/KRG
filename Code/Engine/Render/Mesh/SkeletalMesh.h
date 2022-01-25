@@ -19,7 +19,7 @@ namespace KRG::Render
 
         // Bone Info
         inline int32 GetNumBones() const { return (int32) m_boneIDs.size(); }
-        inline int32 GetBoneIndex( StringID const& boneID ) const;
+        int32 GetBoneIndex( StringID const& boneID ) const;
         inline TVector<int32> const& GetParentBoneIndices() const { return m_parentBoneIndices; }
         inline int32 GetParentBoneIndex( int32 const& idx ) const { KRG_ASSERT( idx < m_parentBoneIndices.size() ); return m_parentBoneIndices[idx]; }
         StringID GetBoneID( int32 idx ) const { KRG_ASSERT( idx < m_boneIDs.size() ); return m_boneIDs[idx]; }

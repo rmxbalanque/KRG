@@ -37,7 +37,7 @@ namespace KRG::Resource
         {
             for ( auto const& resourceRecord : m_database.GetAllResourcesOfType( resourceTypeID ) )
             {
-                m_knownResourceIDs.emplace_back( resourceRecord->m_resourcePath );
+                m_knownResourceIDs.emplace_back( resourceRecord->m_resourceID.GetResourcePath() );
             }
         }
         else
@@ -46,7 +46,7 @@ namespace KRG::Resource
             {
                 for ( auto const& resourceRecord : resourceListPair.second )
                 {
-                    m_knownResourceIDs.emplace_back( resourceRecord->m_resourcePath );
+                    m_knownResourceIDs.emplace_back( resourceRecord->m_resourceID.GetResourcePath() );
                 }
             }
         }

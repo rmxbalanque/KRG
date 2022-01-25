@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{20C5D09A-3DA8-4CEA-9269-65DC6E6CD460}</ProjectGuid>
@@ -28,6 +32,12 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -36,6 +46,10 @@
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
@@ -59,12 +73,25 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AI\Behaviors\Actions\AIAction_MoveTo.h" />
     <ClInclude Include="AI\Behaviors\Actions\AIAction_Idle.h" />
     <ClInclude Include="AI\Behaviors\AIBehavior.h" />
     <ClInclude Include="AI\AIPhysicsController.h" />
     <ClInclude Include="AI\Behaviors\AIBehavior_Wander.h" />
+    <ClInclude Include="AI\Behaviors\AIBehavior_CombatPositioning.h" />
     <ClInclude Include="AI\Components\Component_AI.h" />
     <ClInclude Include="AI\Components\Component_AISpawn.h" />
     <ClInclude Include="AI\DebugViews\DebugView_AI.h" />
@@ -73,6 +100,11 @@
     <ClInclude Include="AI\AIBehaviorSelector.h" />
     <ClInclude Include="AI\Systems\EntitySystem_AIController.h" />
     <ClInclude Include="AI\Systems\WorldSystem_AIManager.h" />
+    <ClInclude Include="Cover\Components\Component_CoverVolume.h" />
+    <ClInclude Include="Cover\DebugViews\DebugView_Cover.h" />
+    <ClInclude Include="Cover\Systems\WorldSystem_CoverManager.h" />
+    <ClInclude Include="Player\Actions\PlayerAction_DebugMode.h" />
+    <ClInclude Include="Player\Actions\PlayerAction_Slide.h" />
     <ClInclude Include="Player\PlayerCameraController.h" />
     <ClInclude Include="Player\PlayerActionStateMachine.h" />
     <ClInclude Include="Player\Actions\PlayerAction_Dash.h" />
@@ -88,6 +120,9 @@
     <ClInclude Include="Player\PlayerPhysicsController.h" />
     <ClInclude Include="Player\Systems\EntitySystem_PlayerController.h" />
     <ClInclude Include="Player\GraphControllers\PlayerGraphController_Ability.h" />
+    <ClInclude Include="Weapon\Components\Ammo.h" />
+    <ClInclude Include="Weapon\Components\BaseWeapon.h" />
+    <ClInclude Include="Weapon\Components\DamageInfoTypes.h" />
     <ClInclude Include="_Module\API.h" />
     <ClInclude Include="_Module\Module.h" />
   </ItemGroup>
@@ -96,6 +131,7 @@
     <ClCompile Include="AI\Behaviors\Actions\AIAction_Idle.cpp" />
     <ClCompile Include="AI\Behaviors\AIBehavior.cpp" />
     <ClCompile Include="AI\Behaviors\AIBehavior_Wander.cpp" />
+    <ClCompile Include="AI\Behaviors\AIBehavior_CombatPositioning.cpp" />
     <ClCompile Include="AI\DebugViews\DebugView_AI.cpp" />
     <ClCompile Include="AI\GraphControllers\AIGraphController_Locomotion.cpp" />
     <ClCompile Include="AI\AIAnimationController.cpp" />
@@ -103,12 +139,18 @@
     <ClCompile Include="AI\AIPhysicsController.cpp" />
     <ClCompile Include="AI\Systems\EntitySystem_AIController.cpp" />
     <ClCompile Include="AI\Systems\WorldSystem_AIManager.cpp" />
+    <ClCompile Include="Cover\Components\Component_CoverVolume.cpp" />
+    <ClCompile Include="Cover\DebugViews\DebugView_Cover.cpp" />
+    <ClCompile Include="Cover\Systems\WorldSystem_CoverManager.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction_Dash.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction_DebugMode.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction_Falling.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction_Jump.cpp" />
     <ClCompile Include="Player\Actions\PlayerAction_Locomotion.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction_Slide.cpp" />
     <ClCompile Include="Player\Actions\PlayerOverlayAction_Shoot.cpp" />
+    <ClCompile Include="Player\Components\Component_MainPlayer.cpp" />
     <ClCompile Include="Player\DebugViews\DebugView_Player.cpp" />
     <ClCompile Include="Player\GraphControllers\PlayerGraphController_Locomotion.cpp" />
     <ClCompile Include="Player\PlayerActionStateMachine.cpp" />
@@ -117,6 +159,8 @@
     <ClCompile Include="Player\PlayerCameraController.cpp" />
     <ClCompile Include="Player\Systems\EntitySystem_PlayerController.cpp" />
     <ClCompile Include="Player\GraphControllers\PlayerGraphController_Ability.cpp" />
+    <ClCompile Include="Weapon\Components\Ammo.cpp" />
+    <ClCompile Include="Weapon\Components\BaseWeapon.cpp" />
     <ClCompile Include="_Module\Module.cpp" />
     <ClCompile Include="_Module\_AutoGenerated\_module.cpp" />
   </ItemGroup>

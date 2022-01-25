@@ -38,6 +38,10 @@ namespace KRG::Navmesh
         friend class NavmeshWorldSystem;
         friend class NavmeshBuilder;
 
+    public:
+
+        inline bool HasNavmeshData() const { return m_pNavmeshData.IsLoaded() && m_pNavmeshData->IsValid(); }
+
     private:
 
         KRG_EXPOSE NavmeshBuildSettings             m_defaultLayerBuildSettings;

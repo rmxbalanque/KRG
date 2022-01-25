@@ -261,8 +261,8 @@ namespace KRG::Resource
     void ResourceRequest::RequestRawResource( RequestContext& requestContext )
     {
         KRG_PROFILE_FUNCTION_RESOURCE();
-        requestContext.m_createRawRequestRequestFunction( this );
         m_stage = ResourceRequest::Stage::WaitForRawResourceRequest;
+        requestContext.m_createRawRequestRequestFunction( this );
     }
 
     void ResourceRequest::LoadResource( RequestContext& requestContext )

@@ -1,4 +1,6 @@
 #include "PlayerAction_Dash.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
+#include "Game/Core/Player/GraphControllers/PlayerGraphController_Ability.h"
 #include "Game/Core/Player/PlayerPhysicsController.h"
 #include "Game/Core/Player/PlayerCameraController.h"
 #include "Game/Core/Player/PlayerAnimationController.h"
@@ -7,61 +9,68 @@
 
 // hack for now
 #include "Game/Core/Player/GraphControllers/PlayerGraphController_Locomotion.h"
-#include "Game/Core/Player/GraphControllers/PlayerGraphController_Ability.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Player
 {
-    Radians g_maxAngularSpeed = Radians( Degrees( 90 ) ); // radians
-    float   g_dashDistance = 5.0f;                        // meters
-    float   g_dashDuration = 0.15f;                       // seconds
-    float   g_dashCooldown = 0.5f;                        // seconds
+    float   g_dashDistance = 6.0f;                        // meters
+    float   g_dashDuration = 0.20f;                       // seconds
+    float   g_dashCooldown = 0.2f;                        // seconds
+    float   g_dashEnergyCost = 1.0f;                      // energy levels
 
-    bool    g_debugDistance = false;
+    #if KRG_DEVELOPMENT_TOOLS
+    bool    g_debugDashDistance = false;
+    #endif
 
     //-------------------------------------------------------------------------
 
     bool DashAction::TryStartInternal( ActionContext const& ctx )
     {
-        if( ctx.m_pInputState->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
+        // Update cooldown timer
+        if ( m_cooldownTimer.IsRunning() )
         {
-            if( m_isFirstUse || m_timer.GetElapsedTimeSeconds() > g_dashCooldown )
+            m_cooldownTimer.Update( ctx.GetDeltaTime() );
+        }
+
+        bool const isDashAllowed = m_cooldownTimer.IsComplete() && ctx.m_pPlayerComponent->HasEnoughEnergy( g_dashEnergyCost );
+        if( isDashAllowed && ctx.m_pInputState->GetControllerState()->WasPressed( Input::ControllerButton::FaceButtonRight ) )
+        {
+            ctx.m_pPlayerComponent->ConsumeEnergy( g_dashEnergyCost );
+            ctx.m_pCharacterController->DisableGravity();
+
+            auto const pControllerState = ctx.m_pInputState->GetControllerState();
+            KRG_ASSERT( pControllerState != nullptr );
+
+            // Use last frame camera orientation
+            Vector movementInputs = pControllerState->GetLeftAnalogStickValue();
+
+            if ( movementInputs.GetLength2() > 0 )
             {
-                ctx.m_pCharacterController->DisableGravity();
-
-                auto const pControllerState = ctx.m_pInputState->GetControllerState();
-                KRG_ASSERT( pControllerState != nullptr );
-
-                // Use last frame camera orientation
-                Vector movementInputs = pControllerState->GetLeftAnalogStickValue();
-
-                if( movementInputs.GetLength2() > 0 )
-                {
-                    auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
-                    auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
-                    auto const forward = camFwd * movementInputs.m_y;
-                    auto const right = camRight * movementInputs.m_x;
-                    m_dashDirection = ( forward + right ).GetNormalized2();
-                }
-                else
-                {
-                    m_dashDirection = ctx.m_pCharacterComponent->GetForwardVector();
-                }
-                m_initialVelocity = ctx.m_pCharacterComponent->GetCharacterVelocity() * Vector( 1.f, 1.f, 0.f );
-
-                m_debugStartPosition = ctx.m_pCharacterComponent->GetPosition();
-
-                m_isFirstUse = false;
-                m_timer.Start();
-                m_isInSettle = false;
-
-                ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Ability );
-                auto pAbilityAnimController = ctx.GetAnimSubGraphController<AbilityGraphController>();
-                pAbilityAnimController->StartDash();
-
-                return true;
+                auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
+                auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
+                auto const forward = camFwd * movementInputs.m_y;
+                auto const right = camRight * movementInputs.m_x;
+                m_dashDirection = ( forward + right ).GetNormalized2();
             }
+            else
+            {
+                m_dashDirection = ctx.m_pCharacterComponent->GetForwardVector();
+            }
+            m_initialVelocity = ctx.m_pCharacterComponent->GetCharacterVelocity() * Vector( 1.f, 1.f, 0.f );
+
+            m_dashDurationTimer.Start();
+            m_isInSettle = false;
+
+            ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Ability );
+            auto pAbilityAnimController = ctx.GetAnimSubGraphController<AbilityGraphController>();
+            pAbilityAnimController->StartDash();
+
+            #if KRG_DEVELOPMENT_TOOLS
+            m_debugStartPosition = ctx.m_pCharacterComponent->GetPosition();
+            #endif
+
+            return true;
         }
 
         return false;
@@ -86,54 +95,36 @@ namespace KRG::Player
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
         pLocomotionGraphController->SetLocomotionDesires(ctx.GetDeltaTime(), desiredVelocity, ctx.m_pCharacterComponent->GetForwardVector() );
 
-        if( m_timer.GetElapsedTimeSeconds() > g_dashDuration && !m_isInSettle )
+        if( m_dashDurationTimer.Update( ctx.GetDeltaTime() ) > g_dashDuration && !m_isInSettle )
         {
-            m_settleTimer.Start();
+            m_hackSettleTimer.Start();
             m_isInSettle = true;
         }
 
-        if( m_isInSettle  )
+        if( m_isInSettle )
         {
             pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), m_initialVelocity, ctx.m_pCharacterComponent->GetForwardVector() );
 
-            if( m_settleTimer.GetElapsedTimeMilliseconds() > 100.f )
+            if( m_hackSettleTimer.Update( ctx.GetDeltaTime() ) > 0.1f )
             {
                 return Status::Completed;
             }
         }
 
-        auto Debugger = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
-        if( g_debugDistance )
+        #if KRG_DEVELOPMENT_TOOLS
+        auto drawingCtx = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
+        if( g_debugDashDistance )
         {
             Vector const Origin = ctx.m_pCharacterComponent->GetPosition();
-            Debugger.DrawArrow( m_debugStartPosition, m_debugStartPosition + m_dashDirection * g_dashDistance, Colors::HotPink );
+            drawingCtx.DrawArrow( m_debugStartPosition, m_debugStartPosition + m_dashDirection * g_dashDistance, Colors::HotPink );
         }
+        #endif
 
-        return Status::Running;
+        return Status::Uninterruptible;
     }
 
     void DashAction::StopInternal( ActionContext const& ctx, StopReason reason )
     {
-        m_timer.Start();
-    }
-
-    void DashAction::DrawDebugUI()
-    {
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Settings :" );
-        ImGui::Separator();
-        ImGui::InputFloat( "Dash distance", &g_dashDistance, 0.1f );
-        ImGui::InputFloat( "Dash duration", &g_dashDuration, 0.1f );
-        ImGui::InputFloat( "Dash cooldown", &g_dashCooldown, 0.1f );
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug Values :" );
-        ImGui::Separator();
-        ImGui::Text( "Cooldown : %.3f s", Math::Max( 0.0f, g_dashCooldown - m_timer.GetElapsedTimeSeconds() ) );
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug drawings :" );
-        ImGui::Separator();
-        ImGui::Checkbox( "Distance", &g_debugDistance );
+        m_cooldownTimer.Start( g_dashCooldown );
     }
 }

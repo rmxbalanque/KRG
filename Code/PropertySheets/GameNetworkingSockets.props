@@ -14,5 +14,9 @@
       <AdditionalLibraryDirectories>$(GNS_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>GameNetworkingSockets.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories Condition="$(Configuration) == 'Shipping'">$(GNS_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="$(Configuration) == 'Shipping'">GameNetworkingSockets.lib;</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
 </Project>

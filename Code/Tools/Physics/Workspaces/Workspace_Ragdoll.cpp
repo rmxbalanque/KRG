@@ -14,6 +14,33 @@
 #include "Engine/Physics/PhysicsScene.h"
 
 //-------------------------------------------------------------------------
+
+namespace KRG::Physics
+{
+    class [[nodiscard]] ScopedRagdollSettingsModification : public ScopedDescriptorModification
+    {
+    public:
+
+        ScopedRagdollSettingsModification( RagdollWorkspace* pWorkspace )
+            : ScopedDescriptorModification( pWorkspace )
+            , m_pRagdollWorkspace( pWorkspace )
+        {}
+
+        virtual ~ScopedRagdollSettingsModification()
+        {
+            if ( m_pRagdollWorkspace->IsPreviewing() )
+            {
+                m_pRagdollWorkspace->m_refreshRagdollSettings = true;
+            }
+        }
+
+    private:
+
+        RagdollWorkspace*  m_pRagdollWorkspace = nullptr;
+    };
+}
+
+//-------------------------------------------------------------------------
 // Definition Modification Functions
 //-------------------------------------------------------------------------
 
@@ -57,7 +84,7 @@ namespace KRG::Physics
             return;
         }
 
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         KRG_ASSERT( pRagdollDefinition->GetBodyIndexForBoneID( boneID ) == InvalidIndex );
 
@@ -143,7 +170,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::DestroyBody( int32 bodyIdx )
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         KRG_ASSERT( pRagdollDefinition->IsValid() && m_pSkeleton.IsLoaded() );
@@ -172,7 +199,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::DestroyChildBodies( int32 destructionRootBodyIdx )
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         KRG_ASSERT( pRagdollDefinition->IsValid() && m_pSkeleton.IsLoaded() );
@@ -193,7 +220,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::AutogenerateBodiesAndJoints()
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         KRG_ASSERT( pRagdollDefinition->IsValid() && m_pSkeleton.IsLoaded() );
@@ -220,7 +247,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::AutogenerateBodyWeights()
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         RagdollDefinition::Profile* pActiveProfile = pRagdollDefinition->GetProfile( m_activeProfileID );
@@ -245,7 +272,7 @@ namespace KRG::Physics
 
     StringID RagdollWorkspace::CreateProfile()
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         int32 const numBodies = pRagdollDefinition->GetNumBodies();
@@ -268,7 +295,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::DestroyProfile( StringID profileID )
     {
-        ScopedDescriptorModification const sdm( this );
+        ScopedRagdollSettingsModification const sdm( this );
 
         auto pRagdollDefinition = GetRagdollDefinition();
         for ( auto profileIter = pRagdollDefinition->m_profiles.begin(); profileIter != pRagdollDefinition->m_profiles.end(); ++profileIter )
@@ -290,7 +317,7 @@ namespace KRG::Physics
 {
     void DrawTwistLimits( Drawing::DrawContext& ctx, Transform const& jointTransform, Radians limitMin, Radians limitMax, Color color, float lineThickness )
     {
-        //KRG_ASSERT( limitMin < limitMax );
+        KRG_ASSERT( limitMin < limitMax );
 
         Vector const axisOfRotation = jointTransform.GetAxisX();
         Vector const zeroRotationVector = jointTransform.GetAxisY();
@@ -368,12 +395,12 @@ namespace KRG::Physics
 
         auto OnPreEdit = [this] ( PropertyEditInfo const& info ) 
         {
-            PreEdit( info ); 
+            PreEdit( info );
         };
         
         auto OnPostEdit = [this] ( PropertyEditInfo const& info ) 
         {
-            PostEdit( info ); 
+            PostEdit( info );
         };
 
         m_bodyGridPreEditEventBindingID = m_bodyEditorPropertyGrid.OnPreEdit().Bind( OnPreEdit );
@@ -441,9 +468,9 @@ namespace KRG::Physics
         ImGui::DockBuilderDockWindow( m_previewControlsWindowName.c_str(), rightDockID );
     }
 
-    void RagdollWorkspace::OnUndoRedo()
+    void RagdollWorkspace::OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction )
     {
-        TResourceWorkspace<RagdollDefinition>::OnUndoRedo();
+        TResourceWorkspace<RagdollDefinition>::OnUndoRedo( operation, pAction );
         SetActiveProfile( m_activeProfileID );
     }
 
@@ -563,7 +590,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::EndHotReload()
     {
-        if ( !m_definitionLoaded )
+        if ( !m_definitionLoaded && m_pDescriptor != nullptr )
         {
             LoadDefinition();
         }
@@ -658,7 +685,7 @@ namespace KRG::Physics
         if ( IsPreviewing() )
         {
             m_previewGizmoTransform = m_pMeshComponent->GetWorldTransform();
-            if ( m_previewGizmo.Draw( *pViewport ) )
+            if ( m_previewGizmo.Draw( *pViewport ) != ImGuiX::Gizmo::Result::NoResult )
             {
                 m_pMeshComponent->SetWorldTransform( m_previewGizmoTransform );
             }
@@ -772,17 +799,53 @@ namespace KRG::Physics
                         Transform const boneTransform = m_pSkeleton->GetBoneGlobalTransform( boneIdx );
                         Transform const bodyTransform = body.m_offsetTransform * boneTransform;
                         m_gizmoWorkingTransform = bodyTransform;
-                        if ( m_gizmo.Draw( *pViewport ) )
+                 
+                        switch ( m_gizmo.Draw( *pViewport ) )
                         {
-                            body.m_offsetTransform = m_gizmoWorkingTransform * boneTransform.GetInverse();
+                            case ImGuiX::Gizmo::Result::StartedManipulating :
+                            {
+                                BeginModification();
+                                body.m_offsetTransform = m_gizmoWorkingTransform * boneTransform.GetInverse();
+                            }
+                            break;
+
+                            case ImGuiX::Gizmo::Result::Manipulating :
+                            {
+                                body.m_offsetTransform = m_gizmoWorkingTransform * boneTransform.GetInverse();
+                            }
+                            break;
+
+                            case ImGuiX::Gizmo::Result::StoppedManipulating :
+                            {
+                                EndModification();
+                            }
+                            break;
                         }
                     }
                     else
                     {
                         m_gizmoWorkingTransform = body.m_jointTransform;
-                        if ( m_gizmo.Draw( *pViewport ) )
+
+                        switch ( m_gizmo.Draw( *pViewport ) )
                         {
-                            body.m_jointTransform = m_gizmoWorkingTransform;
+                            case ImGuiX::Gizmo::Result::StartedManipulating:
+                            {
+                                BeginModification();
+                                body.m_jointTransform = m_gizmoWorkingTransform;
+                            }
+                            break;
+
+                            case ImGuiX::Gizmo::Result::Manipulating:
+                            {
+                                body.m_jointTransform = m_gizmoWorkingTransform;
+                            }
+                            break;
+
+                            case ImGuiX::Gizmo::Result::StoppedManipulating:
+                            {
+                                EndModification();
+                            }
+                            break;
                         }
                     }
                 }
@@ -798,7 +861,7 @@ namespace KRG::Physics
         }
     }
 
-    void RagdollWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void RagdollWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         // Track ragdoll definition state changes
         //-------------------------------------------------------------------------
@@ -1194,7 +1257,7 @@ namespace KRG::Physics
         ImGui::BeginDisabled( IsPreviewing() );
 
         ImGui::SameLine();
-        if ( ImGuiX::ColoredButton( Colors::RoyalBlue, Colors::White, KRG_ICON_PENCIL"##Rename", ImVec2( renameButtonWidth, 0 ) ) )
+        if ( ImGuiX::ColoredButton( Colors::RoyalBlue, Colors::White, KRG_ICON_EDIT"##Rename", ImVec2( renameButtonWidth, 0 ) ) )
         {
             Printf( m_profileNameBuffer, 256, m_activeProfileID.c_str() );
             m_originalPrenameID = m_activeProfileID;
@@ -1252,7 +1315,7 @@ namespace KRG::Physics
                 {
                     if ( ValidateProfileName( m_profileNameBuffer ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         pProfile->m_ID = StringID( m_profileNameBuffer );
                         SetActiveProfile( pProfile->m_ID );
                         ImGui::CloseCurrentPopup();
@@ -1287,7 +1350,7 @@ namespace KRG::Physics
 
     void RagdollWorkspace::DrawRootBodySettings( UpdateContext const& context, RagdollDefinition::Profile* pProfile )
     {
-        static char const* const rootBodyDriveComboOptions[3] = { "None", "Kinematic", "Spring" };
+        static char const* const rootBodyDriveComboOptions[3] = { "None", "Distance", "Spring" };
 
         KRG_ASSERT( pProfile != nullptr );
         auto pRagdollDefinition = GetRagdollDefinition();
@@ -1336,7 +1399,7 @@ namespace KRG::Physics
             }
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realBodySettings.m_mass = cachedBodySettings.m_mass;
             }
             ImGuiX::ItemTooltip( "The mass of the body" );
@@ -1347,7 +1410,7 @@ namespace KRG::Physics
             ImGui::Checkbox( "##CCD", &cachedBodySettings.m_enableCCD );
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realBodySettings.m_enableCCD = cachedBodySettings.m_enableCCD;
             }
             ImGuiX::ItemTooltip( "Enable continuous collision detection for this body" );
@@ -1358,7 +1421,7 @@ namespace KRG::Physics
             ImGui::Checkbox( "##SC", &cachedBodySettings.m_enableSelfCollision );
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realBodySettings.m_enableSelfCollision = cachedBodySettings.m_enableSelfCollision;
             }
             ImGuiX::ItemTooltip( "Should this body collide with other bodies in the ragdoll" );
@@ -1371,7 +1434,7 @@ namespace KRG::Physics
             int32 dt = (int32) cachedSettings.m_driveType;
             if ( ImGui::Combo( "##DriveMode", &dt, rootBodyDriveComboOptions, 3 ) )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 cachedSettings.m_driveType = (RagdollRootControlBodySettings::DriveType) dt;
                 realSettings.m_driveType = cachedSettings.m_driveType;
 
@@ -1385,6 +1448,8 @@ namespace KRG::Physics
 
             //-------------------------------------------------------------------------
 
+            ImGui::BeginDisabled( realSettings.m_driveType != RagdollRootControlBodySettings::DriveType::Spring );
+
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth( -1 );
             if ( ImGui::InputFloat( "##Stiffness", &cachedSettings.m_stiffness, 0.0f, 0.0f, "%.1f" ) )
@@ -1393,7 +1458,7 @@ namespace KRG::Physics
             }
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realSettings.m_stiffness = cachedSettings.m_stiffness;
             }
             ImGuiX::ItemTooltip( "The stiffness of the spring used to correct the root body once the limit is exceeded" );
@@ -1408,12 +1473,16 @@ namespace KRG::Physics
             }
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realSettings.m_damping = cachedSettings.m_damping;
             }
             ImGuiX::ItemTooltip( "The damping of the spring used to correct the root body once the limit is exceeded" );
 
+            ImGui::EndDisabled();
+
             //-------------------------------------------------------------------------
+
+            ImGui::BeginDisabled( realSettings.m_driveType == RagdollRootControlBodySettings::DriveType::None );
 
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth( -1 );
@@ -1423,7 +1492,7 @@ namespace KRG::Physics
             }
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realSettings.m_maxDistance = cachedSettings.m_maxDistance;
             }
             ImGuiX::ItemTooltip( "The max distance the root body can drift from the control body" );
@@ -1438,10 +1507,12 @@ namespace KRG::Physics
             }
             if ( ImGui::IsItemDeactivatedAfterEdit() )
             {
-                ScopedDescriptorModification const sdm( this );
+                ScopedRagdollSettingsModification const sdm( this );
                 realSettings.m_tolerance = cachedSettings.m_tolerance;
             }
             ImGuiX::ItemTooltip( "The acceptance error tolerance before the position is corrected" );
+
+            ImGui::EndDisabled();
 
             //-------------------------------------------------------------------------
 
@@ -1514,11 +1585,11 @@ namespace KRG::Physics
                 ImGui::SetNextItemWidth( -1 );
                 if ( ImGui::InputFloat( "##Mass", &cachedBodySettings.m_mass, 0.0f, 0.0f, "%.2f" ) )
                 {
-                    cachedBodySettings.m_mass = Math::Clamp( cachedBodySettings.m_mass, 0.0f, 1000000.0f );
+                    cachedBodySettings.m_mass = Math::Clamp( cachedBodySettings.m_mass, 0.01f, 1000000.0f );
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_mass = cachedBodySettings.m_mass;
                 }
                 ImGuiX::ItemTooltip( "The mass of the body" );
@@ -1529,7 +1600,7 @@ namespace KRG::Physics
                 ImGui::Checkbox( "##CCD", &cachedBodySettings.m_enableCCD );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_enableCCD = cachedBodySettings.m_enableCCD;
                 }
                 ImGuiX::ItemTooltip( "Enable continuous collision detection for this body" );
@@ -1540,7 +1611,7 @@ namespace KRG::Physics
                 ImGui::Checkbox( "##SC", &cachedBodySettings.m_enableSelfCollision );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_enableSelfCollision = cachedBodySettings.m_enableSelfCollision;
                 }
                 ImGuiX::ItemTooltip( "Should this body collide with other bodies in the ragdoll" );
@@ -1554,7 +1625,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##IntCompliance", &cachedJointSettings.m_internalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_internalCompliance = cachedJointSettings.m_internalCompliance;
                 }
                 ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by internal forces generated from other joints." );
@@ -1563,7 +1634,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_internalCompliance;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1581,7 +1652,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##ExtCompliance", &cachedJointSettings.m_externalCompliance, Math::HugeEpsilon, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_externalCompliance = cachedJointSettings.m_externalCompliance;
                 }
                 ImGuiX::ItemTooltip( "Compliance determines the extent to which the joint resists acceleration caused by external forces such as gravity and contact forces" );
@@ -1590,7 +1661,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_externalCompliance;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1609,7 +1680,7 @@ namespace KRG::Physics
                 int32 dt = (int32) cachedJointSettings.m_driveType;
                 if( ImGui::Combo( "##DriveMode", &dt, driveComboOptions, 3 ) )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     cachedJointSettings.m_driveType = (RagdollJointSettings::DriveType) dt;
                     realJointSettings.m_driveType = cachedJointSettings.m_driveType;
                 }
@@ -1620,7 +1691,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         RagdollJointSettings::DriveType value = cachedJointSettings.m_driveType;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1641,7 +1712,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_stiffness = cachedJointSettings.m_stiffness;
                 }
                 ImGuiX::ItemTooltip( "The acceleration generated by the spring drive is proportional to this value and the angle between the drive target position and the current position" );
@@ -1650,7 +1721,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_stiffness;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1671,7 +1742,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_damping = cachedJointSettings.m_damping;
                 }
                 ImGuiX::ItemTooltip( "The acceleration generated by the spring drive is proportional to this value and the difference between the angular velocity of the joint and the target drive velocity." );
@@ -1680,7 +1751,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_damping;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1697,7 +1768,7 @@ namespace KRG::Physics
                 ImGui::Checkbox( "##Twist", &cachedJointSettings.m_twistLimitEnabled );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_twistLimitEnabled = cachedJointSettings.m_twistLimitEnabled;
                 }
                 ImGuiX::ItemTooltip( "Enable Twist Limits." );
@@ -1706,7 +1777,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         bool const value = cachedJointSettings.m_twistLimitEnabled;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1725,7 +1796,7 @@ namespace KRG::Physics
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     KRG_ASSERT( cachedJointSettings.m_twistLimitMin < cachedJointSettings.m_twistLimitMax );
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_twistLimitMin = cachedJointSettings.m_twistLimitMin;
                 }
                 ImGuiX::ItemTooltip( "The lower limit value must be less than the upper limit if the limit is enabled." );
@@ -1734,7 +1805,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_twistLimitMin;
                         float const maxTwistContactDistance = ( cachedJointSettings.m_twistLimitMax - value ) / 2;
 
@@ -1764,7 +1835,7 @@ namespace KRG::Physics
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
                     KRG_ASSERT( cachedJointSettings.m_twistLimitMin < cachedJointSettings.m_twistLimitMax );
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_twistLimitMax = cachedJointSettings.m_twistLimitMax;
                 }
                 ImGuiX::ItemTooltip( "The lower limit value must be less than the upper limit if the limit is enabled." );
@@ -1773,7 +1844,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_twistLimitMax;
                         float const maxTwistContactDistance = ( value - cachedJointSettings.m_twistLimitMin ) / 2;
 
@@ -1801,7 +1872,7 @@ namespace KRG::Physics
                 float const maxTwistContactDistance = ( cachedJointSettings.m_twistLimitMax - cachedJointSettings.m_twistLimitMin ) / 2;
                 if ( cachedJointSettings.m_twistLimitContactDistance >= maxTwistContactDistance )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     cachedJointSettings.m_twistLimitContactDistance = maxTwistContactDistance / 2;
                     realJointSettings.m_twistLimitContactDistance = cachedJointSettings.m_twistLimitContactDistance;
                 }
@@ -1811,7 +1882,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##TwistContactDistance", &cachedJointSettings.m_twistLimitContactDistance, 0, maxTwistContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_twistLimitContactDistance = cachedJointSettings.m_twistLimitContactDistance;
                 }
                 ImGuiX::ItemTooltip( "The contact distance should be less than half the distance between the upper and lower limits." );
@@ -1820,7 +1891,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_twistLimitContactDistance;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1838,7 +1909,7 @@ namespace KRG::Physics
                 ImGuiX::ItemTooltip( "Enable Swing Limits." );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_swingLimitEnabled = cachedJointSettings.m_swingLimitEnabled;
                 }
 
@@ -1846,7 +1917,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
 
                         bool const value = cachedJointSettings.m_swingLimitEnabled;
                         for ( int32 i = 0; i < numJoints; i++ )
@@ -1865,7 +1936,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##SwingLimitY", &cachedJointSettings.m_swingLimitY, 1, 179, "%.1f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_swingLimitY = cachedJointSettings.m_swingLimitY;
                 }
                 ImGuiX::ItemTooltip( "Limit the allowed extent of rotation around the y-axis." );
@@ -1874,7 +1945,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
 
                         float const value = cachedJointSettings.m_swingLimitY;
                         float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
@@ -1901,7 +1972,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##SwingLimitZ", &cachedJointSettings.m_swingLimitZ, 1, 179, "%.1f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_swingLimitZ = cachedJointSettings.m_swingLimitZ;
                 }
                 ImGuiX::ItemTooltip( "Limit the allowed extent of rotation around the z-axis." );
@@ -1910,7 +1981,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_swingLimitZ;
                         float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
 
@@ -1935,7 +2006,7 @@ namespace KRG::Physics
                 float const maxSwingContactDistance = Math::Min( cachedJointSettings.m_swingLimitY, cachedJointSettings.m_swingLimitZ );
                 if ( cachedJointSettings.m_swingLimitContactDistance >= maxSwingContactDistance )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     cachedJointSettings.m_swingLimitContactDistance = maxSwingContactDistance - 1.0f;
                     realJointSettings.m_swingLimitContactDistance = cachedJointSettings.m_swingLimitContactDistance;
                 }
@@ -1945,7 +2016,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##SwingContactDistance", &cachedJointSettings.m_swingLimitContactDistance, 0, maxSwingContactDistance - Math::HugeEpsilon, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_swingLimitContactDistance = cachedJointSettings.m_swingLimitContactDistance;
                 }
                 ImGuiX::ItemTooltip( "The contact distance should be less than either limit angle." );
@@ -1954,7 +2025,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_swingLimitContactDistance;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -1975,7 +2046,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_tangentialStiffness = cachedJointSettings.m_tangentialStiffness;
                 }
                 ImGuiX::ItemTooltip( "The tangential stiffness for the swing limit cone." );
@@ -1984,7 +2055,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_tangentialStiffness;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -2005,7 +2076,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realJointSettings.m_tangentialDamping = cachedJointSettings.m_tangentialDamping;
                 }
                 ImGuiX::ItemTooltip( "The tangential damping for the swing limit cone." );
@@ -2014,7 +2085,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = cachedJointSettings.m_tangentialDamping;
                         for ( int32 i = 0; i < numJoints; i++ )
                         {
@@ -2080,7 +2151,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_staticFriction = bodySettings.m_staticFriction;
                 }
                 ImGuiX::ItemTooltip( "The coefficient of static friction." );
@@ -2089,7 +2160,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = bodySettings.m_staticFriction;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
@@ -2110,7 +2181,7 @@ namespace KRG::Physics
                 }
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_dynamicFriction = bodySettings.m_dynamicFriction;
                 }
                 ImGuiX::ItemTooltip( "The coefficient of dynamic friction." );
@@ -2119,7 +2190,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = bodySettings.m_dynamicFriction;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
@@ -2137,7 +2208,7 @@ namespace KRG::Physics
                 ImGui::SliderFloat( "##Restitution", &bodySettings.m_restitution, 0, 1, "%.3f", ImGuiSliderFlags_AlwaysClamp );
                 if ( ImGui::IsItemDeactivatedAfterEdit() )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_restitution = bodySettings.m_restitution;
                 }
                 ImGuiX::ItemTooltip( "A coefficient of 0 makes the object bounce as little as possible, higher values up to 1.0 result in more bounce." );
@@ -2146,7 +2217,7 @@ namespace KRG::Physics
                 {
                     if ( ImGui::MenuItem( "Set To All" ) )
                     {
-                        ScopedDescriptorModification const sdm( this );
+                        ScopedRagdollSettingsModification const sdm( this );
                         float const value = bodySettings.m_restitution;
                         for ( int32 i = 0; i < numBodies; i++ )
                         {
@@ -2164,7 +2235,7 @@ namespace KRG::Physics
                 int32 fc = (int32) bodySettings.m_frictionCombineMode;
                 if( ImGui::Combo( "##FrictionCombine", &fc, comboOptions, 4 ) )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_frictionCombineMode = (PhysicsCombineMode) fc;
                     bodySettings.m_frictionCombineMode = (PhysicsCombineMode) fc;
                 }
@@ -2177,7 +2248,7 @@ namespace KRG::Physics
                 int32 rc = (int32) bodySettings.m_restitutionCombineMode;
                 if( ImGui::Combo( "##RestitutionCombine", &rc, comboOptions, 4 ) )
                 {
-                    ScopedDescriptorModification const sdm( this );
+                    ScopedRagdollSettingsModification const sdm( this );
                     realBodySettings.m_restitutionCombineMode = (PhysicsCombineMode) rc;
                     bodySettings.m_restitutionCombineMode = (PhysicsCombineMode) rc;
                 }
@@ -2218,6 +2289,18 @@ namespace KRG::Physics
             }
 
             //-------------------------------------------------------------------------
+            // General Settings
+            //-------------------------------------------------------------------------
+
+            ImGuiX::TextSeparator( "Start Transform" );
+            ImGuiX::InputTransform( "StartTransform", m_previewStartTransform, -1.0f );
+
+            if ( ImGui::Button( "Reset Start Transform", ImVec2( -1, 0 ) ) )
+            {
+                m_previewStartTransform = Transform::Identity;
+            }
+
+            //-------------------------------------------------------------------------
             // Ragdoll
             //-------------------------------------------------------------------------
 
@@ -2243,6 +2326,7 @@ namespace KRG::Physics
             if ( ImGui::Button( "Reset Ragdoll State", ImVec2( -1, 0 ) ) )
             {
                 m_pRagdoll->ResetState();
+                m_pMeshComponent->SetWorldTransform( Transform::Identity );
                 m_initializeRagdollPose = true;
             }
             ImGui::EndDisabled();
@@ -2310,6 +2394,7 @@ namespace KRG::Physics
             }
 
             ImGui::Checkbox( "Enable Looping", &m_enableAnimationLooping );
+            ImGui::Checkbox( "Apply Root Motion", &m_applyRootMotion );
             ImGui::Checkbox( "Auto Start", &m_autoPlayAnimation );
 
             //-------------------------------------------------------------------------
@@ -2387,6 +2472,8 @@ namespace KRG::Physics
 
         m_pPose = KRG::New<Animation::Pose>( m_pSkeleton.GetPtr() );
         m_pFinalPose = KRG::New<Animation::Pose>( m_pSkeleton.GetPtr() );
+
+        m_pMeshComponent->SetWorldTransform( m_previewStartTransform );
     }
 
     void RagdollWorkspace::StopPreview()
@@ -2419,7 +2506,7 @@ namespace KRG::Physics
         KRG::Delete( m_pFinalPose );
     }
 
-    void RagdollWorkspace::Update( EntityWorldUpdateContext const& updateContext )
+    void RagdollWorkspace::UpdateWorld( EntityWorldUpdateContext const& updateContext )
     {
         if ( !IsPreviewing() )
         {
@@ -2432,11 +2519,10 @@ namespace KRG::Physics
 
         auto drawingCtx = GetDrawingContext();
 
-        Transform const worldTransform = m_pMeshComponent->GetWorldTransform();
-
         if ( updateContext.GetUpdateStage() == UpdateStage::PrePhysics )
         {
             // Update animation time and sample pose
+            Percentage const previousAnimTime = m_animTime;
             bool const hasValidAndLoadedPreviewAnim = m_pPreviewAnimation.IsValid() && m_pPreviewAnimation.IsLoaded();
             if ( hasValidAndLoadedPreviewAnim )
             {
@@ -2449,6 +2535,13 @@ namespace KRG::Physics
                     {
                         m_isPlayingAnimation = false;
                     }
+
+                    if ( !updateContext.IsWorldPaused() && m_applyRootMotion )
+                    {
+                        Transform const& WT = m_pMeshComponent->GetWorldTransform();
+                        Transform const RMD = m_pPreviewAnimation->GetRootMotionDelta( previousAnimTime, m_animTime );
+                        m_pMeshComponent->SetWorldTransform( RMD * WT );
+                    }
                 }
 
                 m_pPreviewAnimation->GetPose( m_animTime, m_pPose );
@@ -2458,6 +2551,10 @@ namespace KRG::Physics
                 m_pPose->Reset( Animation::Pose::InitialState::ReferencePose );
             }
 
+            //-------------------------------------------------------------------------
+
+            Transform const worldTransform = m_pMeshComponent->GetWorldTransform();
+
             // Draw the pose
             if ( m_drawAnimationPose )
             {
@@ -2465,9 +2562,11 @@ namespace KRG::Physics
             }
 
             // Set ragdoll settings
-            m_pRagdoll->SetGravityEnabled( m_enableGravity );
-            m_pRagdoll->SetPoseFollowingEnabled( m_enablePoseFollowing );
-            m_pRagdoll->RefreshSettings();
+            if ( m_refreshRagdollSettings )
+            {
+                m_pRagdoll->RefreshSettings();
+                m_refreshRagdollSettings = false;
+            }
 
             // Update ragdoll
             m_pPose->CalculateGlobalTransforms();
@@ -2483,6 +2582,7 @@ namespace KRG::Physics
             m_pFinalPose->CopyFrom( m_pPose );
 
             // Retrieve the ragdoll pose
+            Transform const worldTransform = m_pMeshComponent->GetWorldTransform();
             bool const killPreview = !m_pRagdoll->GetPose( worldTransform.GetInverse(), m_pPose );
 
             // Apply physics blend weight

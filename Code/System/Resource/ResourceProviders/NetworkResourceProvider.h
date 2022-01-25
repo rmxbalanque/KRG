@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../_Module/API.h"
 #include "ResourceNetworkMessages.h"
 #include "System/Resource/ResourceProvider.h"
 #include "System/Network/IPC/IPCMessageClient.h"
@@ -31,10 +30,12 @@ namespace KRG::Resource
 
         virtual bool Initialize() override final;
         virtual void Shutdown() override final;
-        virtual void UpdateInternal() override final;
+        virtual void Update() override final;
 
-        virtual void RequestResourceInternal( ResourceRequest* pRequest ) override final;
-        virtual void CancelRequestInternal( ResourceRequest* pRequest ) override final;
+        virtual void RequestRawResource( ResourceRequest* pRequest ) override;
+        virtual void CancelRequest( ResourceRequest* pRequest ) override;
+
+        virtual TVector<ResourceID> const& GetExternallyUpdatedResources() const override { return m_externallyUpdatedResources; }
 
     private:
 
@@ -43,6 +44,12 @@ namespace KRG::Resource
         TVector<NetworkResourceResponse>                    m_serverReponses;
         Threading::LockFreeQueue<Network::IPC::Message>     m_messagesToSend;
         bool                                                m_networkFailureDetected = false;
+
+        TVector<ResourceRequest*>                           m_requests;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        TVector<ResourceID>                                 m_externallyUpdatedResources;
+        #endif
     };
 }
 #endif

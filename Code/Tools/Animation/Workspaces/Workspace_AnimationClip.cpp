@@ -109,7 +109,7 @@ namespace KRG::Animation
         m_pPreviewEntity->CreateSystem<AnimationSystem>();
         m_pPreviewEntity->AddComponent( m_pAnimationComponent );
 
-        if ( m_pMeshComponent )
+        if ( m_pMeshComponent != nullptr )
         {
             m_pPreviewEntity->AddComponent( m_pMeshComponent );
         }
@@ -134,8 +134,11 @@ namespace KRG::Animation
 
         if ( IsHotReloading() )
         {
-            m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
-            m_pMeshComponent = nullptr;
+            if ( m_pMeshComponent != nullptr )
+            {
+                m_pPreviewEntity->DestroyComponent( m_pMeshComponent );
+                m_pMeshComponent = nullptr;
+            }
         }
     }
 
@@ -151,7 +154,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void AnimationClipWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void AnimationClipWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( IsResourceLoaded() )
         {
@@ -231,8 +234,8 @@ namespace KRG::Animation
         ImGui::Indent();
 
         ImVec4 const color = ImGuiX::ConvertColor( Colors::Yellow );
-        ImGui::TextColored( color, "Avg Linear Velocity: %.2fm/s", m_pResource->GetAverageLinearVelocity() );
-        ImGui::TextColored( color, "Avg Angular Velocity: %.2fm/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
+        ImGui::TextColored( color, "Avg Linear Velocity: %.2f m/s", m_pResource->GetAverageLinearVelocity() );
+        ImGui::TextColored( color, "Avg Angular Velocity: %.2f r/s", m_pResource->GetAverageAngularVelocity().ToFloat() );
         ImGui::TextColored( color, "Distance Covered: %.2fm", m_pResource->GetTotalRootMotionDelta().GetTranslation().GetLength3() );
 
         if ( m_pEventEditor != nullptr )

@@ -39,6 +39,11 @@ namespace KRG
         // Get date as YY/MM/DD - HH::MM::SS
         String GetDateTime() const;
 
+        inline bool operator<( TimeStamp const& rhs ) const { return m_time < rhs.m_time; }
+        inline bool operator<=( TimeStamp const& rhs ) const { return m_time <= rhs.m_time; }
+        inline bool operator>( TimeStamp const& rhs ) const { return m_time > rhs.m_time; }
+        inline bool operator>=( TimeStamp const& rhs ) const { return m_time >= rhs.m_time; }
+
     private:
 
         time_t  m_time;

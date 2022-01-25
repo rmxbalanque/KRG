@@ -101,23 +101,26 @@ namespace KRG
                 //-------------------------------------------------------------------------
 
                 auto enumTypeID = pContext->GenerateTypeID( fullyQualifiedCursorName );
-                if ( !pContext->IsInEngineNamespace() || pContext->m_pDatabase->IsTypeRegistered( enumTypeID ) )
+                if ( !pContext->IsInEngineNamespace() )
                 {
                     return CXChildVisit_Continue;
                 }
 
                 if ( pContext->ShouldRegisterType( cr ) )
                 {
-                    ReflectedType enumDescriptor( enumTypeID, cursorName );
-                    enumDescriptor.m_headerID = headerID;
-                    enumDescriptor.m_namespace = pContext->GetCurrentNamespace();
-                    enumDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEnum );
-                    enumDescriptor.m_underlyingType = underlyingCoreType;
-                    pContext->m_pCurrentEntry = &enumDescriptor;
+                    if ( pContext->m_detectDevOnlyTypesAndProperties || !pContext->m_pDatabase->IsTypeRegistered( enumTypeID ) )
+                    {
+                        ReflectedType enumDescriptor( enumTypeID, cursorName );
+                        enumDescriptor.m_headerID = headerID;
+                        enumDescriptor.m_namespace = pContext->GetCurrentNamespace();
+                        enumDescriptor.m_flags.SetFlag( ReflectedType::Flags::IsEnum );
+                        enumDescriptor.m_underlyingType = underlyingCoreType;
+                        pContext->m_pCurrentEntry = &enumDescriptor;
 
-                    clang_visitChildren( cr, VisitEnumContents, pContext );
+                        clang_visitChildren( cr, VisitEnumContents, pContext );
 
-                    pContext->m_pDatabase->RegisterType( &enumDescriptor );
+                        pContext->m_pDatabase->RegisterType( &enumDescriptor, pContext->m_detectDevOnlyTypesAndProperties );
+                    }
                 }
 
                 return CXChildVisit_Continue;

@@ -1,0 +1,18 @@
+{
+  "FileVersion": 2,
+  "Id": "d6bdd49c-ef46-4637-844a-4ffdd6a25dc5",
+  "Items": [
+    {
+      "Id": "7cca3416-f17d-4613-8a83-86c7d785e623",
+      "Command": "-map data://maps/Prototype_3Cs_Full.map"
+    },
+    {
+      "Id": "a49018a4-25fb-495f-9d0f-f8b9a787430c",
+      "Command": "-map data://maps/Prototype_3Cs_Minimal.map"
+    },
+    {
+      "Id": "b2f325a1-49f8-4b85-ab51-0c56a859bf7f",
+      "Command": "-map data://maps/Prototype_Combat_Minimal.map"
+    }
+  ]
+}

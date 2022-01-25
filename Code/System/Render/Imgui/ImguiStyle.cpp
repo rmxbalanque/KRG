@@ -19,6 +19,9 @@ namespace KRG::ImGuiX
     ImColor const Style::s_textColor( 255, 255, 255 );
     ImColor const Style::s_textColorDisabled( 130, 130, 130 );
 
+    ImColor const Style::s_selectionAccentAlt( 0xFF32CD32 );
+    ImColor const Style::s_selectionAccent( 0xFF32CD32 );
+
     ImColor const Style::s_gridBackgroundColor( 40, 40, 40, 200 );
     ImColor const Style::s_gridLineColor( 200, 200, 200, 40 );
     ImColor const Style::s_selectionBoxFillColor( 61, 133, 224, 150 );

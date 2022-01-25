@@ -1,14 +1,14 @@
+#if KRG_NAVPOWER
 #include "NavmeshBuilder.h"
 #include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"
 #include "Tools/Core/Resource/RawAssets/RawMesh.h"
-#include "Tools/Entity/EntityToolAccessor.h"
 #include "Engine/Navmesh/NavPower.h"
 #include "Engine/Navmesh/NavmeshData.h"
 #include "Engine/Navmesh/Components/Component_Navmesh.h"
 #include "Engine/Physics/Components/Component_PhysicsMesh.h"
-#include "Engine/Core/Entity/EntityCollection.h"
-#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityAccessor.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include <bfxSystem.h>
@@ -18,9 +18,9 @@
 namespace KRG
 {
     template<>
-    struct TEntityToolAccessor<Physics::PhysicsMeshComponent>
+    struct TEntityAccessor<Physics::PhysicsMeshComponent>
     {
-        TEntityToolAccessor( Physics::PhysicsMeshComponent* pType )
+        TEntityAccessor( Physics::PhysicsMeshComponent* pType )
             : m_pType( pType )
         {}
 
@@ -107,13 +107,13 @@ namespace KRG::Navmesh
 
     bool NavmeshBuilder::CollectCollisionPrimitives( Resource::CompileContext const& ctx, EntityModel::EntityCollectionDescriptor const& entityCollectionDesc, THashMap<ResourcePath, TVector<Transform>>& collisionPrimitives )
     {
-        EntityModel::EntityCollection const collectionInstance( ctx.m_typeRegistry, UUID::GenerateID(), entityCollectionDesc );
+        TVector<Entity*> createdEntities = entityCollectionDesc.InstantiateCollection( nullptr, ctx.m_typeRegistry );
 
         // Update all spatial transforms
         //-------------------------------------------------------------------------
         // We need to do this since we dont update world transforms when loading a collection
 
-        for ( auto pEntity : collectionInstance.GetEntities() )
+        for ( auto pEntity : createdEntities )
         {
             if ( pEntity->IsSpatialEntity() )
             {
@@ -133,18 +133,25 @@ namespace KRG::Navmesh
             int32 const componentIdx = entityCollectionDesc.GetEntityDescriptors()[entityIdx].FindComponentIndex( searchResult.m_pComponent->m_name );
             KRG_ASSERT( componentIdx != InvalidIndex );
 
-            Entity const* pEntity = collectionInstance.GetEntities()[entityIdx];
+            Entity const* pEntity = createdEntities[entityIdx];
             KRG_ASSERT( pEntity != nullptr );
 
             auto pPhysicsComponent = Cast<Physics::PhysicsMeshComponent>( pEntity->GetComponents()[componentIdx] );
             KRG_ASSERT( pPhysicsComponent != nullptr );
 
-            TEntityToolAccessor<Physics::PhysicsMeshComponent> accessor( pPhysicsComponent );
+            TEntityAccessor<Physics::PhysicsMeshComponent> accessor( pPhysicsComponent );
             ResourceID geometryResourceID = accessor.GetMeshResourceID();
             if ( geometryResourceID.IsValid() )
             {
                  collisionPrimitives[geometryResourceID.GetResourcePath()].emplace_back( pPhysicsComponent->GetWorldTransform() );
             }
+        }
+
+        //-------------------------------------------------------------------------
+
+        for ( auto& pEntity : createdEntities )
+        {
+            KRG::Delete( pEntity );
         }
 
         return true;
@@ -328,3 +335,4 @@ namespace KRG::Navmesh
         return true;
     }
 }
+#endif

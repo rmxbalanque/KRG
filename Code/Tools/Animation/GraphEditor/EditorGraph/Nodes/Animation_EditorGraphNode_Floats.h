@@ -81,6 +81,7 @@ namespace KRG::Animation::GraphNodes
 
         KRG_EXPOSE Math::Easing::Type          m_easingType = Math::Easing::Type::Linear;
         KRG_EXPOSE float                       m_easeTime = 1.0f;
+        KRG_EXPOSE float                       m_initialValue = -1.0f;
     };
 
     //-------------------------------------------------------------------------

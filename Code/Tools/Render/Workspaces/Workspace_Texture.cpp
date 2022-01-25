@@ -28,7 +28,7 @@ namespace KRG::Render
         ImGui::DockBuilderDockWindow( m_infoWindowName.c_str(), bottomDockID );
     }
 
-    void TextureWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void TextureWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( m_previewWindowName.c_str() ) )

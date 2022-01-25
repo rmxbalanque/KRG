@@ -155,51 +155,43 @@ namespace KRG::Animation::GraphNodes
         GraphPoseNodeResult result;
         result.m_sampledEventRange = context.m_sampledEvents.GetNumEvents();
 
+        // Events
         //-------------------------------------------------------------------------
 
-        if ( m_shouldPlayInReverse )
-        {
-            KRG_UNIMPLEMENTED_FUNCTION()
-        }
-
-        // Sample root motion and events
-        //-------------------------------------------------------------------------
-
-        TInlineVector<Event const*, 10> sampledAnimationEvents;
-
-        bool hasLooped = m_previousTime > m_currentTime;
-        if ( hasLooped )
-        {
-            KRG_ASSERT( pSettings->m_allowLooping || isSynchronizedUpdate );
-
-            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousTime, 1.0f );
-            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( 0, m_currentTime ) * result.m_rootMotionDelta;
-
-            m_pAnimation->GetEventsForRange( m_previousTime, 1.0f, sampledAnimationEvents );
-            m_pAnimation->GetEventsForRange( 0, m_currentTime, sampledAnimationEvents );
-        }
-        else // Just sample the current range
-        {
-            result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousTime, m_currentTime );
-            m_pAnimation->GetEventsForRange ( m_previousTime, m_currentTime, sampledAnimationEvents );
-        }
-
-        // Record root motion operation
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        context.GetRootMotionActionRecorder()->RecordSampling( GetNodeIndex(), result.m_rootMotionDelta );
-        #endif
-
-        // Post-process sampled events
-        //-------------------------------------------------------------------------
-
-        Seconds const currentAnimTimeSeconds = m_currentTime * m_pAnimation->GetDuration();
         bool const isFromInactiveBranch = ( context.m_branchState == BranchState::Inactive );
 
+        Percentage actualAnimationSampleStartTime = m_previousTime;
+        Percentage actualAnimationSampleEndTime = m_currentTime;
+
+        // Invert times and swap the start and end times to create the correct sampling range for events
+        TInlineVector<Event const*, 10> sampledAnimationEvents;
+        if ( m_shouldPlayInReverse )
+        {
+            actualAnimationSampleEndTime = 1.0f - m_currentTime;
+            actualAnimationSampleStartTime = 1.0f - m_previousTime;
+            m_pAnimation->GetEventsForRange( actualAnimationSampleEndTime, actualAnimationSampleStartTime, sampledAnimationEvents );
+        }
+        else
+        {
+            m_pAnimation->GetEventsForRange( actualAnimationSampleStartTime, actualAnimationSampleEndTime, sampledAnimationEvents );
+        }
+
+        // Post-process sampled events
         for ( auto pEvent : sampledAnimationEvents )
         {
-            Percentage const percentageThroughEvent = pEvent->GetTimeRange().GetPercentageThrough( currentAnimTimeSeconds );
+            Percentage percentageThroughEvent = 1.0f;
+
+            if ( pEvent->IsDurationEvent() )
+            {
+                Seconds const currentAnimTimeSeconds = actualAnimationSampleEndTime * m_pAnimation->GetDuration();
+                percentageThroughEvent = pEvent->GetTimeRange().GetPercentageThrough( currentAnimTimeSeconds );
+
+                if ( m_shouldPlayInReverse )
+                {
+                    percentageThroughEvent = 1.0f - percentageThroughEvent;
+                }
+            }
+
             auto& createdEvent = context.m_sampledEvents.EmplaceAnimEvent( GetNodeIndex(), pEvent, percentageThroughEvent );
 
             if ( isFromInactiveBranch )
@@ -209,6 +201,35 @@ namespace KRG::Animation::GraphNodes
         }
 
         result.m_sampledEventRange.m_endIdx = context.m_sampledEvents.GetNumEvents();
+
+        // Root Motion
+        //-------------------------------------------------------------------------
+
+        if ( m_shouldSampleRootMotion )
+        {
+            // The root motion calculation is done manually here since we dont want to pollute the base function with a rare special case
+            if ( m_shouldPlayInReverse )
+            {
+                if ( m_previousTime <= m_currentTime )
+                {
+                    result.m_rootMotionDelta = m_pAnimation->GetRootMotionDeltaNoLooping( actualAnimationSampleStartTime, actualAnimationSampleEndTime );
+                }
+                else
+                {
+                    Transform const preLoopDelta = m_pAnimation->GetRootMotionDeltaNoLooping( actualAnimationSampleStartTime, 0.0f );
+                    Transform const postLoopDelta = m_pAnimation->GetRootMotionDeltaNoLooping( 1.0f, actualAnimationSampleEndTime );
+                    result.m_rootMotionDelta = postLoopDelta * preLoopDelta;
+                }
+            }
+            else //[[likely]] - enable with C++ 20
+            {
+                result.m_rootMotionDelta = m_pAnimation->GetRootMotionDelta( m_previousTime, m_currentTime );
+            }
+
+            #if KRG_DEVELOPMENT_TOOLS
+            context.GetRootMotionActionRecorder()->RecordSampling( GetNodeIndex(), result.m_rootMotionDelta );
+            #endif
+        }
 
         // Register pose tasks
         //-------------------------------------------------------------------------

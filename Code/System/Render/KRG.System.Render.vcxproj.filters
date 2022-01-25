@@ -42,9 +42,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fonts\FontData_FontAwesome4.cpp">
-      <Filter>Fonts</Filter>
-    </ClCompile>
     <ClCompile Include="Fonts\FontData_Proggy.cpp">
       <Filter>Fonts</Filter>
     </ClCompile>
@@ -93,14 +90,16 @@
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
       <Filter>ThirdParty\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp">
-      <Filter>ThirdParty\imgui\misc\freetype</Filter>
-    </ClCompile>
+    <ClCompile Include="RenderDefaultResources.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RenderSettings.cpp" />
+    <ClCompile Include="RenderShader.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="RenderVertexFormats.cpp" />
+    <ClCompile Include="RenderViewport.cpp" />
+    <ClCompile Include="Fonts\FontData_FontAwesome5.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Fonts\FontData_FontAwesome4.h">
-      <Filter>Fonts</Filter>
-    </ClInclude>
     <ClInclude Include="Fonts\FontData_Proggy.h">
       <Filter>Fonts</Filter>
     </ClInclude>
@@ -152,12 +151,23 @@
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h">
       <Filter>ThirdParty\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h">
-      <Filter>ThirdParty\imgui\misc\freetype</Filter>
-    </ClInclude>
     <ClInclude Include="_Module\API.h">
       <Filter>_Module</Filter>
     </ClInclude>
+    <ClInclude Include="RenderAPI.h" />
+    <ClInclude Include="RenderWindow.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RenderSettings.h" />
+    <ClInclude Include="RenderDefaultResources.h" />
+    <ClInclude Include="RenderDevice.h" />
+    <ClInclude Include="RenderBuffer.h" />
+    <ClInclude Include="RenderPipelineState.h" />
+    <ClInclude Include="RenderShader.h" />
+    <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="RenderVertexFormats.h" />
+    <ClInclude Include="RenderViewport.h" />
+    <ClInclude Include="Fonts\FontData_FontAwesome5.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ThirdParty\imgui\LICENSE.txt">

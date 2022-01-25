@@ -42,14 +42,20 @@ namespace KRG::Animation
                     m_index = pController->m_pGraphComponent->GetControlParameterIndex( m_ID );
                     if ( m_index == InvalidIndex )
                     {
+                        #if KRG_DEVELOPMENT_TOOLS
                         KRG_LOG_WARNING( "Animation", "Failed to bind to control parameter (%s): parameter not found. Controller (%s) and graph (%s)", m_ID.c_str(), pController->GetName(), pController->m_pGraphComponent->GetGraphVariationID().c_str() );
+                        #endif
+
                         return false;
                     }
 
                     // Validate parameter type
                     if ( pController->m_pGraphComponent->GetControlParameterValueType( m_index ) != ValueTypeValidation<ParameterType>::Type )
                     {
+                        #if KRG_DEVELOPMENT_TOOLS
                         KRG_LOG_WARNING( "Animation", "Failed to bind to control parameter (%s): type mismatch. Controller (%s) and graph (%s)", m_ID.c_str(), pController->GetName(), pController->m_pGraphComponent->GetGraphVariationID().c_str() );
+                        #endif
+
                         m_index = InvalidIndex;
                         return false;
                     }
@@ -66,7 +72,9 @@ namespace KRG::Animation
                     }
                     else
                     {
+                        #if KRG_DEVELOPMENT_TOOLS
                         KRG_LOG_WARNING( "Animation", "Trying to unbound control parameter %s in controller %s", m_ID.c_str(), pController->GetName() );
+                        #endif
                     }
                 }
 

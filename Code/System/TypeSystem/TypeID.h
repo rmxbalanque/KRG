@@ -6,34 +6,31 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::TypeSystem
 {
-    namespace TypeSystem
+    class KRG_SYSTEM_TYPESYSTEM_API TypeID
     {
-        class KRG_SYSTEM_TYPESYSTEM_API TypeID
-        {
-            KRG_SERIALIZE_MEMBERS( KRG_NVP( m_ID ) );
+        KRG_SERIALIZE_MEMBERS( KRG_NVP( m_ID ) );
 
-        public:
+    public:
 
-            TypeID() {}
-            TypeID( String const& type ) : m_ID( type ) {}
-            TypeID( char const* pType ) : m_ID( pType ) {}
-            TypeID( StringID ID ) : m_ID( ID ) {}
-            TypeID( uint32 ID ) : m_ID( ID ) {}
+        TypeID() {}
+        TypeID( String const& type ) : m_ID( type ) {}
+        TypeID( char const* pType ) : m_ID( pType ) {}
+        TypeID( StringID ID ) : m_ID( ID ) {}
+        TypeID( uint32 ID ) : m_ID( ID ) {}
 
-            KRG_FORCE_INLINE bool IsValid() const { return m_ID.IsValid(); }
+        KRG_FORCE_INLINE bool IsValid() const { return m_ID.IsValid(); }
 
-            KRG_FORCE_INLINE operator uint32() const { return m_ID.GetID(); }
-            KRG_FORCE_INLINE uint32 GetID() const { return m_ID.GetID(); }
-            KRG_FORCE_INLINE StringID ToStringID() const { return m_ID; }
-            KRG_FORCE_INLINE char const* c_str() const { return m_ID.c_str(); }
+        KRG_FORCE_INLINE operator uint32() const { return m_ID.GetID(); }
+        KRG_FORCE_INLINE uint32 GetID() const { return m_ID.GetID(); }
+        KRG_FORCE_INLINE StringID ToStringID() const { return m_ID; }
+        KRG_FORCE_INLINE char const* c_str() const { return m_ID.c_str(); }
 
-        private:
+    private:
 
-            StringID m_ID;
-        };
-    }
+        StringID m_ID;
+    };
 }
 
 //-------------------------------------------------------------------------

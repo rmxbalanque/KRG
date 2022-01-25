@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
     <None Include="Reflect.nmake" />
@@ -36,6 +40,11 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -44,6 +53,10 @@
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
@@ -59,6 +72,12 @@
     <NMakeBuildCommandLine>nmake -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeBuildCommandLine>
     <NMakeOutput>
     </NMakeOutput>
+    <NMakeCleanCommandLine>nmake clean -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
+    <NMakeBuildCommandLine>nmake -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeBuildCommandLine>
+    <NMakeOutput />
     <NMakeCleanCommandLine>nmake clean -f Reflect.nmake PLATFORM=$(Platform) CONFIG=$(Configuration) KRG_ROOT_DIR="$(KRG_ROOT_DIR)\" KRG_BUILD_DIR="$(KRG_BUILD_DIR)\" OUT_DIR="$(OutDir)\"</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions>WIN32;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>

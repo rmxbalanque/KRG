@@ -10,48 +10,54 @@ namespace KRG
     //-------------------------------------------------------------------------
     // Timers
     //-------------------------------------------------------------------------
+    // Use 'PlatformClock' for the actual platform/OS time
+    // Use 'EngineClock' for the engine time (accumulated delta times). This takes into account debugging pauses, etc...
+    // There are also a set of manual timers provided to allow for gameplay needs where things like time dilation or manual update of timers is needed
 
-    // The system timer uses the system clock for all timing (i.e. the actual platform/OS time)
-    class SystemTimer
+    // Basic timer
+    template<typename Clock>
+    class Timer
     {
     public:
 
-        SystemTimer() { Start(); }
+        Timer() = default;
 
-        inline void Start() { m_startTime = SystemClock::GetTime(); }
+        inline void Start() { m_startTime = Clock::GetTime(); }
         inline void Reset() { Start(); }
 
-        inline Nanoseconds GetElapsedTimeNanoseconds() const { return SystemClock::GetTime() - m_startTime; }
+        inline Nanoseconds GetElapsedTimeNanoseconds() const { return Clock::GetTime() - m_startTime; }
         inline Seconds GetElapsedTimeSeconds() const { return GetElapsedTimeNanoseconds().ToSeconds(); }
         inline Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeNanoseconds().ToMilliseconds(); }
         inline Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeNanoseconds().ToMicroseconds(); }
 
     private:
 
-        Nanoseconds m_startTime;
+        Nanoseconds m_startTime = Clock::GetTime();
     };
 
     //-------------------------------------------------------------------------
 
-    // The system cool down timer uses the system clock for all timing (i.e. the actual platform/OS time)
-    class SystemCooldownTimer
+    // Countdown Timer
+    template<typename Clock>
+    class CountdownTimer
     {
     public:
 
-        SystemCooldownTimer() {}
+        CountdownTimer() = default;
 
         inline void Start( Seconds cooldownTime )
         {
-            m_startTime = SystemClock::GetTime();
-            m_requiredTime = cooldownTime;
+            m_startTime = Clock::GetTime();
+            m_countdownTime = cooldownTime;
             m_isRunning = true;
         }
 
+         // Update the timer. Returns true when the countdown is complete
         inline bool Update()
         {
             KRG_ASSERT( m_isRunning );
 
-            if ( GetElapsedTimeSeconds() > m_requiredTime )
+            if ( GetElapsedTimeSeconds() > m_countdownTime )
             {
                 m_isRunning = false;
                 return true;
@@ -62,7 +68,7 @@ namespace KRG
 
         inline void Stop()
         {
-            m_requiredTime = 0.0f;
+            m_countdownTime = 0.0f;
             m_isRunning = false;
         }
 
@@ -72,69 +78,103 @@ namespace KRG
         inline Seconds GetRemainingTime() const
         {
             KRG_ASSERT( m_isRunning );
-            return Math::Max( 0.0f, (float) ( m_requiredTime - GetElapsedTimeSeconds() ) );
+            return Math::Max( 0.0f, (float) ( m_countdownTime - GetElapsedTimeSeconds() ) );
         }
 
         inline Percentage GetPercentageThrough() const
         {
-            return Percentage( GetElapsedTimeSeconds() / m_requiredTime ).GetClamped( false );
+            return Percentage( GetElapsedTimeSeconds() / m_countdownTime ).GetClamped( false );
         }
 
     private:
 
-        inline Seconds GetElapsedTimeSeconds() const { return ( SystemClock::GetTime() - m_startTime ).ToSeconds(); }
+        inline Seconds GetElapsedTimeSeconds() const { return ( Clock::GetTime() - m_startTime ).ToSeconds(); }
 
     private:
 
-        Nanoseconds     m_startTime;
-        Seconds         m_requiredTime;
+        Nanoseconds     m_startTime = 0;
+        Seconds         m_countdownTime = 0.0f;
         bool            m_isRunning = false;
     };
 
-
     //-------------------------------------------------------------------------
 
-    // The engine timer uses the manually updated engine time (i.e. the accumulated delta time)
-    class EngineTimer
+    template<typename Clock>
+    class ScopedTimer
     {
+
     public:
 
-        EngineTimer() { Start(); }
-
-        inline void Start() { m_startTime = EngineClock::GetTime(); }
-        inline void Reset() { Start(); }
-
-        inline Nanoseconds GetElapsedTimeNanoseconds() const { return EngineClock::GetTime() - m_startTime; }
-        inline Seconds GetElapsedTimeSeconds() const { return GetElapsedTimeNanoseconds().ToSeconds(); }
-        inline Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeNanoseconds().ToMilliseconds(); }
-        inline Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeNanoseconds().ToMicroseconds(); }
+        ScopedTimer( Milliseconds& result ) : m_result( result ) {};
+        ~ScopedTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
 
     private:
 
-        Nanoseconds m_startTime;
+        ScopedTimer() = delete;
+        void operator=( ScopedTimer const& ) = delete;
+
+    private:
+
+        Timer<Clock>        m_timer;
+        Milliseconds&       m_result;
+    };
+
+    //-------------------------------------------------------------------------
+    // Manual Timers
+    //-------------------------------------------------------------------------
+    // These are timers that are manually updated, primarily needed for gameplay reasons
+
+    // Basic timer
+    class ManualTimer
+    {
+    public:
+
+        ManualTimer() { Start(); }
+
+        inline void Start() { m_elapsedTime = 0.0f; }
+        inline void Reset() { Start(); }
+
+        // Call this function to update the elapsed time since the timer was started, returns the total elapsed time
+        inline Seconds Update( Seconds deltaTime ) 
+        {
+            m_elapsedTime += deltaTime;
+            return m_elapsedTime; 
+        }
+
+        KRG_FORCE_INLINE Nanoseconds GetElapsedTimeNanoseconds() const { return m_elapsedTime.ToNanoseconds(); }
+        KRG_FORCE_INLINE Seconds GetElapsedTimeSeconds() const { return m_elapsedTime; }
+        KRG_FORCE_INLINE Milliseconds GetElapsedTimeMilliseconds() const { return m_elapsedTime.ToMilliseconds(); }
+        KRG_FORCE_INLINE Microseconds GetElapsedTimeMicroseconds() const { return m_elapsedTime.ToMicroseconds(); }
+
+    private:
+
+        Seconds m_elapsedTime = 0.0f;
     };
 
     //-------------------------------------------------------------------------
 
-    // The engine cool down timer uses the manually updated engine time (i.e. the accumulated delta time)
-    class EngineCooldownTimer
+    // A cooldown timer i.e. counts down from a specified time
+    class ManualCountdownTimer
     {
     public:
 
-        EngineCooldownTimer() {}
+        ManualCountdownTimer() {}
 
         inline void Start( Seconds cooldownTime )
         {
-            m_startTime = EngineClock::GetTime();
-            m_requiredTime = cooldownTime;
+            m_cooldownTime = cooldownTime;
+            m_remainingTime = cooldownTime;
             m_isRunning = true;
         }
 
-        inline bool Update()
+        // Update the timer. Returns true when the countdown is complete
+        inline bool Update( Seconds deltaTime )
         {
             KRG_ASSERT( m_isRunning );
 
-            if ( GetElapsedTimeSeconds() > m_requiredTime )
+            m_remainingTime -= deltaTime;
+            m_remainingTime = Math::Max( 0.0f, (float) m_remainingTime );
+            if ( m_remainingTime == 0.0f )
             {
                 m_isRunning = false;
                 return true;
@@ -145,7 +185,7 @@ namespace KRG
 
         inline void Stop()
         {
-            m_requiredTime = 0.0f;
+            m_remainingTime = 0.0f;
             m_isRunning = false;
         }
 
@@ -155,66 +195,22 @@ namespace KRG
         inline Seconds GetRemainingTime() const
         {
             KRG_ASSERT( m_isRunning );
-            return Math::Max( 0.0f, (float) ( m_requiredTime - GetElapsedTimeSeconds() ) );
+            return m_remainingTime;
         }
 
         inline Percentage GetPercentageThrough() const
         {
-            return Percentage( GetElapsedTimeSeconds() / m_requiredTime ).GetClamped( false );
+            return Percentage( GetElapsedTimeSeconds() / m_cooldownTime ).GetClamped( false );
         }
 
+        KRG_FORCE_INLINE Seconds GetElapsedTimeSeconds() const { return m_cooldownTime - m_remainingTime; }
+        KRG_FORCE_INLINE Milliseconds GetElapsedTimeMilliseconds() const { return GetElapsedTimeSeconds().ToMilliseconds(); }
+        KRG_FORCE_INLINE Microseconds GetElapsedTimeMicroseconds() const { return GetElapsedTimeSeconds().ToMicroseconds(); }
+
     private:
 
-        inline Seconds GetElapsedTimeSeconds() const { return ( EngineClock::GetTime() - m_startTime ).ToSeconds(); }
-
-    private:
-
-        Nanoseconds     m_startTime;
-        Seconds         m_requiredTime;
+        Seconds         m_remainingTime = 0.0f;
+        Seconds         m_cooldownTime = 0.0f;
         bool            m_isRunning = false;
-    };
-
-    //-------------------------------------------------------------------------
-    // Scoped Timers
-    //-------------------------------------------------------------------------
-
-    class ScopedSystemTimer
-    {
-
-    public:
-
-        ScopedSystemTimer( Milliseconds& result ) : m_result( result ) {};
-        ~ScopedSystemTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
-
-    private:
-
-        ScopedSystemTimer() = delete;
-        void operator=( ScopedSystemTimer const& ) = delete;
-
-    private:
-
-        SystemTimer         m_timer;
-        Milliseconds&       m_result;
-    };
-
-    //-------------------------------------------------------------------------
-
-    class ScopedEngineTimer
-    {
-
-    public:
-
-        ScopedEngineTimer( Milliseconds& result ) : m_result( result ) {};
-        ~ScopedEngineTimer() { m_result = m_timer.GetElapsedTimeMilliseconds(); }
-
-    private:
-
-        ScopedEngineTimer() = delete;
-        void operator=( ScopedEngineTimer const& ) = delete;
-
-    private:
-
-        EngineTimer         m_timer;
-        Milliseconds&       m_result;
     };
 }

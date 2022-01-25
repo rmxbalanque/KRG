@@ -11,21 +11,21 @@
 
 namespace KRG::Player
 {
-    static Radians  g_maxAngularSpeed = Radians( Degrees( 90 ) ); // radians/second
     static float    g_maxSprintSpeed = 7.5f;                      // meters/second
     static float    g_maxRunSpeed = 5.0f;                         // meters/second
-    static Seconds  g_timeToTriggerSprint = 2.25f;                // seconds
+    static float    g_maxCrouchSpeed = 3.0f;                      // meters/second
+    static Seconds  g_timeToTriggerSprint = 1.5f;                 // seconds
+    static Seconds  g_timeToTriggerCrouch = 0.5f;                 // seconds
     static float    g_sprintStickAmplitude = 0.8f;                // [0,1]
-
-    static bool     g_debugVelocity = false;
 
     //-------------------------------------------------------------------------
 
     bool LocomotionAction::TryStartInternal( ActionContext const& ctx )
     {
         ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Locomotion );
-        ctx.m_pCharacterController->EnableGravity( 0.0f /* it is assumed we are on the floor */ );
+        ctx.m_pCharacterController->EnableGravity( ctx.m_pCharacterComponent->GetCharacterVelocity().m_z );
         ctx.m_pCharacterController->EnableProjectionOntoFloor();
+        ctx.m_pCharacterController->EnableStepHeight();
 
         if ( ctx.m_pCharacterComponent->GetCharacterVelocity().GetLength2() > g_maxRunSpeed )
         {
@@ -48,39 +48,59 @@ namespace KRG::Player
         auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
         auto const& camRight = ctx.m_pCameraController->GetCameraRelativeRightVector2D();
 
-        // Check for sprint
-        float const currentLinearSpeed = ctx.m_pCharacterComponent->GetCharacterVelocity().GetLength3();
-        if( stickAmplitude > g_sprintStickAmplitude ) // TODO : Run prediction for collision
+        // Check for crouch
+        if( ctx.m_pInputState->GetControllerState()->IsHeldDown( Input::ControllerButton::ThumbstickLeft ) )
         {
-            if ( !ctx.m_pPlayerComponent->m_sprintFlag )
+            if( !m_crouchTimer.IsRunning() )
             {
-                if( !m_timer.IsRunning() )
-                {
-                    m_timer.Start( g_timeToTriggerSprint );
-                }
-
-                if ( m_timer.Update() )
-                {
-                    ctx.m_pPlayerComponent->m_sprintFlag = true;
-                }
+                m_crouchTimer.Start( g_timeToTriggerCrouch );
+            }
+            if( !m_crouchToggled && m_crouchTimer.Update( ctx.GetDeltaTime() ) )
+            {
+                ctx.m_pPlayerComponent->m_CrouchFlag = !ctx.m_pPlayerComponent->m_CrouchFlag;
+                m_crouchToggled = true;
             }
         }
         else
         {
-            m_timer.Stop();
-            ctx.m_pPlayerComponent->m_sprintFlag = false;
+            m_crouchToggled = false;
+            m_crouchTimer.Stop();
         }
 
-        float const Speed = ctx.m_pPlayerComponent->m_sprintFlag ? g_maxSprintSpeed : g_maxRunSpeed;
+        if( !ctx.m_pPlayerComponent->m_CrouchFlag )
+        {
+            // Check for sprint
+            float const currentLinearSpeed = ctx.m_pCharacterComponent->GetCharacterVelocity().GetLength3();
+            if( stickAmplitude > g_sprintStickAmplitude ) // TODO : Run prediction for collision
+            {
+                if ( !ctx.m_pPlayerComponent->m_sprintFlag )
+                {
+                    if( !m_sprintTimer.IsRunning() )
+                    {
+                        m_sprintTimer.Start( g_timeToTriggerSprint );
+                    }
+
+                    if ( m_sprintTimer.Update( ctx.GetDeltaTime() ) )
+                    {
+                        ctx.m_pPlayerComponent->m_sprintFlag = true;
+                    }
+                }
+            }
+            else
+            {
+                m_sprintTimer.Stop();
+                ctx.m_pPlayerComponent->m_sprintFlag = false;
+            }
+        }
+
+        float const Speed = ctx.m_pPlayerComponent->m_sprintFlag ? g_maxSprintSpeed : ctx.m_pPlayerComponent->m_CrouchFlag ? g_maxCrouchSpeed : g_maxRunSpeed;
 
         // Use last frame camera orientation
         Vector const forward = camFwd * movementInputs.m_y;
         Vector const right = camRight * movementInputs.m_x;
         Vector const desiredHeadingVelocity2D = ( forward + right ) * Speed;
         Vector const ResultingVelocity = desiredHeadingVelocity2D;
-        Vector const Facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
-
-        m_debugSpeed = desiredHeadingVelocity2D.GetLength3();
+        Vector Facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -89,49 +109,33 @@ namespace KRG::Player
         // Update animation controller
         //-------------------------------------------------------------------------
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
-        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), ResultingVelocity, Facing );
 
-        // Debug
-        //-------------------------------------------------------------------------
-        auto Debugger = ctx.m_pEntityWorldUpdateContext->GetDrawingContext();
-        if( g_debugVelocity && !ResultingVelocity.GetNormalized3().IsZero3() )
+        if( ctx.m_pCharacterController->GetFloorType() != CharacterPhysicsController::FloorType::Navigable &&
+            ctx.m_pCharacterComponent->GetCharacterVelocity().m_z < -Math::Epsilon )
         {
-            Vector const Origin = ctx.m_pCharacterComponent->GetPosition();
-            Debugger.DrawArrow( Origin, Origin + ResultingVelocity.GetNormalized3(), Colors::AliceBlue );
+            m_slideTimer.Update( ctx.GetDeltaTime() );
+            if( m_slideTimer.GetElapsedTimeSeconds() > 0.35f )
+            {
+                pLocomotionGraphController->SetSliding( true );
+                Facing = ctx.m_pCharacterComponent->GetCharacterVelocity().GetNormalized2();
+            }
+        }
+        else
+        {
+            m_slideTimer.Reset();
+            pLocomotionGraphController->SetSliding( false );
         }
 
-        return Status::Running;
+        pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), ResultingVelocity, Facing );
+        pLocomotionGraphController->SetCrouch( ctx.m_pPlayerComponent->m_CrouchFlag );
+
+        return Status::Interruptible;
     }
 
     void LocomotionAction::StopInternal( ActionContext const& ctx, StopReason reason )
     {
-        m_debugSpeed = 0.0f;
         ctx.m_pPlayerComponent->m_sprintFlag = false;
-        m_timer.Stop();
-    }
-
-    void LocomotionAction::DrawDebugUI()
-    {
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Settings :" );
-        ImGui::Separator();
-        ImGui::InputFloat( "Max run speed (m/s)", &g_maxRunSpeed, 0.1f );
-        ImGui::InputFloat( "Max sprint speed (m/s)", &g_maxSprintSpeed, 0.1f );
-
-        float sprintTriggerTime = g_timeToTriggerSprint.ToFloat();
-        if ( ImGui::InputFloat( "Time to trigger sprint (s)", &sprintTriggerTime, 0.1f ) )
-        {
-            g_timeToTriggerSprint = sprintTriggerTime;
-        }
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug Values :" );
-        ImGui::Separator();
-        ImGui::Text( "Speed : %.3f m/s", m_debugSpeed );
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug drawings :" );
-        ImGui::Separator();
-        ImGui::Checkbox( "Velocity", &g_debugVelocity );
+        ctx.m_pPlayerComponent->m_CrouchFlag = false;
+        m_sprintTimer.Stop();
     }
 }

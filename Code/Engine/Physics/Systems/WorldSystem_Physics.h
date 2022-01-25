@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Engine/Physics/_Module/API.h"
-#include "Engine/Physics/PhysicsQuery.h"
 #include "Engine/Physics/PhysX.h"
 #include "Engine/Core/Entity/EntityWorldSystem.h"
 #include "Engine/Core/Update/UpdateContext.h"
 #include "System/Core/Systems/ISystem.h"
 #include "System/Core/Types/IDVector.h"
 #include "System/Core/Types/ScopedValue.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -63,6 +63,7 @@ namespace KRG::Physics
         void SetDebugFlags( uint32 debugFlags );
 
         inline bool IsDebugDrawingEnabled() const;
+        void SetDebugDrawingEnabled( bool enableDrawing );
         inline float GetDebugDrawDistance() const { return m_debugDrawDistance; }
         inline void SetDebugDrawDistance( float drawDistance ) { m_debugDrawDistance = Math::Max( drawDistance, 0.0f ); }
 
@@ -80,10 +81,16 @@ namespace KRG::Physics
         virtual void UnregisterComponent( Entity const* pEntity, EntityComponent* pComponent ) override final;
         virtual void UpdateSystem( EntityWorldUpdateContext const& ctx ) override final;
 
+        bool CreateActorAndShape( PhysicsShapeComponent* pComponent ) const;
         physx::PxRigidActor* CreateActor( PhysicsShapeComponent* pComponent ) const;
         physx::PxShape* CreateShape( PhysicsShapeComponent* pComponent, physx::PxRigidActor* pActor ) const;
+        void DestroyActor( PhysicsShapeComponent* pComponent ) const;
 
         bool CreateCharacterActorAndShape( CharacterComponent* pComponent ) const;
+        void DestroyCharacterActor( CharacterComponent* pComponent ) const;
+
+        void UpdateStaticActorAndShape( PhysicsShapeComponent* pComponent ) const;
+        void OnStaticShapeTransformUpdated( PhysicsShapeComponent* pComponent );
 
     private:
 
@@ -93,6 +100,9 @@ namespace KRG::Physics
         TIDVector<ComponentID, CharacterComponent*>             m_characterComponents;
         TIDVector<ComponentID, PhysicsShapeComponent*>          m_physicsShapeComponents;
         TIDVector<ComponentID, PhysicsShapeComponent*>          m_dynamicShapeComponents; // TODO: profile and see if we need to use a dynamic pool
+
+        EventBindingID                                          m_shapeTransformChangedBindingID;
+        TVector<PhysicsShapeComponent*>                         m_staticActorShapeUpdateList;
 
         #if KRG_DEVELOPMENT_TOOLS
         bool                                                    m_drawDynamicActorBounds = false;

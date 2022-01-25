@@ -2,19 +2,19 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
+    <NAVPOWER_ENABLED>False</NAVPOWER_ENABLED>
     <NAVPOWER_DIR>$(SolutionDir)External\Navpower\</NAVPOWER_DIR>
-    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Debug'">$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_LIB_DIR>
-    <NAVPOWER_LIB_DIR Condition="$(Configuration) == 'Release'">$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_LIB_DIR>
+    <NAVPOWER_LIB_DIR>$(NAVPOWER_DIR)lib\x64_vs2019\ReleaseMD\</NAVPOWER_LIB_DIR>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>BFXDLL_IMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="$(NAVPOWER_ENABLED) == 'True'">$(NAVPOWER_DIR)include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="$(NAVPOWER_ENABLED) == 'True'">KRG_NAVPOWER;BFXDLL_IMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(NAVPOWER_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AllNavPowerDll_CMT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories Condition="$(NAVPOWER_ENABLED) == 'True'">$(NAVPOWER_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies Condition="$(NAVPOWER_ENABLED) == 'True'">AllNavPowerDll_CMT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 </Project>

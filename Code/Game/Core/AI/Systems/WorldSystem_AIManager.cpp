@@ -4,8 +4,8 @@
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
-#include "Engine/Core/Entity/EntityCollection.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Threading/TaskSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -60,14 +60,14 @@ namespace KRG::AI
         }
 
         auto pTypeRegistry = ctx.GetSystem<TypeSystem::TypeRegistry>();
+        auto pTaskSystem = ctx.GetSystem<TaskSystem>();
         auto pPersistentMap = ctx.GetPersistentMap();
 
         //-------------------------------------------------------------------------
 
         for ( auto pSpawnPoint : m_spawnPoints )
         {
-            EntityModel::EntityCollection ec( *pTypeRegistry, UUID::GenerateID(), *pSpawnPoint->GetEntityCollectionDesc() );
-            pPersistentMap->AddEntityCollection( pSpawnPoint->GetWorldTransform(), ec );
+            pPersistentMap->AddEntityCollection( pTaskSystem, *pTypeRegistry, *pSpawnPoint->GetEntityCollectionDesc(), pSpawnPoint->GetWorldTransform() );
         }
 
         return true;

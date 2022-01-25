@@ -35,9 +35,10 @@ namespace KRG::Animation
     {
     public:
 
-        GraphUndoableAction( TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pEditorGraph )
+        GraphUndoableAction( AnimationGraphWorkspace* pWorkspace, TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pEditorGraph )
             : m_typeRegistry( typeRegistry )
             , m_pGraphDefinition( pEditorGraph )
+            , m_pWorkspace( pWorkspace )
         {
             KRG_ASSERT( m_pGraphDefinition != nullptr );
         }
@@ -58,6 +59,11 @@ namespace KRG::Animation
 
         void SerializeBeforeState()
         {
+            if ( m_pWorkspace->IsPreviewing() )
+            {
+                m_pWorkspace->StopPreview();
+            }
+
             JsonWriter writer;
             m_pGraphDefinition->SaveToJson( m_typeRegistry, *writer.GetWriter() );
             m_valueBefore.resize( writer.GetStringBuffer().GetSize() );
@@ -74,6 +80,7 @@ namespace KRG::Animation
 
     private:
 
+        AnimationGraphWorkspace*            m_pWorkspace = nullptr;
         TypeSystem::TypeRegistry const&     m_typeRegistry;
         EditorGraphDefinition*              m_pGraphDefinition = nullptr;
         String                              m_valueBefore;
@@ -125,7 +132,7 @@ namespace KRG::Animation
 
         m_pControlParameterEditor = KRG::New<GraphControlParameterEditor>( m_pGraphDefinition );
         m_pVariationEditor = KRG::New<GraphVariationEditor>( m_pResourceDatabase, m_pGraphDefinition );
-        m_pGraphEditor = KRG::New<GraphEditor>( *m_pTypeRegistry, m_pGraphDefinition );
+        m_pGraphEditor = KRG::New<GraphEditor>( *m_pTypeRegistry, *context.m_pResourceDatabase, m_pGraphDefinition );
 
         // Bind events
         //-------------------------------------------------------------------------
@@ -136,7 +143,7 @@ namespace KRG::Animation
             {
                 KRG_ASSERT( m_pActiveUndoableAction == nullptr );
 
-                m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( *m_pTypeRegistry, m_pGraphDefinition );
+                m_pActiveUndoableAction = KRG::New<GraphUndoableAction>( this, *m_pTypeRegistry, m_pGraphDefinition );
                 m_pActiveUndoableAction->SerializeBeforeState();
             }
         };
@@ -212,17 +219,25 @@ namespace KRG::Animation
         ImGui::DockBuilderDockWindow( m_variationEditorWindowName.c_str(), centerDockID );
     }
 
-    void AnimationGraphWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void AnimationGraphWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         DebugContext* pDebugContext = nullptr;
-        if ( m_isPreviewing && m_pGraphComponent->IsInitialized() )
+        if ( IsPreviewing() && m_pGraphComponent->IsInitialized() )
         {
             pDebugContext = &m_debugContext;
         }
 
         //-------------------------------------------------------------------------
 
-        m_pControlParameterEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_controlParametersWindowName.c_str() );
+        if ( m_pControlParameterEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_controlParametersWindowName.c_str() ) )
+        {
+            auto pVirtualParameterToEdit = m_pControlParameterEditor->GetVirtualParameterToEdit();
+            if ( pVirtualParameterToEdit != nullptr )
+            {
+                m_pGraphEditor->NavigateTo( pVirtualParameterToEdit->GetChildGraph() );
+            }
+        }
+
         m_pGraphEditor->UpdateAndDraw( context, pDebugContext, pWindowClass, m_graphViewWindowName.c_str() );
         m_pVariationEditor->UpdateAndDraw( context, pWindowClass, m_variationEditorWindowName.c_str() );
 
@@ -260,14 +275,31 @@ namespace KRG::Animation
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
         if ( ImGui::BeginCombo( "##RagdollOptions", KRG_ICON_COG, ImGuiComboFlags_HeightLarge ) )
         {
-            ImGui::MenuItem( "Apply Root Motion", nullptr, &m_applyRootMotion );
+            ImGuiX::TextSeparator( "Root Motion debug" );
 
-            //-------------------------------------------------------------------------
+            bool const isRootVisualizationOff = m_rootMotionDebugMode == RootMotionRecorder::DebugMode::Off;
+            if ( ImGui::RadioButton( "No Visualization", isRootVisualizationOff ) )
+            {
+                m_rootMotionDebugMode = RootMotionRecorder::DebugMode::Off;
+            }
 
-            ImGuiX::TextSeparator( "Visualization" );
+            bool const isRootVisualizationOn = m_rootMotionDebugMode == RootMotionRecorder::DebugMode::DrawRoot;
+            if ( ImGui::RadioButton( "Draw Root", isRootVisualizationOn ) )
+            {
+                m_rootMotionDebugMode = RootMotionRecorder::DebugMode::DrawRoot;
+            }
 
-            ImGui::MenuItem( "Draw Root", nullptr, &m_drawRoot );
-            ImGui::MenuItem( "Draw Recorded Root Motion", nullptr, &m_drawRecordedRootMotion );
+            bool const isRootMotionRecordingEnabled = m_rootMotionDebugMode == RootMotionRecorder::DebugMode::DrawRecordedRootMotion;
+            if ( ImGui::RadioButton( "Draw Recorded Root Motion", isRootMotionRecordingEnabled ) )
+            {
+                m_rootMotionDebugMode = RootMotionRecorder::DebugMode::DrawRecordedRootMotion;
+            }
+
+            bool const isAdvancedRootMotionRecordingEnabled = m_rootMotionDebugMode == RootMotionRecorder::DebugMode::DrawRecordedRootMotionAdvanced;
+            if ( ImGui::RadioButton( "Draw Advanced Recorded Root Motion", isAdvancedRootMotionRecordingEnabled ) )
+            {
+                m_rootMotionDebugMode = RootMotionRecorder::DebugMode::DrawRecordedRootMotionAdvanced;
+            }
 
             //-------------------------------------------------------------------------
 
@@ -280,7 +312,7 @@ namespace KRG::Animation
             }
 
             bool const isFinalPoseEnabled = m_taskSystemDebugMode == TaskSystem::DebugMode::FinalPose;
-            if ( ImGui::RadioButton( "FinalPose", isFinalPoseEnabled ) )
+            if ( ImGui::RadioButton( "Final Pose", isFinalPoseEnabled ) )
             {
                 m_taskSystemDebugMode = TaskSystem::DebugMode::FinalPose;
             }
@@ -300,7 +332,7 @@ namespace KRG::Animation
             //-------------------------------------------------------------------------
 
             ImGuiX::TextSeparator( "Physics" );
-            ImGui::BeginDisabled( !m_isPreviewing );
+            ImGui::BeginDisabled( !IsPreviewing() );
             if ( m_pPhysicsSystem != nullptr && m_pPhysicsSystem->IsConnectedToPVD() )
             {
                 if ( ImGui::Button( "Disconnect From PVD", ImVec2( -1, 0 ) ) )
@@ -327,20 +359,50 @@ namespace KRG::Animation
 
         ImGui::SameLine();
 
-        if ( IsPreviewing() )
+        if( BeginViewportToolbarGroup( "Preview", ImVec2( 140, 0 ), ImVec2( 0, 0 ) ) )
         {
-            if ( ImGui::Button( KRG_ICON_STOP" Stop Preview" ) )
+            ImVec2 const buttonSize = ImVec2( 116, 0 );
+            ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4, 4 ) );
+            if ( IsPreviewing() )
             {
-                StopPreview();
+                if ( ImGui::Button( KRG_ICON_STOP"Stop Preview", buttonSize ) )
+                {
+                    StopPreview();
+                }
             }
-        }
-        else
-        {
-            if ( ImGui::Button( KRG_ICON_PLAY" Start Preview" ) )
+            else
             {
-                StartPreview( context );
+                if ( ImGui::Button( KRG_ICON_PLAY"Start Preview", buttonSize ) )
+                {
+                    StartPreview( context );
+                }
             }
+            ImGui::PopStyleVar();
+
+            //-------------------------------------------------------------------------
+
+            ImGui::SameLine( 0, 0 );
+
+            ImGui::SetNextItemWidth( 46 );
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4.0f, 4.0f ) );
+            if ( ImGui::BeginCombo( "##PreviewControls", "PreviewControls", ImGuiComboFlags_HeightLarge | ImGuiComboFlags_NoPreview | ImGuiComboFlags_PopupAlignLeft ) )
+            {
+                ImGuiX::TextSeparator( "Preview Settings" );
+                ImGui::MenuItem( "Start Paused", nullptr, &m_startPaused );
+
+                ImGuiX::TextSeparator( "Start Transform" );
+                ImGuiX::InputTransform( "StartTransform", m_previewStartTransform, 250.0f );
+
+                if ( ImGui::Button( "Reset Start Transform", ImVec2( -1, 0 ) ) )
+                {
+                    m_previewStartTransform = Transform::Identity;
+                }
+
+                ImGui::EndCombo();
+            }
+            ImGui::PopStyleVar();
         }
+        EndViewportToolbarGroup();
     }
 
     //-------------------------------------------------------------------------
@@ -383,8 +445,15 @@ namespace KRG::Animation
         return m_pGraphDefinition->IsDirty();
     }
 
-    void AnimationGraphWorkspace::OnUndoRedo()
+    void AnimationGraphWorkspace::OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction )
     {
+        TResourceWorkspace<GraphDefinition>::OnUndoRedo( operation, pAction );
+
+        if ( IsPreviewing() )
+        {
+            StopPreview();
+        }
+
         m_pGraphEditor->OnUndoRedo();
     }
 
@@ -455,6 +524,7 @@ namespace KRG::Animation
                 auto pMeshComponent = KRG::New<Render::SkeletalMeshComponent>( StringID( "Mesh Component" ) );
                 pMeshComponent->SetSkeleton( pVariation->m_pSkeleton.GetResourceID() );
                 pMeshComponent->SetMesh( resourceDesc.m_previewMesh.GetResourceID() );
+                pMeshComponent->SetWorldTransform( m_previewStartTransform );
                 m_pPreviewEntity->AddComponent( pMeshComponent );
             }
         }
@@ -469,12 +539,12 @@ namespace KRG::Animation
         
         AddEntityToWorld( m_pPreviewEntity );
 
-        // Physics
+        // Set up preview
         //-------------------------------------------------------------------------
 
         KRG_ASSERT( m_pPhysicsSystem == nullptr );
         m_pPhysicsSystem = context.GetSystem<Physics::PhysicsSystem>();
-
+        SetWorldPaused( m_startPaused );
         m_isPreviewing = true;
     }
 
@@ -500,10 +570,10 @@ namespace KRG::Animation
         m_isPreviewing = false;
     }
 
-    void AnimationGraphWorkspace::Update( EntityWorldUpdateContext const& updateContext )
+    void AnimationGraphWorkspace::UpdateWorld( EntityWorldUpdateContext const& updateContext )
     {
         bool const isWorldPaused = updateContext.GetDeltaTime() <= 0.0f;
-        if ( !m_isPreviewing || !m_pGraphComponent->IsInitialized() )
+        if ( !IsPreviewing() || !m_pGraphComponent->IsInitialized() )
         {
             return;
         }
@@ -514,17 +584,15 @@ namespace KRG::Animation
         {
             if ( !updateContext.IsWorldPaused() )
             {
-                if ( m_applyRootMotion )
-                {
-                    Transform const& WT = m_pPreviewEntity->GetWorldTransform();
-                    Transform const& RMD = m_pGraphComponent->GetRootMotionDelta();
-                    m_pPreviewEntity->SetWorldTransform( RMD * WT );
-                }
+                Transform const& WT = m_pPreviewEntity->GetWorldTransform();
+                Transform const& RMD = m_pGraphComponent->GetRootMotionDelta();
+                m_pPreviewEntity->SetWorldTransform( RMD * WT );
             }
 
             //-------------------------------------------------------------------------
 
             auto drawingContext = updateContext.GetDrawingContext();
+            m_pGraphComponent->SetRootMotionDebugMode( m_rootMotionDebugMode );
             m_pGraphComponent->SetTaskSystemDebugMode( m_taskSystemDebugMode );
             m_pGraphComponent->DrawDebug( drawingContext );
         }
@@ -534,7 +602,7 @@ namespace KRG::Animation
     {
         if ( ImGui::Begin( m_debuggerWindowName.c_str() ) )
         {
-            if ( m_isPreviewing && m_pGraphComponent->IsInitialized() )
+            if ( IsPreviewing() && m_pGraphComponent->IsInitialized() )
             {
                 AnimationDebugView::DrawGraphActiveTasksDebugView( m_pGraphComponent );
 

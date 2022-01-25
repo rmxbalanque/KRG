@@ -114,15 +114,11 @@ namespace KRG
         void AdjustOrbitTargetOffset( Float3 newTargetOffset );
         void AdjustOrbitDistance( float newDistance );
 
-    private:
+        void ResetCamera();
 
-        void ResetToDefaults();
-        
-        inline void UpdateOrbitLocalPosition()
-        {
-            Vector const orbitCameraPosition = m_orbitTransform.GetRotation().RotateVector( Vector::WorldBackward ) * m_orbitDistance;
-            m_orbitTransform.SetTranslation( orbitCameraPosition );
-        }
+    protected:
+
+        void CalculateCameraTransform();
 
     protected:
 

@@ -49,7 +49,9 @@ namespace KRG::Player
             Falling,
             Jump,
             Dash,
+            Slide,
 
+            DebugMode,
             NumActions,
             DefaultAction = Locomotion,
         };
@@ -65,17 +67,17 @@ namespace KRG::Player
                 OnlyOnCompleted
             };
 
-            Transition( ActionID stateID, Availability availability = Availability::Always )
-                : m_targetStateID( stateID )
+            Transition( ActionID actionID, Availability availability = Availability::Always )
+                : m_targetActionID( actionID )
                 , m_availability( availability )
             {}
 
-            inline bool IsAvailable( Action::Status stateUpdateResult ) const
+            inline bool IsAvailable( ActionID activeActionID, Action::Status actionStatus ) const
             {
-                return ( m_availability == Availability::Always ) || ( stateUpdateResult == Action::Status::Completed );
+                return m_targetActionID != activeActionID && ( ( m_availability == Availability::Always ) || ( actionStatus == Action::Status::Completed ) );
             }
 
-            ActionID            m_targetStateID;
+            ActionID            m_targetActionID;
             Availability        m_availability;
         };
 

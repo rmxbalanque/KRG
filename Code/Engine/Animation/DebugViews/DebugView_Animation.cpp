@@ -137,11 +137,11 @@ namespace KRG::Animation
         ImGui::PopStyleColor();
     }
 
-    void AnimationDebugView::DrawRootMotionRow( AnimationGraphComponent* pGraphComponent, RootMotionActionRecorder* pRootMotionRecorder, int16 currentActionIdx )
+    void AnimationDebugView::DrawRootMotionRow( AnimationGraphComponent* pGraphComponent, RootMotionRecorder* pRootMotionRecorder, int16 currentActionIdx )
     {
         static char const* const actionTypes[] = { "Error", "Sample", "Modify", "Blend" };
 
-        RootMotionActionRecorder::RecordedAction const* pAction = nullptr;
+        RootMotionRecorder::RecordedAction const* pAction = nullptr;
 
         InlineString rowLabel;
         if ( currentActionIdx != InvalidIndex )
@@ -220,7 +220,7 @@ namespace KRG::Animation
         ImGui::NewLine();
         ImGuiX::TextSeparator( "Root Motion" );
 
-        RootMotionActionRecorder* pRootMotionRecorder = pGraphComponent->m_graphContext.GetRootMotionActionRecorder();
+        RootMotionRecorder* pRootMotionRecorder = pGraphComponent->m_graphContext.GetRootMotionActionRecorder();
         if ( pRootMotionRecorder->HasRecordedActions() )
         {
             DrawRootMotionRow( pGraphComponent, pRootMotionRecorder, pRootMotionRecorder->GetLastActionIndex() );
@@ -261,7 +261,7 @@ namespace KRG::Animation
                 ImGui::TableNextColumn();
                 if ( sampledEvent.IsStateEvent() )
                 {
-                    ImGui::TextColored( Colors::Cyan.ToFloat4(), KRG_ICON_ARROWS_H );
+                    ImGui::TextColored( Colors::LightGray.ToFloat4(), KRG_ICON_PROJECT_DIAGRAM );
                 }
                 else
                 {
@@ -373,7 +373,7 @@ namespace KRG::Animation
 
             //-------------------------------------------------------------------------
 
-            componentName.sprintf( "%s (%u)", pGraphComponent->GetName().c_str(), pGraphComponent->GetID().m_ID );
+            componentName.sprintf( "%s (%s)", pGraphComponent->GetName().c_str(), pEntity->GetName().c_str() );
             if ( ImGui::BeginMenu( componentName.c_str() ) )
             {
                 ImGuiX::TextSeparator( "Graph" );
@@ -388,6 +388,39 @@ namespace KRG::Animation
                     pDebugSettings->m_drawSampledEvents = true;
                 }
 
+                //-------------------------------------------------------------------------
+
+                ImGuiX::TextSeparator( "Root Motion debug" );
+                {
+                    RootMotionRecorder::DebugMode const debugMode = pGraphComponent->GetRootMotionDebugMode();
+
+                    bool const isRootVisualizationOff = debugMode == RootMotionRecorder::DebugMode::Off;
+                    if ( ImGui::RadioButton( "No Visualization##RootMotion", isRootVisualizationOff ) )
+                    {
+                        pGraphComponent->SetRootMotionDebugMode( RootMotionRecorder::DebugMode::Off );
+                    }
+
+                    bool const isRootVisualizationOn = debugMode == RootMotionRecorder::DebugMode::DrawRoot;
+                    if ( ImGui::RadioButton( "Draw Root", isRootVisualizationOn ) )
+                    {
+                        pGraphComponent->SetRootMotionDebugMode( RootMotionRecorder::DebugMode::DrawRoot );
+                    }
+
+                    bool const isRootMotionRecordingEnabled = debugMode == RootMotionRecorder::DebugMode::DrawRecordedRootMotion;
+                    if ( ImGui::RadioButton( "Draw Recorded Root Motion", isRootMotionRecordingEnabled ) )
+                    {
+                        pGraphComponent->SetRootMotionDebugMode( RootMotionRecorder::DebugMode::DrawRecordedRootMotion );
+                    }
+
+                    bool const isAdvancedRootMotionRecordingEnabled = debugMode == RootMotionRecorder::DebugMode::DrawRecordedRootMotionAdvanced;
+                    if ( ImGui::RadioButton( "Draw Advanced Recorded Root Motion", isAdvancedRootMotionRecordingEnabled ) )
+                    {
+                        pGraphComponent->SetRootMotionDebugMode( RootMotionRecorder::DebugMode::DrawRecordedRootMotionAdvanced );
+                    }
+                }
+
+                //-------------------------------------------------------------------------
+
                 ImGuiX::TextSeparator( "Tasks" );
 
                 if ( ImGui::MenuItem( "Show Active Tasks" ) )
@@ -395,12 +428,14 @@ namespace KRG::Animation
                     pDebugSettings->m_drawActiveTasks = true;
                 }
 
-                if ( ImGui::BeginMenu( "Visualization" ) )
+                //-------------------------------------------------------------------------
+
+                ImGuiX::TextSeparator( "Pose Debug" );
                 {
                     TaskSystem::DebugMode const debugMode = pGraphComponent->GetTaskSystemDebugMode();
 
                     bool const isVisualizationOff = debugMode == TaskSystem::DebugMode::Off;
-                    if ( ImGui::RadioButton( "No Visualization", isVisualizationOff ) )
+                    if ( ImGui::RadioButton( "No Visualization##Tasks", isVisualizationOff ) )
                     {
                         pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::Off );
                     }
@@ -422,8 +457,6 @@ namespace KRG::Animation
                     {
                         pGraphComponent->SetTaskSystemDebugMode( TaskSystem::DebugMode::DetailedPoseTree );
                     }
-
-                    ImGui::EndMenu();
                 }
 
                 ImGui::EndMenu();

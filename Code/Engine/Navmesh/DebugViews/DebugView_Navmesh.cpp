@@ -4,52 +4,30 @@
 #include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "System/Render/Imgui/ImguiX.h"
 
-#include "bfxMoverSpace.h"
-
 //-------------------------------------------------------------------------
 
 #if KRG_DEVELOPMENT_TOOLS
 namespace KRG::Navmesh
 {
-    NavmeshDebugView::NavmeshDebugView()
+    void NavmeshDebugView::DrawNavmeshDebugSettings( NavmeshWorldSystem* pNavmeshWorldSystem )
     {
-        m_menus.emplace_back( DebugMenu( "Navmesh", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
-    }
-
-    void NavmeshDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
-    {
-        m_pNavmeshWorldSystem = pWorld->GetWorldSystem<NavmeshWorldSystem>();
-    }
-
-    void NavmeshDebugView::Shutdown()
-    {
-        m_pNavmeshWorldSystem = nullptr;
-    }
-
-    //-------------------------------------------------------------------------
-
-    void NavmeshDebugView::DrawMenu( EntityWorldUpdateContext const& context )
-    {
-        auto CreatePlannerCheckboxForFlag = [this] ( char const* pLabel, bfx::PlannerDebugFlag flag )
+        #if KRG_NAVPOWER
+        auto CreatePlannerCheckboxForFlag = [pNavmeshWorldSystem] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
-            bool isEnabled = bfx::GetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, flag );
+            bool isEnabled = bfx::GetGlobalDebugFlag( pNavmeshWorldSystem->m_pInstance, flag );
             if ( ImGui::Checkbox( pLabel, &isEnabled ) )
             {
-                bfx::SetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, flag, isEnabled );
+                bfx::SetGlobalDebugFlag( pNavmeshWorldSystem->m_pInstance, flag, isEnabled );
             }
         };
 
         //-------------------------------------------------------------------------
 
-        bool isDrawingNavpowerStats = bfx::GetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, bfx::BFX_DRAW_STATS );
-        if ( ImGui::Checkbox( "Draw NavPower Stats", &isDrawingNavpowerStats ) )
+        bool isDrawingNavpowerStats = bfx::GetGlobalDebugFlag( pNavmeshWorldSystem->m_pInstance, bfx::BFX_DRAW_STATS );
+        if ( ImGui::MenuItem( "Draw NavPower Stats", nullptr, &isDrawingNavpowerStats ) )
         {
-            bfx::SetGlobalDebugFlag( m_pNavmeshWorldSystem->m_pInstance, bfx::BFX_DRAW_STATS, isDrawingNavpowerStats );
+            bfx::SetGlobalDebugFlag( pNavmeshWorldSystem->m_pInstance, bfx::BFX_DRAW_STATS, isDrawingNavpowerStats );
         }
-
-        //-------------------------------------------------------------------------
-
-        ImGui::Separator();
 
         //-------------------------------------------------------------------------
 
@@ -104,20 +82,41 @@ namespace KRG::Navmesh
             ImGui::EndMenu();
         }
 
-        //-------------------------------------------------------------------------
-
-        ImGui::Separator();
-
         if ( ImGui::BeginMenu( "Drawing Options" ) )
         {
-            bool isDepthTestEnabled = !m_pNavmeshWorldSystem->m_renderer.IsDepthTestEnabled();
+            bool isDepthTestEnabled = !pNavmeshWorldSystem->m_renderer.IsDepthTestEnabled();
             if ( ImGui::Checkbox( "Enable Depth Test", &isDepthTestEnabled ) )
             {
-                m_pNavmeshWorldSystem->m_renderer.SetDepthTestState( isDepthTestEnabled );
+                pNavmeshWorldSystem->m_renderer.SetDepthTestState( isDepthTestEnabled );
             }
 
             ImGui::EndMenu();
         }
+        #endif
+    }
+
+    //-------------------------------------------------------------------------
+
+    NavmeshDebugView::NavmeshDebugView()
+    {
+        m_menus.emplace_back( DebugMenu( "Navmesh", [this] ( EntityWorldUpdateContext const& context ) { DrawMenu( context ); } ) );
+    }
+
+    void NavmeshDebugView::Initialize( SystemRegistry const& systemRegistry, EntityWorld const* pWorld )
+    {
+        m_pNavmeshWorldSystem = pWorld->GetWorldSystem<NavmeshWorldSystem>();
+    }
+
+    void NavmeshDebugView::Shutdown()
+    {
+        m_pNavmeshWorldSystem = nullptr;
+    }
+
+    //-------------------------------------------------------------------------
+
+    void NavmeshDebugView::DrawMenu( EntityWorldUpdateContext const& context )
+    {
+        DrawNavmeshDebugSettings( m_pNavmeshWorldSystem );
     }
 
     void NavmeshDebugView::DrawWindows( EntityWorldUpdateContext const& context, ImGuiWindowClass* pWindowClass )

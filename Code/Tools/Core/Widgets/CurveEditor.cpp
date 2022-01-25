@@ -138,7 +138,7 @@ namespace KRG
         // View Controls
         //-------------------------------------------------------------------------
 
-        if ( ImGui::Button( KRG_ICON_ARROWS ) )
+        if ( ImGui::Button( KRG_ICON_ARROWS_ALT ) )
         {
             ViewEntireCurve();
         }
@@ -146,7 +146,7 @@ namespace KRG
 
         ImGui::SameLine();
 
-        if ( ImGui::Button( KRG_ICON_ARROWS_H ) )
+        if ( ImGui::Button( KRG_ICON_ARROWS_ALT_H ) )
         {
             ViewEntireHorizontalRange();
         }
@@ -154,7 +154,7 @@ namespace KRG
 
         ImGui::SameLine();
 
-        if ( ImGui::Button( KRG_ICON_ARROWS_V ) )
+        if ( ImGui::Button( KRG_ICON_ARROWS_ALT_V ) )
         {
             ViewEntireVerticalRange();
         }

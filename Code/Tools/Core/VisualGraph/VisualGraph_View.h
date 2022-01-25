@@ -66,6 +66,8 @@ namespace KRG::VisualGraph
             ImVec2                  m_lastFrameDragDelta = ImVec2( 0, 0 );
             BaseNode*               m_pNode = nullptr;
             Flow::Pin*              m_pPin = nullptr;
+            bool                    m_leftMouseClickDetected = false;
+            bool                    m_middleMouseClickDetected = false;
         };
 
         // Context menu state
@@ -84,7 +86,6 @@ namespace KRG::VisualGraph
                 m_menuOpened = false;
                 m_pPin = nullptr;
             }
-
 
         public:
 
@@ -111,9 +112,14 @@ namespace KRG::VisualGraph
         inline FlowGraph* GetFlowGraph() const { return Cast<FlowGraph>( m_pGraph ); }
         inline StateMachineGraph* GetStateMachineGraph() const { return Cast<StateMachineGraph>( m_pGraph ); }
 
+        // Drawing and view
         //-------------------------------------------------------------------------
 
         void UpdateAndDraw( TypeSystem::TypeRegistry const& typeRegistry, float childHeightOverride = 0.0f, void* pUserContext = nullptr );
+
+        void ResetView();
+
+        void CenterView( BaseNode const* pNode );
 
         // Selection
         //-------------------------------------------------------------------------
@@ -223,8 +229,9 @@ namespace KRG::VisualGraph
 
         void HandleInput( TypeSystem::TypeRegistry const& typeRegistry, DrawContext const& ctx );
 
-        virtual void OnGraphDoubleClick( BaseGraph* pGraph ) {};
-        virtual void OnNodeDoubleClick( BaseNode* pNode ) {};
+        virtual void OnGraphDoubleClick( BaseGraph* pGraph ) {}
+        virtual void OnNodeDoubleClick( BaseNode* pNode ) {}
+        virtual void HandleDragAndDrop( ImVec2 const& mouseCanvasPos ) {}
 
     private:
 
@@ -258,8 +265,10 @@ namespace KRG::VisualGraph
         BaseNode*                       m_pHoveredNode = nullptr;
 
         ImVec2                          m_viewOffset = ImVec2( 0, 0 );
+        ImVec2                          m_canvasSize = ImVec2( 0, 0 );
         TVector<SelectedNode>           m_selectedNodes;
         bool                            m_hasFocus = false;
+        bool                            m_isViewHovered = false;
         bool                            m_selectionChanged = false;
 
         DragState                       m_dragState;

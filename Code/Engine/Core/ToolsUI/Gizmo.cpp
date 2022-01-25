@@ -154,11 +154,11 @@ namespace KRG::ImGuiX
         m_isOriginHovered = false;
     }
 
-    bool Gizmo::Draw( Render::Viewport const& originalViewport )
+    Gizmo::Result Gizmo::Draw( Render::Viewport const& originalViewport )
     {
         if ( m_pTargetTransform == nullptr )
         {
-            return false;
+            return Result::NoResult;
         }
 
         Render::Viewport viewport = originalViewport;
@@ -171,7 +171,7 @@ namespace KRG::ImGuiX
 
         if ( !viewport.GetViewVolume().Contains( m_origin_WS ) )
         {
-            return false;
+            return Result::NoResult;
         }
 
         if ( m_coordinateSpace == CoordinateSpace::World )
@@ -260,27 +260,27 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        // Notify listeners of any manipulation state changes
-        if ( wasManipulating && !isManipulating )
-        {
-            m_manipulationEnded.Execute();
-        }
-        else if ( !wasManipulating && isManipulating )
-        {
-            m_manipulationStarted.Execute();
-        }
-
-        //-------------------------------------------------------------------------
-
         // Set the hovered ID so that we disable any click through in the UI
         if ( m_manipulationMode != ManipulationMode::None )
         {
             ImGui::SetHoveredID( ImGui::GetID( "Gizmo" ) );
         }
 
+        // Determine result
         //-------------------------------------------------------------------------
 
-        return *m_pTargetTransform != originalTransform;
+        Result result = isManipulating ? Result::Manipulating : Result::NoResult;
+
+        if ( wasManipulating && !isManipulating )
+        {
+            result = Result::StoppedManipulating;
+        }
+        else if ( !wasManipulating && isManipulating )
+        {
+            result = Result::StartedManipulating;
+        }
+
+        return result;
     }
 
     //-------------------------------------------------------------------------

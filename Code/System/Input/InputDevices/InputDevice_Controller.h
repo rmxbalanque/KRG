@@ -45,10 +45,10 @@ namespace KRG
 
         protected:
 
-            virtual void UpdateState() override;
+            virtual void UpdateState( Seconds deltaTime ) override;
 
-            // Update the controller button state
-            inline void UpdateButtonState( ControllerButton buttonID, bool isDown )
+            // Simulate Press/Release events for controllers
+            inline void GenerateButtonStateEvents( ControllerButton buttonID, bool isDown )
             {
                 // Do we need to generate a pressed signal?
                 if ( isDown )
@@ -69,7 +69,7 @@ namespace KRG
 
             void SetTriggerValues( float leftRawValue, float rightRawValue );
             void SetAnalogStickValues( Float2 const& leftRawValue, Float2 const& rightRawValue );
-            void ClearControllerState() { m_controllerState.ClearState(); }
+            void ClearControllerState() { m_controllerState.Clear(); }
 
         private:
 

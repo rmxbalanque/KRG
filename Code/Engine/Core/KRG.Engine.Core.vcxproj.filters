@@ -45,17 +45,8 @@
     <ClCompile Include="Entity\EntityMap.cpp">
       <Filter>Entity\Map</Filter>
     </ClCompile>
-    <ClCompile Include="Entity\EntityMapDescriptor.cpp">
-      <Filter>Entity\Map</Filter>
-    </ClCompile>
     <ClCompile Include="DebugViews\DebugView_EntityWorld.cpp">
       <Filter>DebugViews</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\EntityCollection.cpp">
-      <Filter>Entity\Collections</Filter>
-    </ClCompile>
-    <ClCompile Include="Entity\EntityCollectionDescriptor.cpp">
-      <Filter>Entity\Collections</Filter>
     </ClCompile>
     <ClCompile Include="ResourceLoaders\ResourceLoader_EntityCollection.cpp">
       <Filter>ResourceLoaders</Filter>
@@ -115,6 +106,8 @@
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="Components\Component_Cameras.cpp" />
+    <ClCompile Include="Entity\EntitySerialization.cpp" />
+    <ClCompile Include="Components\Component_Volumes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Easing.h">
@@ -123,17 +116,8 @@
     <ClInclude Include="Entity\EntityMap.h">
       <Filter>Entity\Map</Filter>
     </ClInclude>
-    <ClInclude Include="Entity\EntityMapDescriptor.h">
-      <Filter>Entity\Map</Filter>
-    </ClInclude>
     <ClInclude Include="DebugViews\DebugView_EntityWorld.h">
       <Filter>DebugViews</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity\EntityCollection.h">
-      <Filter>Entity\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity\EntityCollectionDescriptor.h">
-      <Filter>Entity\Collections</Filter>
     </ClInclude>
     <ClInclude Include="ResourceLoaders\ResourceLoader_EntityCollection.h">
       <Filter>ResourceLoaders</Filter>
@@ -210,5 +194,7 @@
     <ClInclude Include="Entity\EntityIDs.h" />
     <ClInclude Include="Update\UpdateContext.h" />
     <ClInclude Include="Update\UpdateStage.h" />
+    <ClInclude Include="Entity\EntitySerialization.h" />
+    <ClInclude Include="Entity\EntityAccessor.h" />
   </ItemGroup>
 </Project>

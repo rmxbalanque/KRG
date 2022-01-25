@@ -1,3 +1,4 @@
+#if KRG_NAVPOWER
 #include "NavPower.h"
 #include "System/Core/Drawing/DebugDrawingSystem.h"
 
@@ -5,6 +6,7 @@
 
 namespace KRG::Navmesh
 {
+    #if KRG_DEVELOPMENT_TOOLS
     void NavpowerRenderer::DrawLineList( bfx::LineSegment const* pLines, uint32 numLines, bfx::Color const& color )
     {
         auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
@@ -37,4 +39,6 @@ namespace KRG::Navmesh
         auto ctx = m_pDebugDrawingSystem->GetDrawingContext();
         ctx.DrawText3D( FromBfx( pos ), str, FromBfx( color ), Drawing::FontSmall );
     }
+    #endif
 }
+#endif

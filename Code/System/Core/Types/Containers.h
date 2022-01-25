@@ -155,6 +155,12 @@ namespace KRG
     }
 
     template<typename T, eastl_size_t S, typename V, typename Predicate>
+    inline typename TInlineVector<T, S>::const_iterator VectorFind( TInlineVector<T, S> const& vector, V const& value, Predicate predicate )
+    {
+        return eastl::find( vector.begin(), vector.end(), value, eastl::forward<Predicate>( predicate ) );
+    }
+
+    template<typename T, eastl_size_t S, typename V, typename Predicate>
     inline typename TInlineVector<T, S>::iterator VectorFind( TInlineVector<T, S>& vector, V const& value, Predicate predicate )
     {
         return eastl::find( vector.begin(), vector.end(), value, eastl::forward<Predicate>( predicate ) );

@@ -42,7 +42,7 @@ namespace KRG::Animation
                 }
             }
 
-            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( GetColorForValueType( GetValueType() ) ); }
+            virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( GetColorForValueType( GetValueType() ) ); }
 
             virtual ImColor GetPinColor( VisualGraph::Flow::Pin const& pin ) const override { return ImGuiX::ConvertColor( GetColorForValueType( (GraphValueType) pin.m_type ) ); }
 
@@ -87,6 +87,13 @@ namespace KRG::Animation
 
             // This will return the final resolved resource value for this slot
             ResourceID GetValue( VariationHierarchy const& variationHierarchy, StringID variationID ) const;
+
+            // This sets the resource for the default variation
+            void SetDefaultResourceID( ResourceID const& defaultResourceID )
+            {
+                KRG_ASSERT( defaultResourceID.GetResourceTypeID() == GetSlotResourceTypeID() );
+                m_defaultResourceID = defaultResourceID;
+            }
 
             // Variation override management
             //-------------------------------------------------------------------------
@@ -146,6 +153,7 @@ namespace KRG::Animation
             ControlParameterEditorNode( String const& name, GraphValueType type );
 
             inline StringID GetParameterID() const { return StringID( m_name ); }
+            inline String const& GetParameterCategory() const { return m_parameterCategory; }
 
             virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
             virtual bool IsVisibleNode() const override { return false; }
@@ -160,8 +168,11 @@ namespace KRG::Animation
         private:
 
             KRG_REGISTER String                     m_name;
+            KRG_REGISTER String                     m_parameterCategory;
             KRG_REGISTER GraphValueType             m_type = GraphValueType::Float;
         };
+
+        //-------------------------------------------------------------------------
 
         class VirtualParameterEditorNode final : public EditorGraphNode
         {
@@ -172,6 +183,8 @@ namespace KRG::Animation
 
             VirtualParameterEditorNode() = default;
             VirtualParameterEditorNode( String const& name, GraphValueType type );
+
+            inline String const& GetParameterCategory() const { return m_parameterCategory; }
 
             virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
             virtual bool IsVisibleNode() const override { return false; }
@@ -185,8 +198,11 @@ namespace KRG::Animation
         private:
 
             KRG_REGISTER String                     m_name;
+            KRG_REGISTER String                     m_parameterCategory;
             KRG_REGISTER GraphValueType             m_type = GraphValueType::Float;
         };
+
+        //-------------------------------------------------------------------------
 
         class ParameterReferenceEditorNode final : public EditorGraphNode
         {
@@ -200,12 +216,18 @@ namespace KRG::Animation
         public:
 
             ParameterReferenceEditorNode() = default;
-            ParameterReferenceEditorNode( ControlParameterEditorNode const* pParameter );
-            ParameterReferenceEditorNode( VirtualParameterEditorNode const* pParameter );
+            ParameterReferenceEditorNode( ControlParameterEditorNode* pParameter );
+            ParameterReferenceEditorNode( VirtualParameterEditorNode* pParameter );
 
             virtual void Initialize( VisualGraph::BaseGraph* pParentGraph ) override;
 
             inline EditorGraphNode const* GetReferencedParameter() const { return m_pParameter; }
+            inline ControlParameterEditorNode const* GetReferencedControlParameter() const { return TryCast<ControlParameterEditorNode>( m_pParameter ); }
+            inline ControlParameterEditorNode* GetReferencedControlParameter() { return TryCast<ControlParameterEditorNode>( m_pParameter ); }
+            inline bool IsReferencingControlParameter() const { return IsOfType<VirtualParameterEditorNode>( m_pParameter ); }
+            inline VirtualParameterEditorNode const* GetReferencedVirtualParameter() const { return TryCast<VirtualParameterEditorNode>( m_pParameter ); }
+            inline VirtualParameterEditorNode* GetReferencedVirtualParameter() { return TryCast<VirtualParameterEditorNode>( m_pParameter ); }
+            inline bool IsReferencingVirtualParameter() const { return IsOfType<VirtualParameterEditorNode>( m_pParameter ); }
             inline UUID const& GetReferencedParameterID() const { return m_parameterUUID; }
             inline GraphValueType GetParameterValueType() const { return m_parameterValueType; }
 
@@ -219,7 +241,7 @@ namespace KRG::Animation
 
         private:
 
-            EditorGraphNode const*                  m_pParameter = nullptr;
+            EditorGraphNode*                        m_pParameter = nullptr;
             KRG_REGISTER UUID                       m_parameterUUID;
             KRG_REGISTER GraphValueType             m_parameterValueType;
         };

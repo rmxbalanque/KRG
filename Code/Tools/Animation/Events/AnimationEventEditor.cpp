@@ -14,7 +14,7 @@ namespace KRG::Animation
         , m_typeRegistry( typeRegistry )
         , m_descriptorPath( descriptorPath )
         , m_FPS( FPS )
-        , m_eventTypes( typeRegistry.GetAllDerivedTypes( Event::GetStaticTypeID() ) )
+        , m_eventTypes( typeRegistry.GetAllDerivedTypes( Event::GetStaticTypeID(), false, false, true ) )
     {
         KRG_ASSERT( m_FPS > 0.0f );
         LoadEventData();

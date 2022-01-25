@@ -1,1 +1,0 @@
-taskkill /F /FI "IMAGENAME eq Kruger*"

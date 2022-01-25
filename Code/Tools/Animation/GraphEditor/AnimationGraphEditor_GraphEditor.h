@@ -6,9 +6,10 @@
 
 struct ImNodesEditorContext;
 namespace KRG { class UpdateContext; }
+namespace KRG::Resource { class ResourceDatabase; }
 namespace KRG::Animation
 {
-    class FlowGraph; 
+    class FlowGraph;
     class EditorGraphDefinition;
     struct DebugContext;
 }
@@ -43,6 +44,7 @@ namespace KRG::Animation
             virtual void OnNodeDoubleClick( VisualGraph::BaseNode* pNode ) override;
             virtual void OnSelectionChanged( TVector<VisualGraph::BaseNode*> const& oldSelection, TVector<VisualGraph::BaseNode*> const& newSelection ) { m_selectionChanged = true; }
             virtual void DrawExtraInformation( VisualGraph::DrawContext const& ctx ) override;
+            virtual void HandleDragAndDrop( ImVec2 const& mouseCanvasPos ) override;
 
             // Draws the node type category - returns true if it has valid elements, false if empty
             bool DrawNodeTypeCategoryContextMenu( ImVec2 const& mouseCanvasPos, FlowGraph* pGraph, Category<TypeSystem::TypeInfo const*> const& category );
@@ -56,7 +58,7 @@ namespace KRG::Animation
 
     public:
 
-        GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, EditorGraphDefinition* pEditorGraph );
+        GraphEditor( TypeSystem::TypeRegistry const& typeRegistry, Resource::ResourceDatabase const& resourceDB, EditorGraphDefinition* pGraphDefinition );
 
         // Graph information
         EditorGraphDefinition* GetGraphDefinition() { return m_pGraphDefinition; }
@@ -82,7 +84,9 @@ namespace KRG::Animation
 
     private:
 
-        EditorGraphDefinition*                 m_pGraphDefinition = nullptr;
+        TypeSystem::TypeRegistry const&                 m_typeRegistry;
+        Resource::ResourceDatabase const&               m_resourceDB;
+        EditorGraphDefinition*                          m_pGraphDefinition = nullptr;
         TVector<TypeSystem::TypeInfo const*>            m_registeredNodeTypes;
         CategoryTree<TypeSystem::TypeInfo const*>       m_categorizedNodeTypes;
         float                                           m_primaryGraphViewHeight = 300;

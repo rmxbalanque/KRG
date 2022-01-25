@@ -176,8 +176,8 @@ namespace KRG::Render
         // Create Picking-Enabled Pixel Shader
         //-------------------------------------------------------------------------
 
-        buffer.m_byteSize = 32;
-        buffer.m_byteStride = 32;
+        buffer.m_byteSize = sizeof( PickingData );
+        buffer.m_byteStride = sizeof( PickingData );
         buffer.m_usage = RenderBuffer::Usage::CPU_and_GPU;
         buffer.m_type = RenderBuffer::Type::Constant;
         buffer.m_slot = 2;
@@ -546,12 +546,9 @@ namespace KRG::Render
             transforms.m_normalTransform = transforms.m_worldTransform.GetInverse().Transpose();
             renderContext.WriteToBuffer( m_vertexShaderStatic.GetConstBuffer( 0 ), &transforms, sizeof( transforms ) );
 
-            // TODO: optimize this when creating render data items
             if ( renderTarget.HasPickingRT() )
             {
-                PickingData pd;
-                pd.m_ID[0] = (uint32) ( pMeshComponent->GetEntityID().m_ID & 0x00000000FFFFFFFF );
-                pd.m_ID[1] = (uint32) ( ( pMeshComponent->GetEntityID().m_ID >> 32 ) & 0x00000000FFFFFFFF );
+                PickingData const pd( pMeshComponent->GetEntityID().m_ID, pMeshComponent->GetID().m_ID );
                 renderContext.WriteToBuffer( m_pixelShaderPicking.GetConstBuffer( 2 ), &pd, sizeof( PickingData ) );
             }
 
@@ -625,12 +622,9 @@ namespace KRG::Render
             KRG_ASSERT( boneTransforms.size() == pCurrentMesh->GetNumBones() );
             renderContext.WriteToBuffer( bonesConstBuffer, boneTransforms.data(), sizeof( Matrix ) * pCurrentMesh->GetNumBones() );
 
-            // TODO: optimize this when creating render data items
             if ( renderTarget.HasPickingRT() )
             {
-                PickingData pd;
-                pd.m_ID[0] = (uint32) ( pMeshComponent->GetEntityID().m_ID & 0x00000000FFFFFFFF );
-                pd.m_ID[1] = (uint32) ( ( pMeshComponent->GetEntityID().m_ID >> 32 ) & 0x00000000FFFFFFFF );
+                PickingData const pd( pMeshComponent->GetEntityID().m_ID, pMeshComponent->GetID().m_ID );
                 renderContext.WriteToBuffer( m_pixelShaderPicking.GetConstBuffer( 2 ), &pd, sizeof( PickingData ) );
             }
 
@@ -880,12 +874,5 @@ namespace KRG::Render
             RenderSkeletalMeshes( viewport, renderTarget, renderData );
         }
         RenderSkybox( viewport, renderData );
-
-        //-------------------------------------------------------------------------
-
-        if ( renderTarget.HasPickingRT() )
-        {
-            uint64 id = m_pRenderDevice->ReadBackPickingID( renderTarget, Int2( 10, 10 ) );
-        }
     }
 }

@@ -15,11 +15,13 @@ namespace KRG
         // ImGui specific message processing
         //-------------------------------------------------------------------------
 
+        #if KRG_DEVELOPMENT_TOOLS
         auto const imguiResult = ImGuiX::Platform::WindowsMessageHandler( hWnd, message, wParam, lParam );
         if ( imguiResult != 0 )
         {
             return imguiResult;
         }
+        #endif
 
         //-------------------------------------------------------------------------
 

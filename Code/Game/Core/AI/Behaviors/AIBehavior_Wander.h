@@ -23,6 +23,6 @@ namespace KRG::AI
 
         MoveToAction                m_moveToAction;
         IdleAction                  m_idleAction;
-        EngineCooldownTimer         m_waitTimer;
+        ManualCountdownTimer        m_waitTimer;
     };
 }

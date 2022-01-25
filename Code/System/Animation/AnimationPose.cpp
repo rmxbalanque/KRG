@@ -196,17 +196,7 @@ namespace KRG::Animation
                 ctx.DrawAxis( boneTransform, 0.03f, 3.0f );
             }
 
-            // Draw root
-            //-------------------------------------------------------------------------
-
-            constexpr static float const gizmoRadius = 0.045f;
-            constexpr static float const arrowLength = 0.1f;
-
-            Vector const fwdDir = worldTransforms[0].GetAxisY().GetNegated();
-            Vector const arrowStartPos = Vector::MultiplyAdd( fwdDir, Vector( gizmoRadius ), worldTransforms[0].GetTranslation() );
-
-            ctx.DrawDisc( worldTransforms[0].GetTranslation(), gizmoRadius, Colors::Red );
-            ctx.DrawArrow( arrowStartPos, fwdDir, arrowLength, Colors::Lime, 8 );
+            DrawRootBone( ctx, worldTransforms[0] );
         }
     }
     #endif

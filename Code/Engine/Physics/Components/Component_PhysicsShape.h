@@ -5,6 +5,7 @@
 #include "Engine/Physics/PhysicsMaterial.h"
 #include "Engine/Physics/PhysicsLayers.h"
 #include "Engine/Core/Entity/EntitySpatialComponent.h"
+#include "System/Core/Types/Event.h"
 
 //-------------------------------------------------------------------------
 
@@ -47,7 +48,16 @@ namespace KRG::Physics
 
         friend class PhysicsWorldSystem;
 
+        static TEvent<PhysicsShapeComponent*> s_staticActorTransformChanged; // Fired whenever we change the scale for a physics shape
+
     public:
+
+        inline static TEventHandle<PhysicsShapeComponent*> OnStaticActorTransformUpdated() { return s_staticActorTransformChanged; }
+
+    public:
+
+        inline PhysicsShapeComponent() = default;
+        inline PhysicsShapeComponent( StringID name ) : SpatialEntityComponent( name ) {}
 
         inline ActorType GetActorType() const { return m_actorType; }
         inline ShapeType GetShapeType() const { return m_shapeType; }
@@ -97,6 +107,9 @@ namespace KRG::Physics
 
         // What layers does this shape belong to?
         KRG_EXPOSE TBitFlags<Layers>                    m_layers = Layers::Environment;
+
+        // The mass of the shape, only relevant for dynamic actors
+        KRG_EXPOSE float                                m_mass = 1.0f;
 
     private:
 

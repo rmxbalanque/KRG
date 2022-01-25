@@ -28,4 +28,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Win32\Application_Win32.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Win32\SharedHelpers_Win32.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="$(MSBuildThisFileDirectory)cmdParser\LICENSE" />
+  </ItemGroup>
 </Project>

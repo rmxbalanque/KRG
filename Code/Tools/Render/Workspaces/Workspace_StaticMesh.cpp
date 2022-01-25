@@ -54,7 +54,7 @@ namespace KRG::Render
         }
     }
 
-    void StaticMeshWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void StaticMeshWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         auto DrawWindowContents = [this] ()
         {

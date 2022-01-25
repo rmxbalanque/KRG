@@ -38,9 +38,30 @@ namespace KRG::Input
 
     public:
 
-        ControllerInputState()
+        ControllerInputState() = default;
+
+        inline void ReflectFrom( Seconds const deltaTime, float timeScale, ControllerInputState const& sourceState )
         {
-            ClearState();
+            m_analogInputRaw[0] = sourceState.m_analogInputRaw[0];
+            m_analogInputRaw[1] = sourceState.m_analogInputRaw[1];
+            m_analogInputFiltered[0] = sourceState.m_analogInputFiltered[0];
+            m_analogInputFiltered[1] = sourceState.m_analogInputFiltered[1];
+
+            m_triggerRaw[0] = sourceState.m_triggerRaw[0];
+            m_triggerRaw[1] = sourceState.m_triggerRaw[1];
+            m_triggerFiltered[0] = sourceState.m_triggerFiltered[0];
+            m_triggerFiltered[1] = sourceState.m_triggerFiltered[1];
+
+            ButtonStates::ReflectFrom( deltaTime, timeScale, sourceState );
+        }
+
+        inline void Clear()
+        {
+            m_analogInputRaw[0] = m_analogInputRaw[1] = Float2::Zero;
+            m_analogInputFiltered[0] = m_analogInputFiltered[1] = Float2::Zero;
+            m_triggerRaw[0] = m_triggerRaw[1] = 0.0f;
+            m_triggerFiltered[0] = m_triggerFiltered[1] = 0.0f;
+            ClearButtonState();
         }
 
         // Get the filtered value of the left analog stick once the deadzone has been applied
@@ -86,20 +107,11 @@ namespace KRG::Input
         KRG_FORCE_INLINE void Press( ControllerButton buttonID ) { ButtonStates::Press( (uint32) buttonID ); }
         KRG_FORCE_INLINE void Release( ControllerButton buttonID ) { ButtonStates::Release( (uint32) buttonID ); }
 
-        inline void ClearState()
-        {
-            m_analogInputRaw[0] = m_analogInputRaw[1] = Float2::Zero;
-            m_analogInputFiltered[0] = m_analogInputFiltered[1] = Float2::Zero;
-            m_triggerRaw[0] = m_triggerRaw[1] = 0.0f;
-            m_triggerFiltered[0] = m_triggerFiltered[1] = 0.0f;
-            ClearButtonState();
-        }
-
     private:
 
-        Float2                                  m_analogInputRaw[2];
-        Float2                                  m_analogInputFiltered[2];
-        float                                     m_triggerRaw[2];
-        float                                     m_triggerFiltered[2];
+        Float2                                  m_analogInputRaw[2] = { Float2::Zero, Float2::Zero };
+        Float2                                  m_analogInputFiltered[2] = { Float2::Zero, Float2::Zero };
+        float                                   m_triggerRaw[2] = { 0.0f, 0.0f };
+        float                                   m_triggerFiltered[2] = { 0.0f, 0.0f };
     };
 }

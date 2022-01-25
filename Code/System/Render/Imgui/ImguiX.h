@@ -78,7 +78,7 @@ namespace KRG::ImGuiX
     KRG_SYSTEM_RENDER_API void TextSeparator( char const* text, float preWidth = 10.0f, float totalWidth = 0 );
 
     // Draws a vertical separator on the current line and forces the next item to be on the same line. The size is the offset between the previous item and the next
-    KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( 9, -1 ), ImColor const& color = 0 );
+    KRG_SYSTEM_RENDER_API void VerticalSeparator( ImVec2 const& size = ImVec2( -1, -1 ), ImColor const& color = 0 );
 
     //-------------------------------------------------------------------------
     // Widgets
@@ -120,11 +120,14 @@ namespace KRG::ImGuiX
         return ColoredButton( ConvertColor( backgroundColor ), ConvertColor( foregroundColor ), label, size );
     }
 
+    // Draws a flat button - a button with no background
+    KRG_SYSTEM_RENDER_API bool FlatButton( char const* label, ImVec2 const& size = ImVec2( 0, 0 ) );
+
     // Draw an arrow between two points
     KRG_SYSTEM_RENDER_API void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth = 5.0f );
 
     // Draw an overlaid icon in a window, returns true if clicked
-    KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID );
+    KRG_SYSTEM_RENDER_API bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID, bool isSelected = false, ImColor const& selectedColor = ImGui::GetStyle().Colors[ImGuiCol_ButtonActive] );
 
     // Draw a basic spinner
     KRG_SYSTEM_RENDER_API bool DrawSpinner( char const* pLabel, ImColor const& color = Style::s_textColor, float radius = 6.0f, float thickness = 3.0f );
@@ -137,6 +140,8 @@ namespace KRG::ImGuiX
     KRG_SYSTEM_RENDER_API bool InputFloat3( char const* pID, Float3& value, float width = -1, bool readOnly = false );
     KRG_SYSTEM_RENDER_API bool InputFloat4( char const* pID, Float4& value, float width = -1, bool readOnly = false );
     KRG_SYSTEM_RENDER_API bool InputFloat4( char const* pID, Vector& value, float width = -1, bool readOnly = false );
+
+    KRG_SYSTEM_RENDER_API bool InputTransform( char const* pID, Transform& value, float width = -1, bool readOnly = false );
 
     //-------------------------------------------------------------------------
 

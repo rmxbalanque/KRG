@@ -27,15 +27,17 @@
     <ClCompile Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.cpp">
       <Filter>ResourceCompilers\ResourceBuilders</Filter>
     </ClCompile>
-    <ClCompile Include="Serialization\EntityCollectionDescriptorReader.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialization\EntityCollectionDescriptorWriter.cpp">
-      <Filter>Serialization</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceCompilers\ResourceCompiler_EntityCollection.cpp">
       <Filter>ResourceCompilers</Filter>
     </ClCompile>
+    <ClCompile Include="EntityEditor\EntityEditor_Inspector.cpp" />
+    <ClCompile Include="EntityEditor\EntityEditor_Outliner.cpp" />
+    <ClCompile Include="EntityEditor\EntityEditor_Context.cpp" />
+    <ClCompile Include="EntityEditor\EntityEditor_PropertyGrid.cpp" />
+    <ClCompile Include="Workspaces\Workspace_EntityCollectionEditor.cpp" />
+    <ClCompile Include="EntityEditor\EntityEditor_BaseWorkspace.cpp" />
+    <ClCompile Include="Workspaces\Workspace_MapEditor.cpp" />
+    <ClCompile Include="Workspaces\Workspace_GamePreviewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -47,15 +49,16 @@
     <ClInclude Include="ResourceCompilers\ResourceBuilders\NavmeshBuilder.h">
       <Filter>ResourceCompilers\ResourceBuilders</Filter>
     </ClInclude>
-    <ClInclude Include="Serialization\EntityCollectionDescriptorReader.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
-    <ClInclude Include="Serialization\EntityCollectionDescriptorWriter.h">
-      <Filter>Serialization</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceCompilers\ResourceCompiler_EntityCollection.h">
       <Filter>ResourceCompilers</Filter>
     </ClInclude>
-    <ClInclude Include="EntityToolAccessor.h" />
+    <ClInclude Include="EntityEditor\EntityEditor_Inspector.h" />
+    <ClInclude Include="EntityEditor\EntityEditor_Outliner.h" />
+    <ClInclude Include="EntityEditor\EntityEditor_Context.h" />
+    <ClInclude Include="EntityEditor\EntityEditor_PropertyGrid.h" />
+    <ClInclude Include="Workspaces\Workspace_EntityCollectionEditor.h" />
+    <ClInclude Include="EntityEditor\EntityEditor_BaseWorkspace.h" />
+    <ClInclude Include="Workspaces\Workspace_MapEditor.h" />
+    <ClInclude Include="Workspaces\Workspace_GamePreviewer.h" />
   </ItemGroup>
 </Project>

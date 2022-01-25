@@ -24,6 +24,7 @@ namespace KRG
 
         ~ScopedChangeNotifier()
         {
+            m_eventInfo.m_pEditedTypeInstance->PostPropertyEditValidation( m_eventInfo.m_pPropertyInfo );
             m_pGrid->m_postEditEvent.Execute( m_eventInfo );
             m_pGrid->m_isDirty = true;
         }
@@ -63,17 +64,22 @@ namespace KRG
 
     void PropertyGrid::SetTypeToEdit( IRegisteredType* pTypeInstance )
     {
-        KRG_ASSERT( pTypeInstance != nullptr );
-
-        if ( pTypeInstance != m_pTypeInstance )
+        if ( pTypeInstance == nullptr )
         {
-            m_pTypeInfo = pTypeInstance->GetTypeInfo();
-            m_pTypeInstance = pTypeInstance;
+            SetTypeToEdit( nullptr );
         }
+        else
+        {
+            if ( pTypeInstance != m_pTypeInstance )
+            {
+                m_pTypeInfo = pTypeInstance->GetTypeInfo();
+                m_pTypeInstance = pTypeInstance;
+            }
 
-        // Always reset editors and dirty flag
-        DestroyPropertyEditors();
-        m_isDirty = false;
+            // Always reset editors and dirty flag
+            DestroyPropertyEditors();
+            m_isDirty = false;
+        }
     }
 
     void PropertyGrid::SetTypeToEdit( nullptr_t )
@@ -182,7 +188,7 @@ namespace KRG
         }
         else
         {
-            propertyName = propertyInfo.m_ID.c_str();
+            propertyName = propertyInfo.m_friendlyName.c_str();
         }
 
         bool showContents = false;
@@ -322,7 +328,7 @@ namespace KRG
         ImGui::AlignTextToFramePadding();
 
         bool showContents = false;
-        if ( ImGui::TreeNodeEx( propertyInfo.m_ID.c_str(), ImGuiTreeNodeFlags_None ) )
+        if ( ImGui::TreeNodeEx( propertyInfo.m_friendlyName.c_str(), ImGuiTreeNodeFlags_None ) )
         {
             showContents = true;
         }

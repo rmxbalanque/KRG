@@ -1,7 +1,6 @@
 #pragma once
 #include "Tools/Core/FileSystem/FileSystemWatcher.h"
-#include "System/Resource/ResourcePath.h"
-#include "System/Resource/ResourceTypeID.h"
+#include "System/Resource/ResourceID.h"
 #include "System/Core/Types/StringID.h"
 #include "System/Core/Types/Event.h"
 
@@ -15,11 +14,10 @@ namespace KRG::Resource
 {
     class KRG_TOOLS_CORE_API ResourceDatabase : public FileSystem::IFileSystemChangeListener
     {
-        struct ResourceRecord
+        struct ResourceEntry
         {
-            ResourcePath                                            m_resourcePath;
+            ResourceID                                              m_resourceID;
             FileSystem::Path                                        m_filePath;
-            ResourceTypeID                                          m_resourceTypeID;
         };
 
     private:
@@ -35,7 +33,7 @@ namespace KRG::Resource
             StringID                                                m_name;
             FileSystem::Path                                        m_filePath;
             TVector<Directory>                                      m_directories;
-            TVector<ResourceRecord*>                                m_files;
+            TVector<ResourceEntry*>                                 m_files;
         };
 
     public:
@@ -54,11 +52,14 @@ namespace KRG::Resource
         // Process any filesystem updates, returns true if any changes were detected!
         bool Update();
 
+        // Check if this is a existing resource
+        bool DoesResourceExist( ResourceID const& resourceID ) const;
+
         // Gets the list of all found resources
-        THashMap<ResourceTypeID, TVector<ResourceRecord*>> const& GetAllResources() const { return m_resourcesPerType; }
+        THashMap<ResourceTypeID, TVector<ResourceEntry*>> const& GetAllResources() const { return m_resourcesPerType; }
 
         // Get a list of all known resource of the specified type
-        TVector<ResourceRecord*> const& GetAllResourcesOfType( ResourceTypeID typeID ) const;
+        TVector<ResourceEntry*> const& GetAllResourcesOfType( ResourceTypeID typeID ) const;
 
         // Event that fires whenever the database is updated
         TEventHandle<> OnDatabaseUpdated() const { return m_databaseUpdatedEvent; }
@@ -93,7 +94,7 @@ namespace KRG::Resource
         FileSystem::FileSystemWatcher                               m_fileSystemWatcher;
 
         Directory                                                   m_rootDir;
-        THashMap<ResourceTypeID, TVector<ResourceRecord*>>          m_resourcesPerType;
+        THashMap<ResourceTypeID, TVector<ResourceEntry*>>           m_resourcesPerType;
         mutable TEvent<>                                            m_databaseUpdatedEvent;
     };
 }

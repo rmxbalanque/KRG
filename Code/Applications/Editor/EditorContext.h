@@ -34,6 +34,7 @@ namespace KRG
         // Map editor and game preview
         //-------------------------------------------------------------------------
 
+        void LoadMap( ResourceID const& mapResourceID ) const;
         bool IsMapEditorWorkspace( EditorWorkspace const* pWorkspace ) const;
         char const* GetMapEditorWindowName() const;
 
@@ -49,9 +50,10 @@ namespace KRG
         // Workspaces
         //-------------------------------------------------------------------------
 
+
         inline TVector<EditorWorkspace*> const& GetWorkspaces() const { return m_workspaces; }
         void* GetViewportTextureForWorkspace( EditorWorkspace* pWorkspace ) const;
-        uint64 GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const;
+        Render::PickingID GetViewportPickingID( EditorWorkspace* pWorkspace, Int2 const& pixelCoords ) const;
 
         inline bool IsWorkspaceOpen( uint32 workspaceID ) const { return FindResourceWorkspace( workspaceID ) != nullptr; }
         inline bool IsWorkspaceOpen( ResourceID const& resourceID ) const { return FindResourceWorkspace( resourceID ) != nullptr; }

@@ -9,7 +9,8 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(KRG_EASTL_DIR)Include\;$(KRG_EABASE_DIR)Include\Common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>EASTL_DLL;EASTL_USER_CONFIG_HEADER=$(KRG_EASTL_USER_CONFIG_HEADER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EASTL_USER_CONFIG_HEADER=$(KRG_EASTL_USER_CONFIG_HEADER);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Configuration) != 'Shipping'">EASTL_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
 </Project>

@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Navmesh/NavPower.h"
+#include "System/Core/Math/Vector.h"
 #include "System/Core/Types/Percentage.h"
 
 //-------------------------------------------------------------------------
@@ -21,7 +22,10 @@ namespace KRG::AI
 
     private:
 
+        #if KRG_NAVPOWER
         bfx::PolylinePathRCPtr      m_path;
+        #endif
+
         int32                       m_currentPathSegmentIdx = InvalidIndex;
         Percentage                  m_progressAlongSegment = 0.0f;
     };

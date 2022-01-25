@@ -74,9 +74,9 @@ namespace KRG::Animation
         GraphNodeIndex                              m_rootNodeIdx = InvalidIndex;
         TVector<StringID>                           m_controlParameterIDs;
 
-        #if KRG_DEVELOPMENT_TOOLS
+        //#if KRG_DEVELOPMENT_TOOLS
         TVector<String>                             m_nodePaths;
-        #endif
+        //#endif
 
         TVector<GraphNode::Settings*>               m_nodeSettings;
     };

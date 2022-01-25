@@ -7,6 +7,8 @@
 #include "Game/Core/Player/Actions/PlayerOverlayAction_Shoot.h"
 #include "Game/Core/Player/Actions/PlayerAction_Falling.h"
 #include "Game/Core/Player/Actions/PlayerAction_Dash.h"
+#include "Actions/PlayerAction_Slide.h"
+#include "Actions/PlayerAction_DebugMode.h"
 
 //-------------------------------------------------------------------------
 
@@ -24,25 +26,33 @@ namespace KRG::Player
         //-------------------------------------------------------------------------
         // Base Actions
         //-------------------------------------------------------------------------
-
+        #if KRG_DEVELOPMENT_TOOLS
+        m_baseActions[DebugMode] = KRG::New<DebugModeAction>();
+        #endif
         m_baseActions[Locomotion] = KRG::New<LocomotionAction>();
         m_baseActions[Falling] = KRG::New<FallingAction>();
         m_baseActions[Jump] = KRG::New<JumpAction>();
         m_baseActions[Dash] = KRG::New<DashAction>();
+        m_baseActions[Slide] = KRG::New<SlideAction>();
 
         //-------------------------------------------------------------------------
         // Transitions
         //-------------------------------------------------------------------------
 
         m_actionTransitions[Locomotion].emplace_back( Jump, Transition::Availability::Always );
-        //m_actionTransitions[Locomotion].emplace_back( Falling, Transition::Availability::Always );
         m_actionTransitions[Locomotion].emplace_back( Dash, Transition::Availability::Always );
-        m_actionTransitions[Jump].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
-        m_actionTransitions[Jump].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Locomotion].emplace_back( Slide, Transition::Availability::Always );
+        m_actionTransitions[Locomotion].emplace_back( Falling, Transition::Availability::Always );
         m_actionTransitions[Falling].emplace_back( Dash, Transition::Availability::Always );
-        m_actionTransitions[Falling].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
-        m_actionTransitions[Dash].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
-        m_actionTransitions[Dash].emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
+        m_actionTransitions[Jump].emplace_back( Dash, Transition::Availability::Always );
+        m_actionTransitions[Jump].emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_highPriorityGlobalTransitions.emplace_back( DebugMode, Transition::Availability::Always );
+        #endif
+
+        m_lowPriorityGlobalTransitions.emplace_back( Falling, Transition::Availability::OnlyOnCompleted );
+        m_lowPriorityGlobalTransitions.emplace_back( Locomotion, Transition::Availability::OnlyOnCompleted );
     }
 
     ActionStateMachine::~ActionStateMachine()
@@ -90,18 +100,20 @@ namespace KRG::Player
 
         auto EvaluateTransitions = [this] ( Action::Status const activeStateStatus, TInlineVector<Transition, 6> const& transitions )
         {
+            KRG_ASSERT( activeStateStatus != Action::Status::Uninterruptible );
+
             for ( auto const& transition : transitions )
             {
-                if ( !transition.IsAvailable( activeStateStatus ) )
+                if ( !transition.IsAvailable( m_activeBaseActionID, activeStateStatus ) )
                 {
                     continue;
                 }
 
-                if ( m_baseActions[transition.m_targetStateID]->TryStart( m_actionContext ) )
+                if ( m_baseActions[transition.m_targetActionID]->TryStart( m_actionContext ) )
                 {
                     #if KRG_DEVELOPMENT_TOOLS
                     m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), ( activeStateStatus == Action::Status::Completed ) ? LoggedStatus::ActionCompleted : LoggedStatus::ActionInterrupted );
-                    m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[transition.m_targetStateID]->GetName(), LoggedStatus::ActionStarted );
+                    m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[transition.m_targetActionID]->GetName(), LoggedStatus::ActionStarted );
                     #endif
 
                     // Stop the currently active state
@@ -112,9 +124,9 @@ namespace KRG::Player
                     //-------------------------------------------------------------------------
 
                     // Start the new state
-                    m_activeBaseActionID = transition.m_targetStateID;
+                    m_activeBaseActionID = transition.m_targetActionID;
                     Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
-                    KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
+                    KRG_ASSERT( newActionStatus != Action::Status::Completed ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
                     return true;
                 }
@@ -132,25 +144,29 @@ namespace KRG::Player
             // Evaluate the current active state
             ActionID const initialStateID = m_activeBaseActionID;
             Action::Status const status = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
-
-            // Evaluate Transitions
-            bool transitionFired = EvaluateTransitions( status, m_highPriorityGlobalTransitions );
-
-            if ( !transitionFired )
+            if ( status != Action::Status::Uninterruptible )
             {
-                transitionFired = EvaluateTransitions( status, m_actionTransitions[initialStateID] );
-            }
+                // Evaluate high priority global transitions
+                bool transitionFired = EvaluateTransitions( status, m_highPriorityGlobalTransitions );
 
-            if ( !transitionFired )
-            {
-                transitionFired = EvaluateTransitions( status, m_lowPriorityGlobalTransitions );
-            }
+                // Evaluate local transitions
+                if ( !transitionFired )
+                {
+                    transitionFired = EvaluateTransitions( status, m_actionTransitions[initialStateID] );
+                }
 
-            // Stop the current state if it completed and we didnt fire any transition
-            if ( !transitionFired && status == Action::Status::Completed )
-            {
-                m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, Action::StopReason::Completed );
-                m_activeBaseActionID = InvalidAction;
+                // Evaluate low priority global transitions
+                if ( !transitionFired )
+                {
+                    transitionFired = EvaluateTransitions( status, m_lowPriorityGlobalTransitions );
+                }
+
+                // Stop the current state if it completed and we didnt fire any transition
+                if ( !transitionFired && status == Action::Status::Completed )
+                {
+                    m_baseActions[m_activeBaseActionID]->Stop( m_actionContext, Action::StopReason::Completed );
+                    m_activeBaseActionID = InvalidAction;
+                }
             }
         }
 
@@ -167,7 +183,7 @@ namespace KRG::Player
             KRG_ASSERT( tryStartResult ); // The default state MUST always be able to start
 
             Action::Status const newActionStatus = m_baseActions[m_activeBaseActionID]->Update( m_actionContext );
-            KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
+            KRG_ASSERT( newActionStatus == Action::Status::Interruptible ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
             #if KRG_DEVELOPMENT_TOOLS
             m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), m_baseActions[m_activeBaseActionID]->GetName(), LoggedStatus::ActionStarted );
@@ -196,7 +212,7 @@ namespace KRG::Player
             else if ( pOverlayAction->TryStart( m_actionContext ) )
             {
                 Action::Status const newActionStatus = pOverlayAction->Update( m_actionContext );
-                KRG_ASSERT( newActionStatus == Action::Status::Running ); // Why did you instantly completed the action you just started, this is likely a mistake!
+                KRG_ASSERT( newActionStatus == Action::Status::Interruptible ); // Why did you instantly completed the action you just started, this is likely a mistake!
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_actionLog.emplace_back( m_actionContext.m_pEntityWorldUpdateContext->GetFrameID(), pOverlayAction->GetName(), LoggedStatus::ActionStarted, false );

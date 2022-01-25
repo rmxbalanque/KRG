@@ -93,7 +93,7 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void SkeletonWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void SkeletonWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         // Debug drawing in Viewport
         //-------------------------------------------------------------------------

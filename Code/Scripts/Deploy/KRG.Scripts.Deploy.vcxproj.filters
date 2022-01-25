@@ -18,8 +18,12 @@
       <Filter>Scripts</Filter>
     </None>
     <None Include="Deploy.nmake" />
-    <None Include="FBXSDK.nmake" />
-    <None Include="Navpower.nmake" />
+    <None Include="FBXSDK.nmake">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="Navpower.nmake">
+      <Filter>Scripts</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Scripts">

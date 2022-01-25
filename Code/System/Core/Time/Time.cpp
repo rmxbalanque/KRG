@@ -18,7 +18,7 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
-    Nanoseconds SystemClock::GetTime()
+    Nanoseconds PlatformClock::GetTime()
     {
         auto const time = std::chrono::high_resolution_clock::now();
         uint64 const numNanosecondsSinceEpoch = time.time_since_epoch().count();

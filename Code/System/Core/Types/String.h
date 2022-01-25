@@ -92,6 +92,34 @@ namespace KRG
             return strippedString;
         }
 
+        template<typename StringType>
+        inline StringType StripTrailingWhitespace( StringType const& originalString )
+        {
+            StringType strippedString;
+
+            auto const startIdx = originalString.find_first_not_of( ' ' );
+            if ( startIdx == StringType::npos )
+            {
+                strippedString = originalString.c_str();
+            }
+            else
+            {
+                auto const endIdx = originalString.find_last_not_of( ' ' );
+                auto const substrRange = endIdx - startIdx + 1;
+                strippedString = originalString.substr( startIdx, substrRange );
+            }
+
+            return strippedString;
+        }
+
+        inline void StripTrailingWhitespace( char* string )
+        {
+            size_t const origStringLength = strlen( string );
+            InlineString tmp = string;
+            tmp = StripTrailingWhitespace( tmp );
+            strncpy_s( string, origStringLength + 1, tmp.c_str(), tmp.length() );
+        }
+
         template<typename T>
         inline void Split( String const& str, T& results, char const* pDelimiters = " ", bool ignoreEmptyStrings = true )
         {

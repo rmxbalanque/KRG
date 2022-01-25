@@ -127,6 +127,13 @@ namespace KRG::Input
 
     public:
 
+        void Clear() { ResetFrameState( ResetType::Full ); }
+
+        void ReflectFrom( Seconds const deltaTime, float timeScale, KeyboardInputState const& sourceState )
+        {
+            ButtonStates<105>::ReflectFrom( deltaTime, timeScale, sourceState );
+        }
+
         // Get the char key pressed this frame. If no key pressed, this returns 0;
         inline uint8 GetCharKeyPressed() const { return m_charKeyPressed; }
 

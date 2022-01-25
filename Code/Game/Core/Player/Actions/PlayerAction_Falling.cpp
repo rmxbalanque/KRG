@@ -4,6 +4,7 @@
 #include "Game/Core/Player/PlayerAnimationController.h"
 #include "Engine/Physics/Components/Component_PhysicsCharacter.h"
 #include "Engine/Physics/Systems/WorldSystem_Physics.h"
+#include "Engine/Physics/PhysicsScene.h"
 #include "System/Input/InputSystem.h"
 
 // hack for now
@@ -15,28 +16,49 @@ namespace KRG::Player
 {
     static float    g_maxAirControlAcceleration = 10.0f;          // meters/second squared
     static float    g_maxAirControlSpeed = 6.5f;                  // meters/second
+    static float    g_FallingEmptySpaceRequired = 1.5f;           // meters
 
     //-------------------------------------------------------------------------
 
     bool FallingAction::TryStartInternal( ActionContext const& ctx )
     {
-        if( !ctx.m_pCharacterController->IsOnGround() )
+        if( ctx.m_pCharacterController->GetInAirTime() > 0.0f )
         {
+            Physics::QueryFilter filter;
+            filter.SetLayerMask( Physics::CreateLayerMask( Physics::Layers::Environment ) );
+            filter.AddIgnoredEntity( ctx.m_pCharacterComponent->GetEntityID() );
+
+            float const capsuleCylinderPortionHalfHeight = ctx.m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight();
+            float const capsuleRadius = ctx.m_pCharacterComponent->GetCapsuleRadius();
+            Quaternion const capsuleOrientation = ctx.m_pCharacterComponent->GetCapsuleOrientation();
+            Vector const capsulePosition = ctx.m_pCharacterComponent->GetCapsulePosition();
+
+            // Test for environment collision right below the player
+            ctx.m_pPhysicsScene->AcquireReadLock();
+            Physics::SweepResults sweepResults;
+            bool collided = ctx.m_pPhysicsScene->CapsuleSweep( capsuleCylinderPortionHalfHeight, capsuleRadius, capsuleOrientation, capsulePosition, -Vector::UnitZ, g_FallingEmptySpaceRequired, filter, sweepResults );
+            ctx.m_pPhysicsScene->ReleaseReadLock();
+
+            if( collided )
+            {
+                return false;
+            }
+
             ctx.m_pAnimationController->SetCharacterState( CharacterAnimationState::Falling );
             ctx.m_pCharacterController->EnableGravity( ctx.m_pCharacterComponent->GetCharacterVelocity().m_z );
+            ctx.m_pCharacterController->DisableStepHeight();
+            ctx.m_pCharacterController->DisableProjectionOntoFloor();
             return true;
         }
-
         return false;
     }
 
     Action::Status FallingAction::UpdateInternal( ActionContext const& ctx )
     {
-        auto const pControllerState = ctx.m_pInputState->GetControllerState();
-        KRG_ASSERT( pControllerState != nullptr );
-
         // Calculate desired player displacement
         //-------------------------------------------------------------------------
+        auto const pControllerState = ctx.m_pInputState->GetControllerState();
+        KRG_ASSERT( pControllerState != nullptr );
         Vector const movementInputs = pControllerState->GetLeftAnalogStickValue();
 
         auto const& camFwd = ctx.m_pCameraController->GetCameraRelativeForwardVector2D();
@@ -50,6 +72,7 @@ namespace KRG::Player
         Vector const forward = camFwd * movementInputs.m_y;
         Vector const right = camRight * movementInputs.m_x;
         Vector const desiredHeadingVelocity2D = ( forward + right ) * g_maxAirControlAcceleration * ctx.GetDeltaTime();
+        Vector const facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
 
         Vector resultingVelocity = currentVelocity2D + desiredHeadingVelocity2D;
         float const speed2D = resultingVelocity.GetLength2();
@@ -57,8 +80,6 @@ namespace KRG::Player
         {
             resultingVelocity = resultingVelocity.GetNormalized2() * g_maxAirControlSpeed;
         }
-
-        Vector const facing = desiredHeadingVelocity2D.IsZero2() ? ctx.m_pCharacterComponent->GetForwardVector() : desiredHeadingVelocity2D.GetNormalized2();
 
         // Run physic Prediction if required
         //-------------------------------------------------------------------------
@@ -68,32 +89,17 @@ namespace KRG::Player
         //-------------------------------------------------------------------------
         auto pLocomotionGraphController = ctx.GetAnimSubGraphController<LocomotionGraphController>();
         pLocomotionGraphController->SetLocomotionDesires( ctx.GetDeltaTime(), resultingVelocity, facing );
-
-        if( ctx.m_pCharacterController->IsOnGround() )
+        
+        if( ctx.m_pCharacterController->HasFloor() )
         {
             return Status::Completed;
         }
 
-        return Status::Running;
+        return Status::Interruptible;
     }
 
     void FallingAction::StopInternal( ActionContext const& ctx, StopReason reason )
     {
 
-    }
-
-    void FallingAction::DrawDebugUI()
-    {
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Settings :" );
-        ImGui::Separator();
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug Values :" );
-        ImGui::Separator();
-
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-        ImGui::Text( "Debug drawings :" );
-        ImGui::Separator();
     }
 }

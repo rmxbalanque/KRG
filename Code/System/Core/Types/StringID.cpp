@@ -20,31 +20,11 @@ namespace KRG
 
         void* allocate( size_t n, int flags = 0 )
         {
-            #if EASTL_NAME_ENABLED
-            #define pName mpName
-            #else
-            #define pName EASTL_ALLOCATOR_DEFAULT_NAME
-            #endif
-
-            #if EASTL_DLL
             return allocate( n, EASTL_SYSTEM_ALLOCATOR_MIN_ALIGNMENT, 0, flags );
-            #elif (EASTL_DEBUGPARAMS_LEVEL <= 0)
-            return ::new( (char*) 0, flags, 0, (char*) 0, 0 ) char[n];
-            #elif (EASTL_DEBUGPARAMS_LEVEL == 1)
-            return ::new( pName, flags, 0, (char*) 0, 0 ) char[n];
-            #else
-            return ::new( pName, flags, 0, __FILE__, __LINE__ ) char[n];
-            #endif
         }
 
         void* allocate( size_t n, size_t alignment, size_t offset, int flags = 0 )
         {
-            #if EASTL_DLL
-            // We currently have no support for implementing flags when 
-            // using the C runtime library operator new function. The user 
-            // can use SetDefaultAllocator to override the default allocator.
-            EA_UNUSED( offset ); EA_UNUSED( flags );
-
             size_t adjustedAlignment = ( alignment > EA_PLATFORM_PTR_SIZE ) ? alignment : EA_PLATFORM_PTR_SIZE;
 
             void* p = new char[n + adjustedAlignment + EA_PLATFORM_PTR_SIZE];
@@ -56,30 +36,16 @@ namespace KRG
             *( pStoredPtr ) = p;
 
             EASTL_ASSERT( ( (size_t) pAligned & ~( alignment - 1 ) ) == (size_t) pAligned );
-
             return pAligned;
-            #elif (EASTL_DEBUGPARAMS_LEVEL <= 0)
-            return ::new( alignment, offset, (char*) 0, flags, 0, (char*) 0, 0 ) char[n];
-            #elif (EASTL_DEBUGPARAMS_LEVEL == 1)
-            return ::new( alignment, offset, pName, flags, 0, (char*) 0, 0 ) char[n];
-            #else
-            return ::new( alignment, offset, pName, flags, 0, __FILE__, __LINE__ ) char[n];
-            #endif
-
-            #undef pName  // See above for the definition of this.
         }
 
         void deallocate( void* p, size_t n )
         {
-            #if EASTL_DLL
             if ( p != nullptr )
             {
                 void* pOriginalAllocation = *( (void**) p - 1 );
                 delete[]( char* )pOriginalAllocation;
             }
-            #else
-            delete[]( char* )p;
-            #endif
         }
     };
 

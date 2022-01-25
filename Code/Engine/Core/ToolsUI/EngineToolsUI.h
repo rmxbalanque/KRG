@@ -28,15 +28,6 @@ namespace KRG
     {
         friend class GamePreviewer;
 
-        struct ModalPopupMessage
-        {
-            String                                          m_ID;
-            String                                          m_channel;
-            String                                          m_message;
-            Log::Severity                                   m_severity;
-            bool                                            m_isOpen = true;
-        };
-
     public:
 
         void LockToWindow( String const& windowName ) { m_windowName = windowName; }
@@ -47,14 +38,14 @@ namespace KRG
 
     private:
 
-        void DrawPopups( UpdateContext const& context );
-        void DrawMenu( UpdateContext const& context );
+        void DrawMenu( UpdateContext const& context, EntityWorld* pGameWorld );
         void DrawOverlayElements( UpdateContext const& context, Render::Viewport const* pViewport );
-        void DrawWindows( UpdateContext const& context, ImGuiWindowClass* pWindowClass = nullptr );
-        void DrawStatusBar( UpdateContext const& context, EntityWorld* pGameWorld );
+        void DrawWindows( UpdateContext const& context, EntityWorld* pGameWorld, ImGuiWindowClass* pWindowClass = nullptr );
 
         virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToReload, TVector<ResourceID> const& resourcesToBeReloaded ) override {}
         virtual void EndHotReload() {}
+
+        void HandleUserInput( UpdateContext const& context, EntityWorld* pGameWorld );
 
         void ToggleWorldPause( EntityWorld* pGameWorld );
         void SetWorldTimeScale( EntityWorld* pGameWorld, float newTimeScale );
@@ -67,7 +58,6 @@ namespace KRG
         EntityWorldDebugger*                                m_pWorldDebugger = nullptr;
         String                                              m_windowName;
 
-        TVector<ModalPopupMessage>                          m_modalPopups;
         Seconds                                             m_averageDeltaTime = 0.0f;
         float                                               m_timeScale = 1.0f;
         bool                                                m_debugOverlayEnabled = false;
@@ -75,6 +65,7 @@ namespace KRG
         SystemLogView                                       m_systemLogView;
         bool                                                m_isLogWindowOpen = false;
         bool                                                m_isDebugSettingsWindowOpen = false;
+        bool                                                m_isTimeControlWindowOpen = false;
     };
 }
 #endif

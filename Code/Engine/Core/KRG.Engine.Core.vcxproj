@@ -9,6 +9,10 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2CFADBDC-EE40-4484-94D0-62A90206209E}</ProjectGuid>
@@ -28,6 +32,12 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -36,6 +46,10 @@
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
@@ -59,6 +73,18 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Components\Component_Cameras.h" />
     <ClInclude Include="Components\Component_Player.h" />
@@ -67,6 +93,8 @@
     <ClInclude Include="DebugViews\DebugView_Camera.h" />
     <ClInclude Include="Components\Component_SerializationTest.h" />
     <ClInclude Include="Entity\EntityIDs.h" />
+    <ClInclude Include="Entity\EntitySerialization.h" />
+    <ClInclude Include="Entity\EntityAccessor.h" />
     <ClInclude Include="Entity\EntityWorldDebugView.h" />
     <ClInclude Include="Entity\EntityWorldDebugger.h" />
     <ClInclude Include="DebugViews\DebugView_Input.h" />
@@ -76,8 +104,6 @@
     <ClInclude Include="Entity\EntityActivationContext.h" />
     <ClInclude Include="Entity\EntityLoadingContext.h" />
     <ClInclude Include="Entity\EntityWorldUpdateContext.h" />
-    <ClInclude Include="Entity\EntityCollection.h" />
-    <ClInclude Include="Entity\EntityCollectionDescriptor.h" />
     <ClInclude Include="DebugViews\DebugView_EntityWorld.h" />
     <ClInclude Include="Entity\Entity.h" />
     <ClInclude Include="Entity\EntityComponent.h" />
@@ -88,7 +114,6 @@
     <ClInclude Include="Entity\EntityWorldManager.h" />
     <ClInclude Include="Entity\EntityWorldSystem.h" />
     <ClInclude Include="Entity\EntityMap.h" />
-    <ClInclude Include="Entity\EntityMapDescriptor.h" />
     <ClInclude Include="ToolsUI\Gizmo.h" />
     <ClInclude Include="ToolsUI\OrientationGuide.h" />
     <ClInclude Include="Systems\WorldSystem_PlayerManager.h" />
@@ -104,15 +129,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\Component_Cameras.cpp" />
+    <ClCompile Include="Components\Component_Volumes.cpp" />
     <ClCompile Include="DebugViews\DebugView_Camera.cpp" />
     <ClCompile Include="Components\Component_SerializationTest.cpp" />
+    <ClCompile Include="Entity\EntitySerialization.cpp" />
     <ClCompile Include="Entity\EntityWorldDebugger.cpp" />
     <ClCompile Include="DebugViews\DebugView_Input.cpp" />
     <ClCompile Include="DebugViews\DebugView_System.cpp" />
     <ClCompile Include="DebugViews\DebugView_Resource.cpp" />
     <ClCompile Include="ToolsUI\IToolsUI.cpp" />
-    <ClCompile Include="Entity\EntityCollection.cpp" />
-    <ClCompile Include="Entity\EntityCollectionDescriptor.cpp" />
     <ClCompile Include="DebugViews\DebugView_EntityWorld.cpp" />
     <ClCompile Include="Entity\Entity.cpp" />
     <ClCompile Include="Entity\EntityComponent.cpp" />
@@ -123,7 +148,6 @@
     <ClCompile Include="Entity\EntityWorldManager.cpp" />
     <ClCompile Include="Entity\EntityWorldSystem.cpp" />
     <ClCompile Include="Entity\EntityMap.cpp" />
-    <ClCompile Include="Entity\EntityMapDescriptor.cpp" />
     <ClCompile Include="ToolsUI\Gizmo.cpp" />
     <ClCompile Include="ToolsUI\OrientationGuide.cpp" />
     <ClCompile Include="Systems\WorldSystem_PlayerManager.cpp" />

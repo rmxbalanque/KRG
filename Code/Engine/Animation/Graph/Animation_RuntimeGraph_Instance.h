@@ -95,8 +95,17 @@ namespace KRG::Animation
         inline PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphContext& context, GraphNodeIndex nodeIdx ) const
         {
             KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
+            KRG_ASSERT( m_nodes[nodeIdx]->GetValueType() == GraphValueType::Pose );
             auto pNode = static_cast<PoseNode const*>( m_nodes[nodeIdx] );
             return pNode->GetDebugInfo();
+        }
+
+        template<typename T>
+        inline T GetRuntimeNodeValue( GraphContext& context, GraphNodeIndex nodeIdx ) const
+        {
+            KRG_ASSERT( IsValidNodeIndex( nodeIdx ) );
+            auto pValueNode = static_cast<ValueNode*>( const_cast<GraphNode*>( m_nodes[nodeIdx] ) );
+            return pValueNode->GetValue<T>( context );
         }
         #endif
 

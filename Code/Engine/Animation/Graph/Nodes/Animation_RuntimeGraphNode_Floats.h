@@ -17,7 +17,7 @@ namespace KRG::Animation::GraphNodes
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex              m_inputValueNodeIdx = InvalidIndex;
             FloatRange                  m_inputRange = FloatRange( 0.0f );
             FloatRange                  m_outputRange = FloatRange( 0.0f );
         };
@@ -47,7 +47,7 @@ namespace KRG::Animation::GraphNodes
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex              m_inputValueNodeIdx = InvalidIndex;
             FloatRange                  m_clampRange = FloatRange( 0 );
         };
 
@@ -76,7 +76,7 @@ namespace KRG::Animation::GraphNodes
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
+            GraphNodeIndex              m_inputValueNodeIdx = InvalidIndex;
         };
 
     private:
@@ -104,9 +104,10 @@ namespace KRG::Animation::GraphNodes
 
             virtual void InstantiateNode( TVector<GraphNode*> const& nodePtrs, GraphDataSet const* pDataSet, InitOptions options ) const override;
 
-            GraphNodeIndex                   m_inputValueNodeIdx = InvalidIndex;
-            Math::Easing::Type          m_easingType = Math::Easing::Type::Linear;
             float                       m_easeTime = 1.0f;
+            float                       m_initalValue = -1.0f;
+            GraphNodeIndex              m_inputValueNodeIdx = InvalidIndex;
+            Math::Easing::Type          m_easingType = Math::Easing::Type::Linear;
         };
 
     private:

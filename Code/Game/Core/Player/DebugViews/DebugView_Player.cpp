@@ -10,6 +10,7 @@
 
 // HACK
 #include "Game/Core/Player/Actions/PlayerAction_Jump.h"
+#include "Game/Core/Player/Components/Component_MainPlayer.h"
 
 //-------------------------------------------------------------------------
 
@@ -306,16 +307,38 @@ namespace KRG::Player
 
         //-------------------------------------------------------------------------
 
-        ImVec2 const windowDimensions = ImGui::GetContentRegionAvail();
+        auto window = ImGui::GetCurrentWindow();
+        auto drawList = window->DrawList;
+
+        ImVec2 const windowPos = ImGui::GetWindowPos();
+        ImVec2 const windowDimensions = ImGui::GetWindowSize();
         ImVec2 const windowCenter = windowDimensions / 2;
 
         {
             ImGuiX::ScopedFont sf( ImGuiX::Font::Medium );
 
-            ImVec2 const crosshairSize = ImGui::CalcTextSize( KRG_ICON_CIRCLE_O );
+            ImVec2 const crosshairSize = ImGui::CalcTextSize( KRG_ICON_CIRCLE_NOTCH );
             ImVec2 const crosshairCursorPos( windowCenter - ( crosshairSize / 2 ) );
             ImGui::SetCursorPos( crosshairCursorPos );
-            ImGui::Text( KRG_ICON_CIRCLE_O );
+            ImGui::Text( KRG_ICON_CIRCLE_NOTCH );
+        }
+
+        {
+            auto pInputSystem = context.GetSystem<Input::InputSystem>();
+            if ( pInputSystem->GetControllerState( 0 )->IsHeldDown( Input::ControllerButton::FaceButtonLeft ) )
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Huge );
+                ImGui::SetCursorPos( windowCenter + ImVec2( 0, 25 ) );
+                ImGui::Text( "Sys Hold Time: %.2f", pInputSystem->GetControllerState( 0 )->GetHeldDuration( Input::ControllerButton::FaceButtonLeft ).ToFloat() );
+            }
+
+            auto pInputState = m_pWorld->GetInputState();
+            if ( pInputState->GetControllerState( 0 )->IsHeldDown( Input::ControllerButton::FaceButtonLeft ) )
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Huge );
+                ImGui::SetCursorPos( windowCenter + ImVec2( 0, 50 ) );
+                ImGui::Text( "World Hold Time: %.2f", pInputState->GetControllerState( 0 )->GetHeldDuration( Input::ControllerButton::FaceButtonLeft ).ToFloat() );
+            }
         }
 
         if ( !statusString.empty() )
@@ -326,6 +349,72 @@ namespace KRG::Player
             ImVec2 const statusTextCursorPos( windowCenter.x - ( statusTextSize.x / 2 ), windowCenter.y + 8 );
             ImGui::SetCursorPos( statusTextCursorPos );
             ImGui::TextColored( ImGuiX::ConvertColor( Colors::Red ), statusString.c_str() );
+        }
+
+        {
+            float const startX = windowDimensions.x - 600;
+            float const startY = windowDimensions.y - 40;
+            float const EndX = windowDimensions.x - 10;
+            float const EndY = windowDimensions.y - 10;
+            float const rectWidth = EndX - startX;
+
+            ImVec2 const rectangleStart = ImVec2( startX, startY ) + windowPos;
+            ImVec2 const rectangleEnd = ImVec2( EndX, EndY ) + windowPos;
+            ImVec2 const rectangleSize = rectangleEnd - rectangleStart;
+
+            auto const color = ImGui::GetColorU32( ImVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
+            auto const colorLevel = ImGui::GetColorU32( ImVec4( 0.5f, 1.0f, 0.5f, 1.0f ) );
+
+            auto GetStartPosForLevel = [rectangleStart, rectWidth] ( int32 level )
+            {
+                float paddingX = level == 1 ? 5.f : 2.5f;
+                return rectangleStart + ( ImVec2( float( level - 1 ), float( level - 1 ) ) * ImVec2( rectWidth / 3.f, 0.f ) ) + ImVec2( paddingX, 5.f );
+            };
+            auto GetEndPosForLevel = [rectangleEnd, rectWidth] ( int32 level )
+            {
+                float paddingX = level == 3 ? 5.f : 2.5f;
+                return rectangleEnd - ( ImVec2( float( 3 - level ), float( 3 - level ) ) * ImVec2( rectWidth / 3.f, 0.f ) ) - ImVec2( paddingX, 5.f );
+            };
+
+            drawList->AddRect( rectangleStart, rectangleEnd, color );
+            drawList->AddRect( GetStartPosForLevel( 1 ), GetEndPosForLevel( 1 ), colorLevel );
+            drawList->AddRect( GetStartPosForLevel( 2 ), GetEndPosForLevel( 2 ), colorLevel );
+            drawList->AddRect( GetStartPosForLevel( 3 ), GetEndPosForLevel( 3 ), colorLevel );
+
+            float const energyLevel = pController->m_actionContext.m_pPlayerComponent->GetEnergyLevel();
+            if( energyLevel < 1.0 )
+            {
+                ImVec2 const start = GetStartPosForLevel( 1 );
+                ImVec2 const end = GetEndPosForLevel( 1 );
+                float const width = end.x - start.x;
+
+                drawList->AddRectFilled( start, ImVec2( start.x + energyLevel * width, end.y ), colorLevel );
+            }
+            else if( energyLevel < 2.0 )
+            {
+                ImVec2 const start = GetStartPosForLevel( 2 );
+                ImVec2 const end = GetEndPosForLevel( 2 );
+                float const width = end.x - start.x;
+
+                drawList->AddRectFilled( GetStartPosForLevel( 1 ), GetEndPosForLevel( 1 ), colorLevel );
+                drawList->AddRectFilled( start, ImVec2( start.x + ( energyLevel - 1.f ) * width, end.y ), colorLevel );
+            }
+            else if( energyLevel < 3.0 )
+            {
+                ImVec2 const start = GetStartPosForLevel( 3 );
+                ImVec2 const end = GetEndPosForLevel( 3 );
+                float const width = end.x - start.x;
+
+                drawList->AddRectFilled( GetStartPosForLevel( 1 ), GetEndPosForLevel( 1 ), colorLevel );
+                drawList->AddRectFilled( GetStartPosForLevel( 2 ), GetEndPosForLevel( 2 ), colorLevel );
+                drawList->AddRectFilled( start, ImVec2( start.x + ( energyLevel - 2.f ) * width, end.y ), colorLevel );
+            }
+            else
+            {
+                drawList->AddRectFilled( GetStartPosForLevel( 1 ), GetEndPosForLevel( 1 ), colorLevel );
+                drawList->AddRectFilled( GetStartPosForLevel( 2 ), GetEndPosForLevel( 2 ), colorLevel );
+                drawList->AddRectFilled( GetStartPosForLevel( 3 ), GetEndPosForLevel( 3 ), colorLevel );
+            }
         }
     }
 }

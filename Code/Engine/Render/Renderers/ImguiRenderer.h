@@ -54,8 +54,6 @@ namespace KRG::Render
         VertexBuffer                    m_vertexBuffer;
         Texture                         m_fontTexture;
 
-        TVector<RecordedCmdBuffer>      m_cmdBuffers;
-
         PipelineState                   m_PSO;
         bool                            m_initialized = false;
     };

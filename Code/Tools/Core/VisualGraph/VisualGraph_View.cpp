@@ -94,6 +94,8 @@ namespace KRG::VisualGraph
     bool GraphView::BeginDrawCanvas( float childHeightOverride )
     {
         m_selectionChanged = false;
+        m_isViewHovered = false;
+        m_canvasSize = ImVec2( 0, 0 );
 
         //-------------------------------------------------------------------------
 
@@ -102,15 +104,12 @@ namespace KRG::VisualGraph
         bool const childVisible = ImGui::BeginChild( "GraphCanvas", ImVec2( 0.f, childHeightOverride ), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse );
         if ( childVisible )
         {
-            if ( ImGui::InvisibleButton( "InvisibleCanvasButton", ImGui::GetContentRegionAvail(), ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle | ImGuiButtonFlags_MouseButtonRight ) )
-            {
-                int i = 5;
-            }
-
             auto pWindow = ImGui::GetCurrentWindow();
             auto pDrawList = ImGui::GetWindowDrawList();
 
             m_hasFocus = ImGui::IsWindowFocused( ImGuiFocusedFlags_ChildWindows );
+            m_isViewHovered = ImGui::IsWindowHovered();
+            m_canvasSize = ImGui::GetWindowContentRegionMax() - ImGui::GetWindowContentRegionMin();
             pDrawList->ChannelsSplit( 4 );
 
             // Background
@@ -185,10 +184,8 @@ namespace KRG::VisualGraph
         // Colors
         //-------------------------------------------------------------------------
 
-        bool drawBorder = false;
         ImColor const nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
-        ImColor nodeTitleColor( pNode->GetNodeColor() );
-        ImColor nodeBorderColor( pNode->GetNodeColor() );
+        ImColor nodeTitleColor( pNode->GetNodeTitleColor() );
 
         auto pStateMachineGraph = GetStateMachineGraph();
         if ( pNode->m_ID == pStateMachineGraph->m_entryStateID )
@@ -196,15 +193,14 @@ namespace KRG::VisualGraph
             nodeTitleColor = ImGuiX::ConvertColor( Colors::Green );
         }
 
+        NodeVisualState visualState = NodeVisualState::None;
         if ( IsNodeSelected( pNode ) )
         {
-            nodeBorderColor = VisualSettings::s_genericSelectionColor;
-            drawBorder = true;
+            visualState = NodeVisualState::Selected;
         }
         else if ( pNode->m_isHovered )
         {
-            nodeBorderColor = VisualSettings::s_genericHoverColor;
-            drawBorder = true;
+            visualState = NodeVisualState::Hovered;
         }
 
         // Draw
@@ -214,16 +210,12 @@ namespace KRG::VisualGraph
         {
             ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
             ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, nodeTitleColor, 3, ImDrawFlags_RoundCornersTop );
-
-            if ( drawBorder )
-            {
-                ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
-            }
+            ctx.m_pDrawList->AddRect( rectMin, rectMax, pNode->GetNodeBorderColor( ctx, visualState ), 3, ImDrawFlags_RoundCornersAll, 2.0f );
         }
         else // Non-state node
         {
             ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3 );
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 1.0f );
+            ctx.m_pDrawList->AddRect( rectMin, rectMax, pNode->GetNodeBorderColor( ctx, visualState ), 3, ImDrawFlags_RoundCornersAll, 1.0f );
         }
     }
 
@@ -277,7 +269,7 @@ namespace KRG::VisualGraph
 
         //-------------------------------------------------------------------------
 
-        pNode->m_isHovered = m_hasFocus && GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos );
+        pNode->m_isHovered = m_isViewHovered && GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos );
     }
 
     void GraphView::DrawStateMachineTransitionConduit( DrawContext const& ctx, SM::TransitionConduit* pTransition )
@@ -304,26 +296,28 @@ namespace KRG::VisualGraph
         startPoint += offset;
         endPoint += offset;
 
-        // Check hover state
+        // Update hover state and visual state
         //-------------------------------------------------------------------------
 
         pTransition->m_isHovered = false;
-        ImColor transitionColor = pTransition->GetNodeColor();
+        NodeVisualState visualState = NodeVisualState::None;
+
         ImVec2 const closestPointOnTransitionToMouse = ImLineClosestPoint( startPoint, endPoint, ctx.m_mouseCanvasPos );
-        if ( m_hasFocus && ImLengthSqr( ctx.m_mouseCanvasPos - closestPointOnTransitionToMouse ) < Math::Pow( VisualSettings::s_connectionSelectionExtraRadius, 2 ) )
+        if ( m_isViewHovered && ImLengthSqr( ctx.m_mouseCanvasPos - closestPointOnTransitionToMouse ) < Math::Pow( VisualSettings::s_connectionSelectionExtraRadius, 2 ) )
         {
-            transitionColor = VisualSettings::s_connectionColorHovered;
+            visualState = NodeVisualState::Hovered;
             pTransition->m_isHovered = true;
         }
 
         if ( IsNodeSelected( pTransition ) )
         {
-            transitionColor = VisualSettings::s_genericSelectionColor;
+            visualState = NodeVisualState::Selected;
         }
 
         // Draw
         //-------------------------------------------------------------------------
 
+        ImColor const transitionColor = pTransition->GetNodeBorderColor( ctx, visualState );
         ImGuiX::DrawArrow( ctx.m_pDrawList, ctx.CanvasPositionToScreenPosition( startPoint ), ctx.CanvasPositionToScreenPosition( endPoint ), transitionColor, g_transitionArrowWidth );
 
         // Update transition position and size
@@ -334,6 +328,8 @@ namespace KRG::VisualGraph
         pTransition->m_canvasPosition = min;
         pTransition->m_size = max - min;
     }
+
+    //-------------------------------------------------------------------------
 
     void GraphView::DrawFlowNodeTitle( DrawContext const& ctx, Flow::Node* pNode, ImVec2& newNodeSize )
     {
@@ -492,28 +488,21 @@ namespace KRG::VisualGraph
         // Draw
         //-------------------------------------------------------------------------
 
-        ImColor nodeBackgroundColor( VisualSettings::s_genericNodeBackgroundColor );
-        ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, nodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
-        ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetNodeColor(), 3, ImDrawFlags_RoundCornersTop );
+        ctx.m_pDrawList->AddRectFilled( rectMin, rectMax, VisualSettings::s_genericNodeBackgroundColor, 3, ImDrawFlags_RoundCornersAll );
+        ctx.m_pDrawList->AddRectFilled( rectMin, rectTitleBarMax, pNode->GetNodeTitleColor(), 3, ImDrawFlags_RoundCornersTop );
 
-        bool drawBorder = false;
-        ImColor nodeBorderColor( pNode->GetNodeColor() );
+        NodeVisualState visualState = NodeVisualState::None;
 
         if ( IsNodeSelected( pNode ) )
         {
-            nodeBorderColor = VisualSettings::s_genericSelectionColor;
-            drawBorder = true;
+            visualState = NodeVisualState::Selected;
         }
         else if ( pNode->m_isHovered && pNode->m_pHoveredPin == nullptr )
         {
-            nodeBorderColor = VisualSettings::s_genericHoverColor;
-            drawBorder = true;
+            visualState = NodeVisualState::Hovered;
         }
 
-        if ( drawBorder )
-        {
-            ctx.m_pDrawList->AddRect( rectMin, rectMax, nodeBorderColor, 3, ImDrawFlags_RoundCornersAll, 2.0f );
-        }
+        ctx.m_pDrawList->AddRect( rectMin, rectMax, pNode->GetNodeBorderColor( ctx, visualState ), 3, ImDrawFlags_RoundCornersAll, 2.0f );
     }
 
     void GraphView::DrawFlowNode( DrawContext const& ctx, Flow::Node* pNode )
@@ -570,17 +559,20 @@ namespace KRG::VisualGraph
 
         //-------------------------------------------------------------------------
 
-        pNode->m_isHovered = m_hasFocus && GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos ) || pNode->m_pHoveredPin != nullptr;
+        pNode->m_isHovered = m_isViewHovered && GetNodeCanvasRect( pNode ).Contains( ctx.m_mouseCanvasPos ) || pNode->m_pHoveredPin != nullptr;
     }
+
+    //-------------------------------------------------------------------------
 
     void GraphView::UpdateAndDraw( TypeSystem::TypeRegistry const& typeRegistry, float childHeightOverride, void* pUserContext )
     {
+        DrawContext drawingContext;
+
         if ( BeginDrawCanvas( childHeightOverride ) && m_pGraph != nullptr )
         {
             auto pWindow = ImGui::GetCurrentWindow();
             ImVec2 const mousePos = ImGui::GetMousePos();
 
-            DrawContext drawingContext;
             drawingContext.m_pDrawList = ImGui::GetWindowDrawList();
             drawingContext.m_viewOffset = m_viewOffset;
             drawingContext.m_windowRect = pWindow->Rect();
@@ -603,15 +595,6 @@ namespace KRG::VisualGraph
                 {
                     // If we have a rect width, perform culling
                     auto pStateMachineNode = Cast<SM::Node>( pNode );
-                    if ( pStateMachineNode->GetSize().x > 0 )
-                    {
-                        ImRect nodeCanvasRect = GetNodeCanvasRect( pStateMachineNode );
-                        if ( !drawingContext.IsItemVisible( nodeCanvasRect ) )
-                        {
-                            pStateMachineNode->m_isHovered = false;
-                            continue;
-                        }
-                    }
 
                     if ( auto pTransition = TryCast<SM::TransitionConduit>( pNode ) )
                     {
@@ -637,18 +620,7 @@ namespace KRG::VisualGraph
 
                 for ( auto pNode : m_pGraph->m_nodes )
                 {
-                    // If we have a rect width, perform culling
                     auto pFlowNode = Cast<Flow::Node>( pNode );
-                    if ( pFlowNode->m_size.x > 0 )
-                    {
-                        ImRect nodeCanvasRect = GetNodeCanvasRect( pFlowNode );
-                        if ( !drawingContext.IsItemVisible( nodeCanvasRect ) )
-                        {
-                            pFlowNode->m_isHovered = false;
-                            continue;
-                        }
-                    }
-
                     DrawFlowNode( drawingContext, pFlowNode );
 
                     if ( pFlowNode->m_isHovered )
@@ -702,6 +674,51 @@ namespace KRG::VisualGraph
         }
 
         EndDrawCanvas();
+
+        if ( ImGui::BeginDragDropTarget() )
+        {
+            HandleDragAndDrop( drawingContext.m_mouseCanvasPos );
+            ImGui::EndDragDropTarget();
+        }
+    }
+
+    void GraphView::ResetView()
+    {
+        if ( m_pGraph == nullptr || m_pGraph->m_nodes.empty() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto pMostSignificantNode = m_pGraph->GetMostSignificantNode();
+        if ( pMostSignificantNode != nullptr )
+        {
+            CenterView( pMostSignificantNode );
+        }
+        else
+        {
+            int32 const numNodes = (int32) m_pGraph->m_nodes.size();
+            ImRect totalRect = ImRect( m_pGraph->m_nodes[0]->GetCanvasPosition(), ImVec2( m_pGraph->m_nodes[0]->GetCanvasPosition() ) + m_pGraph->m_nodes[0]->GetSize() );
+            for ( int32 i = 1; i < numNodes; i++ )
+            {
+                auto pNode = m_pGraph->m_nodes[i];
+                ImRect const nodeRect( pNode->GetCanvasPosition(), ImVec2( pNode->GetCanvasPosition() ) + pNode->GetSize() );
+                totalRect.Add( nodeRect );
+            }
+
+            m_viewOffset = totalRect.GetCenter() - ( m_canvasSize / 2 );
+        }
+    }
+
+    void GraphView::CenterView( BaseNode const* pNode )
+    {
+        KRG_ASSERT( m_pGraph != nullptr );
+        KRG_ASSERT( pNode != nullptr && m_pGraph->FindNode( pNode->GetID() ) != nullptr );
+
+        ImVec2 const nodeHalfSize = ( pNode->GetSize() / 2 );
+        ImVec2 const nodeCenter = ImVec2( pNode->GetCanvasPosition() ) + nodeHalfSize;
+        m_viewOffset = nodeCenter - ( m_canvasSize / 2 );
     }
 
     //-------------------------------------------------------------------------
@@ -777,6 +794,20 @@ namespace KRG::VisualGraph
         auto pGraph = GetViewedGraph();
 
         ScopedGraphModification sgm( pGraph );
+
+        // Exclude any state machine transitions, as we will end up double deleting them since they are removed if the state is removed
+        if ( IsViewingStateMachineGraph() )
+        {
+            for ( int32 i = (int32) m_selectedNodes.size() - 1; i >= 0; i-- )
+            {
+                if ( auto pConduit = TryCast<SM::TransitionConduit>( m_selectedNodes[i].m_pNode ) )
+                {
+                    m_selectedNodes.erase_unsorted( m_selectedNodes.begin() + i );
+                }
+            }
+        }
+
+        // Delete selected nodes
         for ( auto const& selectedNode : m_selectedNodes )
         {
             if ( selectedNode.m_pNode->IsDestroyable() )
@@ -786,6 +817,224 @@ namespace KRG::VisualGraph
         }
 
         ClearSelection();
+    }
+
+    void GraphView::CopySelectedNodes( TypeSystem::TypeRegistry const& typeRegistry )
+    {
+        if ( m_selectedNodes.empty() )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        JsonWriter jsonSerializer;
+        auto pWriter = jsonSerializer.GetWriter();
+
+        pWriter->StartObject();
+
+        // Copy Nodes
+        //-------------------------------------------------------------------------
+
+        pWriter->Key( s_copiedNodesKey );
+        pWriter->StartArray();
+
+        TInlineVector<UUID, 10> copiedNodes;
+        for ( auto const& selectedNode : m_selectedNodes )
+        {
+            // Do not copy any selected conduits, as conduits are automatically copied!!!
+            if ( auto pConduit = TryCast<SM::TransitionConduit>( selectedNode.m_pNode ) )
+            {
+                continue;
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( selectedNode.m_pNode->IsUserCreatable() )
+            {
+                selectedNode.m_pNode->Serialize( typeRegistry, *pWriter );
+                copiedNodes.emplace_back( selectedNode.m_pNode->GetID() );
+            }
+        }
+
+        // Ensure that all transitions between copied states are also copied
+        if ( IsViewingStateMachineGraph() )
+        {
+            for ( auto pNode : m_pGraph->m_nodes )
+            {
+                if ( auto pConduit = TryCast<SM::TransitionConduit>( pNode ) )
+                {
+                    // If the conduit is already copied, then do nothing
+                    if ( VectorContains( copiedNodes, pConduit->GetID() ) )
+                    {
+                        continue;
+                    }
+
+                    // If there exists a non-copied conduit between two copied states, then serialize it
+                    if ( VectorContains( copiedNodes, pConduit->GetStartStateID() ) && VectorContains( copiedNodes, pConduit->GetEndStateID() ) )
+                    {
+                        pConduit->Serialize( typeRegistry, *pWriter );
+                    }
+                }
+            }
+        }
+
+        pWriter->EndArray();
+
+        // Serialize node connections
+        //-------------------------------------------------------------------------
+
+        if ( IsViewingFlowGraph() )
+        {
+            auto pFlowGraph = GetFlowGraph();
+
+            pWriter->Key( s_copiedConnectionsKey );
+            pWriter->StartArray();
+
+            for ( auto const& connection : pFlowGraph->m_connections )
+            {
+                if ( VectorContains( copiedNodes, connection.m_pStartNode->GetID() ) && VectorContains( copiedNodes, connection.m_pEndNode->GetID() ) )
+                {
+                    pFlowGraph->SerializeConnection( *pWriter, connection );
+                }
+            }
+
+            pWriter->EndArray();
+        }
+
+        //-------------------------------------------------------------------------
+
+        pWriter->EndObject();
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SetClipboardText( jsonSerializer.GetStringBuffer().GetString() );
+    }
+
+    void GraphView::PasteNodes( TypeSystem::TypeRegistry const& typeRegistry, ImVec2 const& canvasPastePosition )
+    {
+        JsonReader jsonSerializer;
+        if ( !jsonSerializer.ReadFromString( ImGui::GetClipboardText() ) )
+        {
+            return;
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto& document = jsonSerializer.GetDocument();
+
+        auto copiedNodesArrayIter = document.FindMember( s_copiedNodesKey );
+        if ( copiedNodesArrayIter == document.MemberEnd() )
+        {
+            return;
+        }
+
+        // Deserialize pasted nodes and regenerated IDs
+        //-------------------------------------------------------------------------
+
+        THashMap<UUID, UUID> IDMapping;
+        TInlineVector<BaseNode*, 20> pastedNodes;
+        for ( auto& nodeObjectValue : copiedNodesArrayIter->value.GetArray() )
+        {
+            auto pPastedNode = BaseNode::CreateNodeFromSerializedData( typeRegistry, nodeObjectValue, m_pGraph );
+
+            if ( m_pGraph->CanCreateNode( pPastedNode->GetTypeInfo() ) )
+            {
+                pPastedNode->RegenerateIDs( IDMapping );
+                pastedNodes.emplace_back( pPastedNode );
+            }
+            else
+            {
+                pPastedNode->Shutdown();
+                KRG::Delete( pPastedNode );
+            }
+        }
+
+        if ( pastedNodes.empty() )
+        {
+            return;
+        }
+
+        // Add nodes to the graph
+        //-------------------------------------------------------------------------
+
+        m_pGraph->BeginModification();
+
+        for ( auto pPastedNode : pastedNodes )
+        {
+            m_pGraph->AddNode( pPastedNode );
+        }
+
+        // Serialize and fix connections
+        //-------------------------------------------------------------------------
+
+        if ( IsViewingFlowGraph() )
+        {
+            auto pFlowGraph = GetFlowGraph();
+            auto copiedConnectionsArrayIter = document.FindMember( s_copiedConnectionsKey );
+            if ( copiedConnectionsArrayIter != document.MemberEnd() )
+            {
+                for ( auto& connectionObjectValue : copiedConnectionsArrayIter->value.GetArray() )
+                {
+                    UUID startNodeID = UUID( connectionObjectValue[Flow::Connection::s_startNodeKey].GetString() );
+                    UUID endNodeID = UUID( connectionObjectValue[Flow::Connection::s_endNodeKey].GetString() );
+                    UUID startPinID = UUID( connectionObjectValue[Flow::Connection::s_startPinKey].GetString() );
+                    UUID endPinID = UUID( connectionObjectValue[Flow::Connection::s_endPinKey].GetString() );
+
+                    startNodeID = IDMapping.at( startNodeID );
+                    endNodeID = IDMapping.at( endNodeID );
+                    startPinID = IDMapping.at( startPinID );
+                    endPinID = IDMapping.at( endPinID );
+
+                    Flow::Connection connection;
+                    connection.m_pStartNode = pFlowGraph->GetNode( startNodeID );
+                    connection.m_pEndNode = pFlowGraph->GetNode( endNodeID );
+                    connection.m_startPinID = startPinID;
+                    connection.m_endPinID = endPinID;
+
+                    // Only add valid connections (some nodes may have been excluded during the paste)
+                    if ( connection.m_pStartNode != nullptr && connection.m_pEndNode != nullptr )
+                    {
+                        pFlowGraph->m_connections.emplace_back( connection );
+                    }
+                }
+            }
+        }
+        else // State Machine
+        {
+            for ( auto pPastedNode : pastedNodes )
+            {
+                if ( auto pConduit = TryCast<SM::TransitionConduit>( pPastedNode ) )
+                {
+                    pConduit->m_startStateID = IDMapping.at( pConduit->m_startStateID );
+                    pConduit->m_endStateID = IDMapping.at( pConduit->m_endStateID );
+                }
+            }
+        }
+
+        // Updated pasted node positions
+        //-------------------------------------------------------------------------
+
+        Float2 leftMostNodePosition( FLT_MAX, FLT_MAX );
+        int32 const numPastedNodes = (int32) pastedNodes.size();
+        for ( int32 i = 0; i < numPastedNodes; i++ )
+        {
+            if ( pastedNodes[i]->GetCanvasPosition().m_x < leftMostNodePosition.m_x )
+            {
+                leftMostNodePosition = pastedNodes[i]->GetCanvasPosition();
+            }
+        }
+
+        for ( int32 i = 0; i < numPastedNodes; i++ )
+        {
+            pastedNodes[i]->SetCanvasPosition( pastedNodes[i]->GetCanvasPosition() - leftMostNodePosition + Float2( canvasPastePosition ) );
+        }
+
+        // Notify graph that nodes were pasted
+        //-------------------------------------------------------------------------
+
+        m_pGraph->PostPasteNodes( pastedNodes );
+        m_pGraph->EndModification();
     }
 
     //-------------------------------------------------------------------------
@@ -1031,7 +1280,7 @@ namespace KRG::VisualGraph
 
     void GraphView::HandleContextMenu( DrawContext const& ctx )
     {
-        if ( ctx.IsMouseInViewWindow() && ImGui::IsMouseReleased( ImGuiMouseButton_Right ) )
+        if ( m_isViewHovered && ImGui::IsMouseReleased( ImGuiMouseButton_Right ) )
         {
             m_contextMenuState.m_mouseCanvasPos = ctx.m_mouseCanvasPos;
             m_contextMenuState.m_menuOpened = true;
@@ -1059,6 +1308,7 @@ namespace KRG::VisualGraph
             }
             else
             {
+                ImGui::SetWindowFocus();
                 m_contextMenuState.Reset();
             }
             ImGui::PopStyleVar( 2 );
@@ -1151,11 +1401,7 @@ namespace KRG::VisualGraph
 
     void GraphView::HandleInput( TypeSystem::TypeRegistry const& typeRegistry, DrawContext const& ctx )
     {
-        if ( !m_hasFocus )
-        {
-            return;
-        }
-
+        // Allow selection without focus
         //-------------------------------------------------------------------------
 
         if ( ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
@@ -1208,12 +1454,14 @@ namespace KRG::VisualGraph
                         UpdateSelection( m_pHoveredNode );
                     }
                 }
-                else if( ctx.IsMouseInViewWindow() )
+                else if ( m_isViewHovered )
                 {
                     ClearSelection();
                 }
             }
         }
+
+        //-------------------------------------------------------------------------
 
         if ( ImGui::IsMouseDoubleClicked( ImGuiMouseButton_Left ) )
         {
@@ -1221,17 +1469,45 @@ namespace KRG::VisualGraph
             {
                 OnNodeDoubleClick( m_pHoveredNode );
             }
-            else
+            else if ( m_isViewHovered )
             {
                 OnGraphDoubleClick( m_pGraph );
             }
         }
 
+        //-------------------------------------------------------------------------
+
+        // Detect clicked that start within the view window
+        if ( m_isViewHovered )
+        {
+            // Track left mouse
+            if ( m_isViewHovered && ImGui::IsMouseClicked( ImGuiMouseButton_Left ) )
+            {
+                m_dragState.m_leftMouseClickDetected = true;
+            }
+            else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Left ) )
+            {
+                m_dragState.m_leftMouseClickDetected = false;
+            }
+
+            // Track middle mouse
+            if ( m_isViewHovered && ImGui::IsMouseClicked( ImGuiMouseButton_Middle ) )
+            {
+                m_dragState.m_middleMouseClickDetected = true;
+            }
+            else if ( !ImGui::IsMouseDown( ImGuiMouseButton_Middle ) )
+            {
+                m_dragState.m_middleMouseClickDetected = false;
+            }
+        }
+
+        // Handle dragging logic
         switch ( m_dragState.m_mode )
         {
+            // Should we start dragging?
             case DragMode::None:
             {
-                if ( ImGui::IsMouseDragging( ImGuiMouseButton_Left, 3 ) )
+                if ( m_dragState.m_leftMouseClickDetected && ImGui::IsMouseDragging( ImGuiMouseButton_Left, 3 ) )
                 {
                     if ( IsViewingFlowGraph() )
                     {
@@ -1270,7 +1546,7 @@ namespace KRG::VisualGraph
                         }
                     }
                 }
-                else if ( ImGui::IsMouseDragging( ImGuiMouseButton_Middle, 3 ) )
+                else if ( m_dragState.m_middleMouseClickDetected && ImGui::IsMouseDragging( ImGuiMouseButton_Middle, 3 ) )
                 {
                     StartDraggingView( ctx );
                 }
@@ -1305,246 +1581,43 @@ namespace KRG::VisualGraph
         // Keyboard
         //-------------------------------------------------------------------------
 
-        if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_C ) ) )
+        // These operation require the graph view to be focused!
+        if ( m_hasFocus )
         {
-            CopySelectedNodes( typeRegistry );
-        }
-        else if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_X ) ) )
-        {
-            CopySelectedNodes( typeRegistry );
-            DestroySelectedNodes();
-        }
-        else if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_V ) ) )
-        {
-            ImVec2 pasteLocation( 0.0f, 0.0f );
-
-            if ( ctx.IsMouseInViewWindow() )
+            if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_C ) ) )
             {
-                pasteLocation = ctx.m_mouseCanvasPos;
+                CopySelectedNodes( typeRegistry );
             }
-            else
+            else if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_X ) ) )
             {
-                pasteLocation = ctx.m_canvasVisibleRect.GetCenter();
+                CopySelectedNodes( typeRegistry );
+                DestroySelectedNodes();
             }
-
-            PasteNodes( typeRegistry, pasteLocation );
-        }
-
-        if ( !m_selectedNodes.empty() && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
-        {
-            DestroySelectedNodes();
-        }
-    }
-
-    //-------------------------------------------------------------------------
-
-    void GraphView::CopySelectedNodes( TypeSystem::TypeRegistry const& typeRegistry )
-    {
-        if ( m_selectedNodes.empty() )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        JsonWriter jsonSerializer;
-        auto pWriter = jsonSerializer.GetWriter();
-
-        pWriter->StartObject();
-
-        // Copy Nodes
-        //-------------------------------------------------------------------------
-
-        pWriter->Key( s_copiedNodesKey );
-        pWriter->StartArray();
-
-        TInlineVector<UUID, 10> copiedNodes;
-        for ( auto const& selectedNode : m_selectedNodes )
-        {
-            if ( selectedNode.m_pNode->IsUserCreatable() )
+            else if ( ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_V ) ) )
             {
-                selectedNode.m_pNode->Serialize( typeRegistry, *pWriter );
-                copiedNodes.emplace_back( selectedNode.m_pNode->GetID() );
-            }
-        }
+                ImVec2 pasteLocation( 0.0f, 0.0f );
 
-        // Ensure that all transitions between copied states are also copied
-        if ( IsViewingStateMachineGraph() )
-        {
-            for ( auto pNode : m_pGraph->m_nodes )
-            {
-                if ( auto pConduit = TryCast<SM::TransitionConduit>( pNode ) )
+                if ( m_isViewHovered )
                 {
-                    // If the conduit is already copied, then do nothing
-                    if ( VectorContains( copiedNodes, pConduit->GetID() ) )
-                    {
-                        continue;
-                    }
-
-                    // If there exists a non-copied conduit between two copied states, then serialize it
-                    if ( VectorContains( copiedNodes, pConduit->GetStartStateID() ) && VectorContains( copiedNodes, pConduit->GetEndStateID() ) )
-                    {
-                        pConduit->Serialize( typeRegistry, *pWriter );
-                    }
+                    pasteLocation = ctx.m_mouseCanvasPos;
                 }
-            }
-        }
-
-        pWriter->EndArray();
-
-        // Serialize node connections
-        //-------------------------------------------------------------------------
-
-        if ( IsViewingFlowGraph() )
-        {
-            auto pFlowGraph = GetFlowGraph();
-
-            pWriter->Key( s_copiedConnectionsKey );
-            pWriter->StartArray();
-
-            for ( auto const& connection : pFlowGraph->m_connections )
-            {
-                if ( VectorContains( copiedNodes, connection.m_pStartNode->GetID() ) && VectorContains( copiedNodes, connection.m_pEndNode->GetID() ) )
+                else
                 {
-                    pFlowGraph->SerializeConnection( *pWriter, connection );
+                    pasteLocation = ctx.m_canvasVisibleRect.GetCenter();
                 }
+
+                PasteNodes( typeRegistry, pasteLocation );
             }
 
-            pWriter->EndArray();
-        }
-
-        //-------------------------------------------------------------------------
-
-        pWriter->EndObject();
-
-        //-------------------------------------------------------------------------
-
-        ImGui::SetClipboardText( jsonSerializer.GetStringBuffer().GetString() );
-    }
-
-    void GraphView::PasteNodes( TypeSystem::TypeRegistry const& typeRegistry, ImVec2 const& canvasPastePosition )
-    {
-        JsonReader jsonSerializer;
-        if ( !jsonSerializer.ReadFromString( ImGui::GetClipboardText() ) )
-        {
-            return;
-        }
-
-        //-------------------------------------------------------------------------
-
-        auto& document = jsonSerializer.GetDocument();
-
-        auto copiedNodesArrayIter = document.FindMember( s_copiedNodesKey );
-        if ( copiedNodesArrayIter == document.MemberEnd() )
-        {
-            return;
-        }
-
-        // Deserialize pasted nodes and regenerated IDs
-        //-------------------------------------------------------------------------
-
-        THashMap<UUID, UUID> IDMapping;
-        TInlineVector<BaseNode*, 20> pastedNodes;
-        for ( auto& nodeObjectValue : copiedNodesArrayIter->value.GetArray() )
-        {
-            auto pPastedNode = BaseNode::CreateNodeFromSerializedData( typeRegistry, nodeObjectValue, m_pGraph );
-
-            if ( m_pGraph->CanCreateNode( pPastedNode->GetTypeInfo() ) )
+            if ( !m_selectedNodes.empty() && ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Delete ) ) )
             {
-                pPastedNode->RegenerateIDs( IDMapping );
-                pastedNodes.emplace_back( pPastedNode );
+                DestroySelectedNodes();
             }
-            else
+
+            if ( ImGui::IsKeyPressed( ImGui::GetKeyIndex( ImGuiKey_Home ) ) )
             {
-                pPastedNode->Shutdown();
-                KRG::Delete( pPastedNode );
+                ResetView();
             }
         }
-
-        if ( pastedNodes.empty() )
-        {
-            return;
-        }
-
-        // Add nodes to the graph
-        //-------------------------------------------------------------------------
-
-        m_pGraph->BeginModification();
-
-        for ( auto pPastedNode : pastedNodes )
-        {
-            m_pGraph->AddNode( pPastedNode );
-        }
-
-        // Serialize and fix connections
-        //-------------------------------------------------------------------------
-
-        if ( IsViewingFlowGraph() )
-        {
-            auto pFlowGraph = GetFlowGraph();
-            auto copiedConnectionsArrayIter = document.FindMember( s_copiedConnectionsKey );
-            if ( copiedConnectionsArrayIter != document.MemberEnd() )
-            {
-                for ( auto& connectionObjectValue : copiedConnectionsArrayIter->value.GetArray() )
-                {
-                    UUID startNodeID = UUID( connectionObjectValue[Flow::Connection::s_startNodeKey].GetString() );
-                    UUID endNodeID = UUID( connectionObjectValue[Flow::Connection::s_endNodeKey].GetString() );
-                    UUID startPinID = UUID( connectionObjectValue[Flow::Connection::s_startPinKey].GetString() );
-                    UUID endPinID = UUID( connectionObjectValue[Flow::Connection::s_endPinKey].GetString() );
-
-                    startNodeID = IDMapping.at( startNodeID );
-                    endNodeID = IDMapping.at( endNodeID );
-                    startPinID = IDMapping.at( startPinID );
-                    endPinID = IDMapping.at( endPinID );
-
-                    Flow::Connection connection;
-                    connection.m_pStartNode = pFlowGraph->GetNode( startNodeID );
-                    connection.m_pEndNode = pFlowGraph->GetNode( endNodeID );
-                    connection.m_startPinID = startPinID;
-                    connection.m_endPinID = endPinID;
-
-                    // Only add valid connections (some nodes may have been excluded during the paste)
-                    if ( connection.m_pStartNode != nullptr && connection.m_pEndNode != nullptr )
-                    {
-                        pFlowGraph->m_connections.emplace_back( connection );
-                    }
-                }
-            }
-        }
-        else // State Machine
-        {
-            for ( auto pPastedNode : pastedNodes )
-            {
-                if ( auto pConduit = TryCast<SM::TransitionConduit>( pPastedNode ) )
-                {
-                    pConduit->m_startStateID = IDMapping.at( pConduit->m_startStateID );
-                    pConduit->m_endStateID = IDMapping.at( pConduit->m_endStateID );
-                }
-            }
-        }
-
-        // Updated pasted node positions
-        //-------------------------------------------------------------------------
-
-        Float2 leftMostNodePosition( FLT_MAX, FLT_MAX );
-        int32 const numPastedNodes = (int32) pastedNodes.size();
-        for ( int32 i = 0; i < numPastedNodes; i++ )
-        {
-            if ( pastedNodes[i]->GetCanvasPosition().m_x < leftMostNodePosition.m_x )
-            {
-                leftMostNodePosition = pastedNodes[i]->GetCanvasPosition();
-            }
-        }
-
-        for ( int32 i = 0; i < numPastedNodes; i++ )
-        {
-            pastedNodes[i]->SetCanvasPosition( pastedNodes[i]->GetCanvasPosition() - leftMostNodePosition + Float2( canvasPastePosition ) );
-        }
-
-        // Notify graph that nodes were pasted
-        //-------------------------------------------------------------------------
-
-        m_pGraph->PostPasteNodes( pastedNodes );
-        m_pGraph->EndModification();
     }
 }

@@ -12,15 +12,9 @@
 // Configurations
 //-------------------------------------------------------------------------
 
-// KRG_CONFIGURATION_DEBUG = unoptimized build with debug info (debug drawing, string debug names, etc...)
-// KRG_CONFIGURATION_RELEASE = optimized build with debug info (debug drawing, string debug names, etc...)
-// KRG_CONFIGURATION_FINAL = optimized build with no debug info
-
-#ifdef KRG_DEBUG
-#define KRG_CONFIGURATION_DEBUG 1
-#elif !KRG_CONFIGURATION_FINAL
-#define KRG_CONFIGURATION_RELEASE 1
-#endif
+// KRG_DEBUG = unoptimized build with debug info (debug drawing, string debug names, etc...)
+// KRG_RELEASE = optimized build with debug info (debug drawing, string debug names, etc...)
+// KRG_SHIPPING = optimized build with no debug info
 
 //-------------------------------------------------------------------------
 // Development
@@ -28,7 +22,7 @@
 // This define controls whether the dev tools are compiled
 // KRG_DEVELOPMENT_TOOLS_LINE_IN_MACRO exists for use in macros.
 
-#if !KRG_CONFIGURATION_FINAL
+#if !KRG_SHIPPING
 #define KRG_DEVELOPMENT_TOOLS 1
 #endif
 

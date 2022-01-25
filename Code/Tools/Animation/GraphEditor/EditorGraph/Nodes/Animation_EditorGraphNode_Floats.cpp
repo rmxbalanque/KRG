@@ -166,6 +166,7 @@ namespace KRG::Animation::GraphNodes
 
             pSettings->m_easingType = m_easingType;
             pSettings->m_easeTime = m_easeTime;
+            pSettings->m_initalValue = m_initialValue;
         }
         return pSettings->m_nodeIdx;
     }

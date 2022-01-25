@@ -46,10 +46,10 @@ namespace KRG::Animation
 
     private:
 
-        EditorGraphDefinition*     m_pGraphDefinition = nullptr;
+        EditorGraphDefinition*              m_pGraphDefinition = nullptr;
         StringID                            m_activeOperationVariationID;
-        char                                m_buffer[255];
+        char                                m_buffer[255] = {0};
         Resource::ResourceFilePicker        m_resourcePicker;
-        OperationType                       m_activeOperation;
+        OperationType                       m_activeOperation = OperationType::None;
     };
 }

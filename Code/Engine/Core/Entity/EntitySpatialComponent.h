@@ -202,7 +202,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         SpatialEntityComponent*                                             m_pSpatialParent = nullptr;             // The component we are attached to
-        StringID                                                            m_parentAttachmentSocketID;             // The socket we are attached to (can be invalid)
+        KRG_EXPOSE StringID                                                 m_parentAttachmentSocketID;             // The socket we are attached to (can be invalid)
         TInlineVector<SpatialEntityComponent*, 2>                           m_spatialChildren;                      // All components that are attached to us
     };
 }

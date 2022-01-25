@@ -13,7 +13,7 @@ namespace KRG::Animation
     class AnimationWorldSystem;
     class AnimationGraphComponent;
     class TaskSystem;
-    class RootMotionActionRecorder;
+    class RootMotionRecorder;
 
     //-------------------------------------------------------------------------
 
@@ -28,8 +28,6 @@ namespace KRG::Animation
             {}
 
             ComponentID             m_ID;
-            bool                    m_drawRoot = false;
-            bool                    m_drawRecordedRootMotion = false;
             bool                    m_drawControlParameters = false;
             bool                    m_drawActiveTasks = false;
             bool                    m_drawSampledEvents = false;
@@ -44,7 +42,7 @@ namespace KRG::Animation
     private:
 
         static void DrawTaskTreeRow( AnimationGraphComponent* pGraphComponent, TaskSystem* pTaskSystem, TaskIndex currentTaskIdx );
-        static void DrawRootMotionRow( AnimationGraphComponent* pGraphComponent, RootMotionActionRecorder* pRootMotionRecorder, int16 currentActionIdx );
+        static void DrawRootMotionRow( AnimationGraphComponent* pGraphComponent, RootMotionRecorder* pRootMotionRecorder, int16 currentActionIdx );
 
     public:
 

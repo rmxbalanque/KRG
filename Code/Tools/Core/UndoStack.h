@@ -26,12 +26,27 @@ namespace KRG
     {
     public:
 
+        enum class Operation : uint8
+        {
+            Undo,
+            Redo
+        };
+
+    public:
+
         ~UndoStack();
 
+        // Do we have an action to undo
         inline bool CanUndo() { return !m_recordedActions.empty(); }
-        void Undo();
+
+        // Undo the last action - returns the action that we undid
+        IUndoableAction const* Undo();
+
+        // Do we have an action we can redo
         inline bool CanRedo() { return !m_undoneActions.empty(); }
-        void Redo();
+
+        // Redoes the last action - returns the action that we redid
+        IUndoableAction const* Redo();
 
         //-------------------------------------------------------------------------
 

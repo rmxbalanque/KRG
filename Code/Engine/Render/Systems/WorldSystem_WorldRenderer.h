@@ -31,7 +31,7 @@ namespace KRG::Render
     public:
 
         KRG_REGISTER_TYPE( RendererWorldSystem );
-        KRG_ENTITY_WORLD_SYSTEM( RendererWorldSystem, RequiresUpdate( UpdateStage::FrameEnd ) );
+        KRG_ENTITY_WORLD_SYSTEM( RendererWorldSystem, RequiresUpdate( UpdateStage::FrameEnd ), RequiresUpdate( UpdateStage::Paused ) );
 
         #if KRG_DEVELOPMENT_TOOLS
         enum class VisualizationMode : int8
@@ -48,16 +48,6 @@ namespace KRG::Render
         #endif
 
     private:
-
-        // Static meshes need special handling for mobility changes
-        struct RegisteredStaticMesh
-        {
-            inline ComponentID const& GetID() const { return m_pComponent->GetID(); }
-
-            StaticMeshComponent*                                m_pComponent = nullptr;
-            EventBindingID                                      m_mobilityChangedEventBinding;
-            EventBindingID                                      m_staticMobilityTransformUpdatedEventBinding;
-        };
 
         // Track all instances of a given mesh together - to limit the number of vertex buffer changes
         struct SkeletalMeshGroup
@@ -110,10 +100,12 @@ namespace KRG::Render
     private:
 
         // Static meshes
-        TIDVector<ComponentID, RegisteredStaticMesh>                    m_registeredStaticMeshComponents;
+        TIDVector<ComponentID, StaticMeshComponent*>                    m_registeredStaticMeshComponents;
         TIDVector<ComponentID, StaticMeshComponent*>                    m_staticStaticMeshComponents;
         TIDVector<ComponentID, StaticMeshComponent*>                    m_dynamicStaticMeshComponents;
         TVector<StaticMeshComponent const*>                             m_visibleStaticMeshComponents;
+        EventBindingID                                                  m_staticMeshMobilityChangedEventBinding;
+        EventBindingID                                                  m_staticMeshStaticTransformUpdatedEventBinding;
         Threading::Mutex                                                m_mobilityUpdateListLock;               // Mobility switches can occur on any thread so the list needs to be threadsafe. We use a simple lock for now since we dont expect too many switches
         TVector<StaticMeshComponent*>                                   m_mobilityUpdateList;                   // A list of all components that switched mobility during this frame, will results in an update of the various spatial data structures next frame
         TVector<StaticMeshComponent*>                                   m_staticMobilityTransformUpdateList;    // A list of all static mobility components that have moved during this frame, will results in an update of the various spatial data structures next frame

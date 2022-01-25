@@ -27,7 +27,7 @@ namespace KRG
     private:
 
         virtual void RebuildTreeInternal() override;
-        virtual void DrawItemContextMenu( TreeListViewItem* pItem ) override;
+        virtual void DrawItemContextMenu( TVector<TreeListViewItem*> const& selectedItemsWithContextMenus ) override;
         virtual void DrawAdditionalUI() override;
 
         void OnBrowserItemDoubleClicked( TreeListViewItem* pItem );
@@ -41,7 +41,7 @@ namespace KRG
 
     private:
 
-        EditorContext&                                        m_model;
+        EditorContext&                                      m_editorContext;
         char                                                m_nameFilterBuffer[256];
         TVector<ResourceTypeID>                             m_typeFilter;
         bool                                                m_showRawFiles = false;

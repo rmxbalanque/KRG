@@ -65,10 +65,13 @@ namespace KRG::Animation::GraphNodes
 
         for ( auto i = 0; i < m_eventIDs.size(); i++ )
         {
-            infoText.append( m_eventIDs[i].c_str() );
-            if ( i != m_eventIDs.size() - 1 )
+            if ( m_eventIDs[i].IsValid() )
             {
-                infoText.append( ", " );
+                infoText.append( m_eventIDs[i].c_str() );
+                if ( i != m_eventIDs.size() - 1 )
+                {
+                    infoText.append( ", " );
+                }
             }
         }
 

@@ -11,11 +11,16 @@ namespace KRG::AI
 {
     bool MoveToAction::IsRunning() const
     {
+        #if KRG_NAVPOWER
         return m_path.IsValid();
+        #else
+        return false;
+        #endif
     }
 
     void MoveToAction::Start( BehaviorContext const& ctx, Vector const& goalPosition )
     {
+        #if KRG_NAVPOWER
         auto spaceHandle = ctx.m_pNavmeshSystem->GetSpaceHandle();
 
         bfx::PathSpec pathSpec;
@@ -34,15 +39,16 @@ namespace KRG::AI
         {
             m_currentPathSegmentIdx = InvalidIndex;
         }
+        #endif
     }
 
     void MoveToAction::Update( BehaviorContext const& ctx )
     {
+        #if KRG_NAVPOWER
         if ( !m_path.IsValid() )
         {
             return;
         }
-
 
         float const moveSpeed = 5.5f;
         float distanceToMove = moveSpeed * ctx.GetDeltaTime();
@@ -146,5 +152,6 @@ namespace KRG::AI
         {
             m_path.Release();
         }
+        #endif
     }
 }

@@ -23,6 +23,6 @@ namespace KRG::AI
 
     private:
 
-        EngineCooldownTimer        m_idleBreakerCooldown;
+        ManualCountdownTimer        m_idleBreakerCooldown;
     };
 }

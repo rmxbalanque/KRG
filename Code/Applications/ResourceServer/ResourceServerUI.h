@@ -1,4 +1,5 @@
 #pragma once
+#include "System/Core/Types/Containers.h"
 
 //-------------------------------------------------------------------------
 
@@ -19,7 +20,6 @@ namespace KRG::Resource
 
     private:
 
-        void DrawPendingRequests();
         void DrawCompletedRequests();
         void DrawWorkerStatus();
         void DrawServerInfo();
@@ -27,7 +27,8 @@ namespace KRG::Resource
 
     private:
 
-        ResourceServer*                 m_pResourceServer = nullptr;
-        CompilationRequest const*       m_pSelectedCompletedRequest = nullptr;
+        ResourceServer*                         m_pResourceServer = nullptr;
+        CompilationRequest const*               m_pSelectedCompletedRequest = nullptr;
+        TVector<CompilationRequest const*>      m_combinedRequests; // Temp working memory for UI
     };
 }

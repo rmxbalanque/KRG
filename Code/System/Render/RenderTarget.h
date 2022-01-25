@@ -7,6 +7,17 @@
 
 namespace KRG::Render
 {
+    struct PickingID
+    {
+        PickingID() = default;
+        inline bool IsSet() const { return m_0 != 0 || m_1 != 0; }
+
+        uint64 m_0 = 0;
+        uint64 m_1 = 0;
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_SYSTEM_RENDER_API RenderTarget
     {
         friend class RenderDevice;

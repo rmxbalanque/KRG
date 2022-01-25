@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "Engine/Core/Entity/EntityCollectionDescriptor.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
 #include "Engine/Core/Entity/EntityComponent.h"
 #include "System/Core/Types/Color.h"
 #include "System/TypeSystem/TypeRegistrationMacros.h"
@@ -40,6 +40,15 @@ namespace KRG
         KRG_EXPOSE TVector<ExternalTestSubStruct>               m_dynamicArray = { ExternalTestSubStruct(), ExternalTestSubStruct() };
     };
 
+    #if KRG_DEVELOPMENT_TOOLS
+    struct DevOnlyStruct : public IRegisteredType
+    {
+        KRG_REGISTER_TYPE( DevOnlyStruct );
+
+        KRG_EXPOSE float m_float;
+    };
+    #endif
+
     //-------------------------------------------------------------------------
 
     enum class TestFlags
@@ -53,6 +62,16 @@ namespace KRG
         D = 4,
         A = 5,
     };
+
+    #if KRG_DEVELOPMENT_TOOLS
+    enum class DevOnlyEnum
+    {
+        KRG_REGISTER_ENUM
+
+        Moo,
+        Cow
+    };
+    #endif
 
     //-------------------------------------------------------------------------
 
@@ -135,6 +154,13 @@ namespace KRG
         KRG_EXPOSE IntRange                                                     m_intRange;
         KRG_EXPOSE FloatRange                                                   m_floatRange;
         KRG_EXPOSE FloatCurve                                                   m_floatCurve;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_EXPOSE TResourcePtr<EntityModel::EntityCollectionDescriptor>            m_devOnlyResource;
+        KRG_EXPOSE TVector<TResourcePtr<EntityModel::EntityCollectionDescriptor>>   m_devOnlyResourcePtrs;
+        KRG_EXPOSE float                                                            m_devOnlyProperty;
+        KRG_EXPOSE TVector<ExternalTestStruct>                                      m_devOnlyDynamicArrayOfStructs = { ExternalTestStruct(), ExternalTestStruct(), ExternalTestStruct() };
+        #endif
 
         // Tags
         KRG_EXPOSE Tag                                                          m_tag;

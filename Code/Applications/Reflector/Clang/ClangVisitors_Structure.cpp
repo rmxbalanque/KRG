@@ -344,7 +344,7 @@ namespace KRG::TypeSystem::Reflection
             KRG_ASSERT( macro.IsValid() );
 
             // Modules
-            if ( macro.IsModuleMacro() )
+            if ( macro.IsModuleMacro() && !pContext->m_detectDevOnlyTypesAndProperties )
             {
                 String const moduleName = pContext->GetCurrentNamespace() + cursorName;
 
@@ -371,7 +371,7 @@ namespace KRG::TypeSystem::Reflection
 
             //-------------------------------------------------------------------------
 
-            if ( macro.IsRegisteredResourceMacro() )
+            if ( macro.IsRegisteredResourceMacro() && !pContext->m_detectDevOnlyTypesAndProperties )
             {
                 // Register the resource
                 ReflectedResourceType resource;
@@ -418,7 +418,7 @@ namespace KRG::TypeSystem::Reflection
                 pContext->m_pCurrentEntry = &classDescriptor;
                 clang_visitChildren( cr, VisitStructureContents, pContext );
 
-                pContext->m_pDatabase->RegisterType( &classDescriptor );
+                pContext->m_pDatabase->RegisterType( &classDescriptor, pContext->m_detectDevOnlyTypesAndProperties );
             }
         }
 

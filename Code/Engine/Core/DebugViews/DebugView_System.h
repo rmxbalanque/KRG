@@ -47,7 +47,7 @@ namespace KRG
 
     private:
 
-        InlineString                                   m_logFilter;
+        InlineString                                        m_logFilter = "TODO";
     };
 }
 #endif

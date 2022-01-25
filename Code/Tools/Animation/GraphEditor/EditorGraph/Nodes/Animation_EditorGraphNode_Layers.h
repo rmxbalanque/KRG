@@ -18,7 +18,7 @@ namespace KRG::Animation::GraphNodes
 
         virtual char const* GetTypeName() const override { return "Layer"; }
         virtual char const* GetCategory() const override { return "Blends/Layers"; }
-        virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::PaleGoldenRod ); }
+        virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::PaleGoldenRod ); }
 
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual bool IsValidConnection( UUID const& inputPinID, Node const* pOutputPinNode, UUID const& outputPinID ) const override;
@@ -44,7 +44,7 @@ namespace KRG::Animation::GraphNodes
 
         virtual char const* GetTypeName() const override { return "Layer Blend"; }
         virtual char const* GetCategory() const override { return "Blends/Layers"; }
-        virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::PaleGoldenRod ); }
+        virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::PaleGoldenRod ); }
 
         virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
         virtual bool IsValidConnection( UUID const& inputPinID, Node const* pOutputPinNode, UUID const& outputPinID ) const override;

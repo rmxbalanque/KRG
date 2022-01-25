@@ -106,7 +106,7 @@ namespace KRG::Animation
         ImGui::AlignTextToFramePadding();
         if ( m_isSyncTrack )
         {
-            ImGui::Text( KRG_ICON_HANDSHAKE_O " %s", GetLabel() );
+            ImGui::Text( KRG_ICON_CLOCK " %s", GetLabel() );
         }
         else
         {

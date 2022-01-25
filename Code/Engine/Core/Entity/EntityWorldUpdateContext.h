@@ -9,6 +9,7 @@ namespace KRG
 {
     class IWorldEntitySystem;
     class EntityWorld;
+    namespace Input { class InputState; }
     namespace Render { class Viewport; }
     namespace EntityModel{ class EntityMap; }
 
@@ -22,6 +23,9 @@ namespace KRG
 
         // Get the original delta time for this frame (without the world timescale applied)
         KRG_FORCE_INLINE Seconds GetRawDeltaTime() const { return m_rawDeltaTime; }
+
+        // Get the time scaling for the current world
+        float GetTimeScale() const;
 
         // Get the world ID - threadsafe
         EntityWorldID const& GetWorldID() const;
@@ -44,6 +48,9 @@ namespace KRG
 
         // Get the viewport for this world
         Render::Viewport const* GetViewport() const;
+
+        // Get the input state for this world
+        Input::InputState const* GetInputState() const;
 
         // Get the debug drawing context for this world - threadsafe
         #if KRG_DEVELOPMENT_TOOLS

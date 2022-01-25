@@ -1,6 +1,5 @@
 #include "Animation_EditorGraph_Common.h"
 #include "Tools/Core/VisualGraph/VisualGraph_DrawingContext.h"
-#include "Engine/Animation/Components/Component_AnimationGraph.h"
 
 //-------------------------------------------------------------------------
 

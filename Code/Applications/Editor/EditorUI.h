@@ -12,18 +12,11 @@ namespace KRG
 {
     class EditorUI final : public ImGuiX::IToolsUI
     {
-        struct ModalPopupMessage
-        {
-            String                                      m_ID;
-            String                                      m_channel;
-            String                                      m_message;
-            Log::Severity                               m_severity;
-            bool                                        m_isOpen = true;
-        };
-
     public:
 
         ~EditorUI();
+
+        void SetStartupMap( ResourceID const& mapID );
 
         void Initialize( UpdateContext const& context ) override;
         void Shutdown( UpdateContext const& context ) override;
@@ -31,7 +24,6 @@ namespace KRG
     private:
 
         void DrawMainMenu( UpdateContext const& context );
-        void DrawPopups( UpdateContext const& context );
         bool DrawWorkspaceWindow( UpdateContext const& context, EditorWorkspace* pWorkspace );
 
         virtual void StartFrame( UpdateContext const& context ) override final;
@@ -46,11 +38,12 @@ namespace KRG
 
         EditorContext                       m_context;
         ImGuiWindowClass                    m_editorWindowClass;
-        TVector<ModalPopupMessage>          m_modalPopups;
 
         ResourceBrowser*                    m_pResourceBrowser = nullptr;
         EventBindingID                      m_resourceDatabaseUpdateEventBindingID;
         float                               m_dataBrowserViewWidth = 150;
+
+        ResourceID                          m_startupMap;
 
         SystemLogView                       m_systemLogView;
         bool                                m_isSystemLogWindowOpen = false;
@@ -61,5 +54,6 @@ namespace KRG
         bool                                m_isResourceReferenceTrackerWindowOpen = false;
         bool                                m_isPhysicsMaterialDatabaseWindowOpen = false;
         bool                                m_isImguiDemoWindowOpen = false;
+        bool                                m_isFontTestWindowOpen = false;
     };
 }

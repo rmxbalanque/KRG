@@ -1,6 +1,7 @@
 #include "AIBehaviorSelector.h"
 #include "System/Core/Logging/Log.h"
 #include "Behaviors/AIBehavior_Wander.h"
+#include "Behaviors/AIBehavior_CombatPositioning.h"
 
 //-------------------------------------------------------------------------
 
@@ -10,6 +11,7 @@ namespace KRG::AI
         : m_actionContext( context )
     {
         m_behaviors.emplace_back( KRG::New<WanderBehavior>() );
+        m_behaviors.emplace_back( KRG::New<CombatPositionBehavior>() );
     }
 
     BehaviorSelector::~BehaviorSelector()

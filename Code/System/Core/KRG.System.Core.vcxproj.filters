@@ -1715,6 +1715,7 @@
     <ClInclude Include="Types\IDVector.h" />
     <ClInclude Include="Types\Tag.h" />
     <ClInclude Include="ThirdParty\KRG_RapidJson.h" />
+    <ClInclude Include="Math\EigenVectors.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ThirdParty\EA\EABase\doc\EABase.html">
@@ -1731,5 +1732,9 @@
     <Natvis Include="ThirdParty\EA\EASTL\Doc\EASTL.natvis">
       <Filter>ThirdParty\EA\EASTL\Doc</Filter>
     </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ThirdParty\iniparser\LICENSE" />
+    <Text Include="ThirdParty\stb\LICENSE" />
   </ItemGroup>
 </Project>

@@ -34,6 +34,10 @@ namespace KRG
         virtual ~IRegisteredType() = default;
         virtual KRG::TypeSystem::TypeInfo const* GetTypeInfo() const = 0;
         virtual KRG::TypeSystem::TypeID GetTypeID() const = 0;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        virtual void PostPropertyEditValidation( TypeSystem::PropertyInfo const* pPropertyEdited ) {}
+        #endif
     };
 }
 

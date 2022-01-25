@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PlayerAction.h"
+#include "System\Core\Time\Timers.h"
 
 //-------------------------------------------------------------------------
 
@@ -15,9 +16,5 @@ namespace KRG::Player
         virtual bool TryStartInternal( ActionContext const& ctx ) override;
         virtual Status UpdateInternal( ActionContext const& ctx ) override;
         virtual void StopInternal( ActionContext const& ctx, StopReason reason ) override;
-
-    private:
-
-        virtual void DrawDebugUI() override;
     };
 }

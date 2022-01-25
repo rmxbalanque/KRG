@@ -70,7 +70,7 @@ namespace KRG
 
             for ( auto i = 0; i < 4; i++ )
             {
-                if ( m_pWorld->IsMapLoaded( maps[i].second ) )
+                if ( m_pWorld->HasMap( maps[i].second ) )
                 {
                     tempStr.sprintf( "Unload Map: %s", maps[i].first.c_str() );
                     if ( ImGui::Button( tempStr.c_str() ) )

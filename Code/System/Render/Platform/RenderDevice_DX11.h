@@ -89,7 +89,7 @@ namespace KRG::Render
         void DestroyRenderTarget( RenderTarget& renderTarget );
 
         // Picking
-        uint64 ReadBackPickingID( RenderTarget const& renderTarget, Int2 const& pixelCoords );
+        PickingID ReadBackPickingID( RenderTarget const& renderTarget, Int2 const& pixelCoords );
 
     private:
 

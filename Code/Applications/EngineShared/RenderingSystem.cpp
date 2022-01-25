@@ -56,7 +56,7 @@ namespace KRG::Render
         return pViewportRenderTarget->m_pRenderTarget->GetRenderTargetShaderResourceView();
     }
 
-    uint64 RenderingSystem::GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const
+    Render::PickingID RenderingSystem::GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const
     {
         KRG_ASSERT( pViewport != nullptr && pViewport->GetID().IsValid() );
 
@@ -69,7 +69,7 @@ namespace KRG::Render
         }
         else
         {
-            return 0;
+            return PickingID();
         }
     }
 

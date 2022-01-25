@@ -9,9 +9,13 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Shipping|x64">
+      <Configuration>Shipping</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Fonts\FontData_FontAwesome4.h" />
+    <ClInclude Include="Fonts\FontData_FontAwesome5.h" />
     <ClInclude Include="Fonts\FontData_Proggy.h" />
     <ClInclude Include="Fonts\FontData_Roboto.h" />
     <ClInclude Include="Fonts\FontDecompressor.h" />
@@ -42,7 +46,6 @@
     <ClInclude Include="ThirdParty\imgui\imstb_rectpack.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\imgui\imstb_truetype.h" />
-    <ClInclude Include="ThirdParty\imgui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="_Module\API.h" />
   </ItemGroup>
   <ItemGroup>
@@ -54,7 +57,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fonts\FontData_FontAwesome4.cpp" />
+    <ClCompile Include="Fonts\FontData_FontAwesome5.cpp" />
     <ClCompile Include="Fonts\FontData_Proggy.cpp" />
     <ClCompile Include="Fonts\FontData_Roboto.cpp" />
     <ClCompile Include="Fonts\FontDecompressor.cpp" />
@@ -78,7 +81,6 @@
     <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="ThirdParty\imgui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DebugRenderer\Debug\HLSL\DebugShaderCommon.hlsli" />
@@ -106,18 +108,26 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
-    <Import Project="..\..\PropertySheets\FreeType.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\KRG.props" />
-    <Import Project="..\..\PropertySheets\FreeType.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PropertySheets\KRG.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,6 +141,18 @@
     <Link />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

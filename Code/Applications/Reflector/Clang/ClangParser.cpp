@@ -21,8 +21,10 @@ namespace KRG
                 , m_reflectionDataPath( reflectionDataPath )
             {}
 
-            bool ClangParser::Parse( TVector<HeaderInfo*> const& headers )
+            bool ClangParser::Parse( TVector<HeaderInfo*> const& headers, Pass pass )
             {
+                m_context.m_detectDevOnlyTypesAndProperties = ( pass == SecondPass );
+
                 // Create single amalgamated header file for all headers to parse
                 //-------------------------------------------------------------------------
 
@@ -33,8 +35,15 @@ namespace KRG
                 KRG_ASSERT( !reflectorFileStream.fail() );
 
                 String includeStr;
+                m_context.m_headersToVisit.clear();
                 for ( HeaderInfo const* pHeader : headers )
                 {
+                    // Exclude dev tools
+                    if ( pass == SecondPass && pHeader->IsInToolsLayer() )
+                    {
+                        continue;
+                    }
+
                     m_context.m_headersToVisit.push_back( pHeader->m_ID );
                     includeStr += "#include \"" + pHeader->m_filePath.GetString() + "\"\n";
                 }
@@ -70,6 +79,12 @@ namespace KRG
                 clangArgs.push_back( "-Wno-return-type-c-linkage" );
                 clangArgs.push_back( "-Wno-gnu-folding-constant" );
 
+                // Exclude dev tools
+                if ( pass == SecondPass )
+                {
+                    clangArgs.push_back( "-D KRG_SHIPPING" );
+                }
+
                 //-------------------------------------------------------------------------
 
                 // Set up clang
@@ -80,14 +95,14 @@ namespace KRG
                 CXTranslationUnit tu;
                 CXErrorCode result = CXError_Failure;
                 {
-                    ScopedSystemTimer timer( m_totalParsingTime );
+                    ScopedTimer<PlatformClock> timer( m_totalParsingTime );
                     result = clang_parseTranslationUnit2( idx, reflectorHeader.c_str(), clangArgs.data(), clangArgs.size(), 0, 0, clangOptions, &tu );
                 }
 
                 // Handle result of parse
                 if ( result == CXError_Success )
                 {
-                    ScopedSystemTimer timer( m_totalVisitingTime );
+                    ScopedTimer<PlatformClock> timer( m_totalVisitingTime );
                     m_context.Reset( &tu );
                     auto cursor = clang_getTranslationUnitCursor( tu );
                     clang_visitChildren( cursor, VisitTranslationUnit, &m_context );

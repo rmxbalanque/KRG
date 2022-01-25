@@ -5,6 +5,7 @@
 // Descriptors
 //-------------------------------------------------------------------------
 
+#if KRG_DEVELOPMENT_TOOLS
 namespace KRG::TypeSystem::Serialization
 {
     // Type descriptor reader needs to support both nested and unnested formats as it needs to read the outputs from both descriptor serialization and type model serialization
@@ -636,3 +637,4 @@ namespace KRG::TypeSystem::Serialization
         }
     }
 }
+#endif

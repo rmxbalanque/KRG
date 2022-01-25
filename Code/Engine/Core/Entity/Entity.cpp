@@ -3,6 +3,7 @@
 #include "EntityWorldUpdateContext.h"
 #include "EntityActivationContext.h"
 #include "EntityLoadingContext.h"
+#include "EntityDescriptors.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,6 +12,103 @@ namespace KRG
     TEvent<Entity*> Entity::s_entityUpdatedEvent;
     TEvent<Entity*> Entity::s_entityInternalStateUpdatedEvent;
     TEvent<Entity*> Entity::s_entitySpatialAttachmentStateUpdatedEvent;
+
+    //-------------------------------------------------------------------------
+
+    Entity* Entity::CreateFromDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityModel::EntityDescriptor const& entityDesc )
+    {
+        KRG_ASSERT( entityDesc.IsValid() );
+
+        auto pEntityTypeInfo = Entity::s_pTypeInfo;
+        KRG_ASSERT( pEntityTypeInfo != nullptr );
+
+        // Create new entity
+        //-------------------------------------------------------------------------
+
+        auto pEntity = reinterpret_cast<Entity*>( pEntityTypeInfo->m_pTypeHelper->CreateType() );
+        pEntity->m_name = entityDesc.m_name;
+
+        // Create entity components
+        //-------------------------------------------------------------------------
+        // Component descriptors are sorted during compilation, spatial components are first, followed by regular components
+
+        for ( EntityModel::ComponentDescriptor const& componentDesc : entityDesc.m_components )
+        {
+            auto pEntityComponent = componentDesc.CreateTypeInstance<EntityComponent>( typeRegistry );
+            KRG_ASSERT( pEntityComponent != nullptr );
+
+            TypeSystem::TypeInfo const* pTypeInfo = pEntityComponent->GetTypeInfo();
+            KRG_ASSERT( pTypeInfo != nullptr );
+
+            // Set IDs and add to component lists
+            pEntityComponent->m_name = componentDesc.m_name;
+            pEntityComponent->m_entityID = pEntity->m_ID;
+            pEntity->m_components.push_back( pEntityComponent );
+
+            //-------------------------------------------------------------------------
+
+            if ( componentDesc.IsSpatialComponent() )
+            {
+                // Set parent socket ID
+                auto pSpatialEntityComponent = static_cast<SpatialEntityComponent*>( pEntityComponent );
+                pSpatialEntityComponent->m_parentAttachmentSocketID = componentDesc.m_attachmentSocketID;
+
+                // Set as root component
+                if ( componentDesc.IsRootComponent() )
+                {
+                    KRG_ASSERT( pEntity->m_pRootSpatialComponent == nullptr );
+                    pEntity->m_pRootSpatialComponent = pSpatialEntityComponent;
+                }
+            }
+        }
+
+        // Create component spatial hierarchy
+        //-------------------------------------------------------------------------
+
+        int32 const numComponents = (int32) pEntity->m_components.size();
+        for ( int32 spatialComponentIdx = 0; spatialComponentIdx < entityDesc.m_numSpatialComponents; spatialComponentIdx++ )
+        {
+            EntityModel::ComponentDescriptor const& spatialComponentDesc = entityDesc.m_components[spatialComponentIdx];
+            KRG_ASSERT( spatialComponentDesc.IsSpatialComponent() );
+
+            // Skip the root component
+            if ( spatialComponentDesc.IsRootComponent() )
+            {
+                KRG_ASSERT( pEntity->GetRootSpatialComponent()->GetName() == spatialComponentDesc.m_name );
+                continue;
+            }
+
+            // Todo: profile this lookup and if it becomes too costly, pre-compute the parent indices and serialize them
+            int32 const parentComponentIdx = entityDesc.FindComponentIndex( spatialComponentDesc.m_spatialParentName );
+            KRG_ASSERT( parentComponentIdx != InvalidIndex );
+
+            auto pParentSpatialComponent = static_cast<SpatialEntityComponent*>( pEntity->m_components[parentComponentIdx] );
+            if ( spatialComponentDesc.m_spatialParentName == pParentSpatialComponent->GetName() )
+            {
+                auto pSpatialComponent = static_cast<SpatialEntityComponent*>( pEntity->m_components[spatialComponentIdx] );
+                pSpatialComponent->m_pSpatialParent = pParentSpatialComponent;
+
+                pParentSpatialComponent->m_spatialChildren.emplace_back( pSpatialComponent );
+            }
+        }
+
+        // Create entity systems
+        //-------------------------------------------------------------------------
+
+        for ( auto const& systemDesc : entityDesc.m_systems )
+        {
+            TypeSystem::TypeInfo const* pTypeInfo = typeRegistry.GetTypeInfo( systemDesc.m_typeID );
+            auto pEntitySystem = reinterpret_cast<EntitySystem*>( pTypeInfo->m_pTypeHelper->CreateType() );
+            KRG_ASSERT( pEntitySystem != nullptr );
+
+            pEntity->m_systems.push_back( pEntitySystem );
+        }
+
+        // Add to collection
+        //-------------------------------------------------------------------------
+
+        return pEntity;
+    }
 
     //-------------------------------------------------------------------------
 
@@ -67,6 +165,103 @@ namespace KRG
         m_components.clear();
     }
 
+    #if KRG_DEVELOPMENT_TOOLS
+    OBB Entity::GetCombinedWorldBounds() const
+    {
+        KRG_ASSERT( IsSpatialEntity() );
+
+        TInlineVector<Vector, 64> points;
+
+        for ( auto pComponent : m_components )
+        {
+            if ( auto pSC = TryCast<SpatialEntityComponent>( pComponent ) )
+            {
+                Vector corners[8];
+                pSC->GetWorldBounds().GetCorners(corners);
+                for ( auto i = 0; i < 8; i++ )
+                {
+                    points.emplace_back( corners[i] );
+                }
+            }
+        }
+
+        OBB const worldBounds( points.data(), (uint32) points.size() );
+        return worldBounds;
+    }
+    #endif
+
+    bool Entity::CreateDescriptor( TypeSystem::TypeRegistry const& typeRegistry, EntityModel::EntityDescriptor& outDesc ) const
+    {
+        KRG_ASSERT( !outDesc.IsValid() );
+        outDesc.m_name = m_name;
+
+        // Get spatial parent
+        if ( HasSpatialParent() )
+        {
+            outDesc.m_spatialParentName = m_pParentSpatialEntity->GetName();
+            outDesc.m_attachmentSocketID = GetAttachmentSocketID();
+        }
+
+        // Components
+        //-------------------------------------------------------------------------
+
+        TVector<StringID> entityComponentList;
+
+        for ( auto pComponent : m_components )
+        {
+            EntityModel::ComponentDescriptor componentDesc;
+            componentDesc.m_name = pComponent->GetName();
+
+            // Check for unique names
+            if ( VectorContains( entityComponentList, componentDesc.m_name ) )
+            {
+                // Duplicate name detected!!
+                KRG_LOG_ERROR( "Entity Model", "Failed to create entity descriptor, duplicate component name detected: %s on entity %s", pComponent->GetName().c_str(), m_name.c_str() );
+                return false;
+            }
+            else
+            {
+                entityComponentList.emplace_back( componentDesc.m_name );
+            }
+
+            // Spatial info
+            auto pSpatialEntityComponent = TryCast<SpatialEntityComponent>( pComponent );
+            if ( pSpatialEntityComponent != nullptr )
+            {
+                if ( pSpatialEntityComponent->HasSpatialParent() )
+                {
+                    EntityComponent const* pSpatialParentComponent = FindComponent( pSpatialEntityComponent->GetSpatialParentID() );
+                    componentDesc.m_spatialParentName = pSpatialParentComponent->GetName();
+                    componentDesc.m_attachmentSocketID = pSpatialEntityComponent->GetAttachmentSocketID();
+                }
+
+                componentDesc.m_isSpatialComponent = true;
+            }
+
+            // Type descriptor - Properties
+            componentDesc.DescribeTypeInstance( typeRegistry, pComponent, true );
+
+            // Add component
+            outDesc.m_components.emplace_back( componentDesc );
+            if ( componentDesc.m_isSpatialComponent )
+            {
+                outDesc.m_numSpatialComponents++;
+            }
+        }
+
+        // Systems
+        //-------------------------------------------------------------------------
+
+        for ( auto pSystem : m_systems )
+        {
+            EntityModel::SystemDescriptor systemDesc;
+            systemDesc.m_typeID = pSystem->GetTypeID();
+            outDesc.m_systems.emplace_back( systemDesc );
+        }
+
+        return true;
+    }
+
     //-------------------------------------------------------------------------
 
     void Entity::LoadComponents( EntityModel::EntityLoadingContext const& loadingContext )
@@ -107,6 +302,8 @@ namespace KRG
         m_status = Status::Unloaded;
     }
     
+    //-------------------------------------------------------------------------
+
     #if KRG_DEVELOPMENT_TOOLS
     void Entity::ComponentEditingDeactivate( EntityModel::ActivationContext& activationContext, ComponentID const& componentID )
     {
@@ -150,6 +347,58 @@ namespace KRG
                 pComponent->Load( loadingContext, Resource::ResourceRequesterID( m_ID.ToUint64() ) );
             }
         }
+    }
+
+    StringID Entity::GenerateUniqueComponentName( EntityComponent* pComponent, StringID desiredNameID ) const
+    {
+        InlineString desiredName = desiredNameID.c_str();
+        InlineString finalName = desiredName;
+
+        uint32 counter = 0;
+        bool isUniqueName = false;
+        while ( !isUniqueName )
+        {
+            isUniqueName = true;
+
+            for ( auto pExistingComponent : m_components )
+            {
+                if ( pExistingComponent == pComponent )
+                {
+                    continue;
+                }
+
+                if ( finalName.comparei( pExistingComponent->GetName().c_str() ) == 0 )
+                {
+                    isUniqueName = false;
+                    break;
+                }
+            }
+
+            if ( !isUniqueName )
+            {
+                // Check if the last three characters are a numeric set, if so then increment the value and replace them
+                if ( desiredName.length() > 3 && isdigit( desiredName[desiredName.length() - 1] ) && isdigit( desiredName[desiredName.length() - 2] ) && isdigit( desiredName[desiredName.length() - 3] ) )
+                {
+                    finalName.sprintf( "%s%03u", desiredName.substr( 0, desiredName.length() - 3 ).c_str(), counter );
+                }
+                else // Default name generation
+                {
+                    finalName.sprintf( "%s %03u", desiredName.c_str(), counter );
+                }
+
+                counter++;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+
+        return StringID( finalName.c_str() );
+    }
+
+    void Entity::RenameComponent( EntityComponent* pComponent, StringID newNameID )
+    {
+        KRG_ASSERT( pComponent != nullptr && pComponent->m_entityID == m_ID );
+        pComponent->m_name = GenerateUniqueComponentName( pComponent, newNameID );
     }
     #endif
 
@@ -731,7 +980,13 @@ namespace KRG
     {
         KRG_ASSERT( pComponentTypeInfo != nullptr && pComponentTypeInfo->IsDerivedFrom<EntityComponent>() );
         EntityComponent* pComponent = Cast<EntityComponent>( pComponentTypeInfo->m_pTypeHelper->CreateType() );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        pComponent->m_name = StringID( pComponentTypeInfo->GetFriendlyTypeName() );
+        #else
         pComponent->m_name = StringID( pComponentTypeInfo->GetTypeName() );
+        #endif
+
         AddComponent( pComponent, parentSpatialComponentID );
     }
 
@@ -763,6 +1018,12 @@ namespace KRG
                 KRG_ASSERT( !pExistingComponent->GetTypeInfo()->IsDerivedFrom( pComponent->GetTypeID() ) );
             }
         }
+
+        // Ensure unique name
+        //-------------------------------------------------------------------------
+
+        pComponent->m_name = GenerateUniqueComponentName( pComponent, pComponent->m_name );
+
         #endif
 
         //-------------------------------------------------------------------------

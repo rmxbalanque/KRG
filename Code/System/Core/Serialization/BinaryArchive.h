@@ -37,102 +37,99 @@
 
 //-------------------------------------------------------------------------
 
-namespace KRG
+namespace KRG::Serialization
 {
-    namespace Serialization
+    enum class Mode
     {
-        enum class Mode
+        None,
+        Read,
+        Write,
+    };
+
+    //-------------------------------------------------------------------------
+
+    class KRG_SYSTEM_CORE_API BinaryFileArchive
+    {
+    public:
+
+        BinaryFileArchive( Mode mode, FileSystem::Path const& filePath );
+        ~BinaryFileArchive();
+
+        inline Mode GetMode() const { return m_mode; }
+        inline bool IsReading() const { return m_mode == Mode::Read; }
+        inline bool IsWriting() const { return m_mode == Mode::Write; }
+
+        bool IsValid() const;
+
+        inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
+        inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
+
+        template<typename T>
+        inline BinaryFileArchive& operator<<( T&& type )
         {
-            None,
-            Read,
-            Write,
-        };
+            KRG_ASSERT( m_mode == Mode::Write );
+            auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+            archive << std::forward<T>( type );
+            return *this;
+        }
 
-        //-------------------------------------------------------------------------
-
-        class KRG_SYSTEM_CORE_API BinaryFileArchive
+        template<typename T>
+        inline BinaryFileArchive& operator>>( T&& type )
         {
-        public:
+            KRG_ASSERT( m_mode == Mode::Read );
+            auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+            archive >> std::forward<T>( type );
+            return *this;
+        }
 
-            BinaryFileArchive( Mode mode, FileSystem::Path const& filePath );
-            ~BinaryFileArchive();
+    private:
 
-            inline Mode GetMode() const { return m_mode; }
-            inline bool IsReading() const { return m_mode == Mode::Read; }
-            inline bool IsWriting() const { return m_mode == Mode::Write; }
+        FileSystem::Path                                m_filePath;
+        Mode                                            m_mode;
+        void*                                           m_pStream = nullptr;
+        void*                                           m_pArchive = nullptr;
+    };
 
-            bool IsValid() const;
+    //-------------------------------------------------------------------------
 
-            inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
-            inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
+    class KRG_SYSTEM_CORE_API BinaryMemoryArchive
+    {
+    public:
 
-            template<typename T>
-            inline BinaryFileArchive& operator<<( T&& type )
-            {
-                KRG_ASSERT( m_mode == Mode::Write );
-                auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
-                archive << std::forward<T>( type );
-                return *this;
-            }
+        BinaryMemoryArchive( Mode mode, TVector<Byte>& data );
+        ~BinaryMemoryArchive();
 
-            template<typename T>
-            inline BinaryFileArchive& operator>>( T&& type )
-            {
-                KRG_ASSERT( m_mode == Mode::Read );
-                auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
-                archive >> std::forward<T>( type );
-                return *this;
-            }
+        inline Mode GetMode() const { return m_mode; }
+        inline bool IsReading() const { return m_mode == Mode::Read; }
+        inline bool IsWriting() const { return m_mode == Mode::Write; }
 
-        private:
+        bool IsValid() const { return true; }
 
-            FileSystem::Path                                m_filePath;
-            Mode                                            m_mode;
-            void*                                           m_pStream = nullptr;
-            void*                                           m_pArchive = nullptr;
-        };
+        inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
+        inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
 
-        //-------------------------------------------------------------------------
-
-        class KRG_SYSTEM_CORE_API BinaryMemoryArchive
+        template<typename T>
+        inline BinaryMemoryArchive& operator<<( T&& type )
         {
-        public:
+            KRG_ASSERT( m_mode == Mode::Write );
+            auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
+            archive( std::forward<T>( type ) );
+            return *this;
+        }
 
-            BinaryMemoryArchive( Mode mode, TVector<Byte>& data );
-            ~BinaryMemoryArchive();
+        template<typename T>
+        inline BinaryMemoryArchive& operator>>( T&& type )
+        {
+            KRG_ASSERT( m_mode == Mode::Read );
+            auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
+            archive( std::forward<T>( type ) );
+            return *this;
+        }
 
-            inline Mode GetMode() const { return m_mode; }
-            inline bool IsReading() const { return m_mode == Mode::Read; }
-            inline bool IsWriting() const { return m_mode == Mode::Write; }
+    private:
 
-            bool IsValid() const { return true; }
-
-            inline cereal::BinaryInputArchive* GetInputArchive() { return reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive ); }
-            inline cereal::BinaryOutputArchive* GetOutputArchive() { return reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive ); }
-
-            template<typename T>
-            inline BinaryMemoryArchive& operator<<( T&& type )
-            {
-                KRG_ASSERT( m_mode == Mode::Write );
-                auto& archive = *reinterpret_cast<cereal::BinaryOutputArchive*>( m_pArchive );
-                archive( std::forward<T>( type ) );
-                return *this;
-            }
-
-            template<typename T>
-            inline BinaryMemoryArchive& operator>>( T&& type )
-            {
-                KRG_ASSERT( m_mode == Mode::Read );
-                auto& archive = *reinterpret_cast<cereal::BinaryInputArchive*>( m_pArchive );
-                archive( std::forward<T>( type ) );
-                return *this;
-            }
-
-        private:
-
-            Mode                                            m_mode;
-            MemoryStream                                    m_stream;
-            void*                                           m_pArchive = nullptr;
-        };
-    }
+        Mode                                            m_mode;
+        MemoryStream                                    m_stream;
+        void*                                           m_pArchive = nullptr;
+    };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "System/Core/Types/IntegralTypes.h"
+#include "System/Core/Time/Time.h"
 
 //-------------------------------------------------------------------------
 
@@ -48,7 +49,7 @@ namespace KRG
             virtual void ProcessMessage( GenericMessage const& message ) {}
 
             // Called at the start of the frame to update the current device state
-            virtual void UpdateState() = 0;
+            virtual void UpdateState( Seconds deltaTime ) = 0;
 
             // Called at the end of the frame to reset any tracked device state
             virtual void ClearFrameState( ResetType resetType = ResetType::Partial ) {};

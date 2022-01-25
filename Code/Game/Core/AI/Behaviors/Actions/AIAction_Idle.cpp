@@ -24,7 +24,7 @@ namespace KRG::AI
     {
         if ( m_idleBreakerCooldown.IsRunning() )
         {
-            if ( m_idleBreakerCooldown.Update() )
+            if ( m_idleBreakerCooldown.Update( ctx.GetDeltaTime() ) )
             {
                 // TODO: run idle breaker
             }

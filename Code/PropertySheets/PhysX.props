@@ -6,13 +6,14 @@
     <PhysXDir>$(SolutionDir)External\PhysX\physx\</PhysXDir>
     <PhysXConfig Condition="$(Configuration) == 'Debug'">checked</PhysXConfig>
     <PhysXConfig Condition="$(Configuration) == 'Release'">profile</PhysXConfig>
+    <PhysXConfig Condition="$(Configuration) == 'Shipping'">release</PhysXConfig>
     <PhysXPlatform Condition="$(Platform) == 'x64'">_x64</PhysXPlatform>
-    <PhysxLibDir Condition="$(Platform) == 'x64'">$(PhysXDir)bin\win.x86_64.vc141.md\$(PhysXConfig)\</PhysxLibDir>
+    <PhysxLibDir Condition="$(Platform) == 'x64'">$(PhysXDir)bin\win.x86_64.vc142.md\$(PhysXConfig)\</PhysxLibDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions Condition="$(Configuration) == 'Debug'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="$(Configuration) == 'Release'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="$(Configuration) != 'Debug'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(FoundationDir)Include\;$(PhysXDir)Include\;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

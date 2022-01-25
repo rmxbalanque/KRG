@@ -21,6 +21,7 @@ namespace KRG::Player
             StringID( "Locomotion" ),
             StringID( "Falling" ),
             StringID( "Ability" ),
+            StringID( "DebugMode" ),
         };
 
         KRG_ASSERT( state < CharacterAnimationState::NumStates );

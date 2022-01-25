@@ -29,12 +29,15 @@ namespace KRG::Animation
 
         void Reset();
 
+        // Get the actual final character transform for this frame
+        Transform const& GetCharacterWorldTransform() const { return m_taskContext.m_worldTransform; }
+
         // Execution
         //-------------------------------------------------------------------------
 
         inline bool HasPhysicsDependency() const { return m_hasPhysicsDependency; }
         void UpdatePrePhysics( float deltaTime, Transform const& worldTransform, Transform const& worldTransformInverse );
-        void UpdatePostPhysics( Pose& outPose, Transform const& worldTransform, Transform const& worldTransformInverse );
+        void UpdatePostPhysics( Pose& outPose );
 
         // Cached Pose storage
         //-------------------------------------------------------------------------

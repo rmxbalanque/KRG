@@ -8,21 +8,25 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_SYSTEM_CORE
-    #if EASTL_DLL
-        #if defined(_MSC_VER)
-            #define EASTL_API      __declspec(dllexport)
-        #elif defined(__CYGWIN__)
-            #define EASTL_API      __attribute__((dllexport))
+#if KRG_DLL
+    #if KRG_SYSTEM_CORE 
+        #if EASTL_DLL
+            #if defined(_MSC_VER)
+                #define EASTL_API      __declspec(dllexport)
+            #elif defined(__CYGWIN__)
+                #define EASTL_API      __attribute__((dllexport))
+                #define EASTL_LOCAL
+            #elif (defined(__GNUC__) && (__GNUC__ >= 4))
+                #define EASTL_API      __attribute__ ((visibility("default")))
+                #define EASTL_LOCAL    __attribute__ ((visibility("hidden")))
+            #endif
+        #else
+            #define EASTL_API
             #define EASTL_LOCAL
-        #elif (defined(__GNUC__) && (__GNUC__ >= 4))
-            #define EASTL_API      __attribute__ ((visibility("default")))
-            #define EASTL_LOCAL    __attribute__ ((visibility("hidden")))
         #endif
-    #else
-        #define EASTL_API
-        #define EASTL_LOCAL
     #endif
+#else
+    #define EASTL_DLL 0
 #endif
 
 //-------------------------------------------------------------------------

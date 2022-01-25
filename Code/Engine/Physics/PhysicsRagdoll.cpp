@@ -868,27 +868,20 @@ namespace KRG::Physics
         ScopedWriteLock const sl( this );
         pScene->addActor( *m_pRootControlActor );
 
+        PxDistanceJointFlags flags = PxDistanceJointFlag::eMAX_DISTANCE_ENABLED;
+        if( m_pProfile->m_rootControlBodySettings.m_driveType == RagdollRootControlBodySettings::Spring )
+        {
+            flags |= PxDistanceJointFlag::eSPRING_ENABLED;
+        }
+
+        m_pRootTargetJoint = PxDistanceJointCreate( *m_pPhysics, m_pRootControlActor, I, m_links[0], I );
+        m_pRootTargetJoint->setDistanceJointFlags( flags );
+
         auto const& controlBodySettings = m_pProfile->m_rootControlBodySettings;
-
-        if ( controlBodySettings.m_driveType == RagdollRootControlBodySettings::Kinematic )
-        {
-            m_pRootTargetJoint = PxFixedJointCreate( *m_pPhysics, m_pRootControlActor, I, m_links[0], I );
-        }
-        else if ( controlBodySettings.m_driveType == RagdollRootControlBodySettings::Spring )
-        {
-            auto pDistanceJoint = PxDistanceJointCreate( *m_pPhysics, m_pRootControlActor, I, m_links[0], I );
-
-            pDistanceJoint->setDistanceJointFlags( PxDistanceJointFlag::eMAX_DISTANCE_ENABLED/* | PxDistanceJointFlag::eSPRING_ENABLED */);
-            pDistanceJoint->setMaxDistance( controlBodySettings.m_maxDistance );
-            pDistanceJoint->setTolerance( controlBodySettings.m_tolerance );
-            pDistanceJoint->setStiffness( controlBodySettings.m_stiffness );
-            pDistanceJoint->setDamping( controlBodySettings.m_damping );
-            m_pRootTargetJoint = pDistanceJoint;
-        }
-        else
-        {
-            KRG_UNREACHABLE_CODE();
-        }
+        m_pRootTargetJoint->setMaxDistance( controlBodySettings.m_maxDistance );
+        m_pRootTargetJoint->setTolerance( controlBodySettings.m_tolerance );
+        m_pRootTargetJoint->setStiffness( controlBodySettings.m_stiffness );
+        m_pRootTargetJoint->setDamping( controlBodySettings.m_damping );
     }
 
     void Ragdoll::DestroyRootControlBody()
@@ -954,7 +947,7 @@ namespace KRG::Physics
             }
             else
             {
-                bool const isGravityDisabled = ( m_pProfile->m_jointSettings[bodyIdx-1].m_driveType == RagdollJointSettings::Kinematic ) || !m_gravityEnabled;
+                bool const isGravityDisabled = ( m_pProfile->m_jointSettings[bodyIdx - 1].m_driveType == RagdollJointSettings::Kinematic ) || !m_gravityEnabled;
                 m_links[bodyIdx]->setActorFlag( PxActorFlag::eDISABLE_GRAVITY, isGravityDisabled );
             }
 
@@ -990,19 +983,18 @@ namespace KRG::Physics
         if ( m_pRootControlActor != nullptr )
         {
             auto const& controlBodySettings = m_pProfile->m_rootControlBodySettings;
-            if ( controlBodySettings.m_driveType == RagdollRootControlBodySettings::Kinematic )
+
+            PxDistanceJointFlags flags = PxDistanceJointFlag::eMAX_DISTANCE_ENABLED;
+            if ( m_pProfile->m_rootControlBodySettings.m_driveType == RagdollRootControlBodySettings::Spring )
             {
-                // Do nothing
+                flags |= PxDistanceJointFlag::eSPRING_ENABLED;
             }
-            else if ( controlBodySettings.m_driveType == RagdollRootControlBodySettings::Spring )
-            {
-                auto pDistanceJoint = (PxDistanceJoint*) m_pRootTargetJoint;
-                pDistanceJoint->setDistanceJointFlags( PxDistanceJointFlag::eMAX_DISTANCE_ENABLED | PxDistanceJointFlag::eSPRING_ENABLED );
-                pDistanceJoint->setMaxDistance( controlBodySettings.m_maxDistance );
-                pDistanceJoint->setTolerance( controlBodySettings.m_tolerance );
-                pDistanceJoint->setStiffness( controlBodySettings.m_stiffness );
-                pDistanceJoint->setDamping( controlBodySettings.m_damping );
-            }
+
+            m_pRootTargetJoint->setDistanceJointFlags( flags );
+            m_pRootTargetJoint->setMaxDistance( controlBodySettings.m_maxDistance );
+            m_pRootTargetJoint->setTolerance( controlBodySettings.m_tolerance );
+            m_pRootTargetJoint->setStiffness( controlBodySettings.m_stiffness );
+            m_pRootTargetJoint->setDamping( controlBodySettings.m_damping );
         }
 
         // Body and joint setting
@@ -1177,7 +1169,6 @@ namespace KRG::Physics
                 // Skip joint setting for root body
                 if ( bodyIdx == 0 )
                 {
-                    
                     continue;
                 }
 
@@ -1189,6 +1180,8 @@ namespace KRG::Physics
                 if ( jointSettings.m_driveType == RagdollJointSettings::Kinematic )
                 {
                     m_links[bodyIdx]->setGlobalPose( ToPx( bodyWorldTransform ) );
+                    m_links[bodyIdx]->setLinearVelocity( PxZero );
+                    m_links[bodyIdx]->setAngularVelocity( PxZero );
                     pJoint->setTargetVelocity( PxZero );
                     pJoint->setTargetOrientation( PxIdentity );
                 }

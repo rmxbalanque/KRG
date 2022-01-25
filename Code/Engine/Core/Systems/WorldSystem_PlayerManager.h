@@ -46,9 +46,9 @@ namespace KRG
         #if KRG_DEVELOPMENT_TOOLS
         enum class DebugMode
         {
-            None,               // Default mode - game plays as normal
-            UseDebugCamera,     // Game plays as normal, but we use the debug camera to view it 
-            FullDebug,          // Player controller is disabled and we have full control of the debug camera
+            None,                       // Default mode - game plays as normal
+            PlayerWithDebugCamera,      // Game plays as normal, but we use the debug camera to view it 
+            OnlyDebugCamera,            // Player controller is disabled and we have full control of the debug camera
         };
 
         //-------------------------------------------------------------------------
@@ -75,6 +75,7 @@ namespace KRG
         inline bool HasPlayer() const { return m_player.IsValid(); }
         inline EntityID GetPlayerEntityID() const { return m_player.m_entityID; }
         inline CameraComponent* GetPlayerCamera() const { return m_player.m_pCameraComponent; }
+        bool IsPlayerEnabled() const;
         void SetPlayerControllerState( bool isEnabled );
 
         // Debug

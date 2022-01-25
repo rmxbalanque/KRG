@@ -19,6 +19,17 @@ namespace KRG::Physics
 
         friend class PhysicsWorldSystem;
 
+    public:
+
+        using PhysicsShapeComponent::PhysicsShapeComponent;
+
+        inline void SetMesh( ResourceID meshResourceID )
+        {
+            KRG_ASSERT( IsUnloaded() );
+            KRG_ASSERT( meshResourceID.IsValid() );
+            m_pPhysicsMesh = meshResourceID;
+        }
+
     private:
 
         virtual void Initialize() override;

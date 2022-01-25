@@ -59,6 +59,86 @@ namespace KRG::Resource
     {
         KRG_ASSERT( pResourceSystem != nullptr );
 
+        //-------------------------------------------------------------------------
+
+        auto DrawRow = [] ( ResourceRecord const* pRecord )
+        {
+            ImGui::TableNextRow();
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableSetColumnIndex( 0 );
+            ImGui::Text( pRecord->GetResourceTypeID().ToString().c_str() );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableSetColumnIndex( 1 );
+            ImGui::Text( "%d", pRecord->m_references.size() );
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableSetColumnIndex( 2 );
+
+            switch ( pRecord->m_loadingStatus )
+            {
+                case LoadingStatus::Unloaded:
+                {
+                    ImGui::Text( "Unloaded" );
+                }
+                break;
+
+                case LoadingStatus::Loading:
+                {
+                    ImGui::TextColored( Colors::Yellow.ToFloat4(), "Loaded" );
+                }
+                break;
+
+                case LoadingStatus::Loaded:
+                {
+                    ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Loaded" );
+                }
+                break;
+
+                case LoadingStatus::Unloading:
+                {
+                    ImGui::Text( "Unloading" );
+                }
+                break;
+
+                case LoadingStatus::Failed:
+                {
+                    ImGui::TextColored( Colors::Red.ToFloat4(), "Loaded" );
+                }
+                break;
+            }
+
+            //-------------------------------------------------------------------------
+
+            ImGui::TableSetColumnIndex( 3 );
+            if ( ImGui::TreeNode( pRecord->GetResourceID().c_str() ) )
+            {
+                for ( auto const& requesterID : pRecord->m_references )
+                {
+                    if ( requesterID.IsManualRequest() )
+                    {
+                        ImGui::TextColored( Colors::Aqua.ToFloat4(), "Manual Request" );
+                    }
+                    else if ( requesterID.IsInstallDependencyRequest() )
+                    {
+                        ImGui::TextColored( Colors::Coral.ToFloat4(), "Install Dependency: %u", requesterID.GetInstallDependencyResourcePathID() );
+                    }
+                    else // Normal request
+                    {
+                        ImGui::TextColored( Colors::Lime.ToFloat4(), "Entity: %u", requesterID.GetID() );
+                    }
+                }
+
+                ImGui::TreePop();
+            }
+        };
+
+        //-------------------------------------------------------------------------
+
         if ( ImGui::Begin( "Resource Reference Tracker", pIsOpen ) )
         {
             if ( ImGui::BeginTable( "Resource Reference Tracker Table", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable ) )
@@ -74,81 +154,24 @@ namespace KRG::Resource
 
                 //-------------------------------------------------------------------------
 
-                for ( auto const& recordTuple : pResourceSystem->m_resourceRecords )
+                auto const& resourceRecords = pResourceSystem->m_resourceRecords;
+
+                ImGuiListClipper clipper;
+                clipper.Begin( (int32) resourceRecords.size() );
+                bool isFirstStep = true;
+                while ( clipper.Step() )
                 {
-                    ResourceRecord const* pRecord = recordTuple.second;
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( pRecord->GetResourceTypeID().ToString().c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    ImGui::Text( "%d", pRecord->m_references.size() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 2 );
-
-                    switch ( pRecord->m_loadingStatus )
+                    int32 i = -1;
+                    for ( auto const& recordTuple : pResourceSystem->m_resourceRecords )
                     {
-                        case LoadingStatus::Unloaded:
+                        i++;
+                        if ( i < clipper.DisplayStart || i >= clipper.DisplayEnd )
                         {
-                            ImGui::Text( "Unloaded" );
-                        }
-                        break;
-
-                        case LoadingStatus::Loading:
-                        {
-                            ImGui::TextColored( Colors::Yellow.ToFloat4(), "Loaded" );
-                        }
-                        break;
-
-                        case LoadingStatus::Loaded:
-                        {
-                            ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Loaded" );
-                        }
-                        break;
-
-                        case LoadingStatus::Unloading:
-                        {
-                            ImGui::Text( "Unloading" );
-                        }
-                        break;
-
-                        case LoadingStatus::Failed :
-                        {
-                            ImGui::TextColored( Colors::Red.ToFloat4(), "Loaded" );
-                        }
-                        break;
-                    }
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    if ( ImGui::TreeNode( recordTuple.second->GetResourceID().c_str() ) )
-                    {
-                        for ( auto const& requesterID : pRecord->m_references )
-                        {
-                            if ( requesterID.IsManualRequest() )
-                            {
-                                ImGui::TextColored( Colors::Aqua.ToFloat4(), "Manual Request" );
-                            }
-                            else if ( requesterID.IsInstallDependencyRequest() )
-                            {
-                                ImGui::TextColored( Colors::Coral.ToFloat4(), "Install Dependency: %u", requesterID.GetInstallDependencyResourcePathID() );
-                            }
-                            else // Normal request
-                            {
-                                ImGui::TextColored( Colors::Lime.ToFloat4(), "Entity: %u", requesterID.GetID() );
-                            }
+                            continue;
                         }
 
-                        ImGui::TreePop();
+                        ResourceRecord const* pRecord = recordTuple.second;
+                        DrawRow( pRecord );
                     }
                 }
 
@@ -175,44 +198,59 @@ namespace KRG::Resource
 
                 //-------------------------------------------------------------------------
 
-                for ( auto i = (int32) pResourceSystem->m_history.size() - 1; i >= 0; i-- )
+                int32 const numEntries = (int32) pResourceSystem->m_history.size();
+                int32 const lastEntryIdx = numEntries - 1;
+
+                ImGuiListClipper clipper;
+                clipper.Begin( numEntries );
+                bool isFirstStep = true;
+                while ( clipper.Step() )
                 {
-                    auto const& entry = pResourceSystem->m_history[i];
-
-                    ImGui::TableNextRow();
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 0 );
-                    ImGui::Text( entry.m_time.GetTimeDetailed().c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 1 );
-                    switch ( entry.m_type )
+                    for ( int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++ )
                     {
-                        case ResourceSystem::PendingRequest::Type::Load:
-                        {
-                            ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Load" );
-                        }
-                        break;
+                        auto const& entry = pResourceSystem->m_history[lastEntryIdx - i];
 
-                        case ResourceSystem::PendingRequest::Type::Unload:
+                        ImGui::TableNextRow();
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 0 );
+                        ImGui::Text( entry.m_time.GetTimeDetailed().c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 1 );
+                        switch ( entry.m_type )
                         {
-                            ImGui::TextColored( Colors::OrangeRed.ToFloat4(), "Unload" );
+                            case ResourceSystem::PendingRequest::Type::Load:
+                            {
+                                ImGui::TextColored( Colors::LimeGreen.ToFloat4(), "Load" );
+                            }
+                            break;
+
+                            case ResourceSystem::PendingRequest::Type::Unload:
+                            {
+                                ImGui::TextColored( Colors::OrangeRed.ToFloat4(), "Unload" );
+                            }
+                            break;
                         }
-                        break;
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 2 );
+                        ImGui::Text( entry.m_ID.GetResourceTypeID().ToString().c_str() );
+
+                        //-------------------------------------------------------------------------
+
+                        ImGui::TableSetColumnIndex( 3 );
+                        ImGui::Text( entry.m_ID.c_str() );
                     }
+                }
 
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 2 );
-                    ImGui::Text( entry.m_ID.GetResourceTypeID().ToString().c_str() );
-
-                    //-------------------------------------------------------------------------
-
-                    ImGui::TableSetColumnIndex( 3 );
-                    ImGui::Text( entry.m_ID.c_str() );
+                // Auto scroll the table
+                if ( ImGui::GetScrollY() >= ImGui::GetScrollMaxY() )
+                {
+                    ImGui::SetScrollHereY( 1.0f );
                 }
 
                 ImGui::EndTable();

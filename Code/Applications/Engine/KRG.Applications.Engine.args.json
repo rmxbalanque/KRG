@@ -3,16 +3,16 @@
   "Id": "8778c386-a74a-4545-8297-ce68639d4ade",
   "Items": [
     {
-      "Id": "9029e973-a1ed-442e-b652-a3cdea056d6a",
-      "Command": "-map data://testscenes/ClothMesh.map"
+      "Id": "6b06941a-84ee-430b-8777-3e6768fe958f",
+      "Command": "-map data://maps/Prototype_3Cs_Minimal.map"
+    },
+    {
+      "Id": "cb09576f-23ca-42c1-8113-3e6d333a9e59",
+      "Command": "-map data://maps/Prototype_Combat_Minimal.map"
     },
     {
       "Id": "0ac594f7-8bd2-4c20-8ce9-9a35b6932fcb",
-      "Command": "-map data://maps/Prototype_Full.map"
-    },
-    {
-      "Id": "60c99349-8d60-4442-a2b5-e196ca4e83a7",
-      "Command": "-map data://maps/ai_test.map"
+      "Command": "-map data://maps/Prototype_3Cs_Full.map"
     },
     {
       "Id": "78593768-2e2e-4d7b-b920-55af6c2c2b81",
@@ -29,18 +29,6 @@
     {
       "Id": "c2f1fe3e-d114-4e30-9e3e-a095381f0adc",
       "Command": "-map data://maps/br_nav.map"
-    },
-    {
-      "Id": "9ef46359-8556-47e4-bc19-4c6f47260537",
-      "Command": "-map data://maps/AnimTest_Minimal.map"
-    },
-    {
-      "Id": "78defdb9-8437-4373-b56f-f5268a40d987",
-      "Command": "-map data://maps/AnimTest_Full.map"
-    },
-    {
-      "Id": "d940b311-5c3a-49c9-9ac6-d23f6afaf0ae",
-      "Command": "-map data://maps/PhysicsTest.map"
     }
   ]
 }

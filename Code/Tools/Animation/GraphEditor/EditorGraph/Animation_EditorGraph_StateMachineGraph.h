@@ -88,7 +88,7 @@ namespace KRG::Animation
         private:
 
             virtual char const* GetTypeName() const override { return "Off State"; }
-            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::PaleVioletRed ); }
+            virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::PaleVioletRed ); }
             virtual void DrawExtraControls( VisualGraph::DrawContext const& ctx ) override;
         };
     }
@@ -134,7 +134,7 @@ namespace KRG::Animation
         private:
 
             virtual bool IsVisibleNode() const override { return false; }
-            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::SlateBlue ); }
+            virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::SlateBlue ); }
             virtual char const* GetTypeName() const override { return "Entry Overrides"; }
             virtual bool IsUserCreatable() const override { return false; }
         };
@@ -203,7 +203,7 @@ namespace KRG::Animation
 
             virtual void Initialize( VisualGraph::BaseGraph* pParent ) override;
             virtual char const* GetTypeName() const override { return "Transition"; }
-            virtual ImColor GetNodeColor() const override;
+            virtual ImColor GetNodeBorderColor( VisualGraph::DrawContext const& ctx, VisualGraph::NodeVisualState visualState ) const override;
         };
     }
 
@@ -260,7 +260,7 @@ namespace KRG::Animation
         private:
 
             virtual bool IsVisibleNode() const override { return false; }
-            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::OrangeRed ); }
+            virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::OrangeRed ); }
             virtual char const* GetTypeName() const override { return "Global Transitions"; }
             virtual bool IsUserCreatable() const override { return false; }
         };
@@ -320,7 +320,7 @@ namespace KRG::Animation
             virtual char const* GetDisplayName() const override { return m_name.c_str(); }
             virtual char const* GetTypeName() const override { return "State Machine"; }
             virtual char const* GetCategory() const override { return ""; }
-            virtual ImColor GetNodeColor() const override { return ImGuiX::ConvertColor( Colors::CornflowerBlue ); }
+            virtual ImColor GetNodeTitleColor() const override { return ImGuiX::ConvertColor( Colors::CornflowerBlue ); }
 
             virtual TBitFlags<GraphType> GetAllowedParentGraphTypes() const override { return TBitFlags<GraphType>( GraphType::BlendTree ); }
             virtual GraphNodeIndex Compile( EditorGraphCompilationContext& context ) const override;

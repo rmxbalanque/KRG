@@ -36,6 +36,18 @@ namespace KRG::Input
 
     public:
 
+        void Clear() { ResetFrameState( ResetType::Full ); }
+
+        void ReflectFrom( Seconds const deltaTime, float timeScale, MouseInputState const& sourceState )
+        {
+            m_movementDelta = sourceState.m_movementDelta;
+            m_position = m_position;
+            m_verticalWheelDelta = m_verticalWheelDelta;
+            m_horizontalWheelDelta = m_horizontalWheelDelta;
+
+            ButtonStates<10>::ReflectFrom( deltaTime, timeScale, sourceState );
+        }
+
         inline Float2 GetMovementDelta() const { return m_movementDelta; }
         inline int16 GetWheelDelta( WheelType wheelType = WheelType::Vertical ) const { return ( wheelType == WheelType::Vertical ) ? m_verticalWheelDelta : m_horizontalWheelDelta; }
         inline Int2 GetCursorPosition() const { return m_position; }

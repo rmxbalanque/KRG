@@ -1,4 +1,5 @@
 #pragma once
+#if KRG_NAVPOWER
 #include "_Module/API.h"
 #include "System/Core/Math/Transform.h"
 #include "System/Core/Types/Color.h"
@@ -71,6 +72,7 @@ namespace KRG::Navmesh
     // Debug drawing
     //-------------------------------------------------------------------------
 
+    #if KRG_DEVELOPMENT_TOOLS
     class NavpowerRenderer final : public bfx::Renderer
     {
 
@@ -102,6 +104,7 @@ namespace KRG::Navmesh
         Float2                                      m_statsPos = Float2::Zero;
         bool                                        m_depthTestEnabled = true;
     };
+    #endif
 
     //-------------------------------------------------------------------------
     // System and Allocator
@@ -133,3 +136,4 @@ namespace KRG::Navmesh
         NavPowerAllocator                               m_allocator;
     };
 }
+#endif

@@ -141,6 +141,10 @@
           "Command": "-compile data://test/test.anim"
         },
         {
+          "Id": "193c9740-984a-41d8-823e-ef810d861cc9",
+          "Command": "-compile data://packs/amplify/run_fwd.anim"
+        },
+        {
           "Id": "5f1791ee-5758-48e0-8206-8919902f6d7c",
           "Command": "-compile data://packs/amplify/walk/walk_fwd_v2.anim"
         },

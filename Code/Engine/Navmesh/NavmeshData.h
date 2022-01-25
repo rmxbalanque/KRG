@@ -17,9 +17,7 @@ namespace KRG::Navmesh
 
     public:
 
-        virtual bool IsValid() const override;
-
-        inline bool HasNavmeshData() const { return !m_graphImage.empty(); }
+        virtual bool IsValid() const override { return !m_graphImage.empty(); }
         inline TVector<Byte> const& GetGraphImage() const { return m_graphImage; }
 
     private:

@@ -39,11 +39,6 @@ namespace KRG::VisualGraph
 
     struct DrawContext
     {
-        KRG_FORCE_INLINE bool IsMouseInViewWindow() const
-        {
-            return m_windowRect.Contains( m_mouseScreenPos );
-        }
-
         // Convert from a position relative to the window TL to a position relative to the screen TL
         KRG_FORCE_INLINE ImVec2 WindowToScreenPosition( ImVec2 const& windowPosition ) const
         {

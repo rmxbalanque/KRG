@@ -29,6 +29,10 @@ namespace KRG::ImGuiX
         static ImColor const s_textColor;
         static ImColor const s_textColorDisabled;
 
+        // Accents
+        static ImColor const s_selectionAccent;
+        static ImColor const s_selectionAccentAlt;
+
         // Additional tool colors
         static ImColor const s_gridBackgroundColor;
         static ImColor const s_gridLineColor;

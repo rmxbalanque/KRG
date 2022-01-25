@@ -20,7 +20,10 @@ namespace KRG::Navmesh
 
     private:
 
+        #if KRG_NAVPOWER
         NavmeshSystem               m_navmeshSystem;
+        #endif
+
         NavmeshLoader               m_navmeshLoader;
 
         bool                        m_initialized = false;

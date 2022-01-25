@@ -17,6 +17,15 @@ namespace KRG::VisualGraph
     // Node Base
     //-------------------------------------------------------------------------
 
+    enum class NodeVisualState
+    {
+        None,
+        Selected,
+        Hovered
+    };
+
+    //-------------------------------------------------------------------------
+
     class KRG_TOOLS_CORE_API BaseNode : public IRegisteredType
     {
         friend BaseGraph;
@@ -94,7 +103,10 @@ namespace KRG::VisualGraph
         void SetCanvasPosition( ImVec2 const& newPosition );
 
         // Get node highlight color
-        virtual ImColor GetNodeColor() const { return VisualSettings::s_genericNodeTitleColor; }
+        virtual ImColor GetNodeTitleColor() const { return VisualSettings::s_genericNodeTitleColor; }
+
+        // Get node highlight color
+        virtual ImColor GetNodeBorderColor( DrawContext const& ctx, NodeVisualState visualState ) const;
 
         // Get the margin between the node contents and the outer border
         virtual ImVec2 GetNodeMargin() const { return ImVec2( 8, 4 ); }
@@ -233,6 +245,9 @@ namespace KRG::VisualGraph
 
         // Node Operations
         //-------------------------------------------------------------------------
+
+        // Returns the most significant node for a given graph, could be the final result node or the default state node, etc...
+        virtual BaseNode const* GetMostSignificantNode() const { return nullptr; }
 
         // Destroys and deletes the specified node (UUID copy is intentional)
         void DestroyNode( UUID nodeID );

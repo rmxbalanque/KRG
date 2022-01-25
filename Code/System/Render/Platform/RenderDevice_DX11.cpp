@@ -1156,8 +1156,8 @@ namespace KRG::Render
 
         if ( createPickingTarget )
         {
-            CreateTexture( renderTarget.m_pickingRT, DataFormat::UInt_R32G32, dimensions, USAGE_SRV | USAGE_RT_DS );
-            CreateTexture( renderTarget.m_pickingStagingTexture, DataFormat::UInt_R32G32, Int2( 1, 1 ), USAGE_STAGING );
+            CreateTexture( renderTarget.m_pickingRT, DataFormat::UInt_R32G32B32A32, dimensions, USAGE_SRV | USAGE_RT_DS );
+            CreateTexture( renderTarget.m_pickingStagingTexture, DataFormat::UInt_R32G32B32A32, Int2( 1, 1 ), USAGE_STAGING );
         }
     }
 
@@ -1182,11 +1182,11 @@ namespace KRG::Render
         }
     }
 
-    uint64 RenderDevice::ReadBackPickingID( RenderTarget const& renderTarget, Int2 const& pixelCoords )
+    PickingID RenderDevice::ReadBackPickingID( RenderTarget const& renderTarget, Int2 const& pixelCoords )
     {
         KRG_ASSERT( IsInitialized() && renderTarget.IsValid() );
         
-        uint64 pickingID = 0;
+        PickingID pickingID;
 
         //-------------------------------------------------------------------------
 
@@ -1201,7 +1201,6 @@ namespace KRG::Render
         }
 
         //-------------------------------------------------------------------------
-
 
         LockDevice();
         {
@@ -1223,9 +1222,13 @@ namespace KRG::Render
             m_immediateContext.m_pDeviceContext->Map( pStagingTexture, 0, D3D11_MAP::D3D11_MAP_READ, 0, &msr );
 
             uint32* pData = reinterpret_cast<uint32*>( msr.pData );
-            pickingID = pData[1];
-            pickingID = pickingID << 32;
-            pickingID |= pData[0];
+            pickingID.m_0 = pData[1];
+            pickingID.m_0 = pickingID.m_0 << 32;
+            pickingID.m_0 |= pData[0];
+
+            pickingID.m_1 = pData[3];
+            pickingID.m_1 = pickingID.m_1 << 32;
+            pickingID.m_1 |= pData[2];
 
             m_immediateContext.m_pDeviceContext->Unmap( pStagingTexture, 0 );
         }

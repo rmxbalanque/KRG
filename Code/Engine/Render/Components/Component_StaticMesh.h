@@ -22,6 +22,14 @@ namespace KRG::Render
     {
         KRG_REGISTER_ENTITY_COMPONENT( StaticMeshComponent );
 
+        static TEvent<StaticMeshComponent*> s_mobilityChangedEvent; // Fired whenever we switch mobility 
+        static TEvent<StaticMeshComponent*> s_staticMobilityTransformUpdatedEvent; // Fired whenever a "static" component is moved
+
+    public:
+
+        inline static TEventHandle<StaticMeshComponent*> OnStaticMobilityTransformUpdated() { return s_staticMobilityTransformUpdatedEvent; }
+        inline static TEventHandle<StaticMeshComponent*> OnMobilityChanged() { return s_mobilityChangedEvent; }
+
     public:
 
         using MeshComponent::MeshComponent;
@@ -47,8 +55,6 @@ namespace KRG::Render
         // Mobility
         //-------------------------------------------------------------------------
 
-        inline TEventHandle<StaticMeshComponent*> OnMobilityChanged() { return m_mobilityChangedEvent; }
-        inline TEventHandle<StaticMeshComponent*> OnStaticMobilityTransformUpdated() { return m_staticMobilityTransformUpdatedEvent; }
         inline Mobility GetMobility() const { return m_mobility; }
         void ChangeMobility( Mobility newMobility );
 
@@ -63,7 +69,5 @@ namespace KRG::Render
 
         KRG_EXPOSE TResourcePtr<StaticMesh>               m_pMesh;
         KRG_EXPOSE Mobility                               m_mobility = Mobility::Static;
-        TEvent<StaticMeshComponent*>                      m_mobilityChangedEvent; // Fired whenever we switch mobility 
-        TEvent<StaticMeshComponent*>                      m_staticMobilityTransformUpdatedEvent; // Fired whenever a "static" component is moved
     };
 }

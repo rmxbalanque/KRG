@@ -10,6 +10,7 @@ namespace KRG::Animation
 {
     class EditorGraphDefinition;
     struct DebugContext;
+    namespace GraphNodes { class VirtualParameterEditorNode; }
 
     //-------------------------------------------------------------------------
 
@@ -26,21 +27,30 @@ namespace KRG::Animation
 
         GraphControlParameterEditor( EditorGraphDefinition* pGraphDefinition );
 
-        void UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName );
+        // Draw the control parameter editor, returns true if there is a request the calling code needs to fulfil i.e. navigation
+        bool UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName );
+
+        // Get the virtual parameter graph we want to show
+        GraphNodes::VirtualParameterEditorNode* GetVirtualParameterToEdit() { return m_pVirtualParamaterToEdit; }
 
     private:
 
-        void DrawAddParameterUI();
+        void DrawParameterList();
+        void DrawParameterPreviewControls( DebugContext* pDebugContext );
+        void DrawAddParameterCombo();
 
-        void StartRename( UUID const& parameterID );
-        void StartDelete( UUID const& parameterID );
-        void DrawActiveOperationUI();
+        void StartParameterRename( UUID const& parameterID );
+        void StartParameterDelete( UUID const& parameterID );
+        void DrawDialogs();
 
     private:
 
-        EditorGraphDefinition*      m_pGraphDefinition = nullptr;
-        UUID                                m_currentOperationParameterID;
-        char                                m_buffer[255];
-        OperationType                       m_activeOperation;
+        EditorGraphDefinition*                          m_pGraphDefinition = nullptr;
+        GraphNodes::VirtualParameterEditorNode*         m_pVirtualParamaterToEdit = nullptr;
+        UUID                                            m_currentOperationParameterID;
+        char                                            m_parameterNameBuffer[255];
+        char                                            m_parameterCategoryBuffer[255];
+        TVector<TArray<char, 255>>                      m_parameterPreviewBuffers;
+        OperationType                                   m_activeOperation;
     };
 }

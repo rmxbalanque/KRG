@@ -27,7 +27,7 @@ namespace KRG::Resource
         for ( auto pRecord : m_files )
         {
             pRecord->m_filePath.ReplaceParentDirectory( newPath );
-            pRecord->m_resourcePath = ResourcePath::FromFileSystemPath( rawResourceDirectoryPath, pRecord->m_filePath );
+            pRecord->m_resourceID = ResourcePath::FromFileSystemPath( rawResourceDirectoryPath, pRecord->m_filePath );
         }
     }
 
@@ -56,14 +56,6 @@ namespace KRG::Resource
     ResourceDatabase::~ResourceDatabase()
     {
         KRG_ASSERT( m_rootDir.IsEmpty() && m_resourcesPerType.empty() );
-    }
-
-    //-------------------------------------------------------------------------
-
-    TVector<ResourceDatabase::ResourceRecord*> const& ResourceDatabase::GetAllResourcesOfType( ResourceTypeID typeID ) const
-    {
-        KRG_ASSERT( m_pTypeRegistry->IsRegisteredResourceType( typeID ) );
-        return m_resourcesPerType.at( typeID );
     }
 
     //-------------------------------------------------------------------------
@@ -172,6 +164,31 @@ namespace KRG::Resource
 
     //-------------------------------------------------------------------------
 
+    bool ResourceDatabase::DoesResourceExist( ResourceID const& resourceID ) const
+    {
+        KRG_ASSERT( resourceID.IsValid() );
+        KRG_ASSERT( m_pTypeRegistry->IsRegisteredResourceType( resourceID.GetResourceTypeID() ) );
+
+        auto const& allResourcesofSameType = m_resourcesPerType.at( resourceID.GetResourceTypeID() );
+        for ( auto pResourceRecord : allResourcesofSameType )
+        {
+            if ( pResourceRecord->m_resourceID == resourceID )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    TVector<ResourceDatabase::ResourceEntry*> const& ResourceDatabase::GetAllResourcesOfType( ResourceTypeID typeID ) const
+    {
+        KRG_ASSERT( m_pTypeRegistry->IsRegisteredResourceType( typeID ) );
+        return m_resourcesPerType.at( typeID );
+    }
+
+    //-------------------------------------------------------------------------
+
     ResourceDatabase::Directory* ResourceDatabase::FindDirectory( FileSystem::Path const& dirPathToFind )
     {
         KRG_ASSERT( dirPathToFind.IsDirectory() );
@@ -248,21 +265,20 @@ namespace KRG::Resource
 
     void ResourceDatabase::AddFileRecord( FileSystem::Path const& path )
     {
-        auto pNewRecord = KRG::New<ResourceRecord>();
-        pNewRecord->m_filePath = path;
-        pNewRecord->m_resourcePath = ResourcePath::FromFileSystemPath( m_rawResourceDirPath, path );
+        auto pNewEntry = KRG::New<ResourceEntry>();
+        pNewEntry->m_filePath = path;
+        pNewEntry->m_resourceID = ResourcePath::FromFileSystemPath( m_rawResourceDirPath, path );
 
         // Add to directory list
         Directory* pDirectory = FindOrCreateDirectory( path.GetParentDirectory() );
         KRG_ASSERT( pDirectory != nullptr );
-        pDirectory->m_files.emplace_back( pNewRecord );
+        pDirectory->m_files.emplace_back( pNewEntry );
 
         // Add to per-type lists
-        ResourceTypeID resourceTypeID( pNewRecord->m_resourcePath.GetExtension() );
-        if ( m_pTypeRegistry->IsRegisteredResourceType( resourceTypeID ) )
+        ResourceTypeID const typeID = pNewEntry->m_resourceID.GetResourceTypeID();
+        if ( m_pTypeRegistry->IsRegisteredResourceType( typeID ) )
         {
-            pNewRecord->m_resourceTypeID = resourceTypeID;
-            m_resourcesPerType[resourceTypeID].emplace_back( pNewRecord );
+            m_resourcesPerType[typeID].emplace_back( pNewEntry );
         }
     }
 
@@ -277,9 +293,9 @@ namespace KRG::Resource
             if ( pDirectory->m_files[i]->m_filePath == path )
             {
                 // Remove from categorized resource lists
-                if ( pDirectory->m_files[i]->m_resourceTypeID.IsValid() )
+                if ( pDirectory->m_files[i]->m_resourceID.IsValid() )
                 {
-                    TVector<ResourceRecord*>& category = m_resourcesPerType.at( pDirectory->m_files[i]->m_resourceTypeID );
+                    TVector<ResourceEntry*>& category = m_resourcesPerType.at( pDirectory->m_files[i]->m_resourceID.GetResourceTypeID() );
                     category.erase_first_unsorted( pDirectory->m_files[i] );
                 }
 

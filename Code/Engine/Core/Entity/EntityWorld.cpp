@@ -500,7 +500,7 @@ namespace KRG
         return false;
     }
 
-    bool EntityWorld::IsMapLoaded( ResourceID const& mapResourceID ) const
+    bool EntityWorld::HasMap( ResourceID const& mapResourceID ) const
     {
         // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
         for ( auto const& map : m_maps )
@@ -514,11 +514,67 @@ namespace KRG
         return false;
     }
 
+    bool EntityWorld::IsMapActive( ResourceID const& mapResourceID ) const
+    {
+        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
+        for ( auto const& map : m_maps )
+        {
+            if ( map.GetMapResourceID() == mapResourceID )
+            {
+                return map.IsActivated();
+            }
+        }
+
+        // Dont call this function with an unknown map
+        KRG_UNREACHABLE_CODE();
+        return false;
+    }
+
+    bool EntityWorld::IsMapActive( EntityMapID const& mapID ) const
+    {
+        // Make sure the map isn't already loaded or loading, since duplicate loads are not allowed
+        for ( auto const& map : m_maps )
+        {
+            if ( map.GetID() == mapID )
+            {
+                return map.IsActivated();
+            }
+        }
+
+        // Dont call this function with an unknown map
+        KRG_UNREACHABLE_CODE();
+        return false;
+    }
+
+    EntityModel::EntityMap* EntityWorld::CreateTransientMap()
+    {
+        EntityModel::EntityMap& newMap = m_maps.emplace_back( EntityModel::EntityMap() );
+        newMap.Load( m_loadingContext );
+        newMap.Activate( m_activationContext );
+        return &newMap;
+    }
+
+    EntityModel::EntityMap const* EntityWorld::GetMap( ResourceID const& mapResourceID ) const
+    {
+        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
+        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
+        KRG_ASSERT( foundMapIter != m_maps.end() );
+        return foundMapIter;
+    }
+
+    EntityModel::EntityMap const* EntityWorld::GetMap( EntityMapID const& mapID ) const
+    {
+        KRG_ASSERT( mapID.IsValid() );
+        auto const foundMapIter = VectorFind( m_maps, mapID, [] ( EntityModel::EntityMap const& map, EntityMapID const& mapID ) { return map.GetID() == mapID; } );
+        KRG_ASSERT( foundMapIter != m_maps.end() );
+        return foundMapIter;
+    }
+
     void EntityWorld::LoadMap( ResourceID const& mapResourceID )
     {
         KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
 
-        KRG_ASSERT( !IsMapLoaded( mapResourceID ) );
+        KRG_ASSERT( !HasMap( mapResourceID ) );
         auto& map = m_maps.emplace_back( EntityModel::EntityMap( mapResourceID ) );
         map.Load( m_loadingContext );
     }
@@ -532,22 +588,12 @@ namespace KRG
         foundMapIter->Unload( m_loadingContext );
     }
 
-    #if KRG_DEVELOPMENT_TOOLS
-    EntityModel::EntityMap* EntityWorld::GetMap( ResourceID const& mapResourceID )
-    {
-        KRG_ASSERT( mapResourceID.IsValid() && mapResourceID.GetResourceTypeID() == EntityModel::EntityMapDescriptor::GetStaticResourceTypeID() );
-        auto const foundMapIter = VectorFind( m_maps, mapResourceID, [] ( EntityModel::EntityMap const& map, ResourceID const& mapResourceID ) { return map.GetMapResourceID() == mapResourceID; } );
-        KRG_ASSERT( foundMapIter != m_maps.end() );
-        return foundMapIter;
-    }
-    #endif
-
     //-------------------------------------------------------------------------
     // Editing / Hot Reload
     //-------------------------------------------------------------------------
 
     #if KRG_DEVELOPMENT_TOOLS
-    void EntityWorld::PrepareComponentForEditing( ResourceID const& mapID, EntityID const& entityID, ComponentID const& componentID )
+    void EntityWorld::PrepareComponentForEditing( EntityMapID const& mapID, EntityID const& entityID, ComponentID const& componentID )
     {
         auto pMap = GetMap( mapID );
         KRG_ASSERT( pMap != nullptr );

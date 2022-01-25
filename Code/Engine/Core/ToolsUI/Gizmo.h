@@ -58,12 +58,20 @@ namespace KRG::ImGuiX
             AllowCoordinateSpaceSwitching
         };
 
+        enum class Result
+        {
+            NoResult = 0,
+            StartedManipulating,
+            Manipulating,
+            StoppedManipulating
+        };
+
     public:
 
         Gizmo();
 
         // Draw the gizmo, returns true if any manipulation was performed
-        bool Draw( Render::Viewport const& viewport );
+        Result Draw( Render::Viewport const& viewport );
         void SetTargetTransform( Transform* pTargetTransform );
         inline Transform const& GetTransform() const { return *m_pTargetTransform; }
 
@@ -82,14 +90,6 @@ namespace KRG::ImGuiX
         void SetCoordinateSystemSpace( CoordinateSpace space );
         inline bool IsInWorldSpace() const { return m_coordinateSpace == CoordinateSpace::World; }
         inline bool IsInLocalSpace() const { return m_coordinateSpace == CoordinateSpace::Local; }
-
-        //-------------------------------------------------------------------------
-
-        // Fired when we start to manipulate a transform
-        inline TEventHandle<> OnManipulationStarted() { return m_manipulationStarted; }
-
-        // Fired when we stop manipulating a transform
-        inline TEventHandle<> OnManipulationEnded() { return m_manipulationEnded; }
 
     private:
 
@@ -126,10 +126,7 @@ namespace KRG::ImGuiX
         GizmoMode                   m_gizmoMode = GizmoMode::None;
         ManipulationMode            m_manipulationMode = ManipulationMode::None;
 
-        TEvent<>                    m_manipulationStarted;
-        TEvent<>                    m_manipulationEnded;
-
-        TBitFlags<Options>      m_options;
+        TBitFlags<Options>          m_options;
 
         // Updated each frame
         Vector                      m_origin_WS;

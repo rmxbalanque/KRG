@@ -61,7 +61,7 @@ namespace KRG::Physics
             KRG_REGISTER_ENUM
 
             None = 0,
-            Kinematic = 1,
+            Distance = 1,
             Spring = 2
         };
 
@@ -71,7 +71,7 @@ namespace KRG::Physics
 
     public:
 
-        KRG_EXPOSE DriveType                                m_driveType = DriveType::Kinematic;
+        KRG_EXPOSE DriveType                                m_driveType = DriveType::None;
         KRG_EXPOSE float                                    m_maxDistance = 0.05f;
         KRG_EXPOSE float                                    m_tolerance = 0.01f;
         KRG_EXPOSE float                                    m_stiffness = 0.0f;
@@ -342,7 +342,7 @@ namespace KRG::Physics
         void SwitchProfile( StringID newProfileID );
 
         void SetGravityEnabled( bool isGravityEnabled );
-        inline void SetPoseFollowingEnabled( bool shouldFollowPose );
+        void SetPoseFollowingEnabled( bool shouldFollowPose );
 
         bool IsSleeping() const;
         void PutToSleep();
@@ -416,7 +416,7 @@ namespace KRG::Physics
         TVector<physx::PxArticulationLink*>                     m_links;
 
         physx::PxRigidDynamic*                                  m_pRootControlActor = nullptr;
-        physx::PxJoint*                                         m_pRootTargetJoint = nullptr;
+        physx::PxDistanceJoint*                                 m_pRootTargetJoint = nullptr;
 
         bool                                                    m_shouldFollowPose = false;
         bool                                                    m_gravityEnabled = true;

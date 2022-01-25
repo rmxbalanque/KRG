@@ -73,8 +73,8 @@ namespace KRG::Animation
         void CreateControlParameter( GraphValueType type );
         void CreateVirtualParameter( GraphValueType type );
 
-        void RenameControlParameter( UUID parameterID, String newName );
-        void RenameVirtualParameter( UUID parameterID, String newName );
+        void RenameControlParameter( UUID parameterID, String const& newName, String const& category );
+        void RenameVirtualParameter( UUID parameterID, String const& newName, String const& category );
 
         void DestroyControlParameter( UUID parameterID );
         void DestroyVirtualParameter( UUID parameterID );

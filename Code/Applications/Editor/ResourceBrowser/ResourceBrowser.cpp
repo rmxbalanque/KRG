@@ -52,6 +52,13 @@ namespace KRG
         inline FileSystem::Path const& GetFilePath() const { return m_path; }
         inline ResourcePath const& GetResourcePath() const { return m_resourcePath; }
 
+        virtual bool SupportsDragAndDrop() { return IsFile() && IsResourceFile(); }
+        virtual char const* GetDragAndDropPayloadID() { return "ResourceFile"; }
+        virtual TPair<void*, size_t> GetDragAndDropPayload() const 
+        { 
+            return TPair<void*, size_t>( (void*) m_resourcePath.c_str(), m_resourcePath.GetString().length() );
+        }
+
         // Resource Info
         //-------------------------------------------------------------------------
 
@@ -82,8 +89,8 @@ namespace KRG
 namespace KRG
 {
     ResourceBrowser::ResourceBrowser( EditorContext& model )
-        : m_model( model )
-        , m_dataDirectoryPathDepth( m_model.GetRawResourceDirectory().GetPathDepth() )
+        : m_editorContext( model )
+        , m_dataDirectoryPathDepth( m_editorContext.GetRawResourceDirectory().GetPathDepth() )
     {
         Memory::MemsetZero( m_nameFilterBuffer, 256 * sizeof( char ) );
         m_onDoubleClickEventID = OnItemDoubleClicked().Bind( [this] ( TreeListViewItem* pItem ) { OnBrowserItemDoubleClicked( pItem ); } );
@@ -138,7 +145,7 @@ namespace KRG
 
     void ResourceBrowser::RebuildTreeInternal()
     {
-        if ( !FileSystem::GetDirectoryContents( m_model.GetRawResourceDirectory(), m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand) )
+        if ( !FileSystem::GetDirectoryContents( m_editorContext.GetRawResourceDirectory(), m_foundPaths, FileSystem::DirectoryReaderOutput::OnlyFiles, FileSystem::DirectoryReaderMode::Expand) )
         {
             KRG_HALT();
         }
@@ -155,14 +162,14 @@ namespace KRG
             if ( strlen( pExtension ) <= 4 )
             {
                 resourceTypeID = ResourceTypeID( pExtension );
-                if ( !m_model.GetTypeRegistry()->IsRegisteredResourceType( resourceTypeID ) )
+                if ( !m_editorContext.GetTypeRegistry()->IsRegisteredResourceType( resourceTypeID ) )
                 {
                     resourceTypeID = ResourceTypeID();
                 }
             }
 
             // Create file item
-            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), path, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), path ), resourceTypeID );
+            parentItem.CreateChild<ResourceBrowserTreeItem>( path.GetFileName().c_str(), path, ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectory(), path ), resourceTypeID );
         }
 
         UpdateVisibility();
@@ -308,7 +315,7 @@ namespace KRG
         ImGui::SetNextItemWidth( 150 );
         if ( ImGui::BeginCombo( "##ResourceTypeFilters", "Resource Filters", ImGuiComboFlags_HeightLarge ) )
         {
-            for ( auto const& resourceInfo : m_model.GetTypeRegistry()->GetRegisteredResourceTypes() )
+            for ( auto const& resourceInfo : m_editorContext.GetTypeRegistry()->GetRegisteredResourceTypes() )
             {
                 bool isChecked = VectorContains( m_typeFilter, resourceInfo.second.m_resourceTypeID );
                 if ( ImGui::Checkbox( resourceInfo.second.m_friendlyName.c_str(), &isChecked ) )
@@ -341,7 +348,7 @@ namespace KRG
         KRG_ASSERT( path.IsFile() );
 
         TreeListViewItem* pCurrentItem = &m_rootItem;
-        FileSystem::Path directoryPath = m_model.GetRawResourceDirectory();
+        FileSystem::Path directoryPath = m_editorContext.GetRawResourceDirectory();
         TInlineVector<String, 10> splitPath = path.Split();
 
         //-------------------------------------------------------------------------
@@ -357,7 +364,7 @@ namespace KRG
             auto pFoundChildItem = pCurrentItem->FindChild( searchPredicate );
             if ( pFoundChildItem == nullptr )
             {
-                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), directoryPath, ResourcePath::FromFileSystemPath( m_model.GetRawResourceDirectory(), directoryPath ) );
+                auto pItem = pCurrentItem->CreateChild<ResourceBrowserTreeItem>( splitPath[i].c_str(), directoryPath, ResourcePath::FromFileSystemPath( m_editorContext.GetRawResourceDirectory(), directoryPath ) );
                 pCurrentItem = pItem;
             }
             else
@@ -371,9 +378,9 @@ namespace KRG
         return *pCurrentItem;
     }
 
-    void ResourceBrowser::DrawItemContextMenu( TreeListViewItem* pItem )
+    void ResourceBrowser::DrawItemContextMenu( TVector<TreeListViewItem*> const& selectedItemsWithContextMenus )
     {
-        auto pResourceItem = (ResourceBrowserTreeItem*) pItem;
+        auto pResourceItem = (ResourceBrowserTreeItem*) GetSelection()[0];
 
         //-------------------------------------------------------------------------
 
@@ -451,7 +458,7 @@ namespace KRG
     {
         KRG_ASSERT( path.IsDirectory() );
 
-        TypeSystem::TypeRegistry const* pTypeRegistry = m_model.GetTypeRegistry();
+        TypeSystem::TypeRegistry const* pTypeRegistry = m_editorContext.GetTypeRegistry();
         TVector<TypeSystem::TypeInfo const*> descriptorTypeInfos = pTypeRegistry->GetAllDerivedTypes( Resource::ResourceDescriptor::GetStaticTypeID(), false, false );
 
         // Filter Type Info list
@@ -490,7 +497,7 @@ namespace KRG
                 auto pResourceInfo = pTypeRegistry->GetResourceInfoForResourceType( pDefaultInstance->GetCompiledResourceTypeID() );
                 if ( ImGui::MenuItem( pResourceInfo->m_friendlyName.c_str() ) )
                 {
-                    m_pResourceDescriptorCreator = KRG::New<ResourceDescriptorCreator>( &m_model, pDescriptorTypeInfo->m_ID, path );
+                    m_pResourceDescriptorCreator = KRG::New<ResourceDescriptorCreator>( &m_editorContext, pDescriptorTypeInfo->m_ID, path );
                 }
             }
 
@@ -510,13 +517,13 @@ namespace KRG
 
         if ( pResourceFileItem->IsResourceFile() )
         {
-            m_model.QueueCreateWorkspace( pResourceFileItem->GetResourceID() );
+            m_editorContext.QueueCreateWorkspace( pResourceFileItem->GetResourceID() );
         }
         else // Try create file inspector
         {
             if ( Resource::RawResourceInspectorFactory::CanCreateInspector( pResourceFileItem->GetFilePath() ) )
             {
-                m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_model.GetTypeRegistry(), *m_model.GetResourceDatabase(), pResourceFileItem->GetFilePath() );
+                m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_editorContext.GetTypeRegistry(), *m_editorContext.GetResourceDatabase(), pResourceFileItem->GetFilePath() );
             }
         }
     }

@@ -375,7 +375,7 @@ namespace KRG
 
         Milliseconds deltaTime = 0;
         {
-            ScopedSystemTimer frameTimer( deltaTime );
+            ScopedTimer<PlatformClock> frameTimer( deltaTime );
 
             // Frame Start
             //-------------------------------------------------------------------------
@@ -430,7 +430,7 @@ namespace KRG
 
                 //-------------------------------------------------------------------------
 
-                m_pInputSystem->Update();
+                m_pInputSystem->Update( m_updateContext.GetDeltaTime() );
 
                 #if KRG_DEVELOPMENT_TOOLS
                 m_pToolsUI->Update( m_updateContext );
@@ -532,6 +532,15 @@ namespace KRG
             deltaTime = m_updateContext.GetDeltaTime(); // Keep last frame delta
         }
         #endif
+
+        // Hacky frame limiter
+        //constexpr float const minFrameTime = 1000.0f / 30;
+        /*constexpr float const minFrameTime = 1000.0f / 60;
+        if ( deltaTime < minFrameTime )
+        {
+            Threading::Sleep( minFrameTime - deltaTime );
+            deltaTime = minFrameTime;
+        }*/
 
         m_updateContext.UpdateDeltaTime( deltaTime );
         EngineClock::Update( deltaTime );

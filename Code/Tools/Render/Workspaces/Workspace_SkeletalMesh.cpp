@@ -94,7 +94,7 @@ namespace KRG::Render
         }
     }
 
-    void SkeletalMeshWorkspace::DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
+    void SkeletalMeshWorkspace::UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass )
     {
         if ( IsResourceLoaded() )
         {

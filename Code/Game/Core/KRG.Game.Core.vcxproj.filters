@@ -34,6 +34,9 @@
     <Filter Include="Player\GameplayStates">
       <UniqueIdentifier>{852f7a6b-21ab-4f62-93b8-e4c0572844ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Weapon">
+      <UniqueIdentifier>{7907ad06-4c04-4a9e-b496-cf2b84c34283}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_Module\Module.cpp">
@@ -73,6 +76,19 @@
     <ClCompile Include="AI\Behaviors\Actions\AIAction_MoveTo.cpp" />
     <ClCompile Include="AI\Behaviors\Actions\AIAction_Idle.cpp" />
     <ClCompile Include="Player\GraphControllers\PlayerGraphController_Ability.cpp" />
+    <ClCompile Include="Player\Components\Component_MainPlayer.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction_Slide.cpp" />
+    <ClCompile Include="Cover\Components\Component_CoverVolume.cpp" />
+    <ClCompile Include="Cover\Systems\WorldSystem_CoverManager.cpp" />
+    <ClCompile Include="Cover\DebugViews\DebugView_Cover.cpp" />
+    <ClCompile Include="Weapon\Components\Ammo.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon\Components\BaseWeapon.cpp">
+      <Filter>Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\Behaviors\AIBehavior_CombatPositioning.cpp" />
+    <ClCompile Include="Player\Actions\PlayerAction_DebugMode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -125,5 +141,20 @@
     <ClInclude Include="AI\Behaviors\Actions\AIAction_MoveTo.h" />
     <ClInclude Include="AI\Behaviors\Actions\AIAction_Idle.h" />
     <ClInclude Include="Player\GraphControllers\PlayerGraphController_Ability.h" />
+    <ClInclude Include="Player\Actions\PlayerAction_Slide.h" />
+    <ClInclude Include="Cover\Components\Component_CoverVolume.h" />
+    <ClInclude Include="Cover\Systems\WorldSystem_CoverManager.h" />
+    <ClInclude Include="Cover\DebugViews\DebugView_Cover.h" />
+    <ClInclude Include="Weapon\Components\BaseWeapon.h">
+      <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Components\Ammo.h">
+      <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon\Components\DamageInfoTypes.h">
+      <Filter>Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\Behaviors\AIBehavior_CombatPositioning.h" />
+    <ClInclude Include="Player\Actions\PlayerAction_DebugMode.h" />
   </ItemGroup>
 </Project>

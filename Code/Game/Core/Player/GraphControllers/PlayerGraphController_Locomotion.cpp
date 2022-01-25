@@ -10,6 +10,8 @@ namespace KRG::Player
         m_speedParam.TryBind( this );
         m_headingParam.TryBind( this );
         m_facingParam.TryBind( this );
+        m_isCrouchParam.TryBind( this );
+        m_isSlidingParam.TryBind( this );
     }
 
     void LocomotionGraphController::SetIdle()
@@ -39,5 +41,15 @@ namespace KRG::Player
             Vector const characterSpaceFacing = ConvertWorldSpaceVectorToCharacterSpace( facingDirectionWS ).GetNormalized2();
             m_facingParam.Set( this, characterSpaceFacing );
         }
+    }
+
+    void LocomotionGraphController::SetCrouch( bool isCrouch )
+    {
+        m_isCrouchParam.Set( this, isCrouch );
+    }
+
+    void LocomotionGraphController::SetSliding( bool isSliding )
+    {
+        m_isSlidingParam.Set( this, isSliding );
     }
 }

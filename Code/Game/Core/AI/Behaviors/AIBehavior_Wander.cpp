@@ -20,8 +20,6 @@ namespace KRG::AI
             return Status::Running;
         }
 
-        navmeshBounds.Shrink( Vector( 105, 180, 0.0f ) );
-
         //-------------------------------------------------------------------------
 
         if ( m_waitTimer.IsRunning() )
@@ -29,7 +27,7 @@ namespace KRG::AI
             m_idleAction.Update( ctx );
 
             // Wait for the timer to elapse and start a move
-            if ( m_waitTimer.Update() )
+            if ( m_waitTimer.Update( ctx.GetDeltaTime() ) )
             {
                 Vector const boundsMin = navmeshBounds.GetMin();
                 Vector const boundsMax = navmeshBounds.GetMax();

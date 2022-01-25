@@ -31,6 +31,7 @@
     <ClInclude Include="ResourceSystem.h" />
     <ClInclude Include="ResourceTypeID.h" />
     <ClInclude Include="ResourcePath.h" />
+    <ClInclude Include="ResourceProviders\PackagedResourceProvider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ResourceProviders\NetworkResourceProvider.cpp">
@@ -39,11 +40,11 @@
     <ClCompile Include="ResourceSettings.cpp" />
     <ClCompile Include="ResourceID.cpp" />
     <ClCompile Include="ResourceLoader.cpp" />
-    <ClCompile Include="ResourceProvider.cpp" />
     <ClCompile Include="ResourceRecord.cpp" />
     <ClCompile Include="ResourceRequest.cpp" />
     <ClCompile Include="ResourceSystem.cpp" />
     <ClCompile Include="ResourceTypeID.cpp" />
     <ClCompile Include="ResourcePath.cpp" />
+    <ClCompile Include="ResourceProviders\PackagedResourceProvider.cpp" />
   </ItemGroup>
 </Project>

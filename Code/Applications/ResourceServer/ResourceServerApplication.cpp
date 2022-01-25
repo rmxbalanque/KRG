@@ -295,7 +295,7 @@ namespace KRG
     {
         Milliseconds deltaTime = 0;
         {
-            ScopedSystemTimer frameTimer( deltaTime );
+            ScopedTimer<PlatformClock> frameTimer( deltaTime );
 
             // Update resource server
             //-------------------------------------------------------------------------

@@ -1,12 +1,11 @@
 #include "ResourceCompiler_EntityCollection.h"
 #include "ResourceBuilders/NavmeshBuilder.h"
-#include "Tools/Entity/Serialization/EntityCollectionDescriptorReader.h"
-#include "Engine/Core/Entity/EntityMapDescriptor.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
+#include "Engine/Core/Entity/EntitySerialization.h"
 #include "Engine/Navmesh/Components/Component_Navmesh.h"
 #include "System/Core/Serialization/BinaryArchive.h"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Time/Timers.h"
-#include "Engine/Core/Entity/EntityCollection.h"
 
 //-------------------------------------------------------------------------
 
@@ -40,9 +39,9 @@ namespace KRG::EntityModel
 
         Milliseconds elapsedTime = 0.0f;
         {
-            ScopedSystemTimer timer( elapsedTime );
+            ScopedTimer<PlatformClock> timer( elapsedTime );
 
-            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, collectionDesc ) )
+            if ( !Serialization::ReadEntityCollectionFromFile( ctx.m_typeRegistry, ctx.m_inputFilePath, collectionDesc ) )
             {
                 return Resource::CompilationResult::Failure;
             }
@@ -54,7 +53,7 @@ namespace KRG::EntityModel
         //-------------------------------------------------------------------------
 
         FileSystem::EnsurePathExists( ctx.m_outputFilePath );
-        Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
+        KRG::Serialization::BinaryFileArchive archive( KRG::Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
             archive << Resource::ResourceHeader( s_version, EntityCollectionDescriptor::GetStaticResourceTypeID() ) << collectionDesc;
@@ -69,7 +68,6 @@ namespace KRG::EntityModel
     Resource::CompilationResult EntityCollectionCompiler::CompileMap( Resource::CompileContext const& ctx ) const
     {
         EntityMapDescriptor map;
-        map.m_ID = UUID::GenerateID();
 
         //-------------------------------------------------------------------------
         // Read collection
@@ -77,9 +75,9 @@ namespace KRG::EntityModel
 
         Milliseconds elapsedTime = 0.0f;
         {
-            ScopedSystemTimer timer( elapsedTime );
+            ScopedTimer<PlatformClock> timer( elapsedTime );
 
-            if ( !EntityCollectionDescriptorReader::Read( ctx.m_typeRegistry, ctx.m_inputFilePath, map ) )
+            if ( !Serialization::ReadEntityCollectionFromFile( ctx.m_typeRegistry, ctx.m_inputFilePath, map ) )
             {
                 return Resource::CompilationResult::Failure;
             }
@@ -87,16 +85,15 @@ namespace KRG::EntityModel
         Message( "Entity map read in: %.2fms", elapsedTime.ToFloat() );
 
         //-------------------------------------------------------------------------
-        // Additional Resources
+        // Navmesh
         //-------------------------------------------------------------------------
 
+        #if KRG_NAVPOWER
         auto const navmeshComponents = map.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
-
-        // If we have a navmesh component 
         if ( !navmeshComponents.empty() )
         {
             {
-                ScopedSystemTimer timer( elapsedTime );
+                ScopedTimer<PlatformClock> timer( elapsedTime );
 
                 // Log warning about invalid data
                 if ( navmeshComponents.size() > 1 )
@@ -128,6 +125,7 @@ namespace KRG::EntityModel
                 Navmesh::NavmeshBuilder navmeshBuilder;
                 bool const navmeshBuildResult = navmeshBuilder.Build( ctx, map, navmeshFilePath, pNavmeshComponent );
 
+
                 // Delete component instance
                 KRG::Delete( pNavmeshComponent );
 
@@ -138,13 +136,14 @@ namespace KRG::EntityModel
             }
             Message( "Navmesh built in: %.2fms", elapsedTime.ToFloat() );
         }
+        #endif
 
         //-------------------------------------------------------------------------
         // Serialize
         //-------------------------------------------------------------------------
 
         FileSystem::EnsurePathExists( ctx.m_outputFilePath );
-        Serialization::BinaryFileArchive archive( Serialization::Mode::Write, ctx.m_outputFilePath );
+        KRG::Serialization::BinaryFileArchive archive( KRG::Serialization::Mode::Write, ctx.m_outputFilePath );
         if ( archive.IsValid() )
         {
             archive << Resource::ResourceHeader( s_version, EntityMapDescriptor::GetStaticResourceTypeID() ) << map;

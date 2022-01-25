@@ -28,8 +28,8 @@ namespace KRG::AI
 
         #if KRG_DEVELOPMENT_TOOLS
         auto drawingContext = ctx.GetDrawingContext();
-        drawingContext.DrawSphere( sweepStartPos, Vector( sphereRadius ), Colors::Gray, 5.0f );
-        drawingContext.DrawCapsuleHeightX( capsuleWorldTransform, m_pCharacterComponent->GetCapsuleRadius(), m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), Colors::Red );
+        //drawingContext.DrawSphere( sweepStartPos, Vector( sphereRadius ), Colors::Gray, 5.0f );
+        //drawingContext.DrawCapsuleHeightX( capsuleWorldTransform, m_pCharacterComponent->GetCapsuleRadius(), m_pCharacterComponent->GetCapsuleCylinderPortionHalfHeight(), Colors::Red );
         #endif
 
         //-------------------------------------------------------------------------
@@ -50,7 +50,7 @@ namespace KRG::AI
             else
             {
                 #if KRG_DEVELOPMENT_TOOLS
-                drawingContext.DrawSphere( sweepResults.GetShapePosition(), Vector( sphereRadius ), Colors::Yellow, 2.0f );
+                //drawingContext.DrawSphere( sweepResults.GetShapePosition(), Vector( sphereRadius ), Colors::Yellow, 2.0f );
                 #endif
 
                 capsuleFinalPosition = sweepResults.GetShapePosition() + halfHeightVector;
@@ -61,7 +61,7 @@ namespace KRG::AI
             capsuleFinalPosition = sweepEndPos + halfHeightVector;
 
             #if KRG_DEVELOPMENT_TOOLS
-            drawingContext.DrawSphere( capsuleFinalPosition, Vector( sphereRadius ), Colors::LimeGreen, 2.0f );
+            //drawingContext.DrawSphere( capsuleFinalPosition, Vector( sphereRadius ), Colors::LimeGreen, 2.0f );
             #endif
         }
 

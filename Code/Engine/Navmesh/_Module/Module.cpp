@@ -8,7 +8,10 @@ namespace KRG::Navmesh
     bool EngineModule::Initialize( ModuleContext& context )
     {
         context.RegisterResourceLoader( &m_navmeshLoader );
+
+        #if KRG_NAVPOWER
         context.RegisterSystem( m_navmeshSystem );
+        #endif
 
         //-------------------------------------------------------------------------
 
@@ -20,7 +23,10 @@ namespace KRG::Navmesh
     {
         if ( m_initialized )
         {
+            #if KRG_NAVPOWER
             context.UnregisterSystem( m_navmeshSystem );
+            #endif
+
             context.UnregisterResourceLoader( &m_navmeshLoader );
         }
 

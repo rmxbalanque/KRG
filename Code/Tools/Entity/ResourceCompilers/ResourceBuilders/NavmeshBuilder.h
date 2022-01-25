@@ -1,4 +1,5 @@
 #pragma once
+#if KRG_NAVPOWER
 
 #include "Tools/Core/Resource/Compilers/ResourceCompiler.h"
 #include "System/Resource/ResourcePtr.h"
@@ -43,3 +44,5 @@ namespace KRG::Navmesh
         TVector<bfx::BuildFace>         m_buildFaces;
     };
 }
+
+#endif

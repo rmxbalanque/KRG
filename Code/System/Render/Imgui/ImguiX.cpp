@@ -1,5 +1,7 @@
 #include "ImguiX.h"
 
+#if KRG_DEVELOPMENT_TOOLS
+
 //-------------------------------------------------------------------------
 
 namespace KRG::ImGuiX
@@ -130,21 +132,21 @@ namespace KRG::ImGuiX
 
     void VerticalSeparator( ImVec2 const& size, ImColor const& color )
     {
-        ImGui::SameLine(0, 1);
-
-        //-------------------------------------------------------------------------
-
-        auto const canvasPos = ImGui::GetCursorScreenPos();
-        auto const availableRegion = ImGui::GetContentRegionAvail();
-
-        ImVec2 const seperatorSize( size.x <= 0 ? 1 : size.x, size.y <= 0 ? availableRegion.y : size.y );
-        ImGui::SameLine( 0, seperatorSize.x + 2 );
-
-        //-------------------------------------------------------------------------
-
         ImColor const separatorColor = ( (int) color == 0 ) ? ImGui::GetStyleColorVec4( ImGuiCol_Separator ) : ImColor( color );
 
-        float const startPosX = Math::Floor( canvasPos.x - 2 + Math::Floor( seperatorSize.x / 2 ) );
+        ImGui::SameLine( 0, 0 );
+
+        auto const availableRegion = ImGui::GetContentRegionAvail();
+        ImVec2 seperatorSize( size.x <= 0 ? ( ImGui::GetStyle().ItemSpacing.x ) + 1 : size.x, size.y <= 0 ? availableRegion.y : size.y);
+        if ( Math::IsEven( (int32) seperatorSize.x ) )
+        {
+            seperatorSize.x += 1;
+        }
+
+        ImGui::SameLine( 0, seperatorSize.x );
+        
+        ImVec2 const canvasPos = ImGui::GetCursorScreenPos();
+        float const startPosX = canvasPos.x - Math::Floor( seperatorSize.x / 2 ) - 1;
         float const startPosY = canvasPos.y + 1;
         float const endPosY = startPosY + seperatorSize.y - 2;
 
@@ -173,6 +175,15 @@ namespace KRG::ImGuiX
         return result;
     }
 
+    bool FlatButton( char const* label, ImVec2 const& size )
+    {
+        ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
+        bool const result = ImGui::Button( label, size );
+        ImGui::PopStyleColor( 1 );
+
+        return result;
+    }
+
     void DrawArrow( ImDrawList* pDrawList, ImVec2 const& arrowStart, ImVec2 const& arrowEnd, ImU32 col, float arrowWidth, float arrowHeadWidth )
     {
         KRG_ASSERT( pDrawList != nullptr );
@@ -189,13 +200,15 @@ namespace KRG::ImGuiX
         pDrawList->AddTriangleFilled( arrowEnd, tri1, tri2, col );
     }
 
-    bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID )
+    bool DrawOverlayIcon( ImVec2 const& iconPos, char icon[4], void* iconID, bool isSelected, ImColor const& selectedColor )
     {
         bool result = false;
 
         //-------------------------------------------------------------------------
 
-        static ImVec2 const iconSize( 48, 48 );
+        ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
+        ImVec2 const textSize = ImGui::CalcTextSize( icon );
+        ImVec2 const iconSize = textSize + ( ImGui::GetStyle().FramePadding * 2 );
         ImVec2 const iconHalfSize( iconSize.x / 2, iconSize.y / 2 );
         ImRect const iconRect( iconPos - iconHalfSize, iconPos + iconHalfSize );
         ImRect const windowRect( ImVec2( 0, 0 ), ImGui::GetWindowSize() );
@@ -206,20 +219,25 @@ namespace KRG::ImGuiX
 
         //-------------------------------------------------------------------------
 
-        ImGuiX::ScopedFont scopedFont( ImGuiX::Font::Huge );
-        ImVec2 const textSize = ImGui::CalcTextSize( icon );
+        ImVec4 iconColor = ImGuiX::Style::s_textColor;
+        if ( isSelected || iconRect.Contains( ImGui::GetMousePos() - ImGui::GetWindowPos() ) )
+        {
+            iconColor = selectedColor;
+        }
+
+        //-------------------------------------------------------------------------
+
         ImGui::SetCursorPos( iconPos - iconHalfSize );
         ImGui::PushID( iconID );
-        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0, 0 ) );
         ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
         ImGui::PushStyleColor( ImGuiCol_ButtonActive, ImVec4( 0, 0, 0, 0 ) );
         ImGui::PushStyleColor( ImGuiCol_ButtonHovered, ImVec4( 0, 0, 0, 0 ) );
-        if ( ImGui::Button( icon, iconSize ) )
+        ImGui::PushStyleColor( ImGuiCol_Text, iconColor );
+        if ( ImGui::Button( icon, iconSize ) && !isSelected )
         {
             result = true;
         }
-        ImGui::PopStyleColor( 3 );
-        ImGui::PopStyleVar( 1 );
+        ImGui::PopStyleColor( 4 );
         ImGui::PopID();
 
         return result;
@@ -282,27 +300,28 @@ namespace KRG::ImGuiX
 
 namespace KRG::ImGuiX
 {
-    constexpr static float const g_labelWidth = 16.0f;
-    constexpr static float const g_labelHeight = 24.0f;
+    constexpr static float const g_labelWidth = 14.0f;
+    constexpr static float const g_labelHeight = 23.0f;
 
-    static bool BeginElementFrame( char const* pLabel, float const& width, ImVec4 backgroundColor )
+    static bool BeginElementFrame( char const* pLabel, float labelWidth, ImVec2 const& size, ImVec4 backgroundColor)
     {
         ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_ChildBorderSize, 0.0f );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 4, 3 ) );
         ImGui::PushStyleColor( ImGuiCol_ChildBg, backgroundColor );
 
-        if ( ImGui::BeginChild( pLabel, ImVec2( width, g_labelHeight ), true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse ) )
+        if ( ImGui::BeginChild( pLabel, size, true, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse ) )
         {
             ImGui::AlignTextToFramePadding();
-            ImGui::SetCursorPosX( 4 );
+            ImGui::SetCursorPosX( 3 );
             {
                 ImGuiX::ScopedFont sf( Font::MediumBold );
                 ImGui::Text( pLabel );
             }
 
             ImGui::SameLine( 0, 0 );
-            ImGui::SetCursorPosX( g_labelWidth );
+            ImGui::SetCursorPosX( labelWidth );
             ImGui::SetCursorPosY( ImGui::GetCursorPosY() + 1 );
 
             return true;
@@ -315,7 +334,7 @@ namespace KRG::ImGuiX
     {
         ImGui::EndChild();
 
-        ImGui::PopStyleVar( 3 );
+        ImGui::PopStyleVar( 4 );
         ImGui::PopStyleColor();
     }
 
@@ -323,7 +342,7 @@ namespace KRG::ImGuiX
     {
         bool result = false;
 
-        if ( BeginElementFrame( pLabel, width, backgroundColor ) )
+        if ( BeginElementFrame( pLabel, g_labelWidth, ImVec2( width, g_labelHeight ), backgroundColor ) )
         {
             ImGui::SetNextItemWidth( width - g_labelWidth - 1 );
             ImGui::InputFloat( pID, pValue, 0, 0, "%.3f", isReadOnly ? ImGuiInputTextFlags_ReadOnly : 0 );
@@ -348,7 +367,7 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::MediumRed.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -376,7 +395,7 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::MediumRed.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -410,7 +429,7 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::MediumRed.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -450,7 +469,7 @@ namespace KRG::ImGuiX
 
         ImGui::PushID( pID );
         {
-            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::Red.ToFloat4(), &value.m_x, isReadOnly ) )
+            if ( DrawVectorElement( "##x", "X", inputWidth, Colors::MediumRed.ToFloat4(), &value.m_x, isReadOnly ) )
             {
                 valueUpdated = true;
             }
@@ -478,152 +497,146 @@ namespace KRG::ImGuiX
         return valueUpdated;
     }
 
+    bool InputTransform( char const* pID, Transform& value, float width, bool readOnly )
+    {
+        bool valueUpdated = false;
+
+        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 0, 2 ) );
+        if ( ImGui::BeginTable( "Transform", 2, ImGuiTableFlags_None, ImVec2( width, 0 ) ) )
+        {
+            ImGui::TableSetupColumn( "Header", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 24 );
+            ImGui::TableSetupColumn( "Values", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch );
+
+            ImGui::TableNextRow();
+            {
+                ImGui::TableNextColumn();
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text( "Rot" );
+
+                ImGui::TableNextColumn();
+                Float3 rotation = value.GetRotation().ToEulerAngles().GetAsDegrees();
+                if ( ImGuiX::InputFloat3( "R", rotation ) )
+                {
+                    value.SetRotation( Quaternion( EulerAngles( rotation ) ) );
+                    valueUpdated = true;
+                }
+            }
+
+            ImGui::TableNextRow();
+            {
+                ImGui::TableNextColumn();
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text( "Pos" );
+
+                ImGui::TableNextColumn();
+                Float3 translation = value.GetTranslation();
+                if ( ImGuiX::InputFloat3( "T", translation ) )
+                {
+                    value.SetTranslation( translation );
+                    valueUpdated = true;
+                }
+            }
+
+            ImGui::TableNextRow();
+            {
+                ImGui::TableNextColumn();
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text( "Scl" );
+
+                ImGui::TableNextColumn();
+                Float3 scale = value.GetScale();
+                if ( ImGuiX::InputFloat3( "S", scale ) )
+                {
+                    value.SetScale( scale );
+                    valueUpdated = true;
+                }
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::PopStyleVar();
+
+        return valueUpdated;
+    }
+
     //-------------------------------------------------------------------------
-
-    static bool BeginItemFrame()
-    {
-        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 3.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_ChildBorderSize, 0.0f );
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 4, 3 ) );
-        ImGui::PushStyleColor( ImGuiCol_ChildBg, (ImVec4) ImGuiX::Style::s_itemColorDark );
-        return ImGui::BeginChild( "Contents", ImVec2( ImGui::GetContentRegionAvail().x - 2, -1 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse );
-    }
-
-    static void EndItemFrame()
-    {
-        ImGui::EndChild();
-        ImGui::PopStyleVar( 3 );
-        ImGui::PopStyleColor();
-    }
 
     void DisplayVector2( ImGuiID ID, Vector const& v, float width )
     {
-        float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-        float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 2 );
-
-        ImGui::PushID( ID );
-        if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetX() );
-            }
-            EndItemFrame();
-
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+            ImGui::Text( "X:" );
+            ImGui::SameLine( 0, 3);
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f,", v.GetX() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "Y", elementWidth, Colors::Green.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetY() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+            ImGui::Text( "Y:" );
+            ImGui::SameLine();
         }
-        EndElementFrame();
-        ImGui::PopID();
+        ImGui::Text( "%.3f", v.GetY() );
     }
 
     void DisplayVector3( ImGuiID ID, Vector const& v, float width )
     {
-        float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-        float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 3 );
-
-        ImGui::PushID( ID );
-        if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetX() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+            ImGui::Text( "X:" );
+            ImGui::SameLine( 0, 3 );
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f, ", v.GetX() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "Y", elementWidth, Colors::Green.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetY() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+            ImGui::Text( "Y:" );
+            ImGui::SameLine( 0, 3 );
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f, ", v.GetY() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "Z", elementWidth, Colors::RoyalBlue.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetZ() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::RoyalBlue );
+            ImGui::Text( "Z:" );
+            ImGui::SameLine( 0, 3 );
         }
-        EndElementFrame();
-        ImGui::PopID();
+        ImGui::Text( "%.3f", v.GetZ() );
     }
 
     void DisplayVector4( ImGuiID ID, Vector const& v, float width )
     {
-        float const contentWidth = ( width > 0 ) ? width : ImGui::GetContentRegionAvail().x;
-        float const itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-        float const elementWidth = Math::Floor( ( contentWidth - itemSpacing ) / 4 );
-
-        ImGui::PushID( ID );
-        if ( BeginElementFrame( "X", elementWidth, Colors::Red.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetX() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+            ImGui::Text( "X:" );
+            ImGui::SameLine();
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f,", v.GetX() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "Y", elementWidth, Colors::Green.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetY() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+            ImGui::Text( "Y:" );
+            ImGui::SameLine();
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f,", v.GetY() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "Z", elementWidth, Colors::RoyalBlue.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetZ() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::RoyalBlue );
+            ImGui::Text( "Z:" );
+            ImGui::SameLine();
         }
-        EndElementFrame();
+        ImGui::Text( "%.3f,", v.GetZ() );
+        ImGui::SameLine();
 
-        ImGui::SameLine( 0, itemSpacing );
-
-        if ( BeginElementFrame( "W", elementWidth, Colors::DarkOrange.ToFloat4() ) )
         {
-            if ( BeginItemFrame() )
-            {
-                ImGui::Text( "%.3f", v.GetW() );
-            }
-            EndItemFrame();
+            ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Orange );
+            ImGui::Text( "W:" );
+            ImGui::SameLine();
         }
-        EndElementFrame();
-        ImGui::PopID();
+        ImGui::Text( "%.3f", v.GetW() );
     }
 
     void DisplayRotation( ImGuiID ID, Quaternion const& q, float width )
@@ -634,43 +647,120 @@ namespace KRG::ImGuiX
 
     void DisplayTransform( ImGuiID ID, Transform const& t, float width )
     {
-        constexpr float const tableLabelRowWidth = 24;
+        Float3 const rotation = t.GetRotation().ToEulerAngles().GetAsDegrees();
 
-        ImGui::PushID( ID );
-        if ( ImGui::BeginTable( "Transform", 2, 0, ImVec2( width, 0 ) ) )
+        ImGui::PushStyleVar( ImGuiStyleVar_CellPadding, ImVec2( 3, 1 ) );
+        ImGui::PushStyleColor( ImGuiCol_TableRowBg, (ImVec4) ImGuiX::Style::s_backgroundColorDark );
+        ImGui::PushStyleColor( ImGuiCol_TableRowBgAlt, (ImVec4) ImGuiX::Style::s_backgroundColorDark );
+        if ( ImGui::BeginTable( "Transform", 4, ImGuiTableFlags_RowBg | ImGuiTableFlags_PadOuterX, ImVec2( width, 0 ) ) )
         {
-            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, tableLabelRowWidth );
-            ImGui::TableSetupColumn( "Data", ImGuiTableColumnFlags_NoHide );
+            ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 45 );
+            ImGui::TableSetupColumn( "X", ImGuiTableColumnFlags_WidthStretch, 0.33f );
+            ImGui::TableSetupColumn( "Y", ImGuiTableColumnFlags_WidthStretch, 0.33f );
+            ImGui::TableSetupColumn( "Z", ImGuiTableColumnFlags_WidthStretch, 0.33f );
 
             ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex( 0 );
+            {
+                ImGuiX::ScopedFont sf( Font::MediumBold );
+                ImGui::Text( "Rot =" );
+            }
 
-            ImGui::TableNextColumn();
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text( "Rot" );
+            ImGui::TableSetColumnIndex( 1 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+                ImGui::Text( "X:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", rotation.m_x );
 
-            ImGui::TableNextColumn();
-            DisplayRotation( t.GetRotation(), ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x );
+            ImGui::TableSetColumnIndex( 2 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+                ImGui::Text( "Y:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", rotation.m_y );
+
+            ImGui::TableSetColumnIndex( 3 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::RoyalBlue );
+                ImGui::Text( "Z:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f", rotation.m_z );
+
+            //-------------------------------------------------------------------------
 
             ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex( 0 );
+            {
+                ImGuiX::ScopedFont sf( Font::MediumBold );
+                ImGui::Text( "Pos =" );
+            }
 
-            ImGui::TableNextColumn();
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text( "Pos" );
+            ImGui::TableSetColumnIndex( 1 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+                ImGui::Text( "X:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", t.GetTranslation().m_x);
 
-            ImGui::TableNextColumn();
-            DisplayVector3( t.GetTranslation(), ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x );
+            ImGui::TableSetColumnIndex( 2 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+                ImGui::Text( "Y:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", t.GetTranslation().m_y );
+
+            ImGui::TableSetColumnIndex( 3 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::RoyalBlue );
+                ImGui::Text( "Z:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f", t.GetTranslation().m_z );
+
+            //-------------------------------------------------------------------------
 
             ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex( 0 );
+            {
+                ImGuiX::ScopedFont sf( Font::MediumBold );
+                ImGui::Text( "Scl =" );
+            }
+        
+            ImGui::TableSetColumnIndex( 1 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::MediumRed );
+                ImGui::Text( "X:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", t.GetScale().m_x );
 
-            ImGui::TableNextColumn();
-            ImGui::AlignTextToFramePadding();
-            ImGui::Text( "Scl" );
+            ImGui::TableSetColumnIndex( 2 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::Green );
+                ImGui::Text( "Y:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f, ", t.GetScale().m_y );
 
-            ImGui::TableNextColumn();
-            DisplayVector3( t.GetScale(), ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x );
+            ImGui::TableSetColumnIndex( 3 );
+            {
+                ImGuiX::ScopedFont sf( ImGuiX::Font::Medium, Colors::RoyalBlue );
+                ImGui::Text( "Z:" );
+                ImGui::SameLine( 0, 3 );
+            }
+            ImGui::Text( "%.3f", t.GetScale().m_z );
 
             ImGui::EndTable();
         }
-        ImGui::PopID();
+        ImGui::PopStyleColor( 2 );
+        ImGui::PopStyleVar();
     }
 }
+
+#endif

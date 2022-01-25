@@ -21,6 +21,10 @@ namespace KRG::Physics
 
     class RagdollWorkspace : public TResourceWorkspace<RagdollDefinition>
     {
+        friend class ScopedRagdollSettingsModification;
+
+        //-------------------------------------------------------------------------
+
         struct BoneInfo
         {
             inline void DestroyChildren()
@@ -59,8 +63,8 @@ namespace KRG::Physics
         virtual void BeginHotReload( TVector<Resource::ResourceRequesterID> const& usersToBeReloaded, TVector<ResourceID> const& resourcesToBeReloaded ) override;
         virtual void EndHotReload() override;
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const override;
-        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
-        virtual void OnUndoRedo() override;
+        virtual void UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) override;
+        virtual void OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction ) override;
 
         virtual void DrawWorkspaceToolbar( UpdateContext const& context ) override;
         virtual bool HasViewportToolbar() const override { return true; }
@@ -114,7 +118,7 @@ namespace KRG::Physics
         inline bool IsPreviewing() const { return m_pRagdoll != nullptr; }
         void StartPreview( UpdateContext const& context );
         void StopPreview();
-        virtual void Update( EntityWorldUpdateContext const& updateContext ) override;
+        virtual void UpdateWorld( EntityWorldUpdateContext const& updateContext ) override;
 
         void DrawPreviewControlsWindow( UpdateContext const& context );
 
@@ -155,6 +159,7 @@ namespace KRG::Physics
         Animation::Pose*                                m_pPose = nullptr;
         Animation::Pose*                                m_pFinalPose = nullptr;
         Percentage                                      m_animTime = 0.0f;
+        Transform                                       m_previewStartTransform = Transform::Identity;
         bool                                            m_enablePoseFollowing = true;
         bool                                            m_enableGravity = true;
         bool                                            m_isPlayingAnimation = false;
@@ -163,6 +168,8 @@ namespace KRG::Physics
         bool                                            m_drawAnimationPose = false;
         bool                                            m_drawRagdoll = true;
         bool                                            m_initializeRagdollPose = false;
+        bool                                            m_applyRootMotion = false;
+        bool                                            m_refreshRagdollSettings = false;
         float                                           m_physicsBlendWeight = 1.0f;
         Ragdoll*                                        m_pRagdoll = nullptr;
         Entity*                                         m_pPreviewEntity = nullptr;

@@ -59,7 +59,7 @@ namespace KRG
             void DestroyCustomRenderTargetForViewport( Viewport const* pViewport );
 
             ViewSRVHandle const& GetRenderTargetTextureForViewport( Viewport const* pViewport ) const;
-            uint64 GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const;
+            Render::PickingID GetViewportPickingID( Viewport const* pViewport, Int2 const& pixelCoords ) const;
 
         private:
 

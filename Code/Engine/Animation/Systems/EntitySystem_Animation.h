@@ -14,7 +14,8 @@ namespace KRG::Render
 
 namespace KRG::Animation
 {
-    class AnimationComponent;
+    class AnimationGraphComponent;
+    class AnimationClipPlayerComponent;
 
     //-------------------------------------------------------------------------
 
@@ -26,15 +27,19 @@ namespace KRG::Animation
 
         virtual ~AnimationSystem();
 
-    protected:
+    private:
 
         virtual void RegisterComponent( EntityComponent* pComponent ) override;
         virtual void UnregisterComponent( EntityComponent* pComponent ) override;
         virtual void Update( EntityWorldUpdateContext const& ctx ) override;
 
+        void UpdateAnimPlayers( EntityWorldUpdateContext const& ctx, Transform const& characterWorldTransform );
+        void UpdateAnimGraphs( EntityWorldUpdateContext const& ctx, Transform const& characterWorldTransform );
+
     private:
 
-        AnimationComponent*                         m_pAnimComponent = nullptr;
-        TVector<Render::SkeletalMeshComponent*>     m_meshComponents;
+        TVector<AnimationClipPlayerComponent*>          m_animPlayers;
+        TVector<AnimationGraphComponent*>               m_animGraphs;
+        TVector<Render::SkeletalMeshComponent*>         m_meshComponents;
     };
 }

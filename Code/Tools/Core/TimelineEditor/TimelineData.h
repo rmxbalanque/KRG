@@ -50,6 +50,17 @@ namespace KRG::Timeline
             m_isDirty = true;
         }
 
+        inline void ClampToRange( FloatRange const& validRange )
+        {
+            KRG_ASSERT( validRange.IsSetAndValid() );
+
+            FloatRange clampedRange = GetTimeRange();
+            clampedRange.m_start = validRange.GetClampedValue( clampedRange.m_start );
+            clampedRange.m_end = validRange.GetClampedValue( clampedRange.m_end );
+            KRG_ASSERT( clampedRange.IsSetAndValid() );
+            SetTimeRangeInternal( clampedRange );
+        }
+
         inline bool IsImmediateItem() const { return GetTimeRange().m_start == GetTimeRange().m_end; }
         inline bool IsDurationItem() const { return GetTimeRange().m_start != GetTimeRange().m_end; }
         inline float GetLength() const { return GetTimeRange().GetLength(); }

@@ -40,24 +40,29 @@ namespace KRG::TypeSystem::Reflection
         inline bool operator==( ReflectedProperty const& RHS ) const { return m_propertyID == RHS.m_propertyID; }
         inline bool operator!=( ReflectedProperty const& RHS ) const { return m_propertyID != RHS.m_propertyID; }
 
+        // Dev tools helpers
+        String GetFriendlyName() const;
+        String GetCategory() const { return String(); }
+
     public:
 
-        StringID                                m_propertyID;
-        int32                                   m_lineNumber = -1;
-        TypeID                                  m_typeID;
-        String                                  m_name;
-        String                                  m_typeName;
-        String                                  m_templateArgTypeName;
-        int32                                   m_arraySize = -1;
-        TBitFlags<PropertyInfo::Flags>          m_flags;
+        StringID                                        m_propertyID;
+        int32                                           m_lineNumber = -1;
+        TypeID                                          m_typeID;
+        String                                          m_name;
+        String                                          m_typeName;
+        String                                          m_templateArgTypeName;
+        int32                                           m_arraySize = -1;
+        TBitFlags<PropertyInfo::Flags>                  m_flags;
+        bool                                            m_isDevOnly = true;
     };
 
     //-------------------------------------------------------------------------
 
     struct ReflectedEnumConstant
     {
-        String                                  m_label;
-        int32                                   m_value;
+        String                                          m_label;
+        int32                                           m_value;
     };
 
     struct ReflectedType
@@ -95,6 +100,10 @@ namespace KRG::TypeSystem::Reflection
         bool IsValidEnumLabelID( StringID labelID ) const { return m_enumConstants.find( labelID ) != m_enumConstants.end(); }
         bool GetValueFromEnumLabel( StringID labelID, uint32& value ) const;
 
+        // Dev tools helpers
+        String GetFriendlyName() const;
+        String GetCategory() const;
+
     public:
 
         TypeID                                          m_ID;
@@ -110,6 +119,8 @@ namespace KRG::TypeSystem::Reflection
         // Enums
         CoreTypeID                                      m_underlyingType = CoreTypeID::Uint8;
         THashMap<StringID, ReflectedEnumConstant>       m_enumConstants;
+
+        bool                                            m_isDevOnly = true;
     };
 
     //-------------------------------------------------------------------------

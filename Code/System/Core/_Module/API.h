@@ -2,12 +2,12 @@
 
 //-------------------------------------------------------------------------
 
-#if KRG_SYSTEM_CORE
-
-    #define KRG_SYSTEM_CORE_API __declspec(dllexport)
-
+#if KRG_DLL
+    #if KRG_SYSTEM_CORE
+        #define KRG_SYSTEM_CORE_API __declspec(dllexport)
+    #else
+        #define KRG_SYSTEM_CORE_API __declspec(dllimport)
+    #endif
 #else
-    
-    #define KRG_SYSTEM_CORE_API __declspec(dllimport)
-
+    #define KRG_SYSTEM_CORE_API
 #endif

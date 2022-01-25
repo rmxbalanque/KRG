@@ -10,6 +10,13 @@
 
 namespace KRG::Input
 {
+    class InputState;
+
+    //-------------------------------------------------------------------------
+    // Input System
+    //-------------------------------------------------------------------------
+    // The global KRG input system, manages all hardware devices and updates their state
+
     class KRG_SYSTEM_INPUT_API InputSystem : public ISystem
     {
         friend class InputDebugView;
@@ -18,11 +25,15 @@ namespace KRG::Input
 
         KRG_SYSTEM_ID( InputSystem );
 
+        static MouseInputState const s_emptyMouseState;
+        static KeyboardInputState const s_emptyKeyboardState;
+        static ControllerInputState const s_emptyControllerState;
+
     public:
 
         bool Initialize();
         void Shutdown();
-        void Update();
+        void Update( Seconds deltaTime );
         void ClearFrameState();
         void ForwardInputMessageToInputDevices( GenericMessage const& inputMessage );
 
@@ -38,7 +49,7 @@ namespace KRG::Input
                 return &pDevice->GetMouseState();
             }
 
-            return &m_emptyMouseState;
+            return &s_emptyMouseState;
         }
 
         inline KeyboardInputState const* GetKeyboardState() const
@@ -48,13 +59,13 @@ namespace KRG::Input
                 return &pDevice->GetKeyboardState();
             }
 
-            return &m_emptyKeyboardState;
+            return &s_emptyKeyboardState;
         }
 
         // Controllers
         //-------------------------------------------------------------------------
 
-        uint32 GetNumConnectedControllers();
+        uint32 GetNumConnectedControllers() const;
 
         inline ControllerInputState const* GetControllerState( uint32 controllerIdx = 0 ) const
         {
@@ -63,19 +74,18 @@ namespace KRG::Input
                 return &pDevice->GetControllerState();
             }
 
-            return &m_emptyControllerState;
+            return &s_emptyControllerState;
         }
+
+        // Reflection
+        //-------------------------------------------------------------------------
+
+        void ReflectState( Seconds const deltaTime, float timeScale, InputState& outReflectedState ) const;
 
     private:
 
         KeyboardMouseInputDevice const* GetKeyboardMouseDevice() const;
         ControllerInputDevice const* GetControllerDevice( uint32 controllerIdx = 0 ) const;
-
-    public:
-
-        MouseInputState const       m_emptyMouseState;
-        KeyboardInputState const    m_emptyKeyboardState;
-        ControllerInputState const  m_emptyControllerState;
 
     private:
 
@@ -83,41 +93,44 @@ namespace KRG::Input
     };
 
     //-------------------------------------------------------------------------
-    // Engine Input State
+    // Input State
     //-------------------------------------------------------------------------
-    // Helper Wrapper allowing for conditional disabling of input in client code
+    // A copy of the input state, used to contextually manage input state per system/world/etc...
 
-    class InputState
+    class KRG_SYSTEM_INPUT_API InputState
     {
+        friend class InputSystem;
+
     public:
 
-        InputState( InputSystem const* pInputSystem )
-            : m_pInputSystem( pInputSystem )
-        {
-            KRG_ASSERT( pInputSystem != nullptr );
-        }
+        InputState() = default;
 
-        bool SetInputEnabled( bool isEnabled ) { m_isEnabled = isEnabled; }
-        bool IsInputDisabled() const { return m_isEnabled; }
+        void Clear();
 
         KRG_FORCE_INLINE MouseInputState const* GetMouseState() const
         {
-            return m_isEnabled ? m_pInputSystem->GetMouseState() : &m_pInputSystem->m_emptyMouseState;
+            return &m_mouseState;
         }
 
         KRG_FORCE_INLINE KeyboardInputState const* GetKeyboardState() const
         {
-            return m_isEnabled ? m_pInputSystem->GetKeyboardState() : &m_pInputSystem->m_emptyKeyboardState;
+            return &m_keyboardState;
         }
 
         KRG_FORCE_INLINE ControllerInputState const* GetControllerState( uint32 controllerIdx = 0 ) const
         {
-            return m_isEnabled ? m_pInputSystem->GetControllerState( controllerIdx ) : &m_pInputSystem->m_emptyControllerState;
+            if ( controllerIdx < m_controllerStates.size() )
+            {
+                return &m_controllerStates[controllerIdx];
+            }
+
+            return &InputSystem::s_emptyControllerState;
         }
 
     private:
 
-        InputSystem const*      m_pInputSystem = nullptr;
-        bool                    m_isEnabled = true;
+        MouseInputState                             m_mouseState;
+        KeyboardInputState                          m_keyboardState;
+        TInlineVector<ControllerInputState, 4>      m_controllerStates;
     };
 }

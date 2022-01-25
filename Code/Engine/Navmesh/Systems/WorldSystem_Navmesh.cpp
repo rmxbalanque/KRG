@@ -12,6 +12,7 @@ namespace KRG::Navmesh
 {
     void NavmeshWorldSystem::InitializeSystem( SystemRegistry const& systemRegistry )
     {
+        #if KRG_NAVPOWER
         auto pNavmeshSystem = systemRegistry.GetSystem<NavmeshSystem>();
 
         m_pInstance = bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), &pNavmeshSystem->m_allocator );
@@ -23,10 +24,12 @@ namespace KRG::Navmesh
         #if KRG_DEVELOPMENT_TOOLS
         bfx::SetRenderer( m_pInstance, &m_renderer );
         #endif
+        #endif
     }
 
     void NavmeshWorldSystem::ShutdownSystem()
     {
+        #if KRG_NAVPOWER
         KRG_ASSERT( m_registeredNavmeshes.empty() );
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -36,6 +39,7 @@ namespace KRG::Navmesh
         bfx::SystemStop( m_pInstance );
         bfx::SystemDestroy( m_pInstance );
         m_pInstance = nullptr;
+        #endif
     }
 
     //-------------------------------------------------------------------------
@@ -46,7 +50,7 @@ namespace KRG::Navmesh
         {
             m_navmeshComponents.emplace_back( pNavmeshComponent );
 
-            if ( pNavmeshComponent->m_pNavmeshData->HasNavmeshData() )
+            if ( pNavmeshComponent->HasNavmeshData() )
             {
                 RegisterNavmesh( pNavmeshComponent );
             }
@@ -57,7 +61,7 @@ namespace KRG::Navmesh
     {
         if ( auto pNavmeshComponent = TryCast<NavmeshComponent>( pComponent ) )
         {
-            if ( pNavmeshComponent->m_pNavmeshData->HasNavmeshData() )
+            if ( pNavmeshComponent->HasNavmeshData() )
             {
                 UnregisterNavmesh( pNavmeshComponent );
             }
@@ -70,12 +74,14 @@ namespace KRG::Navmesh
     {
         KRG_ASSERT( pComponent != nullptr );
 
+        #if KRG_NAVPOWER
+
         // Copy resource
         //-------------------------------------------------------------------------
         // NavPower operates on the resource in place so we need to make a copy
 
         NavmeshData const* pData = pComponent->m_pNavmeshData.GetPtr();
-        KRG_ASSERT( pData != nullptr && pData->HasNavmeshData() );
+        KRG_ASSERT( pData != nullptr && pData->IsValid() );
 
         size_t const requiredMemory = sizeof( char ) * pData->GetGraphImage().size();
         char* pNavmesh = (char*) KRG::Alloc( requiredMemory );
@@ -95,11 +101,15 @@ namespace KRG::Navmesh
 
         // Add record
         m_registeredNavmeshes.emplace_back( RegisteredNavmesh( pComponent->GetID(), pNavmesh ) );
+
+        #endif
     }
 
     void NavmeshWorldSystem::UnregisterNavmesh( NavmeshComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr );
+        #if KRG_NAVPOWER
+
         for ( auto i = 0u; i < m_registeredNavmeshes.size(); i++ )
         {
             if ( pComponent->GetID() == m_registeredNavmeshes[i].m_componentID )
@@ -116,12 +126,15 @@ namespace KRG::Navmesh
         }
 
         KRG_UNREACHABLE_CODE();
+        #endif
     }
 
     //-------------------------------------------------------------------------
 
     void NavmeshWorldSystem::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
+        #if KRG_NAVPOWER
+
         {
             KRG_PROFILE_SCOPE_NAVIGATION( "Navmesh Simulate" );
             bfx::SystemSimulate( m_pInstance, ctx.GetDeltaTime() );
@@ -146,22 +159,23 @@ namespace KRG::Navmesh
             bfx::SystemDraw( m_pInstance, &cullParams );
         }
         #endif
+
+        #endif
     }
 
     AABB NavmeshWorldSystem::GetNavmeshBounds( uint32 layerIdx ) const
     {
-        bfx::SpaceHandle spaceHandle = bfx::GetDefaultSpaceHandle( m_pInstance );
-
-        auto s = bfx::GetLayersLoaded( spaceHandle );
-
         AABB bounds;
 
+        #if KRG_NAVPOWER
+        bfx::SpaceHandle spaceHandle = bfx::GetDefaultSpaceHandle( m_pInstance );
         bfx::Vector3 center, extents;
         if ( bfx::GetNavGraphBounds( spaceHandle, 1 << layerIdx, center, extents ) )
         {
             bounds.m_center = FromBfx( center );
             bounds.m_extents = FromBfx( extents );
         }
+        #endif
 
         return bounds;
     }

@@ -26,6 +26,11 @@ namespace KRG::TypeSystem
 
         inline char const* GetTypeName() const { return m_ID.ToStringID().c_str(); }
 
+        #if KRG_DEVELOPMENT_TOOLS
+        inline char const* GetFriendlyTypeName() const { return m_friendlyName.c_str(); }
+        inline char const* GetCategoryName() const { return m_category.c_str(); }
+        #endif
+
         bool IsAbstractType() const { return m_metadata.IsFlagSet( ETypeInfoMetaData::Abstract ); }
 
         bool IsDerivedFrom( TypeID const parentTypeID ) const;
@@ -52,11 +57,17 @@ namespace KRG::TypeSystem
         TypeID                                  m_ID;
         int32                                   m_size = -1;
         int32                                   m_alignment = -1;
+        TBitFlags<ETypeInfoMetaData>            m_metadata;
         ITypeHelper*                            m_pTypeHelper = nullptr;
         TVector<TypeInfo const*>                m_parentTypes;
         TVector<PropertyInfo>                   m_properties;
         THashMap<StringID, int32>               m_propertyMap;
-        TBitFlags<ETypeInfoMetaData>            m_metadata;
+
+        #if KRG_DEVELOPMENT_TOOLS
+        bool                                    m_isForDevelopmentUseOnly = false;      // Whether this property only exists in development builds
+        String                                  m_friendlyName;
+        String                                  m_category;
+        #endif
     };
 }
 

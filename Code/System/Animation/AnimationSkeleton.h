@@ -101,4 +101,10 @@ namespace KRG::Animation
         TVector<Transform>                  m_globalReferencePose;
         TVector<TBitFlags<BoneFlags>>       m_boneFlags;
     };
+
+    //-------------------------------------------------------------------------
+
+    #if KRG_DEVELOPMENT_TOOLS
+    KRG_SYSTEM_ANIMATION_API void DrawRootBone( Drawing::DrawContext& ctx, Transform const& transform );
+    #endif
 }

@@ -13,6 +13,13 @@ namespace KRG
         {
             class ClangParser
             {
+            public:
+
+                enum Pass
+                {
+                    FirstPass,
+                    SecondPass
+                };
 
             public:
 
@@ -21,7 +28,7 @@ namespace KRG
                 inline Milliseconds GetParsingTime() const { return m_totalParsingTime; }
                 inline Milliseconds GetVisitingTime() const { return m_totalVisitingTime; }
 
-                bool Parse( TVector<HeaderInfo*> const& headers );
+                bool Parse( TVector<HeaderInfo*> const& headers, Pass pass );
                 String GetErrorMessage() const { return m_context.GetErrorMessage(); }
 
             private:

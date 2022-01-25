@@ -137,10 +137,8 @@ namespace KRG::Animation
         }
     }
 
-    void TaskSystem::UpdatePostPhysics( Pose& outPose, Transform const& worldTransform, Transform const& worldTransformInverse )
+    void TaskSystem::UpdatePostPhysics( Pose& outPose )
     {
-        m_taskContext.m_worldTransform = worldTransform;
-        m_taskContext.m_worldTransformInverse = worldTransformInverse;
         m_taskContext.m_updateStage = TaskUpdateStage::PostPhysics;
 
         // If we detected co-dependent tasks in the pre-physics update, there's nothing to do here

@@ -1,4 +1,5 @@
 #include "Animation_RuntimeGraph_Contexts.h"
+#include "Animation_RuntimeGraph_RootMotionRecorder.h"
 
 //-------------------------------------------------------------------------
 
@@ -11,7 +12,7 @@ namespace KRG::Animation
         #endif
     }
 
-    void GraphContext::Initialize( uint64 graphUserID, TaskSystem* pTaskSystem, Pose const* pPreviousPose )
+    void GraphContext::Initialize( uint64 graphUserID, TaskSystem* pTaskSystem, Pose const* pPreviousPose, RootMotionRecorder* pRootMotionRecorder )
     {
         KRG_ASSERT( graphUserID != 0 );
         m_graphUserID = graphUserID;
@@ -29,6 +30,13 @@ namespace KRG::Animation
 
         //-------------------------------------------------------------------------
 
+        #if KRG_DEVELOPMENT_TOOLS
+        KRG_ASSERT( pRootMotionRecorder != nullptr );
+        const_cast<RootMotionRecorder const*&>( m_pRootMotionActionRecorder ) = pRootMotionRecorder;
+        #endif
+
+        //-------------------------------------------------------------------------
+
         m_deltaTime = 0;
         m_updateID = 0;
         m_worldTransform = Transform::Identity;
@@ -39,6 +47,10 @@ namespace KRG::Animation
 
     void GraphContext::Shutdown()
     {
+        #if KRG_DEVELOPMENT_TOOLS
+        const_cast<RootMotionRecorder const*&>( m_pRootMotionActionRecorder ) = nullptr;
+        #endif
+
         m_sampledEvents.Reset();
         m_boneMaskPool.Shutdown();
 
@@ -49,6 +61,12 @@ namespace KRG::Animation
 
     void GraphContext::Update( Seconds const deltaTime, Transform const& currentWorldTransform, Physics::Scene* pPhysicsScene )
     {
+        #if KRG_DEVELOPMENT_TOOLS
+        m_activeNodes.clear();
+        #endif
+
+        //-------------------------------------------------------------------------
+
         m_deltaTime = deltaTime;
         m_updateID++;
         m_sampledEvents.Reset();
@@ -60,12 +78,5 @@ namespace KRG::Animation
         m_boneMaskPool.Reset();
 
         KRG_ASSERT( m_pPreviousPose->HasGlobalTransforms() );
-
-        //-------------------------------------------------------------------------
-
-        #if KRG_DEVELOPMENT_TOOLS
-        m_activeNodes.clear();
-        m_rootMotionActionRecorder.Reset();
-        #endif
     }
 }

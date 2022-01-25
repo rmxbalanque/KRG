@@ -12,18 +12,32 @@ namespace KRG
         {
             case ItemState::Selected:
             {
-                color = Colors::GreenYellow.ToFloat4();
+                color = ImGuiX::Style::s_selectionAccent;
             }
             break;
 
             case ItemState::Active:
             {
-                color = Colors::Yellow.ToFloat4();
+                color = ImGuiX::Style::s_selectionAccentAlt;
             }
             break;
         }
 
         return color;
+    }
+
+    void TreeListViewItem::DestroyChild( uint64 uniqueItemID )
+    {
+        for ( int32 i = 0; i < (int32) m_children.size(); i++ )
+        {
+            if ( m_children[i]->GetUniqueID() == uniqueItemID )
+            {
+                m_children[i]->DestroyChildren();
+                KRG::Delete( m_children[i] );
+                m_children.erase( m_children.begin() + i );
+                break;
+            }
+        }
     }
 
     void TreeListViewItem::DestroyChildren()
@@ -35,6 +49,19 @@ namespace KRG
         }
 
         m_children.clear();
+    }
+
+    TreeListViewItem const* TreeListViewItem::FindChild( uint64 uniqueID ) const 
+    {
+        for ( auto pChild : m_children )
+        {
+            if ( pChild->GetUniqueID() == uniqueID )
+            {
+                return pChild;
+            }
+        }
+
+        return nullptr;
     }
 
     TreeListViewItem* TreeListViewItem::FindChild( TFunction<bool( TreeListViewItem const* )> const& searchPredicate )
@@ -115,13 +142,58 @@ namespace KRG
         m_rootItem.DestroyChildren();
     }
 
+    TreeListViewItem* TreeListView::FindItem( uint64 uniqueID )
+    {
+        if ( m_rootItem.GetUniqueID() == uniqueID )
+        {
+            return &m_rootItem;
+        }
+
+        auto SearchPredicate = [uniqueID] ( TreeListViewItem const* pItem )
+        {
+            return pItem->GetUniqueID() == uniqueID;
+        };
+
+        auto pFoundItem = m_rootItem.SearchChildren( SearchPredicate );
+        return pFoundItem;
+    }
+
+    void TreeListView::DestroyItem( uint64 uniqueID )
+    {
+        KRG_ASSERT( m_rootItem.GetUniqueID() != uniqueID );
+
+        // Remove from visual tree
+        //-------------------------------------------------------------------------
+
+        for ( auto i = 0; i < m_visualTree.size(); i++ )
+        {
+            if ( m_visualTree[i].m_pItem->GetUniqueID() == uniqueID )
+            {
+                m_visualTree.erase( m_visualTree.begin() + i );
+                break;
+            }
+        }
+
+        // Remove for regular tree
+        //-------------------------------------------------------------------------
+
+        auto SearchPredicate = [uniqueID] ( TreeListViewItem const* pItem )
+        {
+            return pItem->FindChild( uniqueID ) != nullptr;
+        };
+
+        auto pFoundParentItem = m_rootItem.SearchChildren( SearchPredicate );
+        KRG_ASSERT( pFoundParentItem != nullptr );
+        pFoundParentItem->DestroyChild( uniqueID );
+    }
+
     void TreeListView::RebuildTree( bool maintainExpansionAndSelection )
     {
         // Record current state
         //-------------------------------------------------------------------------
 
         uint64 activeItemID = 0;
-        uint64 selectedItemID = 0;
+        TVector<uint64> selectedItemIDs;
         TVector<uint64> originalExpandedItems;
 
         if ( maintainExpansionAndSelection )
@@ -131,9 +203,9 @@ namespace KRG
                 activeItemID = m_pActiveItem->GetUniqueID();
             }
 
-            if ( m_pSelectedItem != nullptr )
+            for ( auto pSelectedItem : m_selection )
             {
-                selectedItemID = m_pSelectedItem->GetUniqueID();
+                selectedItemIDs.emplace_back( pSelectedItem->GetUniqueID() );
             }
 
             originalExpandedItems.reserve( GetNumItems() );
@@ -153,7 +225,7 @@ namespace KRG
         //-------------------------------------------------------------------------
 
         m_pActiveItem = nullptr;
-        m_pSelectedItem = nullptr;
+        m_selection.clear();
         m_rootItem.DestroyChildren();
         m_rootItem.SetExpanded( true );
 
@@ -180,8 +252,15 @@ namespace KRG
             auto FindActiveItem = [activeItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == activeItemID; };
             m_pActiveItem = m_rootItem.SearchChildren( FindActiveItem );
 
-            auto FindSelectedItem = [selectedItemID] ( TreeListViewItem const* pItem ) { return pItem->GetUniqueID() == selectedItemID; };
-            m_pSelectedItem = m_rootItem.SearchChildren( FindSelectedItem );
+            for ( auto selectedItemID : selectedItemIDs )
+            {
+                auto FindSelectedItem = [selectedItemID] ( TreeListViewItem const* pItem )
+                {
+                    return pItem->GetUniqueID() == selectedItemID; 
+                };
+
+                m_selection.emplace_back( m_rootItem.SearchChildren( FindSelectedItem ) );
+            }
         }
 
         RefreshVisualState();
@@ -277,7 +356,7 @@ namespace KRG
         // Activation
         //-------------------------------------------------------------------------
 
-        if ( !pItem->IsActivatable() || !m_activateOnDoubleClick )
+        if ( !pItem->IsActivatable() )
         {
             return;
         }
@@ -296,11 +375,80 @@ namespace KRG
 
     //-------------------------------------------------------------------------
 
+    void TreeListView::SelectItem( TreeListViewItem* pItem )
+    {
+        m_selection.clear();
+        m_selection.emplace_back( pItem );
+        NotifySelectionChanged();
+    }
+
+    void TreeListView::AddToSelection( TreeListViewItem* pItem )
+    {
+        KRG_ASSERT( m_multiSelectionAllowed );
+
+        if ( !VectorContains( m_selection, pItem ) )
+        {
+            m_selection.emplace_back( pItem );
+            NotifySelectionChanged();
+        }
+    }
+
+    void TreeListView::RemoveFromSelection( TreeListViewItem* pItem )
+    {
+        KRG_ASSERT( m_multiSelectionAllowed );
+
+        if ( VectorContains( m_selection, pItem ) )
+        {
+            m_selection.erase_first_unsorted( pItem );
+            NotifySelectionChanged();
+        }
+    }
+
+    void TreeListView::HandleItemSelection( TreeListViewItem* pItem, bool isSelectedItem )
+    {
+        // Left click follows regular selection logic
+        if ( ImGui::IsItemClicked( ImGuiMouseButton_Left ) )
+        {
+            if ( m_multiSelectionAllowed && ImGui::GetIO().KeyShift )
+            {
+                // TODO
+                // Find selection bounds and bulk select everything between them
+            }
+            else  if ( m_multiSelectionAllowed && ImGui::GetIO().KeyCtrl )
+            {
+                if ( isSelectedItem )
+                {
+                    RemoveFromSelection( pItem );
+                }
+                else
+                {
+                    AddToSelection( pItem );
+                }
+            }
+            else
+            {
+                SelectItem( pItem );
+            }
+        }
+        // Right click never deselects! Nor does it support multi-selection
+        else if ( ImGui::IsItemClicked( ImGuiMouseButton_Right ) )
+        {
+            if ( !isSelectedItem )
+            {
+                SelectItem( pItem );
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+
     void TreeListView::DrawVisualItem( VisualTreeItem& visualTreeItem )
     {
         KRG_ASSERT( visualTreeItem.m_pItem != nullptr && visualTreeItem.m_hierarchyLevel >= 0 );
 
         TreeListViewItem* const pItem = visualTreeItem.m_pItem;
+        bool const isSelectedItem = VectorContains( m_selection, pItem );
+        bool const isActiveItem = ( pItem == m_pActiveItem );
 
         ImGui::PushID( pItem );
         ImGui::TableNextRow();
@@ -326,7 +474,7 @@ namespace KRG
             treeNodeflags |= ImGuiTreeNodeFlags_OpenOnArrow;
         }
 
-        if ( m_pSelectedItem == pItem )
+        if ( isSelectedItem )
         {
             treeNodeflags |= ImGuiTreeNodeFlags_Selected;
         }
@@ -343,12 +491,22 @@ namespace KRG
 
         // Draw label
         bool newExpansionState = false;
+        TreeListViewItem::ItemState const state = isActiveItem ? TreeListViewItem::Active : isSelectedItem ? TreeListViewItem::Selected : TreeListViewItem::None;
+        
         {
-            bool const isActiveItem = pItem == m_pActiveItem;
-            bool const isSelectedItem = m_pSelectedItem == pItem;
-            TreeListViewItem::ItemState const state = isActiveItem ? TreeListViewItem::Active : isSelectedItem ? TreeListViewItem::Selected : TreeListViewItem::None;
             ImGuiX::ScopedFont font( isActiveItem ? ImGuiX::Font::SmallBold : ImGuiX::Font::Small, pItem->GetDisplayColor( state ) );
             newExpansionState = ImGui::TreeNodeEx( pItem->GetDisplayName(), treeNodeflags );
+        }
+
+        if ( pItem->SupportsDragAndDrop() )
+        {
+            if ( ImGui::BeginDragDropSource( ImGuiDragDropFlags_None ) )
+            {
+                auto payloadData = pItem->GetDragAndDropPayload();
+                ImGui::SetDragDropPayload( pItem->GetDragAndDropPayloadID(), payloadData.first, payloadData.second );
+                ImGui::Text( pItem->GetDisplayName() );
+                ImGui::EndDragDropSource();
+            }
         }
 
         // Handle expansion
@@ -364,40 +522,37 @@ namespace KRG
         }
 
         // Handle selection
-        if ( ImGui::IsItemClicked( ImGuiMouseButton_Left ) || ImGui::IsItemClicked( ImGuiMouseButton_Right ) || ( ImGui::IsItemFocused() && ImGui::IsKeyReleased( ImGui::GetKeyIndex( ImGuiKey_Enter ) ) ) )
-        {
-            if ( m_pSelectedItem != pItem )
-            {
-                m_pSelectedItem = pItem;
-                m_onSelectionChanged.Execute();
-
-                // Activation
-                if ( !m_activateOnDoubleClick )
-                {
-                    if ( pItem->IsActivatable() && m_pActiveItem != pItem )
-                    {
-                        m_pActiveItem = pItem;
-                        m_onActiveItemChanged.Execute();
-                    }
-                    else if ( !pItem->IsActivatable() && m_pActiveItem != nullptr )
-                    {
-                        m_pActiveItem = nullptr;
-                        m_onActiveItemChanged.Execute();
-                    }
-                }
-            }
-        }
+        HandleItemSelection( pItem, isSelectedItem );
 
         // Context Menu
         if ( pItem->HasContextMenu() )
         {
             if ( ImGui::BeginPopupContextItem( "ItemContextMenu" ) )
             {
-                m_pSelectedItem = pItem;
-                m_onSelectionChanged.Execute();
+                // is this needed?
+                if ( !isSelectedItem )
+                {
+                    if ( m_multiSelectionAllowed && ImGui::GetIO().KeyShift || ImGui::GetIO().KeyCtrl )
+                    {
+                        AddToSelection( pItem );
+                    }
+                    else // Switch selection to this item
+                    {
+                        SelectItem( pItem );
+                    }
+                }
+
+                TVector<TreeListViewItem*> selectedItemsWithContextMenus;
+                for ( auto pSelectedItem : m_selection )
+                {
+                    if ( pSelectedItem->HasContextMenu() )
+                    {
+                        selectedItemsWithContextMenus.emplace_back( pSelectedItem );
+                    }
+                }
 
                 ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().ItemSpacing.x ) ); // Undo the table item spacing changes
-                DrawItemContextMenu( pItem );
+                DrawItemContextMenu( selectedItemsWithContextMenus );
                 ImGui::PopStyleVar();
 
                 ImGui::EndPopup();
@@ -448,6 +603,7 @@ namespace KRG
         ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( ImGui::GetStyle().ItemSpacing.x, 0 ) ); // Ensure table border and scrollbar align
         ImGui::BeginChild( "TreeViewChild", ImVec2( 0, 0 ), false, 0 );
         {
+            constexpr ImGuiTableFlags const tableFlags = ImGuiTableFlags_BordersV | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable;
             float const totalVerticalSpaceAvailable = ImGui::GetContentRegionAvail().y;
             float const maxVerticalScrollPosition = ImGui::GetScrollMaxY();
 
@@ -459,8 +615,7 @@ namespace KRG
             {
                 ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorMedium.Value );
                 ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Style::s_itemColorMedium.Value );
-                constexpr static ImGuiTableFlags const flags = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody;
-                if ( ImGui::BeginTable( "TreeViewTable", GetNumExtraColumns() + 1, flags, ImVec2(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0)) )
+                if ( ImGui::BeginTable( "TreeViewTable", GetNumExtraColumns() + 1, tableFlags, ImVec2( ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0 ) ) )
                 {
                     ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_NoHide );
                     SetupExtraColumnHeaders();
@@ -516,8 +671,7 @@ namespace KRG
                 // Draw table rows
                 ImGui::PushStyleColor( ImGuiCol_Header, ImGuiX::Style::s_itemColorMedium.Value );
                 ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Style::s_itemColorSemiLight.Value );
-                constexpr static ImGuiTableFlags const flagss = ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_RowBg | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_Resizable;
-                if ( ImGui::BeginTable( "Tree View Browser", GetNumExtraColumns() + 1, flagss, ImVec2(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0)) )
+                if ( ImGui::BeginTable( "Tree View Browser", GetNumExtraColumns() + 1, tableFlags, ImVec2(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.x / 2, 0)) )
                 {
                     ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthStretch );
                     SetupExtraColumnHeaders();

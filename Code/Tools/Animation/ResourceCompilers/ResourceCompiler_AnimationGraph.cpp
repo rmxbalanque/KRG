@@ -87,7 +87,7 @@ namespace KRG::Animation
             archive << context;
             
             // Node paths
-            #if !KRG_CONFIGURATION_FINAL
+            #if !KRG_CONFIGURATION_SHIPPING
             archive << context.m_compiledNodePaths;
             #endif
 

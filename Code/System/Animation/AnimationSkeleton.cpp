@@ -85,6 +85,10 @@ namespace KRG::Animation
                 globalTransforms[i] = m_localReferencePose[i] * parentTransform;
             }
 
+            //-------------------------------------------------------------------------
+
+            DrawRootBone( ctx, globalTransforms[0] );
+
             for ( auto boneIdx = 1; boneIdx < numBones; boneIdx++ )
             {
                 auto const& parentIdx = m_parentIndices[boneIdx];
@@ -95,6 +99,18 @@ namespace KRG::Animation
                 ctx.DrawAxis( boneTransform, 0.03f, 2.0f );
             }
         }
+    }
+
+    void DrawRootBone( Drawing::DrawContext& ctx, Transform const& worldTransform )
+    {
+        constexpr static float const gizmoRadius = 0.045f;
+        constexpr static float const arrowLength = 0.1f;
+
+        Vector const fwdDir = worldTransform.GetAxisY().GetNegated();
+        Vector const arrowStartPos = Vector::MultiplyAdd( fwdDir, Vector( gizmoRadius ), worldTransform.GetTranslation() );
+
+        ctx.DrawDisc( worldTransform.GetTranslation(), gizmoRadius, Colors::Red );
+        ctx.DrawArrow( arrowStartPos, fwdDir, arrowLength, Colors::Lime, 8 );
     }
     #endif
 }

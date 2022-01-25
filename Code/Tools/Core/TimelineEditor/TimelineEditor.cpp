@@ -569,7 +569,7 @@ namespace KRG::Timeline
 
         if ( IsLoopingEnabled() )
         {
-            if ( ImGui::Button( KRG_ICON_EXCHANGE "##PlayOnce", buttonSize ) )
+            if ( ImGui::Button( KRG_ICON_EXCHANGE_ALT "##PlayOnce", buttonSize ) )
             {
                 m_isLoopingEnabled = false;
             }
@@ -578,7 +578,7 @@ namespace KRG::Timeline
         }
         else // Playing Once
         {
-            if ( ImGui::Button( KRG_ICON_LONG_ARROW_RIGHT "##Loop", buttonSize ) )
+            if ( ImGui::Button( KRG_ICON_LONG_ARROW_ALT_RIGHT "##Loop", buttonSize ) )
             {
                 m_isLoopingEnabled = true;
             }
@@ -1083,7 +1083,10 @@ namespace KRG::Timeline
         EnsureValidSelection();
 
         // Handle the user input based on the current keyboard state and the mouse state from the last frame
-        HandleUserInput();
+        if ( ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows ) )
+        {
+            HandleUserInput();
+        }
 
         // Update the view range, to ensure that we track the playhead, etc...
         UpdateViewRange();

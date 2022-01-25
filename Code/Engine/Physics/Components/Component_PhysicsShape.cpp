@@ -4,6 +4,10 @@
 
 namespace KRG::Physics
 {
+    TEvent<PhysicsShapeComponent*> PhysicsShapeComponent::s_staticActorTransformChanged;
+
+    //-------------------------------------------------------------------------
+
     void PhysicsShapeComponent::OnWorldTransformUpdated()
     {
         if ( m_pPhysicsActor != nullptr && IsKinematic() )
@@ -15,6 +19,11 @@ namespace KRG::Physics
             KRG_ASSERT( pKinematicActor->getRigidBodyFlags().isSet( physx::PxRigidBodyFlag::eKINEMATIC ) );
             pKinematicActor->setKinematicTarget( ToPx( GetWorldTransform() ) );
             physicsScene->unlockWrite();
+        }
+        // Notify listeners that our transform has changed!
+        else if ( m_actorType == ActorType::Static )
+        {
+            s_staticActorTransformChanged.Execute( this );
         }
     }
 

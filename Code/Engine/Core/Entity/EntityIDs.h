@@ -25,7 +25,7 @@ namespace KRG
 
     using ComponentID = PointerID;
     using EntityID = PointerID;
-    using EntityCollectionID = UUID;
+    using EntityMapID = UUID;
     using EntityWorldID = UUID;
 }
 

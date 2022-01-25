@@ -5,9 +5,9 @@
 #include "Engine/Core/Entity/Entity.h"
 #include "Engine/Core/Entity/EntityWorldUpdateContext.h"
 #include "Engine/Core/Entity/EntityMap.h"
-#include "Engine/Core/Entity/EntityCollection.h"
 #include "System/Input/InputSystem.h"
 #include "System/TypeSystem/TypeRegistry.h"
+#include "System/Core/Threading/TaskSystem.h"
 
 //-------------------------------------------------------------------------
 
@@ -17,7 +17,10 @@ namespace KRG
     {
         KRG_ASSERT( !m_player.m_entityID.IsValid() );
         KRG_ASSERT( m_spawnPoints.empty() );
+
+        #if KRG_DEVELOPMENT_TOOLS
         m_pDebugCameraComponent = nullptr;
+        #endif
     }
 
     void PlayerManager::RegisterComponent( Entity const* pEntity, EntityComponent* pComponent )
@@ -111,14 +114,24 @@ namespace KRG
         }
 
         auto pTypeRegistry = ctx.GetSystem<TypeSystem::TypeRegistry>();
+        auto pTaskSystem = ctx.GetSystem<TaskSystem>();
         auto pPersistentMap = ctx.GetPersistentMap();
 
         //-------------------------------------------------------------------------
 
         // For now we only support a single spawn point
-        EntityModel::EntityCollection ec( *pTypeRegistry, UUID::GenerateID(), *m_spawnPoints[0]->GetEntityCollectionDesc() );
-        pPersistentMap->AddEntityCollection( m_spawnPoints[0]->GetWorldTransform(), ec );
+        pPersistentMap->AddEntityCollection( pTaskSystem, *pTypeRegistry, *m_spawnPoints[0]->GetEntityCollectionDesc(), m_spawnPoints[0]->GetWorldTransform() );
         return true;
+    }
+
+    bool PlayerManager::IsPlayerEnabled() const
+    {
+        if ( m_player.m_pPlayerComponent == nullptr )
+        {
+            return false;
+        }
+
+        return m_player.m_pPlayerComponent->IsPlayerEnabled();
     }
 
     void PlayerManager::SetPlayerControllerState( bool isEnabled )
@@ -162,13 +175,18 @@ namespace KRG
         // Speed Update
         //-------------------------------------------------------------------------
 
-        if ( pMouseState->WasReleased( Input::MouseButton::Middle ) )
+        if ( pKeyboardState->IsAltHeldDown() )
         {
-            m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
+            if ( pMouseState->WasReleased( Input::MouseButton::Middle ) )
+            {
+                m_debugCameraMoveSpeed = s_debugCameraDefaultSpeed;
+            }
+            else
+            {
+                int32 const wheelDelta = pMouseState->GetWheelDelta();
+                m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( m_debugCameraMoveSpeed + ( wheelDelta * 0.5f ) );
+            }
         }
-
-        int32 const wheelDelta = pMouseState->GetWheelDelta();
-        m_debugCameraMoveSpeed = FloatRange( s_debugCameraMinSpeed, s_debugCameraMaxSpeed ).GetClampedValue( m_debugCameraMoveSpeed + ( wheelDelta * 0.5f ) );
 
         // Position update
         //-------------------------------------------------------------------------
@@ -279,7 +297,7 @@ namespace KRG
             }
             break;
 
-            case DebugMode::UseDebugCamera:
+            case DebugMode::PlayerWithDebugCamera:
             {
                 m_pActiveCamera = m_pDebugCameraComponent;
 
@@ -296,7 +314,7 @@ namespace KRG
             }
             break;
 
-            case DebugMode::FullDebug:
+            case DebugMode::OnlyDebugCamera:
             {
                 m_pActiveCamera = m_pDebugCameraComponent;
 
@@ -337,7 +355,7 @@ namespace KRG
             }
 
             // If we are in full debug mode, update the camera position
-            if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
+            if ( m_debugMode == DebugMode::OnlyDebugCamera && m_isControllerEnabled )
             {
                 UpdateDebugCamera( ctx );
             }
@@ -354,7 +372,8 @@ namespace KRG
             // Handle players state changes
             if ( m_registeredPlayerStateChanged )
             {
-                if ( m_player.IsValid() )
+                // Only automatically switch to player in game worlds
+                if ( ctx.IsGameWorld() && m_player.IsValid() )
                 {
                     m_pActiveCamera = m_player.m_pCameraComponent;
                     m_player.m_pPlayerComponent->SetPlayerEnabled( m_isControllerEnabled );
@@ -365,11 +384,13 @@ namespace KRG
         }
         else if ( ctx.GetUpdateStage() == UpdateStage::Paused )
         {
+            #if KRG_DEVELOPMENT_TOOLS
             // If we are in full debug mode, update the camera position
-            if ( m_debugMode == DebugMode::FullDebug && m_isControllerEnabled )
+            if ( m_debugMode == DebugMode::OnlyDebugCamera && m_isControllerEnabled )
             {
                 UpdateDebugCamera( ctx );
             }
+            #endif
         }
         else
         {

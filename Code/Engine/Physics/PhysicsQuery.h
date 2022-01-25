@@ -18,6 +18,12 @@ namespace KRG::Physics
     {
         RayCastResultBuffer() : physx::PxHitBuffer<physx::PxRaycastHit>( m_hits, N ) {}
 
+        KRG_FORCE_INLINE Vector GetHitPosition() const
+        {
+            KRG_ASSERT( hasBlock );
+            return FromPx( block.position );
+        }
+
         Vector                  m_start;
         Vector                  m_end;
         physx::PxRaycastHit     m_hits[N];

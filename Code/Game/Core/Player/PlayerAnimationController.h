@@ -11,6 +11,7 @@ namespace KRG::Player
         Falling,
         Ability,
 
+        DebugMode,
         NumStates
     };
 

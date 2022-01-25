@@ -1,12 +1,10 @@
 #include "NetworkResourceProvider.h"
-#include "System/Resource/ResourceHeader.h"
 #include "System/Resource/ResourceRequest.h"
 #include "System/Resource/ResourceSettings.h"
 #include "System/Core/ThirdParty/cereal/archives/json.hpp"
 #include "System/Core/FileSystem/FileSystem.h"
 #include "System/Core/Profiling/Profiling.h"
-#include "System/Core/Threading/Threading.h"
-#include <sstream>
+#include "System/Core/Logging/Log.h"
 
 //-------------------------------------------------------------------------
 
@@ -36,9 +34,41 @@ namespace KRG::Resource
         Network::NetworkSystem::StopClientConnection( &m_networkClient );
     }
 
-    void NetworkResourceProvider::UpdateInternal()
+    void NetworkResourceProvider::RequestRawResource( ResourceRequest* pRequest )
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() && pRequest->GetLoadingStatus() == LoadingStatus::Loading );
+
+        #if KRG_DEVELOPMENT_TOOLS
+        auto predicate = [] ( ResourceRequest* pRequest, ResourceID const& resourceID ) { return pRequest->GetResourceID() == resourceID; };
+        auto foundIter = VectorFind( m_requests, pRequest->GetResourceID(), predicate );
+        KRG_ASSERT( foundIter == m_requests.end() );
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        m_messagesToSend.enqueue( Network::IPC::Message( (int32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) ) );
+        m_requests.emplace_back( pRequest );
+    }
+
+    void NetworkResourceProvider::CancelRequest( ResourceRequest* pRequest )
+    {
+        KRG_ASSERT( pRequest != nullptr && pRequest->IsValid() );
+
+        auto foundIter = VectorFind( m_requests, pRequest );
+        KRG_ASSERT( foundIter != m_requests.end() );
+
+        m_requests.erase_unsorted( foundIter );
+    }
+
+    void NetworkResourceProvider::Update()
     {
         KRG_PROFILE_FUNCTION_RESOURCE();
+
+        //-------------------------------------------------------------------------
+
+        #if KRG_DEVELOPMENT_TOOLS
+        m_externallyUpdatedResources.clear();
+        #endif
 
         // Check connection to resource server
         //-------------------------------------------------------------------------
@@ -118,21 +148,12 @@ namespace KRG::Resource
 
             // If the request has a filepath set, the compilation was a success
             pFoundRequest->OnRawResourceRequestComplete( response.m_filePath );
-            FinalizeRequest( pFoundRequest );
+
+            // Remove from request list
+            m_requests.erase_unsorted( foundIter );
         }
 
         m_serverReponses.clear();
-        return;
-    }
-
-    void NetworkResourceProvider::RequestResourceInternal( ResourceRequest* pRequest )
-    {
-        m_messagesToSend.enqueue( Network::IPC::Message( (int32) NetworkMessageID::RequestResource, NetworkResourceRequest( pRequest->GetResourceID() ) ) );
-    }
-
-    void NetworkResourceProvider::CancelRequestInternal( ResourceRequest* pRequest )
-    {
-        // Do nothing
     }
 }
 #endif

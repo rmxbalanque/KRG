@@ -2,6 +2,7 @@
 #include "Tools/Core/UndoStack.h"
 #include "Tools/Core/Resource/ResourceDatabase.h"
 #include "System/Render/Imgui/ImguiX.h"
+#include "System/Render/RenderTarget.h"
 #include "System/Resource/ResourceRequesterID.h"
 #include "System/Resource/ResourcePtr.h"
 #include "System/Core/FileSystem/FileSystemPath.h"
@@ -45,8 +46,8 @@ namespace KRG
 
         struct ViewportInfo
         {
-            ImTextureID                         m_pViewportRenderTargetTexture = nullptr;
-            TFunction<uint64( Int2 const& )>    m_retrievePickingID;
+            ImTextureID                                     m_pViewportRenderTargetTexture = nullptr;
+            TFunction<Render::PickingID( Int2 const& )>     m_retrievePickingID;
         };
 
     public:
@@ -84,7 +85,7 @@ namespace KRG
         // Get the world associated with this workspace
         inline EntityWorld* GetWorld() const { return m_pWorld; }
 
-        // Lifetime Functions
+        // Lifetime/Update Functions
         //-------------------------------------------------------------------------
 
         // Initialize the workspace: initialize window IDs, create preview entities, etc... - Base implementation must be called!
@@ -92,16 +93,16 @@ namespace KRG
         virtual void Shutdown( UpdateContext const& context ) {}
 
         // Called just before the world is updated per update stage
-        virtual void Update( EntityWorldUpdateContext const& updateContext ) {}
+        virtual void UpdateWorld( EntityWorldUpdateContext const& updateContext ) {}
+
+        // Frame update and draw any tool windows needed for the workspace
+        virtual void UpdateWorkspace( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Drawing Functions
         //-------------------------------------------------------------------------
 
         // Set up initial docking layout
         virtual void InitializeDockingLayout( ImGuiID dockspaceID ) const = 0;
-
-        // Frame update and draw any tool windows needed for the workspace
-        virtual void DrawUI( UpdateContext const& context, ImGuiWindowClass* pWindowClass ) = 0;
 
         // Draw any toolbar buttons that this workspace needs
         virtual void DrawWorkspaceToolbar( UpdateContext const& context ) { DrawDefaultToolbarItems(); }
@@ -124,16 +125,22 @@ namespace KRG
 
         void SetViewportCameraPosition( Transform const& cameraTransform );
 
+        void SetWorldPaused( bool isPaused );
+
+        void SetWorldTimeScale( float newTimeScale );
+
+        void ResetWorldTimeScale();
+
         // Undo/Redo
         //-------------------------------------------------------------------------
 
         // Called whenever we execute an undo or redo action
-        virtual void OnUndoRedo() {}
+        virtual void OnUndoRedo( UndoStack::Operation operation, IUndoableAction const* pAction ) {}
 
         inline bool CanUndo() { return m_undoStack.CanUndo(); }
-        inline void Undo() { m_undoStack.Undo(); OnUndoRedo(); }
+        inline void Undo() { auto pAction = m_undoStack.Undo(); OnUndoRedo( UndoStack::Operation::Undo, pAction ); }
         inline bool CanRedo() { return m_undoStack.CanRedo(); }
-        inline void Redo() { m_undoStack.Redo(); OnUndoRedo(); }
+        inline void Redo() { auto pAction = m_undoStack.Redo(); OnUndoRedo( UndoStack::Operation::Redo, pAction ); }
 
         // Saving and Dirty state
         //-------------------------------------------------------------------------
@@ -157,10 +164,13 @@ namespace KRG
     protected:
 
         // Called whenever we click inside a workspace viewport and get a non-zero picking ID
-        virtual void OnMousePick( uint64 pickingID ) {}
+        virtual void OnMousePick( Render::PickingID pickingID ) {}
+
+        // Called during the viewport drawing allowing the workspaces to handle drag and drop requests
+        virtual void OnDragAndDrop( Render::Viewport* pViewport ) {}
 
         // Helper function for debug drawing
-        inline Drawing::DrawContext GetDrawingContext();
+        Drawing::DrawContext GetDrawingContext();
 
         // Set the workspace tab-title
         void SetDisplayName( String const& name );
@@ -235,6 +245,7 @@ namespace KRG
         String                                      m_viewportWindowID;
         String                                      m_dockspaceID;
         bool                                        m_isViewportFocused = false;
+        bool                                        m_isViewportHovered = false;
 
     private:
 

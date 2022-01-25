@@ -385,7 +385,7 @@ namespace KRG
     //-------------------------------------------------------------------------
 
     // Actual platform (OS) time
-    struct KRG_SYSTEM_CORE_API SystemClock
+    struct KRG_SYSTEM_CORE_API PlatformClock
     {
         static Nanoseconds GetTime();
 

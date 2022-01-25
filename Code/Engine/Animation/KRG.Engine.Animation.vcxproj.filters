@@ -105,6 +105,7 @@
     <ClCompile Include="TaskSystem\Tasks\Animation_Task_DefaultPose.cpp" />
     <ClCompile Include="TaskSystem\Tasks\Animation_Task_Ragdoll.cpp" />
     <ClCompile Include="TaskSystem\Tasks\Animation_Task_Sample.cpp" />
+    <ClCompile Include="Graph\Animation_RuntimeGraph_RootMotionRecorder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Module\API.h">
@@ -135,7 +136,6 @@
     <ClInclude Include="AnimationSyncTrack.h" />
     <ClInclude Include="AnimationTarget.h" />
     <ClInclude Include="AnimationCommon.h" />
-    <ClInclude Include="Components\Component_Animation.h" />
     <ClInclude Include="Components\Component_AnimationGraph.h" />
     <ClInclude Include="Components\Component_AnimationClipPlayer.h" />
     <ClInclude Include="DebugViews\DebugView_Animation.h" />
@@ -181,5 +181,6 @@
     <ClInclude Include="TaskSystem\Tasks\Animation_Task_DefaultPose.h" />
     <ClInclude Include="TaskSystem\Tasks\Animation_Task_Ragdoll.h" />
     <ClInclude Include="TaskSystem\Tasks\Animation_Task_Sample.h" />
+    <ClInclude Include="Graph\Animation_RuntimeGraph_RootMotionRecorder.h" />
   </ItemGroup>
 </Project>

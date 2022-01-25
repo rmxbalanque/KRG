@@ -22,6 +22,7 @@ namespace KRG::Animation
 
     BoneMask::BoneMask( BoneMask const& rhs )
     {
+        KRG_ASSERT( rhs.IsValid() );
         m_pSkeleton = rhs.m_pSkeleton;
         m_weights = rhs.m_weights;
         m_rootMotionWeight = rhs.m_rootMotionWeight;
@@ -29,6 +30,7 @@ namespace KRG::Animation
 
     BoneMask::BoneMask( BoneMask&& rhs )
     {
+        KRG_ASSERT( rhs.IsValid() );
         m_pSkeleton = rhs.m_pSkeleton;
         m_weights.swap( rhs.m_weights );
         m_rootMotionWeight = rhs.m_rootMotionWeight;
@@ -38,10 +40,16 @@ namespace KRG::Animation
         : m_pSkeleton( pSkeleton )
     {
         KRG_ASSERT( pSkeleton != nullptr && rootMotionWeight >= 0.0f && rootMotionWeight <= 1.0f );
+        m_weights.resize( pSkeleton->GetNumBones() );
         ResetWeights( weights, rootMotionWeight );
     }
 
     //-------------------------------------------------------------------------
+
+    bool BoneMask::IsValid() const
+    {
+        return m_pSkeleton != nullptr && !m_weights.empty() && m_weights.size() == m_pSkeleton->GetNumBones();
+    }
 
     BoneMask& BoneMask::operator=( BoneMask const& rhs )
     {
@@ -61,20 +69,65 @@ namespace KRG::Animation
 
     //-------------------------------------------------------------------------
 
-    void BoneMask::ResetWeights( float fixedWeight )
+    void BoneMask::ResetWeights( float fixedWeight, float rootMotionWeight )
     {
+        KRG_ASSERT( fixedWeight >= 0.0f && fixedWeight <= 1.0f );
+        KRG_ASSERT( rootMotionWeight >= 0.0f && rootMotionWeight <= 1.0f );
+
         for ( auto& weight : m_weights )
         {
             weight = fixedWeight;
         }
 
-        m_rootMotionWeight = fixedWeight;
+        m_rootMotionWeight = rootMotionWeight;
     }
 
-    void BoneMask::ResetWeights( TVector<BoneWeight> const& weights, float rootMotionWeight )
+    void BoneMask::ResetWeights( TVector<float> const& weights, float rootMotionWeight )
     {
-        KRG_UNIMPLEMENTED_FUNCTION();
+        KRG_ASSERT( m_pSkeleton != nullptr );
+        KRG_ASSERT( weights.size() == m_pSkeleton->GetNumBones() );
+        KRG_ASSERT( rootMotionWeight >= 0.0f && rootMotionWeight <= 1.0f );
 
+        m_weights = weights;
+        m_rootMotionWeight = rootMotionWeight;
+    }
+
+    void BoneMask::ResetWeights( TVector<BoneWeight> const& weights, float rootMotionWeight, bool shouldFeatherIntermediateBones )
+    {
+        KRG_ASSERT( m_pSkeleton != nullptr );
+
+        if ( shouldFeatherIntermediateBones )
+        {
+            // Set all weights to -1 so we know what needs to be feathered!
+            for ( auto& weight : m_weights )
+            {
+                weight = -1.0f;
+            }
+
+            // Root cannot be set to -1, since we cannot guarantee it will be part of the supplied weights
+            m_weights[0] = 0.0f;
+        }
+        else
+        {
+            ResetWeights();
+        }
+
+        // Relatively expensive remap
+        for ( auto const& boneWeight : weights )
+        {
+            KRG_ASSERT( boneWeight.m_weight >= 0.0f && boneWeight.m_weight <= 1.0f );
+            int32 const boneIdx = m_pSkeleton->GetBoneIndex( boneWeight.m_boneID );
+            KRG_ASSERT( boneIdx != InvalidIndex );
+            m_weights[boneIdx] = boneWeight.m_weight;
+        }
+
+        // Feather intermediate weights
+        if ( shouldFeatherIntermediateBones )
+        {
+
+        }
+
+        // Set root motion weight
         m_rootMotionWeight = rootMotionWeight;
     }
 

@@ -42,9 +42,11 @@ namespace KRG::Navmesh
 
         NavmeshWorldSystem() = default;
 
-        KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
-
         AABB GetNavmeshBounds( uint32 layerIdx ) const;
+
+        #if KRG_NAVPOWER
+        KRG_FORCE_INLINE bfx::SpaceHandle GetSpaceHandle() const { return bfx::GetDefaultSpaceHandle( m_pInstance ); }
+        #endif
 
     private:
 
@@ -61,12 +63,18 @@ namespace KRG::Navmesh
 
     private:
 
+        #if KRG_NAVPOWER
         bfx::Instance*                                  m_pInstance = nullptr;
-        TVector<NavmeshComponent*>                      m_navmeshComponents;
-        TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
 
         #if KRG_DEVELOPMENT_TOOLS
         NavpowerRenderer                                m_renderer;
         #endif
+
+        #endif
+
+        //-------------------------------------------------------------------------
+
+        TVector<NavmeshComponent*>                      m_navmeshComponents;
+        TVector<RegisteredNavmesh>                      m_registeredNavmeshes;
     };
 }

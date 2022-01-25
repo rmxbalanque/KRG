@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Engine/Core/_Module/API.h"
-#include "Engine/Core/Entity/EntityMapDescriptor.h"
+#include "Engine/Core/Entity/EntityDescriptors.h"
 #include "System/Resource/ResourceLoader.h"
 
 //-------------------------------------------------------------------------

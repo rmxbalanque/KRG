@@ -17,6 +17,7 @@ namespace KRG::Player
 
         void StartJump();
         void StartDash();
+        void StartSlide();
 
     private:
 

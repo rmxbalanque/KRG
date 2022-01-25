@@ -2,6 +2,7 @@
 
 #include "Tools/Animation/_Module/API.h"
 #include "Engine/Animation/Graph/Animation_RuntimeGraph_Node.h"
+#include "Engine/Animation/Components/Component_AnimationGraph.h"
 #include "System/Render/Imgui/ImguiX.h"
 
 //-------------------------------------------------------------------------
@@ -42,11 +43,18 @@ namespace KRG::Animation
         }
 
         bool IsNodeActive( GraphNodeIndex nodeIdx ) const;
+        
         PoseNodeDebugInfo GetPoseNodeDebugInfo( GraphNodeIndex runtimeNodeIdx ) const;
+
+        template<typename T>
+        inline T GetRuntimeNodeValue( GraphNodeIndex runtimeNodeIdx ) const
+        {
+            return m_pGraphComponent->GetRuntimeNodeValue<T>( runtimeNodeIdx );
+        }
 
     public:
 
-        AnimationGraphComponent*        m_pGraphComponent = nullptr;
+        AnimationGraphComponent*             m_pGraphComponent = nullptr;
         THashMap<UUID, GraphNodeIndex>       m_nodeIDtoIndexMap;
     };
 
