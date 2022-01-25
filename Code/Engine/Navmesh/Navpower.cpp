@@ -1,4 +1,4 @@
-#if KRG_NAVPOWER
+#if KRG_ENABLE_NAVPOWER
 #include "NavPower.h"
 #include "System/Core/Drawing/DebugDrawingSystem.h"
 

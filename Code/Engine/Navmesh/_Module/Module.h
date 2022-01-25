@@ -20,7 +20,7 @@ namespace KRG::Navmesh
 
     private:
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         NavmeshSystem               m_navmeshSystem;
         #endif
 

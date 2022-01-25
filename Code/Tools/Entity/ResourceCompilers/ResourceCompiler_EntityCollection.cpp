@@ -88,7 +88,7 @@ namespace KRG::EntityModel
         // Navmesh
         //-------------------------------------------------------------------------
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         auto const navmeshComponents = map.GetComponentsOfType<Navmesh::NavmeshComponent>( ctx.m_typeRegistry, false );
         if ( !navmeshComponents.empty() )
         {

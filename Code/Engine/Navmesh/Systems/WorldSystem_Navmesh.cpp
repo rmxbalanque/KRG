@@ -12,7 +12,7 @@ namespace KRG::Navmesh
 {
     void NavmeshWorldSystem::InitializeSystem( SystemRegistry const& systemRegistry )
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         auto pNavmeshSystem = systemRegistry.GetSystem<NavmeshSystem>();
 
         m_pInstance = bfx::SystemCreate( bfx::SystemParams( 2.0f, bfx::Z_UP ), &pNavmeshSystem->m_allocator );
@@ -29,7 +29,7 @@ namespace KRG::Navmesh
 
     void NavmeshWorldSystem::ShutdownSystem()
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         KRG_ASSERT( m_registeredNavmeshes.empty() );
 
         #if KRG_DEVELOPMENT_TOOLS
@@ -74,7 +74,7 @@ namespace KRG::Navmesh
     {
         KRG_ASSERT( pComponent != nullptr );
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
 
         // Copy resource
         //-------------------------------------------------------------------------
@@ -108,7 +108,7 @@ namespace KRG::Navmesh
     void NavmeshWorldSystem::UnregisterNavmesh( NavmeshComponent* pComponent )
     {
         KRG_ASSERT( pComponent != nullptr );
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
 
         for ( auto i = 0u; i < m_registeredNavmeshes.size(); i++ )
         {
@@ -133,7 +133,7 @@ namespace KRG::Navmesh
 
     void NavmeshWorldSystem::UpdateSystem( EntityWorldUpdateContext const& ctx )
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
 
         {
             KRG_PROFILE_SCOPE_NAVIGATION( "Navmesh Simulate" );
@@ -167,7 +167,7 @@ namespace KRG::Navmesh
     {
         AABB bounds;
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         bfx::SpaceHandle spaceHandle = bfx::GetDefaultSpaceHandle( m_pInstance );
         bfx::Vector3 center, extents;
         if ( bfx::GetNavGraphBounds( spaceHandle, 1 << layerIdx, center, extents ) )

@@ -11,7 +11,7 @@ namespace KRG::Navmesh
 {
     void NavmeshDebugView::DrawNavmeshDebugSettings( NavmeshWorldSystem* pNavmeshWorldSystem )
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         auto CreatePlannerCheckboxForFlag = [pNavmeshWorldSystem] ( char const* pLabel, bfx::PlannerDebugFlag flag )
         {
             bool isEnabled = bfx::GetGlobalDebugFlag( pNavmeshWorldSystem->m_pInstance, flag );

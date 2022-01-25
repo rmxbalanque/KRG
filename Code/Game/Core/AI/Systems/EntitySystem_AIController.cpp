@@ -111,7 +111,7 @@ namespace KRG::AI
         TScopedGuardValue const navmeshSystemGuardValue( m_behaviorContext.m_pNavmeshSystem, ctx.GetWorldSystem<Navmesh::NavmeshWorldSystem>() );
         TScopedGuardValue const physicsSystemGuard( m_behaviorContext.m_pPhysicsScene, ctx.GetWorldSystem<Physics::PhysicsWorldSystem>()->GetScene() );
 
-        #ifndef KRG_NAVPOWER
+        #ifndef KRG_ENABLE_NAVPOWER
         if ( true )
         {
             return;

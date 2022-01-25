@@ -11,7 +11,7 @@ namespace KRG::AI
 {
     bool MoveToAction::IsRunning() const
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         return m_path.IsValid();
         #else
         return false;
@@ -20,7 +20,7 @@ namespace KRG::AI
 
     void MoveToAction::Start( BehaviorContext const& ctx, Vector const& goalPosition )
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         auto spaceHandle = ctx.m_pNavmeshSystem->GetSpaceHandle();
 
         bfx::PathSpec pathSpec;
@@ -44,7 +44,7 @@ namespace KRG::AI
 
     void MoveToAction::Update( BehaviorContext const& ctx )
     {
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         if ( !m_path.IsValid() )
         {
             return;

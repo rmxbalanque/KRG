@@ -22,7 +22,7 @@ namespace KRG::AI
 
     private:
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         bfx::PolylinePathRCPtr      m_path;
         #endif
 

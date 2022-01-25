@@ -1,4 +1,4 @@
-#if KRG_NAVPOWER
+#if KRG_ENABLE_NAVPOWER
 #include "NavmeshBuilder.h"
 #include "Tools/Physics/ResourceDescriptors/ResourceDescriptor_PhysicsMesh.h"
 #include "Tools/Core/Resource/RawAssets/RawAssetReader.h"

@@ -9,7 +9,7 @@ namespace KRG::Navmesh
     {
         context.RegisterResourceLoader( &m_navmeshLoader );
 
-        #if KRG_NAVPOWER
+        #if KRG_ENABLE_NAVPOWER
         context.RegisterSystem( m_navmeshSystem );
         #endif
 
@@ -23,7 +23,7 @@ namespace KRG::Navmesh
     {
         if ( m_initialized )
         {
-            #if KRG_NAVPOWER
+            #if KRG_ENABLE_NAVPOWER
             context.UnregisterSystem( m_navmeshSystem );
             #endif
 
