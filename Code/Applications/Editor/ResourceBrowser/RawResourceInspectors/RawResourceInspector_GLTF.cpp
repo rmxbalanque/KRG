@@ -29,7 +29,12 @@ namespace KRG::Resource
         
     }
 
-    void ResourceInspectorGLTF::DrawFileInfoAndContents()
+    void ResourceInspectorGLTF::DrawFileInfo()
+    {
+        ImGui::Text( "Raw File: %s", m_filePath.c_str() );
+    }
+
+    void ResourceInspectorGLTF::DrawFileContents()
     {
         ImGui::Text( "Raw File: %s", m_filePath.c_str() );
 

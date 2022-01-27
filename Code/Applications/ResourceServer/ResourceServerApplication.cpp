@@ -7,7 +7,7 @@
 #include "System/Render/Imgui/Platform/ImguiPlatform_win32.h"
 #include <tchar.h>
 
-#if LIVEPP_ENABLED
+#if KRG_ENABLE_LPP
 #include "LPP_API.h"
 #endif
 
@@ -350,7 +350,7 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
     // Live++ Support
     //-------------------------------------------------------------------------
 
-    #if LIVEPP_ENABLED
+    #if KRG_ENABLE_LPP
     /*HMODULE livePP = lpp::lppLoadAndRegister( L"../../External/LivePP", "Quickstart" );
     lpp::lppEnableAllCallingModulesSync( livePP );*/
     #endif

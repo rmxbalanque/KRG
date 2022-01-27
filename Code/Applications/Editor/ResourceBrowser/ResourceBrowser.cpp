@@ -4,6 +4,7 @@
 #include "Tools/Core/FileSystem/FileSystemHelpers.h"
 #include "Tools/Core/Resource/Compilers/ResourceDescriptor.h"
 #include "System/Core/Profiling/Profiling.h"
+#include "Tools/Core/ThirdParty/pfd/portable-file-dialogs.h"
 
 //-------------------------------------------------------------------------
 
@@ -115,6 +116,7 @@ namespace KRG
         bool isOpen = true;
         if ( ImGui::Begin( GetWindowName(), &isOpen) )
         {
+            DrawCreationControls( context );
             DrawFilterOptions( context );
             TreeListView::Draw();
         }
@@ -234,6 +236,50 @@ namespace KRG
         UpdateItemVisibility( VisibilityFunc );
     }
 
+    void ResourceBrowser::DrawCreationControls( UpdateContext const& context )
+    {
+        float const availableWidth = ImGui::GetContentRegionAvail().x;
+        float const buttonWidth = ( availableWidth - 4.0f ) / 2.0f;
+
+        if ( ImGuiX::ColoredButton( Colors::Green, Colors::White, KRG_ICON_PLUS"Create New", ImVec2( buttonWidth, 0 ) ) )
+        {
+            ImGui::OpenPopup( "CreateNewDescriptor" );
+        }
+
+        if ( ImGui::BeginPopup( "CreateNewDescriptor" ) )
+        {
+            DrawCreateNewDescriptorMenu( m_editorContext.GetRawResourceDirectory() );
+            ImGui::EndPopup();
+        }
+
+        //-------------------------------------------------------------------------
+
+        ImGui::SameLine( 0, 4 );
+        if ( ImGuiX::ColoredButton( Colors::OrangeRed, Colors::White, KRG_ICON_FILE_IMPORT"Import", ImVec2( buttonWidth, 0 ) ) )
+        {
+            auto const selectedFile = pfd::open_file( "Load Map", m_editorContext.GetRawResourceDirectory().c_str() ).result();
+            if ( !selectedFile.empty() )
+            {
+                FileSystem::Path selectedFilePath( selectedFile[0].data() );
+                if ( !selectedFilePath.IsUnderDirectory( m_editorContext.GetRawResourceDirectory() ) )
+                {
+                    pfd::message( "Import Error", "File to import must be within the raw resource folder!", pfd::choice::ok, pfd::icon::error );
+                }
+                else
+                {
+                    if ( Resource::RawResourceInspectorFactory::CanCreateInspector( selectedFilePath ) )
+                    {
+                        m_pRawResourceInspector = Resource::RawResourceInspectorFactory::TryCreateInspector( *m_editorContext.GetTypeRegistry(), *m_editorContext.GetResourceDatabase(), selectedFilePath );
+                    }
+                    else
+                    {
+                        pfd::message( "Import Error", "File type is not importable!", pfd::choice::ok, pfd::icon::error );
+                    }
+                }
+            }
+        }
+    }
+
     void ResourceBrowser::DrawFilterOptions( UpdateContext const& context )
     {
         KRG_PROFILE_FUNCTION();
@@ -280,25 +326,23 @@ namespace KRG
         // Type Filter + Controls
         //-------------------------------------------------------------------------
 
-        shouldUpdateVisibility |= DrawResourceTypeFilterMenu();
+        float const availableWidth = ImGui::GetContentRegionAvail().x;
+        float const filterWidth = availableWidth - ( buttonWidth * 2 ) - ( ImGui::GetStyle().ItemSpacing.x * 2 );
+        shouldUpdateVisibility |= DrawResourceTypeFilterMenu( filterWidth );
 
         ImGui::SameLine();
-        if ( ImGui::Checkbox( "Raw Files", &m_showRawFiles ) )
-        {
-            shouldUpdateVisibility = true;
-        }
-
-        ImGui::SameLine( ImGui::GetContentRegionAvail().x - ( buttonWidth * 2 ) );
         if ( ImGui::Button( KRG_ICON_PLUS "##Expand All", ImVec2( buttonWidth, 0 ) ) )
         {
             ForEachItem( [] ( TreeListViewItem* pItem ) { pItem->SetExpanded( true ); } );
         }
+        ImGuiX::ItemTooltip( "Expand All" );
 
         ImGui::SameLine();
         if ( ImGui::Button( KRG_ICON_MINUS "##Collapse ALL", ImVec2( buttonWidth, 0 ) ) )
         {
             ForEachItem( [] ( TreeListViewItem* pItem ) { pItem->SetExpanded( false ); } );
         }
+        ImGuiX::ItemTooltip( "Collapse All" );
 
         //-------------------------------------------------------------------------
 
@@ -308,13 +352,20 @@ namespace KRG
         }
     }
 
-    bool ResourceBrowser::DrawResourceTypeFilterMenu()
+    bool ResourceBrowser::DrawResourceTypeFilterMenu( float width )
     {
         bool requiresVisibilityUpdate = false;
 
-        ImGui::SetNextItemWidth( 150 );
+        ImGui::SetNextItemWidth( width );
         if ( ImGui::BeginCombo( "##ResourceTypeFilters", "Resource Filters", ImGuiComboFlags_HeightLarge ) )
         {
+            if ( ImGui::Checkbox( "Raw Files", &m_showRawFiles ) )
+            {
+                requiresVisibilityUpdate = true;
+            }
+
+            ImGui::Separator();
+
             for ( auto const& resourceInfo : m_editorContext.GetTypeRegistry()->GetRegisteredResourceTypes() )
             {
                 bool isChecked = VectorContains( m_typeFilter, resourceInfo.second.m_resourceTypeID );
@@ -406,7 +457,11 @@ namespace KRG
         {
             ImGui::Separator();
 
-            DrawCreateNewDescriptorMenu( pResourceItem->GetFilePath() );
+            if ( ImGui::BeginMenu( "Create New Descriptor" ) )
+            {
+                DrawCreateNewDescriptorMenu( pResourceItem->GetFilePath() );
+                ImGui::EndMenu();
+            }
         }
 
         // File options
@@ -433,18 +488,24 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::BeginPopupModal( "Delete Resource" ) )
+        ImGui::SetNextWindowSize( ImVec2( 300, 96 ) );
+        if ( ImGui::BeginPopupModal( "Delete Resource", nullptr, ImGuiWindowFlags_NoResize ) )
         {
-            ImGui::BeginDisabled( true );
-            if ( ImGui::Button( "Ok", ImVec2( 120, 0 ) ) )
+            ImGui::Text( "Are you sure you want to delete this file?" );
+            ImGui::Text( "This cannot be undone!" );
+
+            if ( ImGui::Button( "Ok", ImVec2( 143, 0 ) ) )
             {
+                auto pResourceItem = (ResourceBrowserTreeItem*) GetSelection()[0];
+                FileSystem::Path const fileToDelete = pResourceItem->GetFilePath();
+                ClearSelection();
+                FileSystem::EraseFile( fileToDelete );
                 ImGui::CloseCurrentPopup();
             }
-            ImGui::EndDisabled();
 
-            ImGui::SameLine();
+            ImGui::SameLine( 0, 6 );
 
-            if ( ImGui::Button( "Cancel", ImVec2( 120, 0 ) ) )
+            if ( ImGui::Button( "Cancel", ImVec2( 143, 0 ) ) )
             {
                 ImGui::CloseCurrentPopup();
             }
@@ -487,21 +548,16 @@ namespace KRG
 
         //-------------------------------------------------------------------------
 
-        if ( ImGui::BeginMenu( "Create New Descriptor" ) )
+        for ( auto pDescriptorTypeInfo : descriptorTypeInfos )
         {
-            for ( auto pDescriptorTypeInfo : descriptorTypeInfos )
+            auto pDefaultInstance = Cast<Resource::ResourceDescriptor>( pDescriptorTypeInfo->GetDefaultInstance() );
+            KRG_ASSERT( pDefaultInstance->IsUserCreateableDescriptor() );
+
+            auto pResourceInfo = pTypeRegistry->GetResourceInfoForResourceType( pDefaultInstance->GetCompiledResourceTypeID() );
+            if ( ImGui::MenuItem( pResourceInfo->m_friendlyName.c_str() ) )
             {
-                auto pDefaultInstance = Cast<Resource::ResourceDescriptor>( pDescriptorTypeInfo->GetDefaultInstance() );
-                KRG_ASSERT( pDefaultInstance->IsUserCreateableDescriptor() );
-
-                auto pResourceInfo = pTypeRegistry->GetResourceInfoForResourceType( pDefaultInstance->GetCompiledResourceTypeID() );
-                if ( ImGui::MenuItem( pResourceInfo->m_friendlyName.c_str() ) )
-                {
-                    m_pResourceDescriptorCreator = KRG::New<ResourceDescriptorCreator>( &m_editorContext, pDescriptorTypeInfo->m_ID, path );
-                }
+                m_pResourceDescriptorCreator = KRG::New<ResourceDescriptorCreator>( &m_editorContext, pDescriptorTypeInfo->m_ID, path );
             }
-
-            ImGui::EndMenu();
         }
     }
 

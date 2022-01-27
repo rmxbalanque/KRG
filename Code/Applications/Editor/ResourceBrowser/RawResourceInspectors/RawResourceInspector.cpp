@@ -37,7 +37,12 @@ namespace KRG::Resource
         ImGui::SetNextWindowSize( ImVec2( 600, 800 ), ImGuiCond_FirstUseEver );
         if ( ImGui::BeginPopupModal( GetInspectorTitle(), &isOpen ) )
         {
-            if ( ImGui::BeginTable( "DialogTable", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_Resizable | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_NoSavedSettings, ImVec2( -1, -1 ) ) )
+            DrawFileInfo();
+
+            //-------------------------------------------------------------------------
+
+            auto availableSpace = ImGui::GetContentRegionAvail();
+            if ( ImGui::BeginTable( "DialogTable", 2, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_Resizable | ImGuiTableFlags_PadOuterX | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_ScrollY, availableSpace ) )
             {
                 ImGui::TableSetupColumn( "Info", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch );
                 ImGui::TableSetupColumn( "Creator", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthStretch );
@@ -45,7 +50,11 @@ namespace KRG::Resource
                 ImGui::TableNextRow();
 
                 ImGui::TableSetColumnIndex( 0);
-                DrawFileInfoAndContents();
+                if ( ImGui::BeginChild( "Contents", ImGui::GetContentRegionAvail() - ImVec2( 0, 4 ) ) )
+                {
+                    DrawFileContents();
+                }
+                ImGui::EndChild();
 
                 ImGui::TableSetColumnIndex( 1);
                 DrawResourceDescriptorCreator();

@@ -1,15 +1,328 @@
 #include "AnimationGraphEditor_ControlParameterEditor.h"
 #include "EditorGraph/Animation_EditorGraph_Definition.h"
-#include "Tools/Core/Helpers/CategoryTree.h"
 #include "Engine/Animation/Components/Component_AnimationGraph.h"
+#include "Tools/Core/Helpers/CategoryTree.h"
 
 //-------------------------------------------------------------------------
 
 namespace KRG::Animation
 {
+    struct BoolParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+
+            auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<bool>( parameterIdx );
+            if ( ImGui::Checkbox( "##bp", &value ) )
+            {
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            }
+        }
+    };
+
+    struct IntParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+
+            auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<int32>( parameterIdx );
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputInt( "##ip", &value ) )
+            {
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            }
+        }
+    };
+
+    struct FloatParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+            float value = pDebugContext->m_pGraphComponent->GetControlParameterValue<float>( parameterIdx );
+
+            //-------------------------------------------------------------------------
+
+            auto UpdateLimits = [this, pDebugContext, &value, parameterIdx] ()
+            {
+                if ( m_min > m_max )
+                {
+                    m_max = m_min;
+                }
+
+                // Clamp the value to the range
+                value = Math::Clamp( value, m_min, m_max );
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            };
+
+            //-------------------------------------------------------------------------
+
+            constexpr float const limitWidth = 40;
+
+            ImGui::SetNextItemWidth( limitWidth );
+            if ( ImGui::InputFloat( "##min", &m_min, 0.0f, 0.0f, "%.1f", ImGuiInputTextFlags_EnterReturnsTrue ) )
+            {
+                UpdateLimits();
+            }
+
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth( ImGui::GetContentRegionAvail().x - limitWidth - ImGui::GetStyle().ItemSpacing.x );
+            if ( ImGui::SliderFloat( "##fp", &value, m_min, m_max ) )
+            {
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            }
+
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth( limitWidth );
+            if ( ImGui::InputFloat( "##max", &m_max, 0.0f, 0.0f, "%.1f", ImGuiInputTextFlags_EnterReturnsTrue ) )
+            {
+                UpdateLimits();
+            }
+        }
+
+    private:
+
+        float m_min = 0.0f;
+        float m_max = 1.0f;
+    };
+
+    struct VectorParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+
+            auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<Vector>( parameterIdx ).ToFloat4();
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputFloat4( "##vp", &value.m_x ) )
+            {
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            }
+        }
+    };
+
+    struct IDParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+            auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<StringID>( parameterIdx );
+            if ( value.IsValid() )
+            {
+                strncpy_s( m_buffer, 255, value.c_str(), strlen( value.c_str() ) );
+            }
+            else
+            {
+                memset( m_buffer, 0, 255 );
+            }
+
+            ImGui::SetNextItemWidth( -1 );
+            if ( ImGui::InputText( "##tp", m_buffer, 255, ImGuiInputTextFlags_EnterReturnsTrue ) )
+            {
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, StringID( m_buffer ) );
+            }
+        }
+
+    private:
+
+        char m_buffer[256];
+    };
+
+    struct TargetParameterState : public GraphControlParameterEditor::ParameterPreviewState
+    {
+        using ParameterPreviewState::ParameterPreviewState;
+
+        virtual void DrawPreviewEditor( DebugContext* pDebugContext ) override
+        {
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( m_pParameter->GetID() );
+            Target value = pDebugContext->m_pGraphComponent->GetControlParameterValue<Target>( parameterIdx );
+
+            // Reflect actual state
+            //-------------------------------------------------------------------------
+
+            m_isSet = value.IsTargetSet();
+            m_isBoneTarget = value.IsBoneTarget();
+
+            if ( m_isBoneTarget )
+            {
+                StringID const boneID = value.GetBoneID();
+                if ( boneID.IsValid() )
+                {
+                    strncpy_s( m_buffer, 255, boneID.c_str(), strlen( boneID.c_str() ) );
+                }
+                else
+                {
+                    memset( m_buffer, 0, 255 );
+                }
+
+                m_useBoneSpaceOffsets = value.IsUsingBoneSpaceOffsets();
+            }
+
+            if ( m_isBoneTarget && value.HasOffsets() )
+            {
+                m_rotationOffset = value.GetRotationOffset().ToEulerAngles();
+                m_translationOffset = value.GetTranslationOffset().ToFloat3();
+            }
+
+            if ( m_isSet && !m_isBoneTarget )
+            {
+                m_transform = value.GetTransform();
+            }
+
+            //-------------------------------------------------------------------------
+
+            bool updateValue = false;
+
+            //-------------------------------------------------------------------------
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text( "Is Set:" );
+            ImGui::SameLine();
+
+            if ( ImGui::Checkbox( "##IsSet", &m_isSet ) )
+            {
+                updateValue = true;
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( m_isSet )
+            {
+                ImGui::SameLine( 0, 8 );
+                ImGui::Text( "Is Bone:" );
+                ImGui::SameLine();
+
+                if ( ImGui::Checkbox( "##IsBone", &m_isBoneTarget ) )
+                {
+                    updateValue = true;
+                }
+
+                if ( m_isBoneTarget )
+                {
+                    if ( ImGui::BeginTable( "BoneSettings", 2 ) )
+                    {
+                        ImGui::TableSetupColumn( "Label", ImGuiTableColumnFlags_WidthFixed, 45 );
+                        ImGui::TableSetupColumn( "Editor", ImGuiTableColumnFlags_WidthStretch );
+
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::AlignTextToFramePadding();
+                        {
+                            ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                            ImGui::Text( "Bone ID" );
+                        }
+
+                        ImGui::TableNextColumn();
+                        if ( ImGui::InputText( "##tp", m_buffer, 255, ImGuiInputTextFlags_EnterReturnsTrue ) )
+                        {
+                            updateValue = true;
+                        }
+
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::AlignTextToFramePadding();
+                        {
+                            ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                            ImGui::Text( "Offset R" );
+                        }
+
+                        ImGui::TableNextColumn();
+                        Float3 degrees = m_rotationOffset.GetAsDegrees();
+                        if ( ImGuiX::InputFloat3( "##RotationOffset", degrees ) )
+                        {
+                            m_rotationOffset = EulerAngles( degrees );
+                            updateValue = true;
+                        }
+
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::AlignTextToFramePadding();
+
+                        {
+                            ImGuiX::ScopedFont sf( ImGuiX::Font::Tiny );
+                            ImGui::Text( "Offset T" );
+                        }
+
+                        ImGui::TableNextColumn();
+                        if ( ImGuiX::InputFloat3( "##TranslationOffset", m_translationOffset ) )
+                        {
+                            updateValue = true;
+                        }
+
+                        ImGui::EndTable();
+                    }
+                }
+                else
+                {
+                    if ( ImGuiX::InputTransform( "##Transform", m_transform ) )
+                    {
+                        updateValue = true;
+                    }
+                }
+            }
+
+            //-------------------------------------------------------------------------
+
+            if ( updateValue )
+            {
+                if ( m_isSet )
+                {
+                    if ( m_isBoneTarget )
+                    {
+                        value = Target( StringID( m_buffer ) );
+
+                        if ( !Quaternion( m_rotationOffset ).IsIdentity() || !Vector( m_translationOffset ).IsNearZero3() )
+                        {
+                            value.SetOffsets( Quaternion( m_rotationOffset ), m_translationOffset, m_useBoneSpaceOffsets );
+                        }
+                    }
+                    else
+                    {
+                        value = Target( m_transform );
+                    }
+                }
+                else
+                {
+                    value = Target();
+                }
+
+                pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
+            }
+        }
+
+    private:
+
+        bool            m_isSet = false;
+        bool            m_isBoneTarget = false;
+        bool            m_useBoneSpaceOffsets = false;
+        char            m_buffer[256] = {0};
+        EulerAngles     m_rotationOffset;
+        Float3          m_translationOffset = Float3::Zero;
+        Transform       m_transform = Transform::Identity;
+    };
+
+    //-------------------------------------------------------------------------
+
     GraphControlParameterEditor::GraphControlParameterEditor( EditorGraphDefinition* pGraphDefinition )
         : m_pGraphDefinition( pGraphDefinition )
     {}
+
+    GraphControlParameterEditor::~GraphControlParameterEditor()
+    {
+        DestroyPreviewStates();
+    }
 
     bool GraphControlParameterEditor::UpdateAndDraw( UpdateContext const& context, DebugContext* pDebugContext, ImGuiWindowClass* pWindowClass, char const* pWindowName )
     {
@@ -20,12 +333,24 @@ namespace KRG::Animation
         ImGui::SetNextWindowClass( pWindowClass );
         if ( ImGui::Begin( pWindowName, nullptr, windowFlags ) )
         {
-            if ( pDebugContext != nullptr )
+
+            bool const isPreviewing = pDebugContext != nullptr;
+            if ( isPreviewing )
             {
+                if ( m_parameterPreviewStates.empty() )
+                {
+                    CreatePreviewStates();
+                }
+
                 DrawParameterPreviewControls( pDebugContext );
             }
             else
             {
+                if ( !m_parameterPreviewStates.empty() )
+                {
+                    DestroyPreviewStates();
+                }
+
                 DrawParameterList();
             }
 
@@ -366,8 +691,6 @@ namespace KRG::Animation
         ImGui::PushStyleColor( ImGuiCol_HeaderHovered, ImGuiX::Style::s_backgroundColorLight.Value );
         ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0, 0, 0, 0 ) );
 
-        //ImGuiX::TextSeparator( "Control Parameters" );
-
         if ( ImGui::BeginTable( "CPT", 3, 0 ) )
         {
             ImGui::TableSetupColumn( "##Name", ImGuiTableColumnFlags_WidthStretch );
@@ -412,22 +735,6 @@ namespace KRG::Animation
             ImGui::EndTable();
         }
 
-        /*ImGuiX::TextSeparator( "Virtual Parameters" );
-
-        if ( ImGui::BeginTable( "VPT", 3, 0 ) )
-        {
-            ImGui::TableSetupColumn( "##Name", ImGuiTableColumnFlags_WidthStretch );
-            ImGui::TableSetupColumn( "##Type", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 40 );
-            ImGui::TableSetupColumn( "##Controls", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize, 60 );
-
-            for ( auto pVirtualParameter : m_pGraphDefinition->GetVirtualParameters() )
-            {
-              
-            }
-
-            ImGui::EndTable();
-        }*/
-
         ImGui::PopStyleColor( 3 );
     }
 
@@ -435,8 +742,47 @@ namespace KRG::Animation
     {
         KRG_ASSERT( pDebugContext != nullptr );
 
-        int32 const numParameters = m_pGraphDefinition->GetNumControlParameters();
-        m_parameterPreviewBuffers.resize( numParameters );
+        //-------------------------------------------------------------------------
+
+        CategoryTree<ParameterPreviewState*> parameterTree;
+        for ( auto pPreviewState : m_parameterPreviewStates )
+        {
+            auto pControlParameter = pPreviewState->m_pParameter;
+            parameterTree.AddItem( pControlParameter->GetParameterCategory(), pControlParameter->GetDisplayName(), pPreviewState );
+        }
+
+        //-------------------------------------------------------------------------
+
+        auto DrawCategoryRow = [] ( String const& categoryName )
+        {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text( categoryName.c_str() );
+        };
+
+        auto DrawControlParameterEditorRow = [this, pDebugContext] ( ParameterPreviewState* pPreviewState )
+        {
+            auto pControlParameter = pPreviewState->m_pParameter;
+            GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( pControlParameter->GetID() );
+
+            ImGui::PushID( pControlParameter );
+            ImGui::TableNextRow();
+
+            ImGui::TableSetColumnIndex( 0 );
+            ImGui::AlignTextToFramePadding();
+            ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetNodeTitleColor() );
+            ImGui::Indent();
+            ImGui::Text( pControlParameter->GetDisplayName() );
+            ImGui::Unindent();
+            ImGui::PopStyleColor();
+
+            ImGui::TableSetColumnIndex( 1 );
+            pPreviewState->DrawPreviewEditor( pDebugContext );
+            ImGui::PopID();
+        };
+
+        //-------------------------------------------------------------------------
 
         if ( ImGui::BeginTable( "Parameter Preview", 2, ImGuiTableFlags_Resizable, ImVec2( -1, -1 ) ) )
         {
@@ -445,98 +791,86 @@ namespace KRG::Animation
 
             //-------------------------------------------------------------------------
 
-            for ( int32 i = 0; i < numParameters; i++ )
-            { 
-                auto pControlParameter = m_pGraphDefinition->GetControlParameters()[i];
-                GraphNodeIndex const parameterIdx = pDebugContext->GetRuntimeGraphNodeIndex( pControlParameter->GetID() );
+            DrawCategoryRow( "General" );
 
-                ImGui::PushID( pControlParameter );
-                ImGui::TableNextRow();
+            for ( auto const& item : parameterTree.GetRootCategory().m_items )
+            {
+                DrawControlParameterEditorRow( item.m_data );
+            }
 
-                ImGui::TableSetColumnIndex( 0 );
-                ImGui::AlignTextToFramePadding();
-                ImGui::PushStyleColor( ImGuiCol_Text, (ImVec4) pControlParameter->GetNodeTitleColor() );
-                ImGui::Text( pControlParameter->GetDisplayName() );
-                ImGui::PopStyleColor();
+            //-------------------------------------------------------------------------
 
-                ImGui::TableSetColumnIndex( 1 );
-                switch ( pControlParameter->GetValueType() )
+            for ( auto const& category : parameterTree.GetRootCategory().m_childCategories )
+            {
+                DrawCategoryRow( category.m_name );
+
+                for ( auto const& item : category.m_items )
                 {
-                    case GraphValueType::Bool:
-                    {
-                        auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<bool>( parameterIdx );
-                        if ( ImGui::Checkbox( "##bp", &value ) )
-                        {
-                            pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
-                        }
-                    }
-                    break;
-
-                    case GraphValueType::Int:
-                    {
-                        auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<int32>( parameterIdx );
-                        ImGui::SetNextItemWidth( -1 );
-                        if ( ImGui::InputInt( "##ip", &value ) )
-                        {
-                            pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
-                        }
-                    }
-                    break;
-
-                    case GraphValueType::Float:
-                    {
-                        auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<float>( parameterIdx );
-                        ImGui::SetNextItemWidth( -1 );
-                        if ( ImGui::InputFloat( "##fp", &value ) )
-                        {
-                            pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
-                        }
-                    }
-                    break;
-
-                    case GraphValueType::Vector:
-                    {
-                        auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<Vector>( parameterIdx ).ToFloat4();
-                        ImGui::SetNextItemWidth( -1 );
-                        if ( ImGui::InputFloat4( "##vp", &value.m_x ) )
-                        {
-                            pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, value );
-                        }
-                    }
-                    break;
-
-                    case GraphValueType::ID:
-                    {
-                        auto value = pDebugContext->m_pGraphComponent->GetControlParameterValue<StringID>( parameterIdx );
-                        if ( value.IsValid() )
-                        {
-                            strncpy_s( m_parameterPreviewBuffers[i].data(), 255, value.c_str(), strlen( value.c_str() ) );
-                        }
-                        else
-                        {
-                            memset( m_parameterPreviewBuffers[i].data(), 0, 255 );
-                        }
-
-                        ImGui::SetNextItemWidth( -1 );
-                        if ( ImGui::InputText( "##tp", m_parameterPreviewBuffers[i].data(), 255, ImGuiInputTextFlags_EnterReturnsTrue ) )
-                        {
-                            pDebugContext->m_pGraphComponent->SetControlParameterValue( parameterIdx, StringID( m_parameterPreviewBuffers[i].data() ) );
-                        }
-                    }
-                    break;
-
-                    case GraphValueType::Target:
-                    {
-                        // TODO
-                    }
-                    break;
+                    DrawControlParameterEditorRow( item.m_data );
                 }
-
-                ImGui::PopID();
             }
 
             ImGui::EndTable();
         }
+    }
+
+    //-------------------------------------------------------------------------
+
+    void GraphControlParameterEditor::CreatePreviewStates()
+    {
+        int32 const numParameters = m_pGraphDefinition->GetNumControlParameters();
+        for ( int32 i = 0; i < numParameters; i++ )
+        {
+            auto pControlParameter = m_pGraphDefinition->GetControlParameters()[i];
+            switch ( pControlParameter->GetValueType() )
+            {
+                case GraphValueType::Bool:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<BoolParameterState>( pControlParameter ) );
+                }
+                break;
+
+                case GraphValueType::Int:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<IntParameterState>( pControlParameter ) );
+                }
+                break;
+
+                case GraphValueType::Float:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<FloatParameterState>( pControlParameter ) );
+                }
+                break;
+
+                case GraphValueType::Vector:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<VectorParameterState>( pControlParameter ) );
+                }
+                break;
+
+                case GraphValueType::ID:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<IDParameterState>( pControlParameter ) );
+                }
+                break;
+
+                case GraphValueType::Target:
+                {
+                    m_parameterPreviewStates.emplace_back( KRG::New<TargetParameterState>( pControlParameter ) );
+                }
+                break;
+            }
+        }
+    }
+
+    void GraphControlParameterEditor::DestroyPreviewStates()
+    {
+        for ( auto& pPreviewState : m_parameterPreviewStates )
+        {
+            KRG::Delete( pPreviewState );
+        }
+
+        m_parameterPreviewStates.clear();
     }
 
     //-------------------------------------------------------------------------

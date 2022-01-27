@@ -13,7 +13,7 @@ namespace KRG::Animation
 
     class Target
     {
-        KRG_SERIALIZE_MEMBERS( m_transform, m_rotationOffset, m_translationOffset, m_boneID, m_isBoneSpaceOffsets, m_hasOffsets, m_isSet );
+        KRG_SERIALIZE_MEMBERS( m_transform, m_boneID, m_isUsingBoneSpaceOffsets, m_hasOffsets, m_isSet );
 
     public:
 
@@ -31,47 +31,47 @@ namespace KRG::Animation
 
         explicit Target( StringID boneID )
             : m_boneID( boneID )
+            , m_isBoneTarget( true )
             , m_isSet( true )
         {}
 
         inline void Reset() { m_isSet = false; }
         inline bool IsTargetSet() const { return m_isSet; }
 
-        inline bool IsBoneTarget() const { return m_boneID.IsValid(); }
+        inline bool IsBoneTarget() const { return m_isBoneTarget; }
         inline StringID GetBoneID() const { KRG_ASSERT( IsBoneTarget() ); return m_boneID; }
 
         // Offsets
         //-------------------------------------------------------------------------
 
         inline bool HasOffsets() const { return m_hasOffsets; }
-        inline Quaternion GetRotationOffset() const { return m_rotationOffset; }
-        inline Vector GetTranslationOffset() const { return m_translationOffset; }
-        inline bool IsUsingBoneSpaceOffsets() const { return m_isBoneSpaceOffsets; }
+        inline Quaternion GetRotationOffset() const { KRG_ASSERT( m_isSet && m_hasOffsets ); return m_transform.GetRotation(); }
+        inline Vector GetTranslationOffset() const { KRG_ASSERT( m_isSet && m_hasOffsets ); return m_transform.GetTranslation(); }
+        inline bool IsUsingBoneSpaceOffsets() const { return m_isUsingBoneSpaceOffsets; }
+        inline bool IsUsingWorldSpaceOffsets() const { return !m_isUsingBoneSpaceOffsets; }
 
+        // Set an offset for a bone target - user specifies if the offsets are in world space or bone space
         inline void SetOffsets( Quaternion const& rotationOffset, Vector const& translationOffset, bool useBoneSpaceOffsets = true )
         {
-            KRG_ASSERT( m_isSet );
-            m_rotationOffset = rotationOffset;
-            m_translationOffset = translationOffset;
-            m_isBoneSpaceOffsets = IsBoneTarget() ? useBoneSpaceOffsets : false; // Offset space only makes sense for bone targets
+            KRG_ASSERT( m_isSet && m_isBoneTarget ); // Offsets only make sense for bone targets
+            m_transform = Transform( rotationOffset, translationOffset );
+            m_isUsingBoneSpaceOffsets = useBoneSpaceOffsets;
             m_hasOffsets = true;
+        }
+
+        void ClearOffsets()
+        {
+            KRG_ASSERT( m_isSet && m_isBoneTarget ); // Offsets only make sense for bone targets
+            m_hasOffsets = false;
         }
 
         // Transform
         //-------------------------------------------------------------------------
 
-        inline Transform GetTransform() const
+        inline Transform const& GetTransform() const
         {
             KRG_ASSERT( m_isSet && !IsBoneTarget() );
-
-            Transform targetTransform = m_transform;
-            if ( m_hasOffsets )
-            {
-                targetTransform.SetRotation( targetTransform.GetRotation() * m_rotationOffset );
-                targetTransform.SetTranslation( targetTransform.GetTranslation() + m_translationOffset );
-            }
-
-            return targetTransform;
+            return m_transform;
         }
 
         bool TryGetTransform( Pose const* pPose, Transform& outTransform ) const;
@@ -79,10 +79,9 @@ namespace KRG::Animation
     private:
 
         Transform           m_transform = Transform::Identity;
-        Quaternion          m_rotationOffset = Quaternion::Identity;
-        Vector              m_translationOffset = Vector::Zero;
         StringID            m_boneID;
-        bool                m_isBoneSpaceOffsets = true;
+        bool                m_isBoneTarget = false;
+        bool                m_isUsingBoneSpaceOffsets = true;
         bool                m_hasOffsets = false;
         bool                m_isSet = false;
     };

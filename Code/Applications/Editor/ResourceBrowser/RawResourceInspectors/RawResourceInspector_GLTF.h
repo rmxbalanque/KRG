@@ -15,7 +15,8 @@ namespace KRG::Resource
     private:
 
         virtual char const* GetInspectorTitle() const override { return  "GLTF Inspector"; }
-        virtual void DrawFileInfoAndContents() override;
+        virtual void DrawFileInfo() override;
+        virtual void DrawFileContents() override;
         virtual void DrawResourceDescriptorCreator() override;
 
     private:

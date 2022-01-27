@@ -47,7 +47,10 @@ namespace KRG::Resource
         virtual char const* GetInspectorTitle() const = 0;
 
         // Override this to draw the contents of the file
-        virtual void DrawFileInfoAndContents() = 0;
+        virtual void DrawFileInfo() = 0;
+
+        // Override this to draw the contents of the file
+        virtual void DrawFileContents() = 0;
 
         // Override this to draw the asset creator window, this is where you can create new descriptors
         virtual void DrawResourceDescriptorCreator() = 0;

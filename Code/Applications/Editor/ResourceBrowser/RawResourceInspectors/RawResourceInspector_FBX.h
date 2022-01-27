@@ -12,6 +12,7 @@ namespace KRG::Resource
     {
         enum class InfoType
         {
+            None,
             SkeletalMesh,
             StaticMesh,
             PhysicsMesh,
@@ -50,13 +51,11 @@ namespace KRG::Resource
     private:
 
         virtual char const* GetInspectorTitle() const override { return  "FBX Inspector"; }
-        virtual void DrawFileInfoAndContents() override;
+        virtual void DrawFileInfo() override;
+        virtual void DrawFileContents() override;
         virtual void DrawResourceDescriptorCreator() override;
 
         void ReadFileContents();
-        void DrawMeshDescriptorCreator();
-        void DrawSkeletonDescriptorCreator();
-        void DrawAnimationDescriptorCreator();
 
         void OnSwitchSelectedItem();
 
@@ -68,7 +67,7 @@ namespace KRG::Resource
         TVector<BoneSkeletonRootInfo>       m_skeletonRoots;
         TVector<AnimInfo>                   m_animations;
 
-        InfoType                            m_selectedItemType;
+        InfoType                            m_selectedItemType = InfoType::None;
         StringID                            m_selectedItemID;
 
     };

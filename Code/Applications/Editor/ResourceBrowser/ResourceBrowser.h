@@ -36,8 +36,9 @@ namespace KRG
 
         void UpdateVisibility();
         void DrawCreateNewDescriptorMenu( FileSystem::Path const& path );
+        void DrawCreationControls( UpdateContext const& context );
         void DrawFilterOptions( UpdateContext const& context );
-        bool DrawResourceTypeFilterMenu();
+        bool DrawResourceTypeFilterMenu( float width );
 
     private:
 

@@ -136,18 +136,38 @@ namespace KRG::Resource
         }
     }
 
-    void ResourceInspectorFBX::DrawFileInfoAndContents()
+    void ResourceInspectorFBX::DrawFileInfo()
     {
-        InlineString tmpString;
+        ImGui::PushStyleVar( ImGuiStyleVar_ChildRounding, 4.0f );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 8.0f, 4.0f ) );
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGuiX::Style::s_backgroundColorSemiDark.Value );
+        if ( ImGui::BeginChild( "Contents", ImVec2( -1, 90 ), false, ImGuiWindowFlags_AlwaysUseWindowPadding ) )
+        {
+            {
+                ImGuiX::ScopedFont const sf( ImGuiX::Font::MediumBold, Colors::Orange );
+                ImGui::Text( "File Info" );
+            }
+            ImGui::Separator();
 
-        ImGui::Text( "Raw File: %s", m_filePath.c_str() );
+            ImGui::Text( "Raw File: %s", m_filePath.c_str() );
 
+            if ( m_sceneContext.IsValid() )
+            {
+
+                ImGui::Text( "Original Up Axis: %s", Math::ToString( m_sceneContext.GetOriginalUpAxis() ) );
+                ImGui::Text( "Scale: %.2f", m_sceneContext.GetScaleConversionMultiplier() == 1.0f ? "M" : "CM" );
+            }
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar( 2 );
+    }
+
+    void ResourceInspectorFBX::DrawFileContents()
+    {
         if ( m_sceneContext.IsValid() )
         {
-            ImGuiX::TextSeparator( "File Info", 10, ImGui::GetColumnWidth() );
-
-            ImGui::Text( "Original Up Axis: %s", Math::ToString( m_sceneContext.GetOriginalUpAxis() ) );
-            ImGui::Text( "Scale: %.2f", m_sceneContext.GetScaleConversionMultiplier() == 1.0f ? "M" : "CM" );
+            InlineString tmpString;
 
             //-------------------------------------------------------------------------
             // Meshes
@@ -158,6 +178,14 @@ namespace KRG::Resource
             if ( !m_meshes.empty() )
             {
                 ImGuiX::TextSeparator( "Static Meshes", 10, ImGui::GetColumnWidth() );
+
+                bool const isCombinedMeshSelected = ( m_selectedItemType == InfoType::StaticMesh ) && !m_selectedItemID.IsValid();
+                if ( ImGui::Selectable( KRG_ICON_CUBES" Combined Static Mesh", isCombinedMeshSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                {
+                    m_selectedItemType = InfoType::StaticMesh;
+                    m_selectedItemID = StringID();
+                    OnSwitchSelectedItem();
+                }
 
                 for ( auto const& meshInfo : m_meshes )
                 {
@@ -175,9 +203,17 @@ namespace KRG::Resource
             
                 ImGuiX::TextSeparator( "Physics Meshes", 10, ImGui::GetColumnWidth() );
 
+                bool const isCombinedPhysicsMeshSelected = ( m_selectedItemType == InfoType::PhysicsMesh ) && !m_selectedItemID.IsValid();
+                if ( ImGui::Selectable( KRG_ICON_CUBES" Combined Physics Mesh", isCombinedPhysicsMeshSelected, ImGuiSelectableFlags_DontClosePopups ) )
+                {
+                    m_selectedItemType = InfoType::PhysicsMesh;
+                    m_selectedItemID = StringID();
+                    OnSwitchSelectedItem();
+                }
+
                 for ( auto const& meshInfo : m_meshes )
                 {
-                    tmpString.sprintf( KRG_ICON_CUBES" %s##PhysicsMesh", meshInfo.m_nameID.c_str() );
+                    tmpString.sprintf( KRG_ICON_CUBE" %s##PhysicsMesh", meshInfo.m_nameID.c_str() );
                     bool isSelected = ( m_selectedItemType == InfoType::PhysicsMesh ) && meshInfo.m_nameID == m_selectedItemID;
                     if ( ImGui::Selectable( tmpString.c_str(), isSelected, ImGuiSelectableFlags_DontClosePopups ) )
                     {
@@ -286,9 +322,55 @@ namespace KRG::Resource
 
     void ResourceInspectorFBX::DrawResourceDescriptorCreator()
     {
-        if ( m_selectedItemID.IsValid() )
+        if ( m_selectedItemType != InfoType::None )
         {
+            {
+                ImGuiX::ScopedFont const sf( ImGuiX::Font::LargeBold, ImGuiX::Style::s_selectionAccent );
+
+                switch ( m_selectedItemType )
+                {
+                    case InfoType::StaticMesh:
+                    {
+                        ImGui::Text( "Create New Static Mesh" );
+                    }
+                    break;
+
+                    case InfoType::SkeletalMesh:
+                    {
+                        ImGui::Text( "Create New Skeletal Mesh" );
+                    }
+                    break;
+
+                    case InfoType::PhysicsMesh:
+                    {
+                        ImGui::Text( "Create New Physics Mesh" );
+                    }
+                    break;
+
+                    case InfoType::Skeleton:
+                    {
+                        ImGui::Text( "Create New Skeleton" );
+                    }
+                    break;
+
+                    case InfoType::Animation:
+                    {
+                        ImGui::Text( "Create New Animation" );
+                    }
+                    break;
+
+                    default:
+                    KRG_UNREACHABLE_CODE();
+                    break;
+                }
+
+            }
+
+            //-------------------------------------------------------------------------
+
             m_propertyGrid.DrawGrid();
+
+            //-------------------------------------------------------------------------
 
             if ( ImGui::Button( "Create New Resource", ImVec2( -1, 0 ) ) )
             {
@@ -345,7 +427,7 @@ namespace KRG::Resource
             {
                 auto pDesc = KRG::New<Render::StaticMeshResourceDescriptor>();
                 pDesc->m_meshPath = ResourcePath::FromFileSystemPath( m_rawResourceDirectory, m_filePath );
-                pDesc->m_meshName = m_selectedItemID.c_str();
+                pDesc->m_meshName = m_selectedItemID.IsValid() ? m_selectedItemID.c_str() : "";
                 m_pDescriptor = pDesc;
             }
             break;
@@ -354,7 +436,7 @@ namespace KRG::Resource
             {
                 auto pDesc = KRG::New<Physics::PhysicsMeshResourceDescriptor>();
                 pDesc->m_meshPath = ResourcePath::FromFileSystemPath( m_rawResourceDirectory, m_filePath );
-                pDesc->m_meshName = m_selectedItemID.c_str();
+                pDesc->m_meshName = m_selectedItemID.IsValid() ? m_selectedItemID.c_str() : "";
                 m_pDescriptor = pDesc;
             }
             break;
@@ -363,7 +445,7 @@ namespace KRG::Resource
             {
                 auto pDesc = KRG::New<Render::SkeletalMeshResourceDescriptor>();
                 pDesc->m_meshPath = ResourcePath::FromFileSystemPath( m_rawResourceDirectory, m_filePath );
-                pDesc->m_meshName = m_selectedItemID.c_str();
+                pDesc->m_meshName = m_selectedItemID.IsValid() ? m_selectedItemID.c_str() : "";
                 m_pDescriptor = pDesc;
             }
             break;

@@ -25,7 +25,7 @@ namespace KRG::Animation
                     Transform parentTransform = Transform::Identity;
 
                     // Get the local transform and the parent global transform
-                    if ( m_isBoneSpaceOffsets )
+                    if ( m_isUsingBoneSpaceOffsets )
                     {
                         int32 const parentBoneIdx = pSkeleton->GetParentBoneIndex( m_boneID );
                         if ( parentBoneIdx != InvalidIndex )
@@ -42,10 +42,10 @@ namespace KRG::Animation
 
                     //-------------------------------------------------------------------------
 
-                    outTransform.SetRotation( outTransform.GetRotation() * m_rotationOffset );
-                    outTransform.SetTranslation( outTransform.GetTranslation() + m_translationOffset );
+                    outTransform.SetRotation( outTransform.GetRotation() * m_transform.GetRotation() );
+                    outTransform.SetTranslation( outTransform.GetTranslation() + m_transform.GetTranslation() );
 
-                    if ( m_isBoneSpaceOffsets && isBoneTarget )
+                    if ( m_isUsingBoneSpaceOffsets && isBoneTarget )
                     {
                         outTransform *= parentTransform;
                     }
@@ -62,13 +62,7 @@ namespace KRG::Animation
         }
         else // Just use the internal transform
         {
-            outTransform = GetTransform();
-
-            if ( m_hasOffsets )
-            {
-                outTransform.SetRotation( outTransform.GetRotation() * m_rotationOffset );
-                outTransform.SetTranslation( outTransform.GetTranslation() + m_translationOffset );
-            }
+            outTransform = m_transform;
         }
 
         return true;

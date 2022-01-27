@@ -14,7 +14,8 @@ namespace KRG::Resource
     private:
 
         virtual char const* GetInspectorTitle() const override { return  "Image Inspector"; }
-        virtual void DrawFileInfoAndContents() override;
+        virtual void DrawFileInfo() override;
+        virtual void DrawFileContents() override;
         virtual void DrawResourceDescriptorCreator() override;
     };
 }

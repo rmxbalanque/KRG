@@ -27,9 +27,13 @@ namespace KRG::Resource
         m_propertyGrid.SetTypeToEdit( m_pDescriptor );
     }
 
-    void ResourceInspectorImageFormats::DrawFileInfoAndContents()
+    void ResourceInspectorImageFormats::DrawFileInfo()
     {
         ImGui::Text( m_filePath.c_str() );
+    }
+
+    void ResourceInspectorImageFormats::DrawFileContents()
+    {
     }
 
     void ResourceInspectorImageFormats::DrawResourceDescriptorCreator()
