@@ -6,6 +6,10 @@ Kruger is a game engine framework, basically an engine without a renderer. It co
 
 >This is a prototype engine that I use to mess around with, as such there will be bugs and crashes (primarily with the tooling side). It is meant as a reference or a starter pack not as a production ready tool. Please don't expect me to be actively maintaining it. That said, feel free to flag issues and bugs and I will try to fix them when I have some time.
 
+## Examples
+
+There are no examples of any of the tech supplied unfortunately since I do not have any assets that I can release publically. If anyone wants to donate a character model and some animations, I can built and provide examples of the various tools.
+
 ## What's included
 
 * Basic core of a game engine (serialization, math, string handling, logging, etc...)
@@ -61,8 +65,9 @@ Easiest way to get started, is just set the "KRG.Applications.Editor" as the sta
 * pfd
 * sqlite
 * subprocess
+* optick
 
-These middleware packages are also integrated by require a license to use (so they are disabled by default)
+These middleware packages are also integrated but require a license to use (so they are disabled by default)
 
 * Live++
 * Superluminal
